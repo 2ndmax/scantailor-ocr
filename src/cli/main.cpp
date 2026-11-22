@@ -110,28 +110,10 @@ int main(int argc, char* argv[]) {
   QCommandLineParser parser;
   parser.setApplicationDescription(
       CommandLineRun::tr("Processes the pages of a ScanTailor OCR project up to the last step --last-step "
-                         "names, at most Output, and saves the project. Set up the project in ScanTailor OCR "
-                         "first."));
+                         "names, at most Output, and saves the project. With a folder as the argument, the tool "
+                         "creates the project first."));
   const QCommandLineOption helpOption = parser.addHelpOption();
   const QCommandLineOption versionOption = parser.addVersionOption();
-  const QCommandLineOption lastStepOption(
-      QStringLiteral("last-step"),
-      CommandLineRun::tr("The last step of the run: fix-orientation, split-pages, deskew, select-content, "
-                         "margins, output or export. The export runs after output. Default: output."),
-      CommandLineRun::tr("step"));
-  parser.addOption(lastStepOption);
-  const QCommandLineOption projectFileOption(
-      QStringLiteral("project-file"),
-      CommandLineRun::tr("The file of the new project instead of the default of the input folder; its folder "
-                         "must exist."),
-      CommandLineRun::tr("file"));
-  parser.addOption(projectFileOption);
-  const QCommandLineOption outputFolderOption(
-      QStringLiteral("output-folder"),
-      CommandLineRun::tr("The folder the output of the new project goes to instead of <input>/out; it is "
-                         "created when it doesn't exist."),
-      CommandLineRun::tr("folder"));
-  parser.addOption(outputFolderOption);
   const QCommandLineOption profileOption(
       QStringLiteral("profile"),
       CommandLineRun::tr("The profile of the new project: its name, or the file of one (a .stp file); without "
@@ -150,6 +132,29 @@ int main(int argc, char* argv[]) {
                          "number, or horizontal and vertical values like 600x300."),
       CommandLineRun::tr("n or HxV"));
   parser.addOption(dpiFixOption);
+  const QCommandLineOption projectFileOption(
+      QStringLiteral("project-file"),
+      CommandLineRun::tr("The file of the new project instead of the default of the input folder; its folder "
+                         "must exist."),
+      CommandLineRun::tr("file"));
+  parser.addOption(projectFileOption);
+  const QCommandLineOption outputFolderOption(
+      QStringLiteral("output-folder"),
+      CommandLineRun::tr("The folder the output of the new project goes to instead of <input>/out; it is "
+                         "created when it doesn't exist."),
+      CommandLineRun::tr("folder"));
+  parser.addOption(outputFolderOption);
+  const QCommandLineOption lastStepOption(
+      QStringLiteral("last-step"),
+      CommandLineRun::tr("The last step of the run: fix-orientation, split-pages, deskew, select-content, "
+                         "margins, output or export. The export runs after output. Default: output."),
+      CommandLineRun::tr("step"));
+  parser.addOption(lastStepOption);
+  const QCommandLineOption colorModeDetectOption(
+      QStringLiteral("color-mode-detect"),
+      CommandLineRun::tr("Detect the color mode of the pages after the Margins step, as the app's Detect "
+                         "Color Mode does, and report it per page."));
+  parser.addOption(colorModeDetectOption);
   const QCommandLineOption folderOption(
       QStringLiteral("export-folder"),
       CommandLineRun::tr("The folder for the exported files instead of the folder of the project file; it is "
@@ -172,11 +177,6 @@ int main(int argc, char* argv[]) {
       CommandLineRun::tr("The number of threads of the run, instead of the setting of the program; at least 1."),
       CommandLineRun::tr("n"));
   parser.addOption(threadsOption);
-  const QCommandLineOption colorModeDetectOption(
-      QStringLiteral("color-mode-detect"),
-      CommandLineRun::tr("Detect the color mode of the pages after the Margins step, as the app's Detect "
-                         "Color Mode does, and report it per page."));
-  parser.addOption(colorModeDetectOption);
   const QCommandLineOption reportFileOption(
       QStringLiteral("report-file"),
       CommandLineRun::tr("The JSON report of the run, written at the end: the mode, the project file, the "
@@ -184,7 +184,8 @@ int main(int argc, char* argv[]) {
                          "color mode, output file and status, and the exports and the files passed over."),
       CommandLineRun::tr("file"));
   parser.addOption(reportFileOption);
-  parser.addPositionalArgument(CommandLineRun::tr("project"), CommandLineRun::tr("The project file."));
+  parser.addPositionalArgument(CommandLineRun::tr("folder or project file"),
+                               CommandLineRun::tr("The input folder for a new project or an existing project file."));
   // Not QCommandLineParser::process(): on Windows, without a console, it shows help and errors in a
   // message box, while a script expects them in its output.
   if (!parser.parse(QCoreApplication::arguments())) {
