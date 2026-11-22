@@ -12,10 +12,13 @@
 #include <vector>
 
 #include <ApplicationSettings.h>
+#include <CompositeCacheDrivenTask.h>
 #include <CoreUtils.h>
 #include <DefaultParamsProfileManager.h>
 #include <DefaultParamsProvider.h>
 #include <Dpi.h>
+#include <NullTaskStatus.h>
+#include <PageView.h>
 #include <SmartFilenameOrdering.h>
 
 #include <QFile>
@@ -24,6 +27,7 @@
 #include "ExportJob.h"
 #include "ImageFileInfo.h"
 #include "OcrLanguages.h"
+#include "PageSequence.h"
 #include "PathNames.h"
 #include "ProcessingOptions.h"
 #include "ProjectFiles.h"
@@ -31,6 +35,7 @@
 #include "ProjectReader.h"
 #include "ProjectSession.h"
 #include "StageSequence.h"
+#include "filters/output/ColorModeDetection.h"
 
 namespace {
 QString nativePath(const QString& path) {
@@ -812,6 +817,39 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       = stages.processAll(nullptr, session->outFileNameGen, runLastFilterIdx, progress);
   for (const StageSequence::PageFailure& failure : processed.failures) {
     err << failureMessage(failure) << Qt::endl;
+  }
+
+  // --color-mode-detect: as the app's Detect Color Mode, between the Margins and the Output passes;
+  // here after the run, before it is saved.
+  std::vector<std::pair<PageId, output::ColorMode>> detectedPages;
+  if (options.colorModeDetect) {
+    std::vector<PageInfo> pages;
+    for (const PageInfo& page : session->pages->toPageSequence(PAGE_VIEW)) {
+      pages.push_back(page);
+    }
+    const std::shared_ptr<CompositeCacheDrivenTask> geometryTask(
+        session->stages->createCacheDrivenTask(session->stages->outputFilterIdx(), session->outFileNameGen));
+    const NullTaskStatus status;
+    const output::ColorModeDetection::Result result = output::ColorModeDetection::run(
+        session->stages->outputFilter(), pages, geometryTask, status, [&cancel](const int) { return !cancel; });
+    detectedPages = result.detected;
+    QString summary = tr("Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.",
+                         nullptr, result.blackAndWhite + result.colorGrayscale + result.mixed)
+                          .arg(result.blackAndWhite)
+                          .arg(result.colorGrayscale)
+                          .arg(result.mixed);
+    if (result.skipped > 0) {
+      summary += "\n\n"
+                 + tr("%n page(s) skipped because the steps before the detection have no result yet.", nullptr,
+                      result.skipped);
+    }
+    if (result.failed > 0) {
+      summary += "\n\n" + tr("%n page(s) could not be loaded.", nullptr, result.failed);
+    }
+    if (result.cancelled) {
+      summary += "\n\n" + tr("The detection was canceled.");
+    }
+    out << summary << Qt::endl;
   }
 
   // Also after a failure or cancelling: the steps stored their results for the pages done.

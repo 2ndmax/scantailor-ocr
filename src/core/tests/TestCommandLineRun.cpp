@@ -93,7 +93,7 @@ CommandLineRun::ExitCode runExport(const QString& projectFile,
 /**
  * Runs the tool on the folder \p inputFolder as the new project of it. The options are the folder
  * mode's: \p projectFile is --project-file; \p dpi, \p dpiFix and \p profile are --dpi,
- * --dpi-fix and --profile.
+ * --dpi-fix and --profile; \p colorModeDetect is --color-mode-detect.
  */
 CommandLineRun::ExitCode runFolder(const QString& inputFolder,
                                    QString* out,
@@ -101,7 +101,8 @@ CommandLineRun::ExitCode runFolder(const QString& inputFolder,
                                    const std::optional<QString>& projectFile = std::nullopt,
                                    const std::optional<Dpi>& dpi = std::nullopt,
                                    const std::optional<Dpi>& dpiFix = std::nullopt,
-                                   const QString& profile = QString()) {
+                                   const QString& profile = QString(),
+                                   const bool colorModeDetect = false) {
   QTextStream outStream(out);
   QTextStream errStream(err);
   CommandLineRun::Options options;
@@ -110,6 +111,7 @@ CommandLineRun::ExitCode runFolder(const QString& inputFolder,
   options.dpi = dpi;
   options.dpiFix = dpiFix;
   options.profile = profile;
+  options.colorModeDetect = colorModeDetect;
   return CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false));
 }
 
@@ -854,6 +856,58 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_profile_by_file) {
                               dir.filePath("NoSuchProfile.stp")),
                     CommandLineRun::PROJECT_UNUSABLE);
   BOOST_CHECK(err.contains(QStringLiteral("NoSuchProfile")));
+}
+
+/** Saves a page with a colored picture above black bars, as the color page of the end-to-end test. */
+QString saveColorPageScan(const QString& path) {
+  QImage page(QSize(1200, 1700), QImage::Format_RGB32);
+  page.fill(Qt::white);
+  {
+    QPainter painter(&page);
+    const QRect pictureRect(200, 250, 800, 500);
+    for (int y = pictureRect.top(); y < pictureRect.bottom(); y += 25) {
+      for (int x = pictureRect.left(); x < pictureRect.right(); x += 25) {
+        const int v = 40 + ((x * 13 + y * 7) % 170);
+        painter.fillRect(QRect(x, y, 25, 25), QColor(v, 220 - v, 60 + (v * 3) % 150));
+      }
+    }
+    const QRect textArea(pictureRect.left(), pictureRect.bottom() + 100, pictureRect.width(), 600);
+    for (int y = textArea.top(); y + 6 <= textArea.bottom(); y += 18) {
+      int x = textArea.left();
+      while (true) {
+        const int width = 20 + ((x * 7 + y * 3) % 40);
+        if (x + width > textArea.right()) {
+          break;
+        }
+        painter.fillRect(QRect(x, y, width, 6), Qt::black);
+        x += width + 12;
+      }
+    }
+  }
+  const Dpm dpm(Dpi(300, 300));
+  page.setDotsPerMeterX(dpm.horizontal());
+  page.setDotsPerMeterY(dpm.vertical());
+  return page.save(path) ? path : QString();
+}
+
+BOOST_AUTO_TEST_CASE(test_folder_mode_color_mode_detect) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  const QString pageFile = saveColorPageScan(inputDir + QStringLiteral("/page.png"));
+  BOOST_REQUIRE(!pageFile.isEmpty());
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), true),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK(out.contains(QStringLiteral("Color mode detected for 1 page(s)")));
+  const ProjectReader::FileResult read = ProjectReader::readFile(project_files::defaultProjectFile(inputDir));
+  BOOST_REQUIRE(read.reader);
+  const ProjectSession session = ProjectSession::load(*read.reader, DefaultParams());
+  const PageId pageId(ImageId(pageFile), PageId::SINGLE_PAGE);
+  BOOST_CHECK(session.stages->outputFilter()->settings()->getParams(pageId).colorParams().colorMode() == output::MIXED);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

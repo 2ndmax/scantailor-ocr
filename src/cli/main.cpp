@@ -167,6 +167,11 @@ int main(int argc, char* argv[]) {
                          "number, or horizontal and vertical values like 600x300."),
       CommandLineRun::tr("n or HxV"));
   parser.addOption(dpiFixOption);
+  const QCommandLineOption colorModeDetectOption(
+      QStringLiteral("color-mode-detect"),
+      CommandLineRun::tr("Detect the color mode of the pages after the Margins step, as the app's Detect "
+                         "Color Mode does, and report it per page."));
+  parser.addOption(colorModeDetectOption);
   parser.addPositionalArgument(CommandLineRun::tr("project"), CommandLineRun::tr("The project file."));
   // Not QCommandLineParser::process(): on Windows, without a console, it shows help and errors in a
   // message box, while a script expects them in its output.
@@ -240,6 +245,7 @@ int main(int argc, char* argv[]) {
       options.dpiFix = dpi;
     }
   }
+  options.colorModeDetect = parser.isSet(colorModeDetectOption);
   const bool lastStepSet = parser.isSet(lastStepOption);
   if (lastStepSet && !CommandLineRun::Options::parseLastStep(parser.value(lastStepOption), &options.lastStep)) {
     err << CommandLineRun::tr(
