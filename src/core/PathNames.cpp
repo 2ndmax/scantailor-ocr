@@ -112,4 +112,13 @@ bool canCreateOrWriteDir(const QString& dirPath) {
     current = parent;
   }
 }
+
+bool canWriteFile(const QString& filePath) {
+  const QFileInfo info(filePath);
+  if (!info.absoluteDir().exists() || !isWritableDir(info.absolutePath())) {
+    return false;
+  }
+  // QSaveFile replaces the file at the end, which Windows refuses for a read-only one.
+  return !info.exists() || (!info.isDir() && QFile(filePath).permissions().testFlag(QFileDevice::WriteUser));
+}
 }  // namespace path_names

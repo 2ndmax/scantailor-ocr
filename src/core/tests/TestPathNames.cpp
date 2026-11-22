@@ -11,6 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 using path_names::canCreateOrWriteDir;
+using path_names::canWriteFile;
 using path_names::invalidNameReason;
 using path_names::invalidNewPathReason;
 using path_names::isWritableDir;
@@ -120,6 +121,26 @@ BOOST_AUTO_TEST_CASE(test_canCreateOrWriteDir_rejects_a_file_in_the_path) {
   f.close();
   BOOST_CHECK(!canCreateOrWriteDir(file));
   BOOST_CHECK(!canCreateOrWriteDir(file + "/sub"));
+}
+
+BOOST_AUTO_TEST_CASE(test_canWriteFile) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  // A new file in an existing folder, and an existing writable one.
+  BOOST_CHECK(canWriteFile(dir.filePath("new.txt")));
+  const QString file = dir.filePath("file");
+  QFile f(file);
+  BOOST_REQUIRE(f.open(QIODevice::WriteOnly));
+  f.close();
+  BOOST_CHECK(canWriteFile(file));
+  // A missing folder, a file in place of the folder, a folder in place of the file.
+  BOOST_CHECK(!canWriteFile(dir.filePath("missing/new.txt")));
+  BOOST_CHECK(!canWriteFile(file + "/new.txt"));
+  BOOST_CHECK(!canWriteFile(dir.path()));
+  // A read-only file.
+  BOOST_REQUIRE(QFile::setPermissions(file, QFileDevice::ReadOwner));
+  BOOST_CHECK(!canWriteFile(file));
+  QFile::setPermissions(file, QFileDevice::ReadOwner | QFileDevice::WriteOwner);
 }
 
 // Windows calls "plain." existing if "plain" exists, but the name is still not in the folder.

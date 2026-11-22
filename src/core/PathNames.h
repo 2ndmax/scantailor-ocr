@@ -32,6 +32,12 @@ bool isWritableDir(const QString& dirPath);
  * is created. Returns false if the path or an existing ancestor is a file.
  */
 bool canCreateOrWriteDir(const QString& dirPath);
+
+/**
+ * Whether a file can be written at \p filePath, as QSaveFile does it: its folder exists and files
+ * can be created in it, and a file already there is not read-only. Nothing is created or changed.
+ */
+bool canWriteFile(const QString& filePath);
 }  // namespace path_names
 
 #endif  // SCANTAILOR_CORE_PATHNAMES_H_
