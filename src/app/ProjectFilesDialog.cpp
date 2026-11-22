@@ -17,8 +17,6 @@
 #include <algorithm>
 #include <deque>
 
-#include "ImageLoadErrors.h"
-#include "ImageMetadataLoader.h"
 #include "NonCopyable.h"
 #include "PathNames.h"
 #include "ProjectFiles.h"
@@ -765,28 +763,22 @@ ProjectFilesDialog::FileList::LoadStatus ProjectFilesDialog::FileList::loadNextF
 
   const int itemIdx = m_itemsToLoad.front();
   Item& item = m_items[itemIdx];
-  std::vector<ImageMetadata> perPageMetadata;
-  const QString filePath(item.fileInfo().absoluteFilePath());
-  ImageLoadErrorCapture errorCapture;
-  const ImageMetadataLoader::Status st = ImageMetadataLoader::load(
-      filePath, [&](const ImageMetadata& metadata) { perPageMetadata.push_back(metadata); });
+  QStringList loadErrors;
+  QStringList partialReads;
+  std::optional<ImageFileInfo> loaded = ImageFileInfo::load(item.fileInfo(), &loadErrors, &partialReads);
 
   LoadStatus status;
 
-  if (st == ImageMetadataLoader::LOADED) {
+  if (loaded.has_value()) {
     status = LOAD_OK;
-    item.perPageMetadata().swap(perPageMetadata);
+    item.perPageMetadata().swap(loaded->imageInfo());
     item.setStatus(Item::STATUS_LOAD_OK);
     item.setLoadError(QString());
-    item.setPartialReads(errorCapture.partialReads());
+    item.setPartialReads(partialReads);
   } else {
     status = LOAD_FAILED;
     item.setStatus(Item::STATUS_LOAD_FAILED);
-    const QStringList reasons = errorCapture.messages();
-    item.setLoadError(
-        reasons.isEmpty()
-            ? QCoreApplication::translate("ImageLoader", "The file format is not supported, or the file is damaged.")
-            : reasons.join(QLatin1Char('\n')));
+    item.setLoadError(loadErrors.join(QLatin1Char('\n')));
   }
   const QModelIndex idx(index(itemIdx, 0));
   emit dataChanged(idx, idx);

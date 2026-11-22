@@ -39,6 +39,18 @@ class ImageMetadata {
 
   bool isDpiOK() const;
 
+  /**
+   * The worst DPI status of the two axes: red (DPI_UNDEFINED or DPI_TOO_SMALL_TO_PROCESS) if one of
+   * them is, otherwise one of the doubtful statuses, or DPI_OK if none is.
+   */
+  DpiStatus worseDpiStatus() const;
+
+  /**
+   * Whether a page with this metadata needs its resolution fixed, as the app's Fix DPI dialog
+   * sees it: the worst status is not DPI_OK, i.e. it is red or yellow.
+   */
+  bool needsFixing() const { return worseDpiStatus() != DPI_OK; }
+
   DpiStatus horizontalDpiStatus() const;
 
   DpiStatus verticalDpiStatus() const;

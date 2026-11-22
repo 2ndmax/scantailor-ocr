@@ -39,6 +39,17 @@ bool ImageMetadata::isDpiOK() const {
   return !mustBeFixed(horizontalDpiStatus()) && !mustBeFixed(verticalDpiStatus());
 }
 
+ImageMetadata::DpiStatus ImageMetadata::worseDpiStatus() const {
+  const DpiStatus horizontal = horizontalDpiStatus();
+  const DpiStatus vertical = verticalDpiStatus();
+  for (const DpiStatus mustBeFixed : {DPI_UNDEFINED, DPI_TOO_SMALL_TO_PROCESS}) {
+    if ((horizontal == mustBeFixed) || (vertical == mustBeFixed)) {
+      return mustBeFixed;
+    }
+  }
+  return (horizontal != DPI_OK) ? horizontal : vertical;
+}
+
 bool ImageMetadata::exceedsSizeLimitAtProcessingDpi() const {
   return ImageSizeLimit::exceeds(sideAtProcessingDpi(m_size.width(), m_dpi.horizontal()),
                                  sideAtProcessingDpi(m_size.height(), m_dpi.vertical()));

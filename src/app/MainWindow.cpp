@@ -83,8 +83,8 @@
 #include "WidgetUtils.h"
 #include "WorkerThreadPool.h"
 #include "config.h"
+#include "filters/output/ColorModeDetection.h"
 #include "filters/output/Filter.h"
-#include "filters/output/GeometryCollector.h"
 #include "filters/output/Utils.h"
 #include "filters/output/ui/TabbedImageView.h"
 #include "ui_AboutDialog.h"
@@ -1482,37 +1482,11 @@ void MainWindow::colorModeDetectionRequested(const std::set<PageId>& pages) {
   // the window only waits for one page at a time: the progress dialog handles events and the cancel button
   // between pages; a worker thread would change how cancelling and progress work.
   const NullTaskStatus status;
-  int bw = 0, color = 0, mixed = 0, skipped = 0, failed = 0;
-  bool cancelled = false;
-  for (size_t i = 0; i < todo.size(); ++i) {
-    progress.setValue(static_cast<int>(i));
-    if (progress.wasCanceled()) {
-      cancelled = true;
-      break;
-    }
-    output::GeometryCollector geometry;
-    geometryTask->process(todo[i], &geometry);
-    if (!geometry.hasGeometry()) {
-      ++skipped;
-      continue;
-    }
-    output::ColorMode mode;
-    if (!m_stages->outputFilter()->detectColorMode(todo[i], geometry, status, &mode)) {
-      ++failed;
-      continue;
-    }
-    switch (mode) {
-      case output::BLACK_AND_WHITE:
-        ++bw;
-        break;
-      case output::COLOR_GRAYSCALE:
-        ++color;
-        break;
-      case output::MIXED:
-        ++mixed;
-        break;
-    }
-  }
+  const output::ColorModeDetection::Result result = output::ColorModeDetection::run(
+      m_stages->outputFilter(), todo, geometryTask, status, [&progress](const int done) {
+        progress.setValue(done);
+        return !progress.wasCanceled();
+      });
   progress.setValue(static_cast<int>(todo.size()));
 
   invalidateAllThumbnails();
@@ -1521,18 +1495,19 @@ void MainWindow::colorModeDetectionRequested(const std::set<PageId>& pages) {
   }
 
   QString summary = tr("Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.",
-                       nullptr, bw + color + mixed)
-                        .arg(bw)
-                        .arg(color)
-                        .arg(mixed);
-  if (skipped > 0) {
+                       nullptr, result.blackAndWhite + result.colorGrayscale + result.mixed)
+                        .arg(result.blackAndWhite)
+                        .arg(result.colorGrayscale)
+                        .arg(result.mixed);
+  if (result.skipped > 0) {
     summary
-        += "\n\n" + tr("%n page(s) skipped because the steps before Output have not been done yet.", nullptr, skipped);
+        += "\n\n"
+           + tr("%n page(s) skipped because the steps before Output have not been done yet.", nullptr, result.skipped);
   }
-  if (failed > 0) {
-    summary += "\n\n" + tr("%n page(s) could not be loaded.", nullptr, failed);
+  if (result.failed > 0) {
+    summary += "\n\n" + tr("%n page(s) could not be loaded.", nullptr, result.failed);
   }
-  if (cancelled) {
+  if (result.cancelled) {
     summary += "\n\n" + tr("The detection was canceled.");
   }
   QMessageBox::information(this, tr("Detect Color Mode"), summary);

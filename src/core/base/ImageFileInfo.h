@@ -6,6 +6,7 @@
 
 #include <QFileInfo>
 #include <QStringList>
+#include <optional>
 #include <vector>
 
 #include "ImageMetadata.h"
@@ -27,6 +28,16 @@ class ImageFileInfo {
   std::vector<ImageMetadata>& imageInfo() { return m_imageInfo; }
 
   const std::vector<ImageMetadata>& imageInfo() const { return m_imageInfo; }
+
+  /**
+   * The metadata of the images of the file, as for a new project: one entry per page the loader
+   * reports. Returns false if the file could not be loaded; then \p loadErrors (if not null) holds
+   * why, with the generic text the app shows when the loader gives none, and \p partialReads (if
+   * not null) why only some of the pages were read.
+   */
+  static std::optional<ImageFileInfo> load(const QFileInfo& fileInfo,
+                                           QStringList* loadErrors,
+                                           QStringList* partialReads);
 
   /**
    * The page numbers of the images in the file, one per entry of imageInfo(): from 1 in a

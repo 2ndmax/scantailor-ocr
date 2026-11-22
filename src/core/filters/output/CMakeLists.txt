@@ -36,6 +36,7 @@ set(sources
     BlackWhiteOptions.cpp BlackWhiteOptions.h
     BlackWhiteBinarization.cpp BlackWhiteBinarization.h
     ColorCommonOptions.cpp ColorCommonOptions.h
+    ColorModeDetection.cpp ColorModeDetection.h
     RenderParams.cpp RenderParams.h
     ColorParams.cpp ColorParams.h
     PhotoAdjustments.cpp PhotoAdjustments.h
