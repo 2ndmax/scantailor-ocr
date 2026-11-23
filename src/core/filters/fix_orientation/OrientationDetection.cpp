@@ -151,6 +151,13 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
   Result result;
   const int total = static_cast<int>(pages.size());
 
+  // Selection is matched by image, so a page selected in the page view (left or
+  // right half of a double page) still selects its whole image.
+  std::set<ImageId> selectedImages;
+  for (const PageId& id : selection) {
+    selectedImages.insert(id.imageId());
+  }
+
   // Pass 1: detect.
   std::vector<bool> processed(total, false);
   std::vector<bool> failed(total, false);
@@ -165,7 +172,7 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
     }
     const PageInfo& page = pages[i];
 
-    bool shouldDetect = bookRule || (selection.count(page.id()) > 0);
+    bool shouldDetect = bookRule || (selectedImages.count(page.imageId()) > 0);
     if (!shouldDetect) {
       continue;
     }
@@ -302,7 +309,7 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
     }
 
     // set rotation if allowed
-    bool selected = selection.count(page.id()) > 0;
+    bool selected = selectedImages.count(page.imageId()) > 0;
     if (selected && (pr.status == PageResult::DETECTED || pr.status == PageResult::BOOK_RULE) && settings) {
       const int stored = settings->getRotationFor(page.imageId()).toDegrees();
       if (stored != pr.angle) {
