@@ -1181,8 +1181,9 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     }
   }
   if (options.reportFile) {
-    writeReportFile(*options.reportFile, projectFile, usedProfile, options, *exitCode, cancelled, *session, passedOver,
-                    detectedPages, exportedFiles, processed.failures, fixedFiles, err);
+    // cancelled follows the exit code: any cancellation, including one during the export, is exit 5.
+    writeReportFile(*options.reportFile, projectFile, usedProfile, options, *exitCode, *exitCode == CANCELLED, *session,
+                    passedOver, detectedPages, exportedFiles, processed.failures, fixedFiles, err);
   }
   return *exitCode;
 }

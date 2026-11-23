@@ -33,9 +33,11 @@
 #include <algorithm>
 #include <atomic>
 #include <boost/test/unit_test.hpp>
+#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <thread>
 #include <vector>
 
 extern "C" {
@@ -1526,6 +1528,57 @@ BOOST_AUTO_TEST_CASE(test_report_of_a_cancelled_run) {
                         CommandLineRun::Options::OUTPUT, reportFile),
                     CommandLineRun::CANCELLED);
   const QJsonObject run = readReport(reportFile)["run"].toObject();
+  BOOST_CHECK_EQUAL(run["exitCode"].toInt(), CommandLineRun::CANCELLED);
+  BOOST_CHECK(run["cancelled"].toBool());
+}
+
+BOOST_AUTO_TEST_CASE(test_report_cancelled_during_export) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  ProcessingOptions::Formats formats;
+  formats.pdf = true;
+  // Several pages so that export takes long enough for the cancel to land in it.
+  std::vector<ImageFileInfo> files;
+  for (int i = 0; i < 8; ++i) {
+    files.push_back(Tests::saveTextPageScan(dir.filePath(QStringLiteral("page%1.png").arg(i)), 300));
+    BOOST_REQUIRE(!files.back().imageInfo().empty());
+  }
+  const QString outDir = dir.filePath(QStringLiteral("out"));
+  QDir().mkpath(outDir);
+  const DefaultParams startValues;
+  const ProjectSession session = ProjectSession::createNew(
+      ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()), outDir, QString(), startValues);
+  ProcessingOptions& options = *session.stages->processingOptions();
+  options.pdf.textLayer = false;
+  options.formats = formats;
+  const QString projectFile = dir.filePath(QStringLiteral("project.ScanTailor"));
+  BOOST_REQUIRE(session.write(projectFile));
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString reportFile = dir.filePath("report.json");
+
+  std::atomic<bool> cancel(false);
+  std::thread flipper([&cancel, outDir]() {
+    // Wait until processing has written its output, i.e. the run has reached the export.
+    for (int i = 0; i < 2000; ++i) {
+      QDir d(outDir);
+      if (d.entryList({QStringLiteral("*.tif")}, QDir::Files).size() >= 8) {
+        cancel.store(true);
+        return;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+    cancel.store(true);
+  });
+
+  QString out;
+  QString err;
+  const CommandLineRun::ExitCode code = run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, cancel,
+                                            CommandLineRun::Options::EXPORT, reportFile);
+  flipper.join();
+
+  BOOST_CHECK_EQUAL(code, CommandLineRun::CANCELLED);
+  const QJsonObject report = readReport(reportFile);
+  const QJsonObject run = report["run"].toObject();
   BOOST_CHECK_EQUAL(run["exitCode"].toInt(), CommandLineRun::CANCELLED);
   BOOST_CHECK(run["cancelled"].toBool());
 }
