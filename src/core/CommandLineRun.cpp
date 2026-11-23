@@ -47,6 +47,45 @@
 namespace {
 void writeProgressLine(QTextStream& json, const QString& event, QJsonObject fields);
 
+/** The built-in profiles and their old name: "Source" is the old name of "Minimal". A profile
+ * with \c listed == false is accepted by --profile but not shown by --profile-list. */
+struct BuiltinProfile {
+  const char* name;
+  bool listed;
+};
+static const BuiltinProfile builtinProfiles[] = {{"Default", true}, {"Minimal", true}, {"Source", false}};
+
+/** Whether \p name is the name of a built-in profile, including the old "Source". */
+bool isBuiltinProfileName(const QString& name) {
+  for (const BuiltinProfile& profile : builtinProfiles) {
+    if (name == QLatin1String(profile.name)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/** The canonical name of a built-in profile: "Source" becomes "Minimal". Empty if not built-in. */
+QString builtinProfileCanonicalName(const QString& name) {
+  if (name == QLatin1String("Source")) {
+    return QStringLiteral("Minimal");
+  }
+  if (isBuiltinProfileName(name)) {
+    return name;
+  }
+  return QString();
+}
+
+/** The profile of the program, if it is readable; empty (null) otherwise. */
+std::optional<QString> programProfileName() {
+  ApplicationSettings& settings = ApplicationSettings::getInstance();
+  DefaultParamsProvider& provider = DefaultParamsProvider::getInstance();
+  if (settings.getCurrentProfile() != provider.getProfileName()) {
+    return std::nullopt;
+  }
+  return provider.getProfileName();
+}
+
 QString nativePath(const QString& path) {
   return QDir::toNativeSeparators(path);
 }
@@ -263,27 +302,27 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
       }
       profileName = options.profile;
     } else {
-      // The built-in profiles, and their old name: "Source" is the old name of "Minimal".
-      const QString name = (options.profile == QLatin1String("Source")) ? QStringLiteral("Minimal") : options.profile;
-      if (name == QLatin1String("Default")) {
-        profile = manager.createDefaultProfile();
-      } else if (name == QLatin1String("Minimal")) {
-        profile = manager.createMinimalProfile();
+      const QString canonical = builtinProfileCanonicalName(options.profile);
+      if (!canonical.isEmpty()) {
+        if (canonical == QLatin1String("Default")) {
+          profile = manager.createDefaultProfile();
+        } else {
+          profile = manager.createMinimalProfile();
+        }
       } else {
-        profile = manager.readProfile(name);
+        profile = manager.readProfile(options.profile);
       }
       if (!profile) {
         err << CommandLineRun::tr("The profile %1 isn't available.").arg(options.profile) << Qt::endl;
         return std::nullopt;
       }
-      profileName = name;
+      profileName = canonical.isEmpty() ? options.profile : canonical;
     }
     startValues = std::move(*profile);
   } else {
-    // The profile of the program: refuse it when it is unreadable, as startProfile() reports it
-    // (the name in use differs from the one stored).
-    if (ApplicationSettings::getInstance().getCurrentProfile()
-        != DefaultParamsProvider::getInstance().getProfileName()) {
+    // The profile of the program: refuse it when it is unreadable.
+    const std::optional<QString> programProfile = programProfileName();
+    if (!programProfile) {
       err << CommandLineRun::tr(
           "The profile of the program isn't readable; pass --profile with the name or the "
           "file of one.")
@@ -291,7 +330,7 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
       return std::nullopt;
     }
     startValues = DefaultParamsProvider::getInstance().getParams();
-    profileName = DefaultParamsProvider::getInstance().getProfileName();
+    profileName = *programProfile;
   }
   out << CommandLineRun::tr("Profile: %1").arg(profileName) << Qt::endl;
   // The report names the profile that was used, not the spelling of --profile.
@@ -1133,10 +1172,8 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   }
 
   const StageSequence& stages = *session->stages;
-  // Loading has already recreated a deleted output folder if the project is where it was. Otherwise
-  // the output would go to a folder created anew in the old place, and the images may be missing.
-  // A deleted output folder is acceptable when the project is still in place, because a run
-  // recreates it; that case is handled by projectNeedsRelinking below.
+  // A deleted output folder is acceptable when the project is still in place, because a run recreates
+  // it; projectNeedsRelinking covers that and the missing-image case.
   if (projectNeedsRelinking(*session)) {
     err << tr(
         "The output folder or some images of the project are missing, for example because the project was "
@@ -1326,42 +1363,43 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   return *exitCode;
 }
 
-CommandLineRun::ExitCode CommandLineRun::profileList(QTextStream& out, QTextStream& err) {
+CommandLineRun::ExitCode CommandLineRun::profileList(QTextStream& out, QTextStream& err, const QString& profileDir) {
   QJsonObject root;
   root["schemaVersion"] = 1;
 
   // The profile a run without --profile takes, only when it is readable.
-  ApplicationSettings& settings = ApplicationSettings::getInstance();
-  DefaultParamsProvider& provider = DefaultParamsProvider::getInstance();
-  if (settings.getCurrentProfile() == provider.getProfileName()) {
-    root["profile"] = provider.getProfileName();
+  const std::optional<QString> programProfile = programProfileName();
+  if (programProfile) {
+    root["profile"] = *programProfile;
   }
 
   QJsonArray profiles;
   // Built-in profiles first.
-  {
+  for (const BuiltinProfile& builtin : builtinProfiles) {
+    if (!builtin.listed) {
+      continue;
+    }
     QJsonObject entry;
-    entry["name"] = QStringLiteral("Default");
-    entry["source"] = QStringLiteral("built-in");
-    profiles.append(entry);
-  }
-  {
-    QJsonObject entry;
-    entry["name"] = QStringLiteral("Minimal");
+    entry["name"] = QLatin1String(builtin.name);
     entry["source"] = QStringLiteral("built-in");
     profiles.append(entry);
   }
 
   // File profiles, sorted by name; skip names shadowed by the built-ins and unreadable files.
-  DefaultParamsProfileManager manager;
-  std::list<QString> fileNames = manager.getProfileList();
+  std::unique_ptr<DefaultParamsProfileManager> manager;
+  if (profileDir.isEmpty()) {
+    manager = std::make_unique<DefaultParamsProfileManager>();
+  } else {
+    manager = std::make_unique<DefaultParamsProfileManager>(profileDir);
+  }
+  std::list<QString> fileNames = manager->getProfileList();
   std::vector<QString> sorted(fileNames.begin(), fileNames.end());
   std::sort(sorted.begin(), sorted.end());
   for (const QString& name : sorted) {
-    if (name == QLatin1String("Default") || name == QLatin1String("Minimal") || name == QLatin1String("Source")) {
+    if (isBuiltinProfileName(name)) {
       continue;
     }
-    if (!manager.readProfile(name)) {
+    if (!manager->readProfile(name)) {
       continue;
     }
     QJsonObject entry;

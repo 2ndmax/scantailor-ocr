@@ -142,7 +142,43 @@ class CommandLineRun {
                       const std::atomic<bool>& cancel,
                       QTextStream* progressJson = nullptr);
 
-  static ExitCode profileList(QTextStream& out, QTextStream& err);
+  /**
+   * Prints the profiles --profile takes, as JSON on \p out, indented like the report. Exit codes:
+   * 0 on success. The schema (version 1):
+   *
+   * schemaVersion: integer, always 1.
+   * profile: string, the profile a run without --profile takes; absent when the program's profile
+   *     is unreadable.
+   * profiles: array of objects, built-in profiles first (Default, Minimal), then the readable file
+   *     profiles sorted by name, with
+   *   name: string, what --profile takes.
+   *   source: string, "built-in" or "file".
+   *
+   * File profiles named Default, Minimal or Source are not listed, because --profile with that name
+   * takes the built-in profile. Unreadable file profiles are not listed either.
+   */
+  static ExitCode profileList(QTextStream& out, QTextStream& err, const QString& profileDir = QString());
+
+  /**
+   * Prints the pages of the project file, as JSON on \p out, indented like the report. Exit codes:
+   * 0 on success, 2 when the project can't be read or must be relinked. \p out stays empty then.
+   * The schema (version 1):
+   *
+   * schemaVersion: integer, always 1.
+   * mode: string, "project".
+   * projectFile: string, the native path of the project.
+   * outputFolder: string, the native path of the output folder (even when it is missing).
+   * pages: array of objects, in the order of the page view, with
+   *   file: string, the native path of the image file.
+   *   page: integer, the 1-based page of a multi-page file; absent for a single-page file.
+   *   subPage: string, "left" or "right"; absent unless the page is split.
+   *   dpi: object with the integers horizontal and vertical.
+   *   dpiSource: string, always "file".
+   *   colorMode: string, "black-and-white", "color-grayscale" or "mixed".
+   *   outputFile: string, the native path of the output file.
+   *
+   * Nothing is created or saved: no output folder, cache or thumbnails.
+   */
   static ExitCode projectInfo(const QString& projectFile, QTextStream& out, QTextStream& err);
 
   /**
