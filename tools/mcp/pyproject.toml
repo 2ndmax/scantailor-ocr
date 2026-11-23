@@ -1,0 +1,36 @@
+[project]
+name = "scantailor-ocr-mcp"
+version = "0.1.0"
+description = "MCP server that drives scantailor-ocr-cli"
+readme = "README.md"
+authors = [
+    { name = "2ndmax", email = "98843758+2ndmax@users.noreply.github.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=2.3.0",
+]
+
+[project.scripts]
+scantailor-ocr-mcp = "scantailor_ocr_mcp:main"
+
+[build-system]
+requires = ["uv_build>=0.13.9,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pillow>=13.0.0",
+    "pytest>=9.2.0",
+    "ruff>=0.17.6",
+]
+
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
