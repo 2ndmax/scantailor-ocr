@@ -78,6 +78,8 @@ set(sources
     OrderBySizeProviderBase.h
     OrthogonalRotation.cpp
     OrthogonalRotation.h
+    OrientationDetector.cpp
+    OrientationDetector.h
     OutOfMemoryHandler.cpp
     OutOfMemoryHandler.h
     OutputFileNameGenerator.cpp

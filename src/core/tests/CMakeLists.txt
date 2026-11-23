@@ -60,6 +60,8 @@ set(sources
     TestZoneComparators.cpp
     TestUtils.cpp
     TestColorModeDetector.cpp
+    TestOrientationDetector.cpp
+    TestOrientationDetector.cpp
     TestColorModeDetectionProgress.cpp
     TestOcrEngine.cpp)
 
