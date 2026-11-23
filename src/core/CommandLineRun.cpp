@@ -51,9 +51,11 @@ void writeProgressLine(QTextStream& json, const QString& event, QJsonObject fiel
  * with \c listed == false is accepted by --profile but not shown by --profile-list. */
 struct BuiltinProfile {
   const char* name;
+  const char* canonical;
   bool listed;
 };
-static const BuiltinProfile builtinProfiles[] = {{"Default", true}, {"Minimal", true}, {"Source", false}};
+const BuiltinProfile builtinProfiles[]
+    = {{"Default", "Default", true}, {"Minimal", "Minimal", true}, {"Source", "Minimal", false}};
 
 /** Whether \p name is the name of a built-in profile, including the old "Source". */
 bool isBuiltinProfileName(const QString& name) {
@@ -67,11 +69,10 @@ bool isBuiltinProfileName(const QString& name) {
 
 /** The canonical name of a built-in profile: "Source" becomes "Minimal". Empty if not built-in. */
 QString builtinProfileCanonicalName(const QString& name) {
-  if (name == QLatin1String("Source")) {
-    return QStringLiteral("Minimal");
-  }
-  if (isBuiltinProfileName(name)) {
-    return name;
+  for (const BuiltinProfile& profile : builtinProfiles) {
+    if (name == QLatin1String(profile.name)) {
+      return QLatin1String(profile.canonical);
+    }
   }
   return QString();
 }
