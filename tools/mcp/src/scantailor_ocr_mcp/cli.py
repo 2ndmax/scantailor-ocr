@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import shutil
 import subprocess
 from pathlib import Path
+
+from .validation import validate_cli_json
 
 logger = logging.getLogger(__name__)
 
@@ -74,9 +75,7 @@ def is_capable(cli: Path) -> tuple[bool, str]:
     if rc != 0:
         return False, f"{cli} --profile-list exited {rc}: {err.strip()}"
     try:
-        data = json.loads(out)
-    except json.JSONDecodeError:
-        return False, f"{cli} --profile-list did not produce JSON"
-    if not isinstance(data, dict) or data.get("schemaVersion") != 1:
-        return False, f"{cli} --profile-list has an unexpected schema"
+        validate_cli_json(out)
+    except ValueError as exc:
+        return False, f"{cli} --profile-list {exc}"
     return True, ""

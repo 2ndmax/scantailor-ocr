@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import argparse
-import json
 import logging
 import sys
+import tempfile
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +22,9 @@ from .cli import (
     is_capable,
     run_cli,
 )
+from .jobs import JobManager
 from .roots import allowed_roots, is_allowed, resolve_path
+from .validation import validate_cli_json
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +33,9 @@ def _tool_error(message: str) -> None:
     raise ToolError(message)
 
 
-def build_server(configured_roots: list[Path]) -> tuple[MCPServer, dict[str, Any]]:
+def build_server(
+    configured_roots: list[Path], max_runs: int = 1
+) -> tuple[MCPServer, dict[str, Any]]:
     cli = find_cli()
     capable = False
     capability_message = ""
@@ -47,19 +52,35 @@ def build_server(configured_roots: list[Path]) -> tuple[MCPServer, dict[str, Any
         else:
             logger.info("Using CLI %s (%s)", cli, cli_version(cli))
 
+    temp_root = Path(tempfile.mkdtemp(prefix="scantailor-ocr-mcp-"))
+    job_manager = JobManager(
+        cli, capable, capability_message, configured_roots, max_runs, temp_root
+    )
+
     state: dict[str, Any] = {
         "cli": cli,
         "capable": capable,
         "capability_message": capability_message,
         "configured_roots": configured_roots,
+        "max_runs": max_runs,
+        "job_manager": job_manager,
+        "temp_root": temp_root,
     }
+
+    @asynccontextmanager
+    async def lifespan(server: MCPServer) -> Any:
+        yield {}
+        await job_manager.shutdown()
 
     server = MCPServer(
         name="scantailor-ocr",
         instructions=(
             "Drives scantailor-ocr-cli. Reads profiles and project information without "
-            "side effects. Paths must lie inside an allowed folder."
+            "side effects, and runs whole books as background jobs. Paths must lie inside "
+            "an allowed folder. A project open in the ScanTailor app must not be processed "
+            "here; reopen it in the app afterwards."
         ),
+        lifespan=lifespan,
     )
 
     async def _ensure_capable() -> None:
@@ -84,11 +105,9 @@ def build_server(configured_roots: list[Path]) -> tuple[MCPServer, dict[str, Any
         if rc != 0:
             _tool_error(f"CLI failed (exit {rc}): {err.strip()}")
         try:
-            data = json.loads(out)
-        except json.JSONDecodeError:
-            _tool_error("CLI did not produce valid JSON")
-        if not isinstance(data, dict) or data.get("schemaVersion") != 1:
-            _tool_error("CLI produced an unexpected schema")
+            data = validate_cli_json(out)
+        except ValueError as exc:
+            _tool_error(str(exc))
         return {"state": "succeeded", "exit_code": 0, "profiles": data}
 
     @server.tool(
@@ -121,12 +140,76 @@ def build_server(configured_roots: list[Path]) -> tuple[MCPServer, dict[str, Any
         if rc != 0:
             _tool_error(f"CLI failed (exit {rc}): {err.strip()}")
         try:
-            data = json.loads(out)
-        except json.JSONDecodeError:
-            _tool_error("CLI did not produce valid JSON")
-        if not isinstance(data, dict) or data.get("schemaVersion") != 1:
-            _tool_error("CLI produced an unexpected schema")
+            data = validate_cli_json(out)
+        except ValueError as exc:
+            _tool_error(str(exc))
         return {"state": "succeeded", "exit_code": 0, "project": data}
+
+    @server.tool(
+        description=(
+            "Start a run of scantailor-ocr-cli and return immediately with a job_id. "
+            "Either 'folder' (create a new project) or 'project' (an existing .ScanTailor) "
+            "is required, never both. Poll run_status for progress; cancel with run_cancel. "
+            "Do not process a project that is open in the ScanTailor app."
+        )
+    )
+    async def run_start(
+        folder: str | None = None,
+        project: str | None = None,
+        profile: str | None = None,
+        dpi: str | None = None,
+        dpi_fix: str | None = None,
+        project_file: str | None = None,
+        output_folder: str | None = None,
+        color_mode_detect: bool = False,
+        last_step: str | None = None,
+        threads: int | None = None,
+        export_folder: str | None = None,
+        export_name: str | None = None,
+        export_formats: list[str] | None = None,
+        ctx: Context = None,  # type: ignore[assignment]
+    ) -> dict[str, Any]:
+        job = await job_manager.start_job(
+            ctx,
+            folder=folder,
+            project=project,
+            profile=profile,
+            dpi=dpi,
+            dpi_fix=dpi_fix,
+            project_file=project_file,
+            output_folder=output_folder,
+            color_mode_detect=color_mode_detect,
+            last_step=last_step,
+            threads=threads,
+            export_folder=export_folder,
+            export_name=export_name,
+            export_formats=export_formats,
+        )
+        return {"job_id": job.id, "state": "running"}
+
+    @server.tool(
+        description=(
+            "Return the state of a run started with run_start: 'running' with step/done/total, "
+            "or a terminal state. Terminal states 0/3/4/5 carry the full report; 1/2 carry a "
+            "message."
+        )
+    )
+    async def run_status(job_id: str, ctx: Context) -> dict[str, Any]:
+        job = job_manager.get_job(job_id)
+        return job.status()
+
+    @server.tool(
+        description=(
+            "Cancel a running job. Returns immediately; the final result is available through "
+            "run_status (state 'cancelled', exit_code 5). A finished job is not an error."
+        )
+    )
+    async def run_cancel(job_id: str, ctx: Context) -> dict[str, Any]:
+        job = job_manager.get_job(job_id)
+        if job.finished.is_set():
+            return {"job_id": job.id, "state": job.state, "cancel_requested": False}
+        await job.cancel()
+        return {"job_id": job.id, "state": "running", "cancel_requested": True}
 
     return server, state
 
@@ -139,6 +222,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=[],
         metavar="FOLDER",
         help="Allowed folder (may be given more than once).",
+    )
+    parser.add_argument(
+        "--max-runs", type=int, default=1, metavar="N", help="Maximum concurrent runs (default 1)."
     )
     parser.add_argument(
         "--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"]
@@ -159,7 +245,8 @@ def main() -> None:
             configured.append(Path(folder).resolve())
         except (OSError, RuntimeError) as exc:
             logger.error("Could not resolve allowed root %s: %s", folder, exc)
-    server, _state = build_server(configured)
+    max_runs = args.max_runs if args.max_runs and args.max_runs > 0 else 1
+    server, _state = build_server(configured, max_runs=max_runs)
     server.run(transport="stdio")
 
 
