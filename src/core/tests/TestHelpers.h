@@ -73,6 +73,112 @@ inline ImageFileInfo saveTextPageScan(const QString& path, const int dpi) {
   return ImageFileInfo(QFileInfo(path), {ImageMetadata(page.size(), Dpi(dpi, dpi))});
 }
 
+/**
+ * Draws a page of "text" as black bars with ascenders and descenders, rotated
+ * by \p rotation degrees clockwise. Boxes are used instead of real glyphs because
+ * drawing text needs a QGuiApplication and a font database, neither of which the
+ * core tests have. \p dpi sets both the resolution metadata and the drawing
+ * scale, so the same page can be produced at 300 or 600 dpi (twice as large).
+ */
+inline QImage makeTextPage(const int rotation, const int dpi = 300) {
+  const int resolution = (dpi > 0) ? dpi : 300;
+  const double s = resolution / 300.0;
+  const int baseW = qRound(800 * s);
+  const int baseH = qRound(2100 * s);
+  QImage base(baseW, baseH, QImage::Format_RGB32);
+  base.fill(Qt::white);
+  {
+    QPainter painter(&base);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(Qt::black);
+    for (int line = 0; line < 45; ++line) {
+      const int y = qRound((50 + line * 40) * s);
+      for (int g = 0; g < 38; ++g) {
+        const int x = qRound((60 + g * 18) * s);
+        // stem (x-height)
+        painter.fillRect(QRect(x, y - qRound(20 * s), qRound(3 * s), qRound(20 * s)), Qt::black);
+        // ascender
+        if (g % 2 == 0) {
+          painter.fillRect(QRect(x, y - qRound(32 * s), qRound(3 * s), qRound(12 * s)), Qt::black);
+        }
+        // sparse crossbar for rotated signal
+        if (g % 17 == 0) {
+          painter.fillRect(QRect(x - qRound(2 * s), y - qRound(12 * s), qRound(8 * s), qRound(3 * s)),
+                           Qt::black);
+        }
+      }
+    }
+  }
+
+  QImage out;
+  if (rotation == 0) {
+    out = base;
+  } else if (rotation == 180) {
+    out = QImage(base.size(), QImage::Format_RGB32);
+    out.fill(Qt::white);
+    QPainter p(&out);
+    p.translate(out.width() / 2.0, out.height() / 2.0);
+    p.rotate(180);
+    p.translate(-base.width() / 2.0, -base.height() / 2.0);
+    p.drawImage(0, 0, base);
+  } else {
+    out = QImage(base.height(), base.width(), QImage::Format_RGB32);
+    out.fill(Qt::white);
+    QPainter p(&out);
+    p.translate(out.width() / 2.0, out.height() / 2.0);
+    p.rotate(rotation);
+    p.translate(-base.width() / 2.0, -base.height() / 2.0);
+    p.drawImage(0, 0, base);
+  }
+
+  const Dpm dpm(Dpi(resolution, resolution));
+  out.setDotsPerMeterX(dpm.horizontal());
+  out.setDotsPerMeterY(dpm.vertical());
+  return out;
+}
+
+/** Alias for makeTextPage, kept for callers that prefer this name. */
+inline QImage drawTextPage(const int rotation, const int dpi = 300) {
+  return makeTextPage(rotation, dpi);
+}
+
+/** Alias for makeTextPage, kept for callers that prefer this name. */
+inline QImage textPage(const int rotation, const int dpi = 300) {
+  return makeTextPage(rotation, dpi);
+}
+
+/**
+ * Saves a drawn text page as a project takes it, with the given rotation and
+ * resolution. Returns the file as the project lists it.
+ */
+inline ImageFileInfo saveTextPage(const QString& path, const int rotation, const int dpi = 300) {
+  const int resolution = (dpi > 0) ? dpi : 0;
+  QImage page = makeTextPage(rotation, (resolution > 0) ? resolution : 300);
+  if (resolution > 0) {
+    const Dpm dpm(Dpi(resolution, resolution));
+    page.setDotsPerMeterX(dpm.horizontal());
+    page.setDotsPerMeterY(dpm.vertical());
+  } else {
+    // keep dpi 0 metadata (no resolution), as saveTextPageScan allows
+    page.setDotsPerMeterX(0);
+    page.setDotsPerMeterY(0);
+  }
+  if (!page.save(path)) {
+    return ImageFileInfo(QFileInfo(path), {});
+  }
+  return ImageFileInfo(QFileInfo(path), {ImageMetadata(page.size(), Dpi(resolution, resolution))});
+}
+
+/** Overload of saveTextPageScan that also rotates the drawn page. */
+inline ImageFileInfo saveTextPageScan(const QString& path, const int rotation, const int dpi) {
+  return saveTextPage(path, rotation, dpi);
+}
+
+/** Alias for saveTextPage. */
+inline ImageFileInfo saveRotatedTextPage(const QString& path, const int rotation, const int dpi = 300) {
+  return saveTextPage(path, rotation, dpi);
+}
+
 inline bool isBlack(const QImage& image, const int x, const int y) {
   return qGray(image.pixel(x, y)) < 128;
 }

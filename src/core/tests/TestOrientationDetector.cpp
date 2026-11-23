@@ -10,66 +10,12 @@
 
 #include <leptonica/allheaders.h>
 
+#include "TestHelpers.h"
+
 #include "LeptonicaPix.h"
 #include "imageproc/BinaryThreshold.h"
 #include "imageproc/GrayImage.h"
 #include "imageproc/Scale.h"
-
-namespace {
-QImage makeTextPage(int rotation) {
-  QImage base(800, 2100, QImage::Format_RGB32);
-  base.fill(Qt::white);
-  {
-    QPainter p(&base);
-    p.setPen(Qt::NoPen);
-    p.setBrush(Qt::black);
-    for (int line = 0; line < 45; ++line) {
-      int y = 50 + line * 40;
-      for (int g = 0; g < 38; ++g) {
-        int x = 60 + g * 18;
-        // stem (x-height)
-        p.drawRect(x, y - 20, 3, 20);
-        // ascender
-        if (g % 2 == 0) {
-          p.drawRect(x, y - 32, 3, 12);
-        }
-        // sparse crossbar for rotated signal
-        if (g % 17 == 0) {
-          p.drawRect(x - 2, y - 12, 8, 3);
-        }
-      }
-    }
-  }
-
-  // no mirror
-
-  QImage out;
-  if (rotation == 0) {
-    out = base;
-  } else if (rotation == 180) {
-    out = QImage(base.size(), QImage::Format_RGB32);
-    out.fill(Qt::white);
-    QPainter p(&out);
-    p.translate(out.width() / 2.0, out.height() / 2.0);
-    p.rotate(180);
-    p.translate(-base.width() / 2.0, -base.height() / 2.0);
-    p.drawImage(0, 0, base);
-  } else {
-    out = QImage(base.height(), base.width(), QImage::Format_RGB32);
-    out.fill(Qt::white);
-    QPainter p(&out);
-    p.translate(out.width() / 2.0, out.height() / 2.0);
-    p.rotate(rotation);
-    p.translate(-base.width() / 2.0, -base.height() / 2.0);
-    p.drawImage(0, 0, base);
-  }
-
-  const Dpm dpm(Dpi(300, 300));
-  out.setDotsPerMeterX(dpm.horizontal());
-  out.setDotsPerMeterY(dpm.vertical());
-  return out;
-}
-}  // namespace
 
 BOOST_AUTO_TEST_SUITE(OrientationDetectorSuite)
 
@@ -77,7 +23,7 @@ BOOST_AUTO_TEST_CASE(text_page_four_rotations) {
   const int expectedFor[] = {0, 270, 180, 90};
   int idx = 0;
   for (int rot : {0, 90, 180, 270}) {
-    QImage page = makeTextPage(rot);
+    QImage page = Tests::makeTextPage(rot, 300);
     const auto result = OrientationDetector::detect(page, 300);
     BOOST_TEST(result.decided);
     BOOST_CHECK_EQUAL(result.angle, expectedFor[idx++]);
@@ -117,7 +63,7 @@ BOOST_AUTO_TEST_CASE(noise_undecided) {
 }
 
 BOOST_AUTO_TEST_CASE(leptonica_decision_agrees) {
-  QImage page = makeTextPage(0);
+  QImage page = Tests::makeTextPage(0, 300);
   // preprocess like OrientationDetector
   imageproc::GrayImage gray(page);
   int dpi = 300;
