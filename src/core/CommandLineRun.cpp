@@ -727,6 +727,19 @@ QJsonObject dpiObject(const Dpi& dpi) {
   return object;
 }
 
+/** The file, page and subPage of a page, as the report and the progress write them. */
+QJsonObject pageIdentity(const PageInfo& page) {
+  QJsonObject object;
+  object["file"] = nativePath(page.imageId().filePath());
+  if (page.imageId().isMultiPageFile()) {
+    object["page"] = page.imageId().page();
+  }
+  if (page.id().subPage() != PageId::SINGLE_PAGE) {
+    object["subPage"] = page.id().subPage() == PageId::LEFT_PAGE ? QStringLiteral("left") : QStringLiteral("right");
+  }
+  return object;
+}
+
 /**
  * Writes the report of the run to \p reportFile: the schema is the one in the doc of
  * Options::reportFile. Returns false after telling \p err why it couldn't be written.
@@ -756,15 +769,7 @@ bool writeReportFile(const QString& reportFile,
   QJsonArray pages;
   for (const PageInfo& page : session.pages->toPageSequence(PAGE_VIEW)) {
     const QFileInfo file(page.imageId().filePath());
-    QJsonObject pageObject;
-    pageObject["file"] = nativePath(file.filePath());
-    if (page.imageId().isMultiPageFile()) {
-      pageObject["page"] = page.imageId().page();
-    }
-    if (page.id().subPage() != PageId::SINGLE_PAGE) {
-      pageObject["subPage"]
-          = page.id().subPage() == PageId::LEFT_PAGE ? QStringLiteral("left") : QStringLiteral("right");
-    }
+    QJsonObject pageObject = pageIdentity(page);
     pageObject["dpi"] = dpiObject(page.metadata().dpi());
     pageObject["dpiSource"] = (options.dpi || fixedFiles.contains(file.absoluteFilePath()))
                                   ? QStringLiteral("command-line")
