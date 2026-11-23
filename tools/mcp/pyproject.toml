@@ -2,7 +2,6 @@
 name = "scantailor-ocr-mcp"
 version = "0.1.0"
 description = "MCP server that drives scantailor-ocr-cli"
-readme = "README.md"
 authors = [
     { name = "2ndmax", email = "98843758+2ndmax@users.noreply.github.com" }
 ]
