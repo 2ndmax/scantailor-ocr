@@ -156,11 +156,13 @@ class CommandLineRun {
    *
    * File profiles named Default, Minimal or Source are not listed, because --profile with that name
    * takes the built-in profile. Unreadable file profiles are not listed either.
+   *
+   * \p profileDir: empty means the program's profile folder, otherwise this folder (for tests).
    */
   static ExitCode profileList(QTextStream& out, QTextStream& err, const QString& profileDir = QString());
 
   /**
-   * Prints the pages of the project file, as JSON on \p out, indented like the report. Exit codes:
+   * Prints the pages of the project file, as JSON on \\p out, indented like the report. Exit codes:
    * 0 on success, 2 when the project can't be read or must be relinked. \p out stays empty then.
    * The schema (version 1):
    *

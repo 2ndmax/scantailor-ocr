@@ -2155,7 +2155,7 @@ BOOST_AUTO_TEST_CASE(test_profile_list_orders_and_sources_profiles) {
   BOOST_CHECK(profiles[3].toObject()["source"].toString() == QStringLiteral("file"));
 }
 
-// --project-info: fields, split page, and agreement with the report.
+// --project-info: the fields of one page.
 BOOST_AUTO_TEST_CASE(test_project_info_reports_pages) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
@@ -2233,7 +2233,235 @@ BOOST_AUTO_TEST_CASE(test_project_info_deleted_output_folder_stays_absent) {
   QTextStream outStream(&out);
   QTextStream errStream(&err);
   BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(projectFile, outStream, errStream), CommandLineRun::SUCCESS);
+
   BOOST_CHECK(!QDir(outDir).exists());
+
+  const QJsonObject infoRoot = QJsonDocument::fromJson(out.toUtf8()).object();
+
+  BOOST_CHECK(infoRoot["outputFolder"].toString() == QDir::toNativeSeparators(outDir));
 }
 
+// --profile-list: the profile a run without --profile takes matches its entry.
+BOOST_AUTO_TEST_CASE(test_profile_list_profile_matches_run) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+
+  const QString reportFile = dir.filePath("report.json");
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(
+      runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), false, reportFile),
+      CommandLineRun::SUCCESS);
+
+  const QJsonObject report = readReport(reportFile);
+  const QString runProfile = report["run"].toObject()["profile"].toString();
+
+  QString listOut;
+  QString listErr;
+  QTextStream listOutStream(&listOut);
+  QTextStream listErrStream(&listErr);
+  BOOST_CHECK_EQUAL(CommandLineRun::profileList(listOutStream, listErrStream), CommandLineRun::SUCCESS);
+  const QJsonObject root = QJsonDocument::fromJson(listOut.toUtf8()).object();
+  BOOST_CHECK(root["profile"].toString() == runProfile);
+}
+
+// --profile-list: an unreadable program profile omits "profile" but keeps "profiles".
+BOOST_AUTO_TEST_CASE(test_profile_list_unreadable_program_profile) {
+  const QString missingName = QStringLiteral("MissingSettingsProfile_xyz");
+  ApplicationSettings::getInstance().setCurrentProfile(missingName);
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::profileList(outStream, errStream), CommandLineRun::SUCCESS);
+  BOOST_CHECK(err.isEmpty());
+
+  const QJsonObject root = QJsonDocument::fromJson(out.toUtf8()).object();
+  BOOST_CHECK(!root.contains("profile"));
+  BOOST_CHECK(root.contains("profiles"));
+  BOOST_CHECK(!root["profiles"].toArray().isEmpty());
+}
+
+// --profile-list: an unreadable file profile is excluded, and a run rejects it.
+BOOST_AUTO_TEST_CASE(test_profile_list_unreadable_file_profile_rejected) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QStringLiteral("Bad")),
+                    CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("Bad")));
+}
+
+// --project-info: a split image yields left and right pages.
+BOOST_AUTO_TEST_CASE(test_project_info_reports_split_pages) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const std::vector<ImageFileInfo> files{Tests::saveTextPageScan(dir.filePath(QStringLiteral("page.png")), 300)};
+  BOOST_REQUIRE(!files.front().imageInfo().empty());
+  const QString outDir = dir.filePath(QStringLiteral("out"));
+  BOOST_REQUIRE(QDir().mkpath(outDir));
+  DefaultParams startValues;
+  startValues.setPageSplitParams(page_split::PageSplitParams(page_split::TWO_PAGES));
+  const ProjectSession session = ProjectSession::createNew(
+      ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()), outDir, QString(), startValues);
+  const QString projectFile = dir.filePath(QStringLiteral("project.ScanTailor"));
+  BOOST_REQUIRE(session.write(projectFile));
+
+  QString runOut;
+  QString runErr;
+  BOOST_CHECK_EQUAL(run(projectFile, &runOut, &runErr, std::nullopt, std::nullopt, std::nullopt,
+                        std::atomic<bool>(false), CommandLineRun::Options::SPLIT_PAGES),
+                    CommandLineRun::SUCCESS);
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(projectFile, outStream, errStream), CommandLineRun::SUCCESS);
+  const QJsonObject root = QJsonDocument::fromJson(out.toUtf8()).object();
+  const QJsonArray pages = root["pages"].toArray();
+  BOOST_REQUIRE_EQUAL(pages.size(), 2);
+  BOOST_CHECK(pages[0].toObject()["subPage"].toString() == QStringLiteral("left"));
+  BOOST_CHECK(pages[1].toObject()["subPage"].toString() == QStringLiteral("right"));
+  BOOST_CHECK(pages[0].toObject()["outputFile"].toString() != pages[1].toObject()["outputFile"].toString());
+}
+
+// --project-info: its pages agree with the report of a run.
+BOOST_AUTO_TEST_CASE(test_project_info_matches_report) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const std::vector<ImageFileInfo> files{Tests::saveTextPageScan(dir.filePath(QStringLiteral("page.png")), 300)};
+  BOOST_REQUIRE(!files.front().imageInfo().empty());
+  const QString outDir = dir.filePath(QStringLiteral("out"));
+  BOOST_REQUIRE(QDir().mkpath(outDir));
+  DefaultParams startValues;
+  startValues.setPageSplitParams(page_split::PageSplitParams(page_split::TWO_PAGES));
+  const ProjectSession session = ProjectSession::createNew(
+      ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()), outDir, QString(), startValues);
+  const QString projectFile = dir.filePath(QStringLiteral("project.ScanTailor"));
+  BOOST_REQUIRE(session.write(projectFile));
+
+  const QString reportFile = dir.filePath("report.json");
+  QString runOut;
+  QString runErr;
+  BOOST_CHECK_EQUAL(run(projectFile, &runOut, &runErr, std::nullopt, std::nullopt, std::nullopt,
+                        std::atomic<bool>(false), CommandLineRun::Options::OUTPUT, reportFile),
+                    CommandLineRun::SUCCESS);
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(projectFile, outStream, errStream), CommandLineRun::SUCCESS);
+
+  const QJsonObject report = readReport(reportFile);
+  const QJsonArray reportPages = report["pages"].toArray();
+  const QJsonArray infoPages = QJsonDocument::fromJson(out.toUtf8()).object()["pages"].toArray();
+  BOOST_REQUIRE_EQUAL(infoPages.size(), reportPages.size());
+  for (int i = 0; i < infoPages.size(); ++i) {
+    const QJsonObject infoPage = infoPages[i].toObject();
+    const QJsonObject reportPage = reportPages[i].toObject();
+    BOOST_CHECK(infoPage["file"].toString() == reportPage["file"].toString());
+    BOOST_CHECK(infoPage.contains("subPage") == reportPage.contains("subPage"));
+    if (infoPage.contains("subPage")) {
+      BOOST_CHECK(infoPage["subPage"].toString() == reportPage["subPage"].toString());
+    }
+    BOOST_CHECK(infoPage["dpi"].toObject() == reportPage["dpi"].toObject());
+    BOOST_CHECK(infoPage["colorMode"].toString() == reportPage["colorMode"].toString());
+    BOOST_CHECK(infoPage["outputFile"].toString() == reportPage["outputFile"].toString());
+  }
+}
+
+// --project-info: Exit 2, empty out, message on err for unusable projects.
+BOOST_AUTO_TEST_CASE(test_project_info_unusable_exit2) {
+  // Not a project file.
+  {
+    QTemporaryDir dir;
+    BOOST_REQUIRE(dir.isValid());
+    const QString file = dir.filePath("not-a-project.txt");
+    BOOST_REQUIRE(Tests::writeFile(file, "not a project"));
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(file, outStream, errStream), CommandLineRun::PROJECT_UNUSABLE);
+    BOOST_CHECK(out.isEmpty());
+    BOOST_CHECK(!err.isEmpty());
+  }
+  // Older version.
+  {
+    QTemporaryDir dir;
+    BOOST_REQUIRE(dir.isValid());
+    const QString projectFile = createProject(dir, 300);
+    BOOST_REQUIRE(!projectFile.isEmpty());
+    QString xml = QString::fromUtf8(Tests::readFile(projectFile));
+    const QRegularExpressionMatch match = QRegularExpression("version=\"\\d+\"").match(xml);
+    BOOST_REQUIRE(match.hasMatch());
+    xml.replace(match.capturedStart(), match.capturedLength(), "version=\"4\"");
+    BOOST_REQUIRE(Tests::writeFile(projectFile, xml.toUtf8()));
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(projectFile, outStream, errStream), CommandLineRun::PROJECT_UNUSABLE);
+    BOOST_CHECK(out.isEmpty());
+    BOOST_CHECK(!err.isEmpty());
+  }
+  // Deleted image.
+  {
+    QTemporaryDir dir;
+    BOOST_REQUIRE(dir.isValid());
+    const QString projectFile = createProject(dir, 300);
+    BOOST_REQUIRE(!projectFile.isEmpty());
+    BOOST_REQUIRE(QFile::remove(dir.filePath("page.png")));
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(projectFile, outStream, errStream), CommandLineRun::PROJECT_UNUSABLE);
+    BOOST_CHECK(out.isEmpty());
+    BOOST_CHECK(!err.isEmpty());
+  }
+}
+
+// --project-info: a moved project gives Exit 2 with the relink message.
+BOOST_AUTO_TEST_CASE(test_project_info_moved_project_relinks) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300, QStringList(), "elsewhere/out");
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  BOOST_REQUIRE(QDir(dir.filePath("elsewhere")).removeRecursively());
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(projectFile, outStream, errStream), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(err.contains(QStringLiteral("relink")));
+}
+
+// --project-info: a run recreates a deleted output folder at its place.
+BOOST_AUTO_TEST_CASE(test_run_recreates_deleted_output_folder_at_place) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString outDir = dir.filePath("out");
+  BOOST_REQUIRE(QDir(outDir).removeRecursively());
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err), CommandLineRun::SUCCESS);
+  BOOST_CHECK(QDir(outDir).exists());
+  BOOST_CHECK(QFile::exists(outDir + QStringLiteral("/page.tif")));
+}
 BOOST_AUTO_TEST_SUITE_END()
