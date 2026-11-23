@@ -156,6 +156,27 @@ QJsonObject readReport(const QString& file) {
   return doc.object();
 }
 
+/** Splits the JSON Lines of a --progress-json output into objects; fails on any bad or empty line. */
+std::vector<QJsonObject> parseProgress(const QString& text) {
+  std::vector<QJsonObject> result;
+  QStringList lines = text.split(QLatin1Char('\n'));
+  if (!lines.isEmpty() && lines.back().isEmpty()) {
+    lines.pop_back();
+  }
+  for (const QString& line : lines) {
+    BOOST_REQUIRE(!line.isEmpty());
+    QJsonParseError parseError;
+    const QJsonDocument doc = QJsonDocument::fromJson(line.toUtf8(), &parseError);
+    BOOST_REQUIRE(parseError.error == QJsonParseError::NoError);
+    BOOST_REQUIRE(doc.isObject());
+    const QJsonObject object = doc.object();
+    BOOST_REQUIRE(object.contains(QStringLiteral("schemaVersion")));
+    BOOST_REQUIRE(object.contains(QStringLiteral("event")));
+    result.push_back(object);
+  }
+  return result;
+}
+
 ProcessingOptions::Formats parsed(const QString& list) {
   ProcessingOptions::Formats formats;
   BOOST_REQUIRE(CommandLineRun::parseFormats(list, &formats));
@@ -1693,6 +1714,404 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_creates_the_project_the_app_would_create) 
   };
   BOOST_CHECK(processingOptionsXml(appRead.reader->readProcessingOptions(ProcessingOptions()))
               == processingOptionsXml(cliRead.reader->readProcessingOptions(ProcessingOptions())));
+}
+
+// ---- --progress-json ----
+
+// Every line is valid JSON with schemaVersion 1 and an event; nothing else is in the stream.
+BOOST_AUTO_TEST_CASE(test_progress_json_format) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  QString out;
+  QString err;
+  QString progress;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, std::atomic<bool>(false),
+                        CommandLineRun::Options::OUTPUT, std::nullopt, &progress),
+                    CommandLineRun::SUCCESS);
+  const std::vector<QJsonObject> lines = parseProgress(progress);
+  BOOST_CHECK(!lines.empty());
+  for (const QJsonObject& line : lines) {
+    BOOST_CHECK_EQUAL(line["schemaVersion"].toInt(), 1);
+    BOOST_CHECK(line.contains(QStringLiteral("event")));
+  }
+  BOOST_CHECK(!out.isEmpty());
+}
+
+// pass-start comes first in each pass, done runs from 1 to total, and the step names of a full run.
+BOOST_AUTO_TEST_CASE(test_progress_json_sequence_and_counters) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  QString out;
+  QString err;
+  QString progress;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, std::atomic<bool>(false),
+                        CommandLineRun::Options::OUTPUT, std::nullopt, &progress),
+                    CommandLineRun::SUCCESS);
+  const std::vector<QJsonObject> lines = parseProgress(progress);
+
+  std::vector<QString> passSteps;
+  std::map<QString, int> passTotal;
+  for (const QJsonObject& line : lines) {
+    if (line["event"].toString() == QStringLiteral("pass-start")) {
+      passSteps.push_back(line["step"].toString());
+      passTotal[line["step"].toString()] = line["total"].toInt();
+    }
+  }
+  const std::vector<QString> expectedSteps{QStringLiteral("split-pages"), QStringLiteral("margins"),
+                                           QStringLiteral("output")};
+  BOOST_CHECK_EQUAL(passSteps.size(), expectedSteps.size());
+  for (std::size_t i = 0; i < expectedSteps.size(); ++i) {
+    BOOST_CHECK(passSteps[i] == expectedSteps[i]);
+  }
+
+  for (const QString& step : expectedSteps) {
+    int count = 0;
+    std::vector<int> dones;
+    for (const QJsonObject& line : lines) {
+      if (line["event"].toString() == QStringLiteral("page") && line["step"].toString() == step) {
+        ++count;
+        dones.push_back(line["done"].toInt());
+        BOOST_CHECK_EQUAL(line["total"].toInt(), passTotal[step]);
+      }
+    }
+    BOOST_CHECK_EQUAL(count, passTotal[step]);
+    std::vector<int> expected;
+    for (int i = 1; i <= passTotal[step]; ++i) {
+      expected.push_back(i);
+    }
+    BOOST_CHECK_EQUAL(dones.size(), expected.size());
+    for (std::size_t i = 0; i < expected.size(); ++i) {
+      BOOST_CHECK_EQUAL(dones[i], expected[i]);
+    }
+  }
+}
+
+// A split image yields page lines with subPage left and right.
+BOOST_AUTO_TEST_CASE(test_progress_json_split_image) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const std::vector<ImageFileInfo> files{Tests::saveTextPageScan(dir.filePath(QStringLiteral("book.png")), 300)};
+  BOOST_REQUIRE(!files.front().imageInfo().empty());
+  const QString outDir = dir.filePath(QStringLiteral("out"));
+  BOOST_REQUIRE(QDir().mkpath(outDir));
+  DefaultParams startValues;
+  startValues.setPageSplitParams(page_split::PageSplitParams(page_split::TWO_PAGES));
+  const ProjectSession session = ProjectSession::createNew(
+      ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()), outDir, QString(), startValues);
+  const QString projectFile = dir.filePath(QStringLiteral("project.ScanTailor"));
+  BOOST_REQUIRE(session.write(projectFile));
+
+  QString out;
+  QString err;
+  QString progress;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, std::atomic<bool>(false),
+                        CommandLineRun::Options::OUTPUT, std::nullopt, &progress),
+                    CommandLineRun::SUCCESS);
+  const std::vector<QJsonObject> lines = parseProgress(progress);
+
+  bool hasLeft = false;
+  bool hasRight = false;
+  for (const QJsonObject& line : lines) {
+    if (line["event"].toString() == QStringLiteral("page") && line.contains(QStringLiteral("subPage"))) {
+      if (line["subPage"].toString() == QStringLiteral("left")) {
+        hasLeft = true;
+      }
+      if (line["subPage"].toString() == QStringLiteral("right")) {
+        hasRight = true;
+      }
+    }
+  }
+  BOOST_CHECK(hasLeft);
+  BOOST_CHECK(hasRight);
+}
+
+// A broken image: failed with LOAD_FAILED in the first pass, skipped later, run-end exitCode 3.
+BOOST_AUTO_TEST_CASE(test_progress_json_broken_image) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath(QStringLiteral("page.png")), "not an image"));
+
+  QString out;
+  QString err;
+  QString progress;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, std::atomic<bool>(false),
+                        CommandLineRun::Options::OUTPUT, std::nullopt, &progress),
+                    CommandLineRun::PAGES_FAILED);
+  const std::vector<QJsonObject> lines = parseProgress(progress);
+
+  bool failedSeen = false;
+  bool skippedSeen = false;
+  for (const QJsonObject& line : lines) {
+    if (line["event"].toString() == QStringLiteral("page")) {
+      if (line["step"].toString() == QStringLiteral("split-pages")) {
+        BOOST_CHECK(line["status"].toString() == QStringLiteral("failed"));
+        BOOST_CHECK(line["errorKind"].toString() == QStringLiteral("LOAD_FAILED"));
+        BOOST_CHECK(line.contains(QStringLiteral("reasons")));
+        failedSeen = true;
+      } else {
+        BOOST_CHECK(line["status"].toString() == QStringLiteral("skipped"));
+        skippedSeen = true;
+      }
+    }
+  }
+  BOOST_CHECK(failedSeen);
+  BOOST_CHECK(skippedSeen);
+
+  const QJsonObject last = lines.back();
+  BOOST_CHECK(last["event"].toString() == QStringLiteral("run-end"));
+  BOOST_CHECK_EQUAL(last["exitCode"].toInt(), CommandLineRun::PAGES_FAILED);
+}
+
+// outputFile appears only at step output, as a native path equal to the report's.
+BOOST_AUTO_TEST_CASE(test_progress_json_output_file) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString reportFile = dir.filePath(QStringLiteral("report.json"));
+
+  QString out;
+  QString err;
+  QString progress;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, std::atomic<bool>(false),
+                        CommandLineRun::Options::OUTPUT, reportFile, &progress),
+                    CommandLineRun::SUCCESS);
+  const std::vector<QJsonObject> lines = parseProgress(progress);
+  const QJsonObject report = readReport(reportFile);
+  const QJsonArray reportPages = report["pages"].toArray();
+  BOOST_REQUIRE_EQUAL(reportPages.size(), 1);
+  const QString reportOutputFile = reportPages[0].toObject()["outputFile"].toString();
+
+  bool outputSeen = false;
+  for (const QJsonObject& line : lines) {
+    if (line["event"].toString() == QStringLiteral("page")) {
+      if (line["step"].toString() == QStringLiteral("output")) {
+        BOOST_CHECK(line.contains(QStringLiteral("outputFile")));
+        BOOST_CHECK(line["outputFile"].toString() == reportOutputFile);
+        outputSeen = true;
+      } else {
+        BOOST_CHECK(!line.contains(QStringLiteral("outputFile")));
+      }
+    }
+  }
+  BOOST_CHECK(outputSeen);
+}
+
+// Color mode detection gets its own pass between margins and output.
+BOOST_AUTO_TEST_CASE(test_progress_json_color_mode_detect) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath(QStringLiteral("in"));
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!saveColorPageScan(inputDir + QStringLiteral("/page.png")).isEmpty());
+  const QString reportFile = dir.filePath(QStringLiteral("report.json"));
+
+  QString out;
+  QString err;
+  QString progress;
+  BOOST_CHECK_EQUAL(
+      runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), true, reportFile, &progress),
+      CommandLineRun::SUCCESS);
+  const std::vector<QJsonObject> lines = parseProgress(progress);
+
+  std::vector<QString> passSteps;
+  for (const QJsonObject& line : lines) {
+    if (line["event"].toString() == QStringLiteral("pass-start")) {
+      passSteps.push_back(line["step"].toString());
+    }
+  }
+  // color-mode-detect must come between margins and output
+  auto it = std::find(passSteps.begin(), passSteps.end(), QStringLiteral("color-mode-detect"));
+  BOOST_REQUIRE(it != passSteps.end());
+  BOOST_CHECK(std::find(passSteps.begin(), it, QStringLiteral("margins")) != it);
+  BOOST_CHECK(std::find(it, passSteps.end(), QStringLiteral("output")) != passSteps.end());
+
+  const QJsonObject report = readReport(reportFile);
+  const QJsonArray reportPages = report["pages"].toArray();
+  BOOST_REQUIRE_EQUAL(reportPages.size(), 1);
+  const QString reportColorMode = reportPages[0].toObject()["colorMode"].toString();
+
+  bool colorModeSeen = false;
+  for (const QJsonObject& line : lines) {
+    if (line["event"].toString() == QStringLiteral("page")
+        && line["step"].toString() == QStringLiteral("color-mode-detect")) {
+      BOOST_CHECK(line.contains(QStringLiteral("colorMode")));
+      if (line["status"].toString() == QStringLiteral("ok")) {
+        BOOST_CHECK(line["colorMode"].toString() == reportColorMode);
+      }
+      colorModeSeen = true;
+    }
+  }
+  BOOST_CHECK(colorModeSeen);
+}
+
+// An export run yields export lines with rising done, and run-end matches the report.
+BOOST_AUTO_TEST_CASE(test_progress_json_export) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString reportFile = dir.filePath(QStringLiteral("report.json"));
+
+  QString out;
+  QString err;
+  QString progress;
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, dir.filePath(QStringLiteral("export")), QStringLiteral("pdf"),
+                        std::nullopt, std::atomic<bool>(false), CommandLineRun::Options::EXPORT, reportFile, &progress),
+                    CommandLineRun::SUCCESS);
+  const std::vector<QJsonObject> lines = parseProgress(progress);
+
+  std::vector<int> exportDones;
+  int exportTotal = 0;
+  for (const QJsonObject& line : lines) {
+    if (line["event"].toString() == QStringLiteral("export")) {
+      exportDones.push_back(line["done"].toInt());
+      exportTotal = line["total"].toInt();
+    }
+  }
+  BOOST_CHECK(!exportDones.empty());
+  std::vector<int> expected;
+  for (int i = 1; i <= exportTotal; ++i) {
+    expected.push_back(i);
+  }
+  BOOST_CHECK_EQUAL(exportDones.size(), expected.size());
+  for (std::size_t i = 0; i < expected.size(); ++i) {
+    BOOST_CHECK_EQUAL(exportDones[i], expected[i]);
+  }
+
+  const QJsonObject last = lines.back();
+  BOOST_CHECK(last["event"].toString() == QStringLiteral("run-end"));
+  BOOST_CHECK_EQUAL(last["exitCode"].toInt(), CommandLineRun::SUCCESS);
+
+  const QJsonObject report = readReport(reportFile);
+  BOOST_CHECK(last["exports"].toArray() == report["exports"].toArray());
+}
+
+// passedOver in run-end matches the report in folder mode.
+BOOST_AUTO_TEST_CASE(test_progress_json_passed_over) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath(QStringLiteral("in"));
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+  BOOST_REQUIRE(Tests::writeFile(inputDir + QStringLiteral("/notes.txt"), "text"));
+  const QString reportFile = dir.filePath(QStringLiteral("report.json"));
+
+  QString out;
+  QString err;
+  QString progress;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QStringLiteral("Default"),
+                              false, reportFile, &progress),
+                    CommandLineRun::SUCCESS);
+  const std::vector<QJsonObject> lines = parseProgress(progress);
+
+  const QJsonObject last = lines.back();
+  BOOST_CHECK(last["event"].toString() == QStringLiteral("run-end"));
+  const QJsonObject report = readReport(reportFile);
+  BOOST_CHECK(last["passedOver"].toArray() == report["passedOver"].toArray());
+  BOOST_REQUIRE_EQUAL(last["passedOver"].toArray().size(), 1);
+  BOOST_CHECK(last["passedOver"].toArray()[0].toString()
+              == QDir::toNativeSeparators(inputDir + QStringLiteral("/notes.txt")));
+}
+
+// A cancelled run ends with exitCode 5 and no page lines of later passes.
+BOOST_AUTO_TEST_CASE(test_progress_json_cancelled) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  QString out;
+  QString err;
+  QString progress;
+  const std::atomic<bool> cancel(true);
+  BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, cancel,
+                        CommandLineRun::Options::OUTPUT, std::nullopt, &progress),
+                    CommandLineRun::CANCELLED);
+  const std::vector<QJsonObject> lines = parseProgress(progress);
+
+  const QJsonObject last = lines.back();
+  BOOST_CHECK(last["event"].toString() == QStringLiteral("run-end"));
+  BOOST_CHECK_EQUAL(last["exitCode"].toInt(), CommandLineRun::CANCELLED);
+
+  for (const QJsonObject& line : lines) {
+    if (line["event"].toString() == QStringLiteral("page")) {
+      BOOST_CHECK(line["step"].toString() != QStringLiteral("margins"));
+      BOOST_CHECK(line["step"].toString() != QStringLiteral("output"));
+    }
+  }
+}
+
+// Exit 1 and 2 produce no JSON output.
+BOOST_AUTO_TEST_CASE(test_progress_json_none_on_exit_1_and_2) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  // Exit 1: --dpi with a project file.
+  {
+    QString progress;
+    CommandLineRun::Options options;
+    options.projectFile = projectFile;
+    options.dpi = Dpi(300, 300);
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    QTextStream progressStream(&progress);
+    BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false), &progressStream),
+                      CommandLineRun::USAGE_ERROR);
+    BOOST_CHECK(progress.isEmpty());
+  }
+
+  // Exit 2: an unusable project file.
+  {
+    QString progress;
+    BOOST_REQUIRE(Tests::writeFile(dir.filePath(QStringLiteral("broken.ScanTailor")), "<project"));
+    CommandLineRun::Options options;
+    options.projectFile = dir.filePath(QStringLiteral("broken.ScanTailor"));
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    QTextStream progressStream(&progress);
+    BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false), &progressStream),
+                      CommandLineRun::PROJECT_UNUSABLE);
+    BOOST_CHECK(progress.isEmpty());
+  }
+}
+
+// The same run with and without the JSON output gives the same out text.
+BOOST_AUTO_TEST_CASE(test_progress_json_out_unchanged) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+
+  QString outNull;
+  QString errNull;
+  const QString projectFile1 = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile1.isEmpty());
+  BOOST_CHECK_EQUAL(run(projectFile1, &outNull, &errNull), CommandLineRun::SUCCESS);
+
+  QDir(dir.filePath(QStringLiteral("out"))).removeRecursively();
+  const QString projectFile2 = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile2.isEmpty());
+
+  QString outJson;
+  QString errJson;
+  QString progress;
+  BOOST_CHECK_EQUAL(run(projectFile2, &outJson, &errJson, std::nullopt, std::nullopt, std::nullopt,
+                        std::atomic<bool>(false), CommandLineRun::Options::OUTPUT, std::nullopt, &progress),
+                    CommandLineRun::SUCCESS);
+  BOOST_CHECK(outNull == outJson);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
