@@ -64,8 +64,8 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
     session.stages->startNewProject(defaults);
   }
 
-  // Thumbnails are stored relative to the output directory. Loading without side effects leaves
-  // the cache on disk and this pointer null, so describing a project changes nothing.
+  // Thumbnails are stored relative to the output directory. Loading without side effects creates
+  // no cache and leaves this pointer null, so describing a project changes nothing.
   if (withSideEffects && !outDir.isEmpty()) {
     session.thumbnailCache = core::CoreUtils::createThumbnailCache(outDir);
   }
