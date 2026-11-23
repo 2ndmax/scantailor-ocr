@@ -166,6 +166,7 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
   bool cancelled = false;
 
   for (int i = 0; i < total; ++i) {
+    status.throwIfCancelled();
     if (progress && !progress(i)) {
       cancelled = true;
       break;
