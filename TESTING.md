@@ -38,7 +38,8 @@ nor the linker would notice a step that includes a step before it in the chain (
 
 The MCP server in `tools/mcp` has tests of its own, which `ctest` doesn't run. They start the
 built command line tool, `build/scantailor-ocr-cli` or the file `SCANTAILOR_OCR_CLI` names, and
-fail if there is none. They need [uv](https://docs.astral.sh/uv/), which fetches Python and the
+fail if there is none. The CI runs them on Linux and Windows against the command line tool built
+in the same run. They need [uv](https://docs.astral.sh/uv/), which fetches Python and the
 packages itself:
 
 ```bash
