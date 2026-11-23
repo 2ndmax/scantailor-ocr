@@ -74,7 +74,7 @@ inline ImageFileInfo saveTextPageScan(const QString& path, const int dpi) {
 }
 
 /**
- * Draws a page of "text" as black bars with ascenders and descenders, rotated
+ * Draws a page of "text" as black bars with ascenders, i.e. stems that rise above the others, rotated
  * by \p rotation degrees clockwise. Boxes are used instead of real glyphs because
  * drawing text needs a QGuiApplication and a font database, neither of which the
  * core tests have. \p dpi sets both the resolution metadata and the drawing
@@ -136,16 +136,6 @@ inline QImage makeTextPage(const int rotation, const int dpi = 300) {
   return out;
 }
 
-/** Alias for makeTextPage, kept for callers that prefer this name. */
-inline QImage drawTextPage(const int rotation, const int dpi = 300) {
-  return makeTextPage(rotation, dpi);
-}
-
-/** Alias for makeTextPage, kept for callers that prefer this name. */
-inline QImage textPage(const int rotation, const int dpi = 300) {
-  return makeTextPage(rotation, dpi);
-}
-
 /**
  * Saves a drawn text page as a project takes it, with the given rotation and
  * resolution. Returns the file as the project lists it.
@@ -166,16 +156,6 @@ inline ImageFileInfo saveTextPage(const QString& path, const int rotation, const
     return ImageFileInfo(QFileInfo(path), {});
   }
   return ImageFileInfo(QFileInfo(path), {ImageMetadata(page.size(), Dpi(resolution, resolution))});
-}
-
-/** Overload of saveTextPageScan that also rotates the drawn page. */
-inline ImageFileInfo saveTextPageScan(const QString& path, const int rotation, const int dpi) {
-  return saveTextPage(path, rotation, dpi);
-}
-
-/** Alias for saveTextPage. */
-inline ImageFileInfo saveRotatedTextPage(const QString& path, const int rotation, const int dpi = 300) {
-  return saveTextPage(path, rotation, dpi);
 }
 
 inline bool isBlack(const QImage& image, const int x, const int y) {

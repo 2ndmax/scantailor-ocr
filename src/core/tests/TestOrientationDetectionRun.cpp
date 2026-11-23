@@ -138,8 +138,6 @@ BOOST_AUTO_TEST_CASE(undecided_keeps_rotation) {
   BOOST_REQUIRE(dir.isValid());
 
   // a single blank page
-  QImage sample(800, 1000, QImage::Format_RGB32);
-  sample.fill(Qt::white);
   std::vector<ImageFileInfo> files;
   files.push_back(blankPage(dir.filePath(QStringLiteral("blank.png")), 800, 1000, 300));
 
@@ -215,10 +213,8 @@ BOOST_AUTO_TEST_CASE(cancel_sets_nothing) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(double_page_processed_once) {
-  // run always receives the image view (one entry per image), so a double page
-  // cannot be passed twice. Instead this checks the image-id matching (4.5.3):
-  // a selection given as a page-view id sets the rotation of its image.
+// A page selected in the page view (one half of a split scan) selects its whole image.
+BOOST_AUTO_TEST_CASE(selected_page_half_sets_its_image) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
   ProjectSession session = createProject(dir, 2, 90);
