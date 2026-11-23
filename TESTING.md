@@ -36,6 +36,18 @@ nor the linker would notice a step that includes a step before it in the chain (
 [BUILDING.md](BUILDING.md#libraries)). The allowed steps come from the steps'
 `target_link_libraries`; the script is `cmake/CheckStepIncludes.cmake`.
 
+The MCP server in `tools/mcp` has tests of its own, which `ctest` doesn't run. They start the
+built command line tool, `build/scantailor-ocr-cli` or the file `SCANTAILOR_OCR_CLI` names, and
+fail if there is none. They need [uv](https://docs.astral.sh/uv/), which fetches Python and the
+packages itself:
+
+```bash
+cd tools/mcp
+uv run pytest
+uv run ruff format --check
+uv run ruff check
+```
+
 On Windows, `qt_tests` writes nothing to the console; its results go to files with
 `qt_tests -o results.txt,txt`. Each test class writes a file of its own, with its name appended,
 e.g. `results_TestCoreQt.txt`. Test functions named on the command line run only in the class
