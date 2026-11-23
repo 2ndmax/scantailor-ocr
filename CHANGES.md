@@ -479,7 +479,9 @@ topic, not by version.
   The report is written for every run that gets to processing, also when pages failed or the
   run was canceled. `--progress-json` writes the progress as JSON lines on the standard output,
   one per page of each pass, with the export and the end of the run; all other text then goes to
-  the standard error.
+  the standard error. `--profile-list` lists the profiles `--profile` takes and the one a run
+  without it uses; `--project-info` describes the pages of a project (file, DPI, color mode,
+  output file) without processing or creating anything. Both write JSON on the standard output.
 * **Checks, canceling and exit codes:** an option for a step the run doesn't reach, an option
   for creating a project together with an existing project, and `--color-mode-detect` with an
   existing project are command line errors. Everything that can be checked is checked before
