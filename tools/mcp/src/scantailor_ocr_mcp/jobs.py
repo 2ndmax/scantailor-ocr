@@ -199,6 +199,9 @@ class Job:
                 logger.warning("could not read report %s: %s", self.report_path, exc)
                 report = None
         self.report = report
+        # The report is in memory now. Its folder goes at once, as a client may end the server
+        # without letting it clean up.
+        shutil.rmtree(self.report_dir, ignore_errors=True)
 
         rc = self.exit_code
         stderr = self.stderr_tail.strip()
@@ -281,14 +284,12 @@ class JobManager:
         capability_message: str,
         configured_roots: list[Path],
         max_runs: int,
-        temp_root: Path,
     ):
         self.cli = cli
         self.capable = capable
         self.capability_message = capability_message
         self.configured_roots = configured_roots
         self.max_runs = max_runs
-        self.temp_root = temp_root
         self.jobs: dict[str, Job] = {}
         self._console_ready = False
 
@@ -437,7 +438,7 @@ class JobManager:
 
         # build args
         job_id = uuid.uuid4().hex
-        report_dir = Path(tempfile.mkdtemp(prefix=f"scantailor-{job_id}-", dir=self.temp_root))
+        report_dir = Path(tempfile.mkdtemp(prefix=f"scantailor-ocr-mcp-{job_id}-"))
         report_path = report_dir / f"{job_id}.json"
 
         args: list[str] = []
@@ -533,5 +534,5 @@ class JobManager:
             if not job.finished.is_set():
                 logger.warning("killing run %s on shutdown", job.id)
                 await job.kill()
-        # The reports were read when their runs ended; the folder of the server goes with them.
-        shutil.rmtree(self.temp_root, ignore_errors=True)
+                # A killed run leaves no report to read, and its folder would stay.
+                shutil.rmtree(job.report_dir, ignore_errors=True)

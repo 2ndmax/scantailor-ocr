@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -458,20 +459,35 @@ def test_concurrent_starts_on_one_project(cli, tmp_path: Path):
     asyncio.run(main())
 
 
-# The folder of the reports belongs to the server and goes with it.
-def test_server_removes_its_report_folder(cli, tmp_path: Path):
+# A client may end the server without letting it clean up, so starting it must not leave a folder.
+def test_starting_the_server_creates_no_folder(cli, tmp_path: Path, monkeypatch):
+    temp = tmp_path / "temp"
+    temp.mkdir()
+    monkeypatch.setattr(tempfile, "tempdir", str(temp))
+
+    build_server([tmp_path])
+
+    assert list(temp.iterdir()) == []
+
+
+# The report is read when the run ends, so its folder goes then, not only when the server ends.
+def test_report_folder_goes_when_the_run_ends(cli, tmp_path: Path, monkeypatch):
+    temp = tmp_path / "temp"
+    temp.mkdir()
+    monkeypatch.setattr(tempfile, "tempdir", str(temp))
     allowed = tmp_path / "allowed"
     allowed.mkdir()
     book = make_book(allowed / "book", 1)
 
     async def main():
-        server, state = build_server([allowed])
+        server, _ = build_server([allowed])
         async with Client(server) as client:
             r = await client.call_tool(
                 "run_start", {"folder": str(book), "profile": "Default", "last_step": "output"}
             )
-            await wait_finished(client, r.structured_content["job_id"])
-        return state["temp_root"]
+            final, _ = await wait_finished(client, r.structured_content["job_id"])
+            assert final["state"] == "succeeded"
+            assert final["report"] is not None
+            assert list(temp.iterdir()) == []
 
-    temp_root = asyncio.run(main())
-    assert not temp_root.exists()
+    asyncio.run(main())

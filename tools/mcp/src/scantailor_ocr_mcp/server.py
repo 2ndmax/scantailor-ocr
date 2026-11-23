@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
-import tempfile
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
@@ -52,10 +51,7 @@ def build_server(
         else:
             logger.info("Using CLI %s (%s)", cli, cli_version(cli))
 
-    temp_root = Path(tempfile.mkdtemp(prefix="scantailor-ocr-mcp-"))
-    job_manager = JobManager(
-        cli, capable, capability_message, configured_roots, max_runs, temp_root
-    )
+    job_manager = JobManager(cli, capable, capability_message, configured_roots, max_runs)
 
     state: dict[str, Any] = {
         "cli": cli,
@@ -64,7 +60,6 @@ def build_server(
         "configured_roots": configured_roots,
         "max_runs": max_runs,
         "job_manager": job_manager,
-        "temp_root": temp_root,
     }
 
     @asynccontextmanager
