@@ -25,21 +25,6 @@
 #include "TestHelpers.h"
 
 namespace {
-std::map<QString, std::pair<QDateTime, bool>> snapshotDirectory(const QString& root) {
-  std::map<QString, std::pair<QDateTime, bool>> entries;
-  QDirIterator iterator(root, QDir::AllEntries | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
-  while (iterator.hasNext()) {
-    iterator.next();
-    const QFileInfo info(iterator.fileInfo());
-    const QString relative = QDir(root).relativeFilePath(info.absoluteFilePath());
-    // Directory mtimes are not stable on every file system (reading a directory can touch them),
-    // so they are recorded as a null time and only the path set is compared for directories.
-    const QDateTime modified = info.isFile() ? info.lastModified() : QDateTime();
-    entries[relative] = std::make_pair(modified, info.isDir());
-  }
-  return entries;
-}
-
 QString createProject(const QTemporaryDir& dir) {
   const std::vector<ImageFileInfo> files{Tests::saveTextPageScan(dir.filePath("page.png"), 300)};
   BOOST_REQUIRE(!files.front().imageInfo().empty());
@@ -148,12 +133,12 @@ BOOST_AUTO_TEST_CASE(loading_without_side_effects_leaves_folder_unchanged) {
   BOOST_REQUIRE(read.reader);
 
   const QByteArray beforeProject = Tests::readFile(projectFile);
-  const auto before = snapshotDirectory(dir.path());
+  const auto before = Tests::snapshotDirectory(dir.path());
 
   ProjectSession::load(*read.reader, DefaultParams(), ProjectSession::LoadMode::WithoutSideEffects);
 
   const QByteArray afterProject = Tests::readFile(projectFile);
-  const auto after = snapshotDirectory(dir.path());
+  const auto after = Tests::snapshotDirectory(dir.path());
 
   BOOST_CHECK(beforeProject == afterProject);
 

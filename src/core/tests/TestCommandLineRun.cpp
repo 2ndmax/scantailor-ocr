@@ -35,9 +35,12 @@
 #include <boost/test/unit_test.hpp>
 #include <chrono>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <thread>
+#include <utility>
 #include <vector>
 
 extern "C" {
@@ -2112,6 +2115,125 @@ BOOST_AUTO_TEST_CASE(test_progress_json_out_unchanged) {
                         std::atomic<bool>(false), CommandLineRun::Options::OUTPUT, std::nullopt, &progress),
                     CommandLineRun::SUCCESS);
   BOOST_CHECK(outNull == outJson);
+}
+
+// --profile-list: built-ins first, then readable file profiles sorted by name.
+BOOST_AUTO_TEST_CASE(test_profile_list_orders_and_sources_profiles) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString profileDir = dir.filePath("profiles");
+  BOOST_REQUIRE(QDir().mkpath(profileDir));
+  DefaultParamsProfileManager manager(profileDir);
+  DefaultParams params;
+  BOOST_REQUIRE(manager.writeProfile(params, QStringLiteral("Alpha")));
+  BOOST_REQUIRE(manager.writeProfile(params, QStringLiteral("Zeta")));
+  BOOST_REQUIRE(manager.writeProfile(params, QStringLiteral("Default")));            // shadowed
+  Tests::writeFile(profileDir + QStringLiteral("/Bad.stp"), QByteArray("not xml"));  // unreadable
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::profileList(outStream, errStream, profileDir), CommandLineRun::SUCCESS);
+  BOOST_CHECK(err.isEmpty());
+
+  const QJsonDocument doc = QJsonDocument::fromJson(out.toUtf8());
+  BOOST_REQUIRE(doc.isObject());
+  const QJsonObject root = doc.object();
+  BOOST_CHECK_EQUAL(root["schemaVersion"].toInt(), 1);
+  BOOST_CHECK(root.contains("profile"));
+
+  const QJsonArray profiles = root["profiles"].toArray();
+  BOOST_REQUIRE_EQUAL(profiles.size(), 4);
+  BOOST_CHECK(profiles[0].toObject()["name"].toString() == QStringLiteral("Default"));
+  BOOST_CHECK(profiles[0].toObject()["source"].toString() == QStringLiteral("built-in"));
+  BOOST_CHECK(profiles[1].toObject()["name"].toString() == QStringLiteral("Minimal"));
+  BOOST_CHECK(profiles[1].toObject()["source"].toString() == QStringLiteral("built-in"));
+  BOOST_CHECK(profiles[2].toObject()["name"].toString() == QStringLiteral("Alpha"));
+  BOOST_CHECK(profiles[2].toObject()["source"].toString() == QStringLiteral("file"));
+  BOOST_CHECK(profiles[3].toObject()["name"].toString() == QStringLiteral("Zeta"));
+  BOOST_CHECK(profiles[3].toObject()["source"].toString() == QStringLiteral("file"));
+}
+
+// --project-info: fields, split page, and agreement with the report.
+BOOST_AUTO_TEST_CASE(test_project_info_reports_pages) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(projectFile, outStream, errStream), CommandLineRun::SUCCESS);
+  BOOST_CHECK(err.isEmpty());
+
+  const QJsonDocument doc = QJsonDocument::fromJson(out.toUtf8());
+  BOOST_REQUIRE(doc.isObject());
+  const QJsonObject root = doc.object();
+  BOOST_CHECK_EQUAL(root["schemaVersion"].toInt(), 1);
+  BOOST_CHECK(root["mode"].toString() == QStringLiteral("project"));
+  BOOST_CHECK(root["projectFile"].toString() == QDir::toNativeSeparators(projectFile));
+  BOOST_CHECK(root.contains("outputFolder"));
+  const QJsonArray pages = root["pages"].toArray();
+  BOOST_REQUIRE_EQUAL(pages.size(), 1);
+  const QJsonObject page = pages[0].toObject();
+  BOOST_CHECK(page.contains("file"));
+  BOOST_CHECK(page.contains("dpi"));
+  BOOST_CHECK(page["dpiSource"].toString() == QStringLiteral("file"));
+  BOOST_CHECK(page.contains("colorMode"));
+  BOOST_CHECK(page.contains("outputFile"));
+  BOOST_CHECK(!page.contains("status"));
+  BOOST_CHECK(!page.contains("colorModeDetected"));
+}
+
+// --project-info: nothing is created.
+BOOST_AUTO_TEST_CASE(test_project_info_creates_nothing) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  const QByteArray beforeProject = Tests::readFile(projectFile);
+  const auto before = Tests::snapshotDirectory(dir.path());
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(projectFile, outStream, errStream), CommandLineRun::SUCCESS);
+
+  const QByteArray afterProject = Tests::readFile(projectFile);
+  const auto after = Tests::snapshotDirectory(dir.path());
+  BOOST_CHECK(beforeProject == afterProject);
+
+  std::set<QString> beforePaths;
+  std::set<QString> afterPaths;
+  for (const auto& entry : before) {
+    beforePaths.insert(entry.first);
+  }
+  for (const auto& entry : after) {
+    afterPaths.insert(entry.first);
+  }
+  BOOST_CHECK(beforePaths == afterPaths);
+}
+
+// --project-info: deleted output folder stays deleted.
+BOOST_AUTO_TEST_CASE(test_project_info_deleted_output_folder_stays_absent) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+  const QString outDir = dir.filePath("out");
+  BOOST_REQUIRE(QDir(outDir).removeRecursively());
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(projectFile, outStream, errStream), CommandLineRun::SUCCESS);
+  BOOST_CHECK(!QDir(outDir).exists());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

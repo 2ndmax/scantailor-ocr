@@ -12,12 +12,18 @@
 #include <RelinkablePath.h>
 
 #include <QByteArray>
+#include <QDateTime>
 #include <QDir>
+#include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
 #include <QImage>
 #include <QPainter>
 #include <QString>
+
+#include <map>
+#include <set>
+#include <utility>
 
 namespace Tests {
 /** The content of a file, or an empty array if it cannot be read. */
@@ -84,6 +90,21 @@ class RenamingRelinker : public AbstractRelinker {
   QString m_from;
   QString m_to;
 };
+/** Recursively snapshots \p root: relative path -> (lastModified for files, isDir). Directory
+ * mtimes are recorded as a null time, so only the path set is compared for directories. */
+inline std::map<QString, std::pair<QDateTime, bool>> snapshotDirectory(const QString& root) {
+  std::map<QString, std::pair<QDateTime, bool>> entries;
+  QDirIterator iterator(root, QDir::AllEntries | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+  while (iterator.hasNext()) {
+    iterator.next();
+    const QFileInfo info(iterator.fileInfo());
+    const QString relative = QDir(root).relativeFilePath(info.absoluteFilePath());
+    const QDateTime modified = info.isFile() ? info.lastModified() : QDateTime();
+    entries[relative] = std::make_pair(modified, info.isDir());
+  }
+  return entries;
+}
+
 }  // namespace Tests
 
 #endif  // SCANTAILOR_CORE_TESTS_TESTHELPERS_H_
