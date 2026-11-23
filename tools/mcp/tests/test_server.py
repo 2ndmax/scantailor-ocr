@@ -238,10 +238,16 @@ def test_cli_not_found(tmp_path: Path):
 
 
 def test_cli_too_old(tmp_path: Path):
-    bat = tmp_path / "fake_cli.cmd"
-    bat.write_text('@echo off\nif "%~1"=="--profile-list" exit /b 1\nexit /b 0\n')
+    # A stand-in for a CLI from before --profile-list: it refuses the option with exit 1.
+    if os.name == "nt":
+        fake = tmp_path / "fake_cli.cmd"
+        fake.write_text('@echo off\nif "%~1"=="--profile-list" exit /b 1\nexit /b 0\n')
+    else:
+        fake = tmp_path / "fake_cli"
+        fake.write_text('#!/bin/sh\nif [ "$1" = "--profile-list" ]; then exit 1; fi\nexit 0\n')
+        fake.chmod(0o755)
     old = os.environ.get("SCANTAILOR_OCR_CLI")
-    os.environ["SCANTAILOR_OCR_CLI"] = str(bat)
+    os.environ["SCANTAILOR_OCR_CLI"] = str(fake)
     try:
 
         async def main():
@@ -269,7 +275,15 @@ def test_symlink(tmp_path: Path, cli: Path):
     try:
         os.symlink(outside, link, target_is_directory=True)
     except OSError as exc:
-        pytest.skip(f"symlink not available: {exc}")
+        # Windows allows symbolic links only with a privilege; a directory junction, which
+        # leads out of the folder the same way, needs none.
+        if os.name != "nt":
+            pytest.skip(f"symlink not available: {exc}")
+        made = subprocess.run(
+            ["cmd", "/c", "mklink", "/J", str(link), str(outside)], capture_output=True
+        )
+        if made.returncode != 0:
+            pytest.skip(f"neither a symlink nor a junction is available: {exc}")
     project = outside / "p.ScanTailor"
     project.write_text("x")
     linked_project = link / "p.ScanTailor"
