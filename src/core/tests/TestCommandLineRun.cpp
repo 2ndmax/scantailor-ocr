@@ -91,9 +91,11 @@ CommandLineRun::ExitCode run(const QString& projectFile,
                              const std::optional<QString>& exportName = std::nullopt,
                              const std::atomic<bool>& cancel = std::atomic<bool>(false),
                              CommandLineRun::Options::LastStep lastStep = CommandLineRun::Options::OUTPUT,
-                             const std::optional<QString>& reportFile = std::nullopt) {
+                             const std::optional<QString>& reportFile = std::nullopt,
+                             QString* progressJson = nullptr) {
   QTextStream outStream(out);
   QTextStream errStream(err);
+  QTextStream progressStream(progressJson);
   CommandLineRun::Options options;
   options.projectFile = projectFile;
   options.lastStep = (exportDir || formats || exportName) ? CommandLineRun::Options::EXPORT : lastStep;
@@ -101,7 +103,7 @@ CommandLineRun::ExitCode run(const QString& projectFile,
   options.exportName = exportName;
   options.formats = formats;
   options.reportFile = reportFile;
-  return CommandLineRun::run(options, outStream, errStream, cancel);
+  return CommandLineRun::run(options, outStream, errStream, cancel, progressJson ? &progressStream : nullptr);
 }
 
 /** Exports into the folder of \p file under its name, with --export-folder and --export-name. */
@@ -129,9 +131,11 @@ CommandLineRun::ExitCode runFolder(const QString& inputFolder,
                                    const std::optional<Dpi>& dpiFix = std::nullopt,
                                    const QString& profile = QString(),
                                    const bool colorModeDetect = false,
-                                   const std::optional<QString>& reportFile = std::nullopt) {
+                                   const std::optional<QString>& reportFile = std::nullopt,
+                                   QString* progressJson = nullptr) {
   QTextStream outStream(out);
   QTextStream errStream(err);
+  QTextStream progressStream(progressJson);
   CommandLineRun::Options options;
   options.inputFolder = inputFolder;
   options.projectFile = projectFile ? *projectFile : QString();
@@ -140,7 +144,8 @@ CommandLineRun::ExitCode runFolder(const QString& inputFolder,
   options.profile = profile;
   options.colorModeDetect = colorModeDetect;
   options.reportFile = reportFile;
-  return CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false));
+  return CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false),
+                             progressJson ? &progressStream : nullptr);
 }
 
 /** Reads the JSON \p file of --report-file; the caller checks its contents. */

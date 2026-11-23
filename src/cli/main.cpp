@@ -184,6 +184,11 @@ int main(int argc, char* argv[]) {
                          "color mode, output file and status, and the exports and the files passed over."),
       CommandLineRun::tr("file"));
   parser.addOption(reportFileOption);
+  const QCommandLineOption progressJsonOption(
+      QStringLiteral("progress-json"),
+      CommandLineRun::tr("Write progress as JSON lines, one per event, to the standard output; all other output "
+                         "goes to the standard error."));
+  parser.addOption(progressJsonOption);
   parser.addPositionalArgument(CommandLineRun::tr("folder or project file"),
                                CommandLineRun::tr("The input folder for a new project or an existing project file."));
   // Not QCommandLineParser::process(): on Windows, without a console, it shows help and errors in a
@@ -301,6 +306,9 @@ int main(int argc, char* argv[]) {
   }
   if (parser.isSet(formatsOption)) {
     options.formats = parser.value(formatsOption);
+  }
+  if (parser.isSet(progressJsonOption)) {
+    return CommandLineRun::run(options, err, err, cancelRequested, &out);
   }
   return CommandLineRun::run(options, out, err, cancelRequested);
 }

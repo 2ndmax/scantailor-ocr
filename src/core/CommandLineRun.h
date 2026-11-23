@@ -136,7 +136,11 @@ class CommandLineRun {
    * is saved with them. A run that stops before Output doesn't export, and is a success when no
    * page failed and the run reached its last step.
    */
-  static ExitCode run(const Options& options, QTextStream& out, QTextStream& err, const std::atomic<bool>& cancel);
+  static ExitCode run(const Options& options,
+                      QTextStream& out,
+                      QTextStream& err,
+                      const std::atomic<bool>& cancel,
+                      QTextStream* progressJson = nullptr);
 
   /**
    * Reads a list of the formats pdf, txt, hocr and alto, separated by commas or plus signs.

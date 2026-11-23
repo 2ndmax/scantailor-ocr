@@ -362,7 +362,7 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="642"/>
+        <location filename="../core/CommandLineRun.cpp" line="643"/>
         <source>%1: The output file is missing or outdated.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -387,23 +387,23 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="633"/>
-        <location filename="../core/CommandLineRun.cpp" line="678"/>
+        <location filename="../core/CommandLineRun.cpp" line="634"/>
+        <location filename="../core/CommandLineRun.cpp" line="687"/>
         <source>Canceled. Nothing was exported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="666"/>
+        <location filename="../core/CommandLineRun.cpp" line="667"/>
         <source>Export: %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="674"/>
+        <location filename="../core/CommandLineRun.cpp" line="683"/>
         <source>Created: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="681"/>
+        <location filename="../core/CommandLineRun.cpp" line="690"/>
         <source>The export failed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -524,157 +524,157 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
     </message>
     <message>
         <location filename="../core/CommandLineRun.cpp" line="501"/>
-        <location filename="../core/CommandLineRun.cpp" line="1171"/>
+        <location filename="../core/CommandLineRun.cpp" line="1271"/>
         <source>Unable to create the export folder: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="810"/>
-        <location filename="../core/CommandLineRun.cpp" line="899"/>
+        <location filename="../core/CommandLineRun.cpp" line="829"/>
+        <location filename="../core/CommandLineRun.cpp" line="919"/>
         <source>The report file could not be written: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="895"/>
+        <location filename="../core/CommandLineRun.cpp" line="915"/>
         <source>The folder of the report file doesn&apos;t exist: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="908"/>
+        <location filename="../core/CommandLineRun.cpp" line="928"/>
         <source>The option --output-folder is only for the folder mode, which creates the project.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="912"/>
+        <location filename="../core/CommandLineRun.cpp" line="932"/>
         <source>The option --profile is only for the folder mode; the project knows its start values.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="916"/>
+        <location filename="../core/CommandLineRun.cpp" line="936"/>
         <source>The option --dpi is only for the folder mode; the project knows the DPI of its images.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="920"/>
+        <location filename="../core/CommandLineRun.cpp" line="940"/>
         <source>The option --dpi-fix is only for the folder mode; the project knows the DPI of its images.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="925"/>
+        <location filename="../core/CommandLineRun.cpp" line="945"/>
         <source>The options --dpi and --dpi-fix exclude each other.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="931"/>
+        <location filename="../core/CommandLineRun.cpp" line="951"/>
         <source>The option --color-mode-detect is only for the folder mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="935"/>
+        <location filename="../core/CommandLineRun.cpp" line="955"/>
         <source>The option --color-mode-detect needs --last-step margins or later.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="941"/>
+        <location filename="../core/CommandLineRun.cpp" line="961"/>
         <source>The number of threads after --threads is too small; it must be at least 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="946"/>
+        <location filename="../core/CommandLineRun.cpp" line="966"/>
         <source>The options --export-folder, --export-name and --export-formats need --last-step export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1000"/>
+        <location filename="../core/CommandLineRun.cpp" line="1020"/>
         <source>The output folder can&apos;t be written to: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1005"/>
+        <location filename="../core/CommandLineRun.cpp" line="1025"/>
         <source>%n other file(s) passed over.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1018"/>
+        <location filename="../core/CommandLineRun.cpp" line="1038"/>
         <source>The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them with --export-formats.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1039"/>
+        <location filename="../core/CommandLineRun.cpp" line="1059"/>
         <source>The export will create: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1046"/>
+        <location filename="../core/CommandLineRun.cpp" line="1066"/>
         <source>The output folder or some images of the project are missing, for example because the project was moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1054"/>
+        <location filename="../core/CommandLineRun.cpp" line="1075"/>
         <source>%1: %2 of %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1098"/>
+        <location filename="../core/CommandLineRun.cpp" line="1198"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1105"/>
+        <location filename="../core/CommandLineRun.cpp" line="1205"/>
         <source>%n page(s) skipped because the steps before the detection have no result yet.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1109"/>
+        <location filename="../core/CommandLineRun.cpp" line="1209"/>
         <source>%n page(s) could not be loaded.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1112"/>
+        <location filename="../core/CommandLineRun.cpp" line="1212"/>
         <source>The detection was canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1128"/>
+        <location filename="../core/CommandLineRun.cpp" line="1228"/>
         <source>The project file could not be saved: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1136"/>
+        <location filename="../core/CommandLineRun.cpp" line="1236"/>
         <source>Canceled. The pages output so far keep their output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1140"/>
+        <location filename="../core/CommandLineRun.cpp" line="1240"/>
         <source>Pages that failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1142"/>
-        <location filename="../core/CommandLineRun.cpp" line="1154"/>
+        <location filename="../core/CommandLineRun.cpp" line="1242"/>
+        <location filename="../core/CommandLineRun.cpp" line="1254"/>
         <source>Nothing was exported, as not all pages were output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1152"/>
+        <location filename="../core/CommandLineRun.cpp" line="1252"/>
         <source>No page was output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1160"/>
+        <location filename="../core/CommandLineRun.cpp" line="1260"/>
         <source>Done. The output is in %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1162"/>
+        <location filename="../core/CommandLineRun.cpp" line="1262"/>
         <source>Done.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -777,12 +777,17 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="187"/>
+        <location filename="../cli/main.cpp" line="189"/>
+        <source>Write progress as JSON lines, one per event, to the standard output; all other output goes to the standard error.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="192"/>
         <source>folder or project file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="188"/>
+        <location filename="../cli/main.cpp" line="193"/>
         <source>The input folder for a new project or an existing project file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -797,27 +802,27 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="223"/>
+        <location filename="../cli/main.cpp" line="234"/>
         <source>The project file is the argument of the call; --project-file is for the folder mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="240"/>
+        <location filename="../cli/main.cpp" line="251"/>
         <source>Unknown DPI after --dpi: %1; pass a number or horizontal and vertical values like 600x300.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="252"/>
+        <location filename="../cli/main.cpp" line="263"/>
         <source>Unknown DPI after --dpi-fix: %1; pass a number or horizontal and vertical values like 600x300.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="266"/>
+        <location filename="../cli/main.cpp" line="277"/>
         <source>Unknown thread number after --threads: %1; it must be at least 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="278"/>
+        <location filename="../cli/main.cpp" line="289"/>
         <source>Unknown step after --last-step: %1. The steps are: fix-orientation, split-pages, deskew, select-content, margins, output and export.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4902,7 +4907,7 @@ would both become
 <context>
     <name>StageSequence</name>
     <message>
-        <location filename="../core/StageSequence.cpp" line="389"/>
+        <location filename="../core/StageSequence.cpp" line="407"/>
         <source>Out of memory.</source>
         <translation type="unfinished"></translation>
     </message>
