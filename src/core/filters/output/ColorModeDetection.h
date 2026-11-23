@@ -27,6 +27,18 @@ class Filter;
  */
 class ColorModeDetection {
  public:
+  /**
+   * The outcome of one page: the detected mode, or that it was skipped (no geometry) or could not
+   * be loaded.
+   */
+  struct PageResult {
+    enum Status { DETECTED, SKIPPED, FAILED };
+    Status status = DETECTED;
+    ColorMode mode = COLOR_GRAYSCALE;  // valid when status == DETECTED
+  };
+
+  using PageResultCallback = std::function<void(const PageInfo& page, const PageResult& result)>;
+
   struct Result {
     int blackAndWhite = 0;
     int colorGrayscale = 0;
@@ -49,12 +61,14 @@ class ColorModeDetection {
    * \param status Passed to detectColorMode().
    * \param progress Called before each page with the number of pages done so far, from 0; the run
    *        stops when it returns false.
+   * \param pageResult Called after each page with the page and its outcome; optional.
    */
   static Result run(const std::shared_ptr<Filter>& filter,
                     const std::vector<PageInfo>& pages,
                     const std::shared_ptr<CompositeCacheDrivenTask>& geometryTask,
                     const TaskStatus& status,
-                    const std::function<bool(int)>& progress = {});
+                    const std::function<bool(int)>& progress = {},
+                    const PageResultCallback& pageResult = {});
 };
 }  // namespace output
 

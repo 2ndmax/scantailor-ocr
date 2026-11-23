@@ -59,6 +59,7 @@ set(sources
     TestZoneComparators.cpp
     TestUtils.cpp
     TestColorModeDetector.cpp
+    TestColorModeDetectionProgress.cpp
     TestOcrEngine.cpp)
 
 add_executable(core_tests ${sources})

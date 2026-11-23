@@ -14,7 +14,8 @@ ColorModeDetection::Result ColorModeDetection::run(const std::shared_ptr<Filter>
                                                    const std::vector<PageInfo>& pages,
                                                    const std::shared_ptr<CompositeCacheDrivenTask>& geometryTask,
                                                    const TaskStatus& status,
-                                                   const std::function<bool(int)>& progress) {
+                                                   const std::function<bool(int)>& progress,
+                                                   const PageResultCallback& pageResult) {
   Result result;
   const int total = static_cast<int>(pages.size());
   for (int i = 0; i < total; ++i) {
@@ -26,11 +27,21 @@ ColorModeDetection::Result ColorModeDetection::run(const std::shared_ptr<Filter>
     geometryTask->process(pages[i], &geometry);
     if (!geometry.hasGeometry()) {
       ++result.skipped;
+      if (pageResult) {
+        PageResult pr;
+        pr.status = PageResult::SKIPPED;
+        pageResult(pages[i], pr);
+      }
       continue;
     }
     ColorMode mode = COLOR_GRAYSCALE;
     if (!filter->detectColorMode(pages[i], geometry, status, &mode)) {
       ++result.failed;
+      if (pageResult) {
+        PageResult pr;
+        pr.status = PageResult::FAILED;
+        pageResult(pages[i], pr);
+      }
       continue;
     }
     switch (mode) {
@@ -45,6 +56,12 @@ ColorModeDetection::Result ColorModeDetection::run(const std::shared_ptr<Filter>
         break;
     }
     result.detected.emplace_back(pages[i].id(), mode);
+    if (pageResult) {
+      PageResult pr;
+      pr.status = PageResult::DETECTED;
+      pr.mode = mode;
+      pageResult(pages[i], pr);
+    }
   }
   return result;
 }
