@@ -45,6 +45,8 @@
 #include "filters/output/ColorModeDetection.h"
 
 namespace {
+void writeProgressLine(QTextStream& json, const QString& event, QJsonObject fields);
+
 QString nativePath(const QString& path) {
   return QDir::toNativeSeparators(path);
 }
@@ -667,11 +669,9 @@ CommandLineRun::ExitCode exportFiles(const ExportPaths& paths,
     out << CommandLineRun::tr("Export: %1 of %2").arg(pagesDone).arg(pagesTotal) << Qt::endl;
     if (progressJson) {
       QJsonObject exportObject;
-      exportObject["schemaVersion"] = 1;
-      exportObject["event"] = QStringLiteral("export");
       exportObject["done"] = pagesDone;
       exportObject["total"] = pagesTotal;
-      *progressJson << QJsonDocument(exportObject).toJson(QJsonDocument::Compact) << Qt::endl;
+      writeProgressLine(*progressJson, QStringLiteral("export"), exportObject);
     }
     if (cancel) {
       job.cancel();
@@ -749,6 +749,52 @@ QJsonObject pageIdentity(const PageInfo& page) {
   return object;
 }
 
+/** The native paths of \p paths as a JSON array, shared by the report and the progress. */
+QJsonArray nativePaths(const QStringList& paths) {
+  QJsonArray array;
+  for (const QString& path : paths) {
+    array.append(nativePath(path));
+  }
+  return array;
+}
+
+/** Writes one compact JSON line of the progress output. */
+void writeProgressLine(QTextStream& json, const QString& event, QJsonObject fields) {
+  fields["schemaVersion"] = 1;
+  fields["event"] = event;
+  json << QJsonDocument(fields).toJson(QJsonDocument::Compact) << Qt::endl;
+}
+
+/** The filter index the run stops at for \p step. */
+int filterIndexForLastStep(const StageSequence& stages, CommandLineRun::Options::LastStep step) {
+  switch (step) {
+    case CommandLineRun::Options::FIX_ORIENTATION:
+      return stages.fixOrientationFilterIdx();
+    case CommandLineRun::Options::SPLIT_PAGES:
+      return stages.pageSplitFilterIdx();
+    case CommandLineRun::Options::DESKEW:
+      return stages.deskewFilterIdx();
+    case CommandLineRun::Options::SELECT_CONTENT:
+      return stages.selectContentFilterIdx();
+    case CommandLineRun::Options::MARGINS:
+      return stages.pageLayoutFilterIdx();
+    case CommandLineRun::Options::OUTPUT:
+    case CommandLineRun::Options::EXPORT:
+      return stages.outputFilterIdx();
+  }
+  return stages.outputFilterIdx();
+}
+
+/** The name of the step a filter index stands for, or an empty string. */
+QString stepNameForFilterIndex(const StageSequence& stages, const int filterIdx) {
+  for (int step = 0; step <= CommandLineRun::Options::EXPORT; ++step) {
+    if (filterIndexForLastStep(stages, static_cast<CommandLineRun::Options::LastStep>(step)) == filterIdx) {
+      return CommandLineRun::Options::stepName(static_cast<CommandLineRun::Options::LastStep>(step));
+    }
+  }
+  return QString();
+}
+
 /**
  * Writes the report of the run to \p reportFile: the schema is the one in the doc of
  * Options::reportFile. Returns false after telling \p err why it couldn't be written.
@@ -812,10 +858,7 @@ bool writeReportFile(const QString& reportFile,
   run["exitCode"] = static_cast<int>(exitCode);
   run["cancelled"] = cancelled;
 
-  QJsonArray passedOverFiles;
-  for (const QString& path : passedOver) {
-    passedOverFiles.append(nativePath(path));
-  }
+  const QJsonArray passedOverFiles = nativePaths(passedOver);
 
   QJsonObject report;
   report["schemaVersion"] = 1;
@@ -1074,39 +1117,18 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   const StageSequence::ProgressCallback progress = [&](const StageSequence::PageProgress& p) {
     out << tr("%1: %2 of %3").arg(stages.filterAt(p.lastFilterIdx)->getName()).arg(p.done).arg(p.total) << Qt::endl;
     if (progressJson) {
-      QString step;
-      if (p.lastFilterIdx == stages.fixOrientationFilterIdx()) {
-        step = QStringLiteral("fix-orientation");
-      } else if (p.lastFilterIdx == stages.pageSplitFilterIdx()) {
-        step = QStringLiteral("split-pages");
-      } else if (p.lastFilterIdx == stages.deskewFilterIdx()) {
-        step = QStringLiteral("deskew");
-      } else if (p.lastFilterIdx == stages.selectContentFilterIdx()) {
-        step = QStringLiteral("select-content");
-      } else if (p.lastFilterIdx == stages.pageLayoutFilterIdx()) {
-        step = QStringLiteral("margins");
-      } else if (p.lastFilterIdx == stages.outputFilterIdx()) {
-        step = QStringLiteral("output");
-      }
+      const QString step = stepNameForFilterIndex(stages, p.lastFilterIdx);
       if (p.lastFilterIdx != lastProgressPassFilterIdx) {
         lastProgressPassFilterIdx = p.lastFilterIdx;
         QJsonObject passStart;
-        passStart["schemaVersion"] = 1;
-        passStart["event"] = QStringLiteral("pass-start");
         passStart["step"] = step;
         passStart["total"] = p.total;
-        *progressJson << QJsonDocument(passStart).toJson(QJsonDocument::Compact) << Qt::endl;
+        writeProgressLine(*progressJson, QStringLiteral("pass-start"), passStart);
       }
-      QJsonObject pageObj;
-      pageObj["schemaVersion"] = 1;
-      pageObj["event"] = QStringLiteral("page");
+      QJsonObject pageObj = pageIdentity(p.page);
       pageObj["step"] = step;
       pageObj["done"] = p.done;
       pageObj["total"] = p.total;
-      const QJsonObject identity = pageIdentity(p.page);
-      for (auto it = identity.begin(); it != identity.end(); ++it) {
-        pageObj[it.key()] = it.value();
-      }
       if (p.status == StageSequence::PageProgress::OK) {
         pageObj["status"] = QStringLiteral("ok");
       } else if (p.status == StageSequence::PageProgress::FAILED) {
@@ -1119,33 +1141,12 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       if (step == QStringLiteral("output")) {
         pageObj["outputFile"] = nativePath(session->outFileNameGen.filePathFor(p.page.id()));
       }
-      *progressJson << QJsonDocument(pageObj).toJson(QJsonDocument::Compact) << Qt::endl;
+      writeProgressLine(*progressJson, QStringLiteral("page"), pageObj);
     }
     return !cancel;
   };
   // The filter of the run's last step; the export runs after the Output step.
-  int runLastFilterIdx = stages.outputFilterIdx();
-  switch (options.lastStep) {
-    case Options::FIX_ORIENTATION:
-      runLastFilterIdx = stages.fixOrientationFilterIdx();
-      break;
-    case Options::SPLIT_PAGES:
-      runLastFilterIdx = stages.pageSplitFilterIdx();
-      break;
-    case Options::DESKEW:
-      runLastFilterIdx = stages.deskewFilterIdx();
-      break;
-    case Options::SELECT_CONTENT:
-      runLastFilterIdx = stages.selectContentFilterIdx();
-      break;
-    case Options::MARGINS:
-      runLastFilterIdx = stages.pageLayoutFilterIdx();
-      break;
-    case Options::OUTPUT:
-    case Options::EXPORT:
-      runLastFilterIdx = stages.outputFilterIdx();
-      break;
-  }
+  const int runLastFilterIdx = filterIndexForLastStep(stages, options.lastStep);
   // --color-mode-detect: as the app's Detect Color Mode, between the Margins and the Output passes.
   // The hook also runs when the last step is Margins, where there is no Output pass.
   std::vector<std::pair<PageId, output::ColorMode>> detectedPages;
@@ -1162,11 +1163,9 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       const NullTaskStatus status;
       if (progressJson) {
         QJsonObject passStart;
-        passStart["schemaVersion"] = 1;
-        passStart["event"] = QStringLiteral("pass-start");
         passStart["step"] = QStringLiteral("color-mode-detect");
         passStart["total"] = static_cast<int>(pages.size());
-        *progressJson << QJsonDocument(passStart).toJson(QJsonDocument::Compact) << Qt::endl;
+        writeProgressLine(*progressJson, QStringLiteral("pass-start"), passStart);
       }
       int colorModeDone = 0;
       const output::ColorModeDetection::Result result = output::ColorModeDetection::run(
@@ -1177,8 +1176,6 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
             }
             ++colorModeDone;
             QJsonObject pageObj = pageIdentity(page);
-            pageObj["schemaVersion"] = 1;
-            pageObj["event"] = QStringLiteral("page");
             pageObj["step"] = QStringLiteral("color-mode-detect");
             pageObj["done"] = colorModeDone;
             pageObj["total"] = static_cast<int>(pages.size());
@@ -1191,7 +1188,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
               pageObj["status"] = QStringLiteral("failed");
               pageObj["errorKind"] = QStringLiteral("LOAD_FAILED");
             }
-            *progressJson << QJsonDocument(pageObj).toJson(QJsonDocument::Compact) << Qt::endl;
+            writeProgressLine(*progressJson, QStringLiteral("page"), pageObj);
           });
       detectedPages = result.detected;
       detectionCancelled = result.cancelled;
@@ -1285,19 +1282,14 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     writeReportFile(*options.reportFile, projectFile, usedProfile, options, *exitCode, *exitCode == CANCELLED, *session,
                     passedOver, detectedPages, exportedFiles, processed.failures, fixedFiles, err);
   }
-  if (progressJson && exitCode
-      && (*exitCode == SUCCESS || *exitCode == PAGES_FAILED || *exitCode == EXPORT_FAILED || *exitCode == CANCELLED)) {
+  // Exit codes 1 and 2 return earlier, and the late PROJECT_UNUSABLE from saving the project returns
+  // before this point, so only 0, 3, 4 and 5 reach here.
+  if (progressJson) {
     QJsonObject runEnd;
-    runEnd["schemaVersion"] = 1;
-    runEnd["event"] = QStringLiteral("run-end");
     runEnd["exitCode"] = static_cast<int>(*exitCode);
     runEnd["exports"] = QJsonArray::fromStringList(exportedFiles);
-    QJsonArray passedOverFiles;
-    for (const QString& path : passedOver) {
-      passedOverFiles.append(nativePath(path));
-    }
-    runEnd["passedOver"] = passedOverFiles;
-    *progressJson << QJsonDocument(runEnd).toJson(QJsonDocument::Compact) << Qt::endl;
+    runEnd["passedOver"] = nativePaths(passedOver);
+    writeProgressLine(*progressJson, QStringLiteral("run-end"), runEnd);
   }
   return *exitCode;
 }
