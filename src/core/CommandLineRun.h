@@ -102,7 +102,7 @@ class CommandLineRun {
      *   exitCode: integer, one of the ExitCode values above; reports exist for 0, 3, 4 and 5.
      *   cancelled: bool, true when a cancel was requested.
      * pages: array, one object per page in the order of the page view:
-     *   file: string, the path of the image file.
+     *   file: string, the native path of the image file.
      *   page: integer, the 1-based page of a multi-page file; absent for a single-page file.
      *   subPage: string, "left" or "right"; absent unless the page is split.
      *   dpi: object with the integers horizontal and vertical.
@@ -115,7 +115,7 @@ class CommandLineRun {
      *       "OUTPUT_TOO_LARGE" or "OUTPUT_NOT_WRITTEN".
      *   reasons: array of strings, only for status "failed": why that page failed.
      * exports: array of strings, the native paths created by a successful export; empty otherwise.
-     * passedOver: array of strings, the paths of the other files of a folder-mode input folder;
+     * passedOver: array of strings, the native paths of the other files of a folder-mode input folder;
      *       empty in project mode.
      */
     std::optional<QString> reportFile;

@@ -757,7 +757,7 @@ bool writeReportFile(const QString& reportFile,
   for (const PageInfo& page : session.pages->toPageSequence(PAGE_VIEW)) {
     const QFileInfo file(page.imageId().filePath());
     QJsonObject pageObject;
-    pageObject["file"] = file.filePath();
+    pageObject["file"] = nativePath(file.filePath());
     if (page.imageId().isMultiPageFile()) {
       pageObject["page"] = page.imageId().page();
     }
@@ -776,7 +776,7 @@ bool writeReportFile(const QString& reportFile,
     const output::ColorMode mode
         = detectedPage != detected.end() ? detectedPage->second : session.stages->outputFilter()->colorMode(page.id());
     pageObject["colorMode"] = colorModeName(mode);
-    pageObject["outputFile"] = session.outFileNameGen.filePathFor(page.id());
+    pageObject["outputFile"] = nativePath(session.outFileNameGen.filePathFor(page.id()));
     const auto failure = failuresByPage.find(pageKey(page.id()));
     if (failure != failuresByPage.end()) {
       pageObject["status"] = QStringLiteral("failed");
@@ -798,12 +798,17 @@ bool writeReportFile(const QString& reportFile,
   run["exitCode"] = static_cast<int>(exitCode);
   run["cancelled"] = cancelled;
 
+  QJsonArray passedOverFiles;
+  for (const QString& path : passedOver) {
+    passedOverFiles.append(nativePath(path));
+  }
+
   QJsonObject report;
   report["schemaVersion"] = 1;
   report["run"] = run;
   report["pages"] = pages;
   report["exports"] = exports;
-  report["passedOver"] = QJsonArray::fromStringList(passedOver);
+  report["passedOver"] = passedOverFiles;
 
   QFile file(reportFile);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {

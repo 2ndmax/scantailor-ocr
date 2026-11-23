@@ -1496,6 +1496,32 @@ BOOST_AUTO_TEST_CASE(test_report_has_the_color_mode_of_the_project) {
   BOOST_CHECK(!pages[0].toObject()["colorModeDetected"].toBool());
 }
 
+// All paths of the report are written the same way, natively, like the project file and the exports:
+// a script that compares them, or matches a page of the report with a path it knows, needs that.
+BOOST_AUTO_TEST_CASE(test_report_writes_all_paths_natively) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+  BOOST_REQUIRE(Tests::writeFile(inputDir + QStringLiteral("/notes.txt"), "not a scan"));
+  const QString reportFile = dir.filePath("report.json");
+
+  QString out;
+  QString err;
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QStringLiteral("Default"),
+                              false, reportFile),
+                    CommandLineRun::SUCCESS);
+  const QJsonObject report = readReport(reportFile);
+  BOOST_REQUIRE_EQUAL(report["pages"].toArray().size(), 1);
+  const QJsonObject page = report["pages"].toArray()[0].toObject();
+  BOOST_CHECK(page["file"].toString() == QDir::toNativeSeparators(inputDir + QStringLiteral("/page.png")));
+  BOOST_CHECK(page["outputFile"].toString() == QDir::toNativeSeparators(inputDir + QStringLiteral("/out/page.tif")));
+  const QJsonArray passedOver = report["passedOver"].toArray();
+  BOOST_REQUIRE_EQUAL(passedOver.size(), 1);
+  BOOST_CHECK(passedOver[0].toString() == QDir::toNativeSeparators(inputDir + QStringLiteral("/notes.txt")));
+}
+
 // --profile Source is the old name of Minimal; the report names the profile that was used.
 BOOST_AUTO_TEST_CASE(test_report_has_the_profile_that_was_used) {
   QTemporaryDir dir;
