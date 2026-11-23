@@ -7,6 +7,10 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 function(set_unit_test_environment test_name)
   if (UNIX)
     set_tests_properties(${test_name} PROPERTIES ENVIRONMENT QT_QPA_PLATFORM=offscreen)
+  elseif (WIN32)
+    # Without a console, as in the CI, Qt sends qCritical() and the like to the debugger, so a failed
+    # test would say nothing in the output of ctest.
+    set_tests_properties(${test_name} PROPERTIES ENVIRONMENT QT_FORCE_STDERR_LOGGING=1)
   endif()
 endfunction()
 
