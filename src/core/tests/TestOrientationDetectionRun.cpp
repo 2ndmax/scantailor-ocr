@@ -205,12 +205,10 @@ BOOST_AUTO_TEST_CASE(cancel_sets_nothing) {
     selection.insert(p.id());
   }
 
+  // The first image is detected before the cancel, so a run that set what it had would show it.
   const NullTaskStatus status;
-  int calls = 0;
-  const auto result = fix_orientation::OrientationDetection::run(settings, pages, selection, false, status, [&](int) {
-    ++calls;
-    return calls > 1;
-  });
+  const auto result = fix_orientation::OrientationDetection::run(settings, pages, selection, false, status,
+                                                                 [](const int done) { return done < 1; });
   BOOST_CHECK(result.cancelled);
   for (size_t i = 0; i < pages.size(); ++i) {
     BOOST_CHECK_EQUAL(settings->getRotationFor(pages[i].imageId()).toDegrees(), before[i]);
