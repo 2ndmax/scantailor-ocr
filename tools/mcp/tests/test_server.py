@@ -61,7 +61,13 @@ def test_list_tools(cli: Path, allowed: Path):
         async with Client(server, raise_exceptions=False) as client:
             tools = await client.list_tools()
             names = [t.name for t in tools.tools]
-            assert names == ["profile_list", "project_info"]
+            assert names == [
+                "profile_list",
+                "project_info",
+                "run_start",
+                "run_status",
+                "run_cancel",
+            ]
             for t in tools.tools:
                 assert t.input_schema is not None
 
