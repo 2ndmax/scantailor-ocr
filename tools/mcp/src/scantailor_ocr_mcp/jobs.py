@@ -533,19 +533,5 @@ class JobManager:
             if not job.finished.is_set():
                 logger.warning("killing run %s on shutdown", job.id)
                 await job.kill()
-        # cleanup temp dirs
-        for job in self.jobs.values():
-            with contextlib.suppress(Exception):
-                if job.report_dir.exists():
-                    for child in job.report_dir.iterdir():
-                        child.unlink(missing_ok=True)
-                    job.report_dir.rmdir()
-        with contextlib.suppress(Exception):
-            if self.temp_root.exists():
-                for child in self.temp_root.iterdir():
-                    if child.is_dir():
-                        for grand in child.iterdir():
-                            grand.unlink(missing_ok=True)
-                        child.rmdir()
-                    else:
-                        child.unlink(missing_ok=True)
+        # The reports were read when their runs ended; the folder of the server goes with them.
+        shutil.rmtree(self.temp_root, ignore_errors=True)
