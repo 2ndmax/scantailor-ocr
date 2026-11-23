@@ -25,7 +25,8 @@ def run_async(coro):
 
 
 def direct_cli(cli: Path, *args: str) -> tuple[int, str, str]:
-    r = subprocess.run([str(cli), *args], capture_output=True, text=True)
+    # The CLI writes UTF-8, whatever the code page of the console.
+    r = subprocess.run([str(cli), *args], capture_output=True, encoding="utf-8")
     return r.returncode, r.stdout, r.stderr
 
 
@@ -109,6 +110,32 @@ def test_project_info(cli: Path, tmp_path: Path):
             import json
 
             assert sc["project"] == json.loads(out)
+
+    run_async(main())
+
+
+def test_project_info_keeps_non_ascii_paths(cli: Path, tmp_path: Path):
+    """Folder and file names outside ASCII come back as they are, not in another code page."""
+    allowed = tmp_path / "Bücher"
+    book = allowed / "Straße"
+    book.mkdir(parents=True)
+    make_page(book / "Seite.png")
+    subprocess.run(
+        [str(cli), str(book), "--profile=Default", "--last-step=fix-orientation"],
+        check=True,
+        capture_output=True,
+    )
+    project = book / "Straße.ScanTailor"
+    assert project.is_file()
+
+    async def main():
+        server, _ = build_server([allowed])
+        async with Client(server, raise_exceptions=False) as client:
+            r = await client.call_tool("project_info", {"project": str(project)})
+            assert r.is_error is False
+            sc = r.structured_content
+            assert sc["project"]["projectFile"] == str(project)
+            assert sc["project"]["pages"][0]["file"] == str(book / "Seite.png")
 
     run_async(main())
 

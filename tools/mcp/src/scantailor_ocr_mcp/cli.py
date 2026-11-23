@@ -43,7 +43,10 @@ def run_cli(args: list[str], timeout: float = RUN_TIMEOUT) -> tuple[int, str, st
             args,
             stdin=subprocess.DEVNULL,
             capture_output=True,
-            text=True,
+            # The CLI writes UTF-8 whatever the code page; the locale default on Windows would
+            # turn every path outside ASCII into other characters.
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout,
         )
     except FileNotFoundError as exc:
