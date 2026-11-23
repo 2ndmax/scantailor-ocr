@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 from pathlib import Path
 from urllib.parse import unquote, urlparse
+
+logger = logging.getLogger(__name__)
 
 
 def resolve_path(path: str | Path) -> Path:
@@ -60,7 +63,9 @@ async def client_roots(ctx) -> list[Path]:
     result: list[Path] = []
     try:
         lr = await ctx.session.list_roots()
-    except Exception:
+    except Exception as exc:
+        # A client without roots is fine; the log says so, as it decides what is allowed.
+        logger.info("The client provides no roots: %s", exc)
         return result
     for root in getattr(lr, "roots", []) or []:
         uri = getattr(root, "uri", None)
@@ -72,6 +77,9 @@ async def client_roots(ctx) -> list[Path]:
                 result.append(p.resolve())
             except (OSError, RuntimeError):
                 result.append(p)
+        else:
+            logger.info("Root of the client that isn't a local folder, ignored: %s", uri)
+    logger.info("Roots of the client: %s", ", ".join(str(p) for p in result) or "none")
     return result
 
 
