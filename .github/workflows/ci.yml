@@ -180,9 +180,11 @@ jobs:
         shell: pwsh
         env:
           QT_QPA_PLATFORM: offscreen
-          QT_PLUGIN_PATH: ${{ env.VCPKG_INSTALLATION_ROOT }}\installed\x64-windows\Qt6\plugins
           SCANTAILOR_OCR_CLI: ${{ github.workspace }}\build\scantailor-ocr-cli.exe
+        # VCPKG_INSTALLATION_ROOT is a variable of the runner, not of the workflow, so ${{ env }}
+        # doesn't have it; the shell does, as in the ctest step.
         run: |
+          $env:QT_PLUGIN_PATH = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows\Qt6\plugins"
           $env:PATH = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows\bin;$env:PATH"
           uv sync --locked
           uv run --locked pytest -rs
