@@ -5,6 +5,9 @@
 // export. The other tests of what the tool does live in core_tests; this one needs the real tool
 // because the mapping from options to the last step is in main.cpp.
 
+#include <DefaultParams.h>
+#include <DefaultParamsProfileManager.h>
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
@@ -52,11 +55,24 @@ int main(int argc, char* argv[]) {
   }
   const QString reportFile = dir.filePath(QStringLiteral("report.json"));
 
+  // A profile of the test's own: neither the profile of the machine's settings nor the OCR
+  // languages installed on it decide the run. The built-in profile recognizes German and English
+  // text, which a machine without these languages, like the CI, refuses before processing.
+  DefaultParams params;
+  ProcessingOptions processing = params.getProcessingOptions();
+  processing.pdf.textLayer = false;
+  processing.ocr.languages.clear();
+  params.setProcessingOptions(processing);
+  const QString profilesDir = dir.filePath(QStringLiteral("profiles"));
+  if (!QDir().mkpath(profilesDir)
+      || !DefaultParamsProfileManager(profilesDir).writeProfile(params, QStringLiteral("NoOcr"))) {
+    return fail(QStringLiteral("Unable to write the profile of the test."));
+  }
+
   QProcess tool;
   tool.start(app.arguments().at(1),
-             // The built-in profile, so the run doesn't depend on the profile of the machine's settings.
-             {QStringLiteral("--profile=Default"), QStringLiteral("--export-formats=pdf"),
-              QStringLiteral("--report-file=") + reportFile, inputDir});
+             {QStringLiteral("--profile=") + profilesDir + QStringLiteral("/NoOcr.stp"),
+              QStringLiteral("--export-formats=pdf"), QStringLiteral("--report-file=") + reportFile, inputDir});
   if (!tool.waitForStarted(30000) || !tool.waitForFinished(120000)) {
     return fail(QStringLiteral("The command line tool didn't finish."));
   }

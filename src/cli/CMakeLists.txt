@@ -56,7 +56,8 @@ if (BUILD_TESTS)
 
   # An export option without --last-step has to lead the run to the export.
   add_executable(cli_folder_export_test cli_folder_export_test.cpp)
-  target_link_libraries(cli_folder_export_test PRIVATE Qt::Core Qt::Gui)
+  # core for writing a profile without text recognition into the test folder.
+  target_link_libraries(cli_folder_export_test PRIVATE core Qt::Core Qt::Gui)
   add_test(NAME cli_folder_export_formats_without_last_step COMMAND cli_folder_export_test
                                                              "$<TARGET_FILE:scantailor-ocr-cli>")
   set_unit_test_environment(cli_folder_export_formats_without_last_step)
