@@ -6,6 +6,7 @@ import asyncio
 import contextlib
 import json
 import logging
+import shutil
 import signal
 import subprocess
 import sys
@@ -481,19 +482,25 @@ class JobManager:
 
         job = Job(job_id, self.cli, project_key, report_dir, report_path)
         job.args = args
-
-        job.process = await anyio.open_process(
-            [str(self.cli), *args],
-            stdin=subprocess.DEVNULL,
-            stdout=-1,
-            stderr=-1,
-            creationflags=creationflags,
-        )
+        # Registered before the first await, so a second call at the same time sees this run
+        # in the checks above.
+        self.jobs[job_id] = job
+        try:
+            job.process = await anyio.open_process(
+                [str(self.cli), *args],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                creationflags=creationflags,
+            )
+        except BaseException:
+            del self.jobs[job_id]
+            shutil.rmtree(report_dir, ignore_errors=True)
+            raise
         job.stdout_task = asyncio.create_task(job._read_stdout())
         job.stderr_task = asyncio.create_task(job._read_stderr())
         job.wait_task = asyncio.create_task(job._wait())
 
-        self.jobs[job_id] = job
         logger.info("started run %s for %s", job_id, project_key)
         return job
 

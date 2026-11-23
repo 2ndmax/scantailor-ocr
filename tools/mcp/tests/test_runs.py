@@ -403,3 +403,23 @@ def test_server_shutdown_during_run(cli, tmp_path: Path):
         assert (book / "book.ScanTailor").is_file()
 
     asyncio.run(main())
+
+
+# Two calls at the same time must not both pass the check for a running run.
+def test_concurrent_starts_on_one_project(cli, tmp_path: Path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    book = make_book(allowed / "book", 3)
+
+    async def main():
+        server, _ = build_server([allowed], max_runs=2)
+        async with Client(server) as client:
+            args = {"folder": str(book), "profile": "Default", "last_step": "output", "threads": 1}
+            results = await asyncio.gather(
+                client.call_tool("run_start", args), client.call_tool("run_start", args)
+            )
+            started = [r for r in results if not r.is_error]
+            assert len(started) == 1
+            await wait_finished(client, started[0].structured_content["job_id"], timeout=120)
+
+    asyncio.run(main())
