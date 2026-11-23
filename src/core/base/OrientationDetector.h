@@ -17,6 +17,9 @@ class OrientationDetector {
     double leftConfidence = 0.0;
   };
 
+  /** Computes the orientation decision from Leptonica's confidence values. */
+  static Result decide(double up, double left);
+
   /** Detects the orientation of a single image. \p dpi is the image resolution. */
   static Result detect(const QImage& image, int dpi);
   static Result detect(const QImage& image, const Dpi& dpi);
