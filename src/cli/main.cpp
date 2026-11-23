@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
   parser.addOption(reportFileOption);
   const QCommandLineOption progressJsonOption(
       QStringLiteral("progress-json"),
-      CommandLineRun::tr("Write progress as JSON lines, one per event, to the standard output; all other output "
+      CommandLineRun::tr("The progress as JSON lines on the standard output, one per event; all other text then "
                          "goes to the standard error."));
   parser.addOption(progressJsonOption);
   parser.addPositionalArgument(CommandLineRun::tr("folder or project file"),
