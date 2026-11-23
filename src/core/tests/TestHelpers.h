@@ -103,8 +103,7 @@ inline QImage makeTextPage(const int rotation, const int dpi = 300) {
         }
         // sparse crossbar for rotated signal
         if (g % 17 == 0) {
-          painter.fillRect(QRect(x - qRound(2 * s), y - qRound(12 * s), qRound(8 * s), qRound(3 * s)),
-                           Qt::black);
+          painter.fillRect(QRect(x - qRound(2 * s), y - qRound(12 * s), qRound(8 * s), qRound(3 * s)), Qt::black);
         }
       }
     }
