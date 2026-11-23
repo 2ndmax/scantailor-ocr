@@ -27,7 +27,7 @@ set(sources
     TestPdfPageOrder.cpp
     TestProjectFile.cpp
     TestProjectFiles.cpp
-    TestPathNames.cpp
+    TestProjectSession.cpp    TestPathNames.cpp
     TestExportFormats.cpp
     TestRecentProjects.cpp
     TestRectHandleGeometry.cpp

@@ -21,7 +21,8 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
                      const QString& outDir,
                      const QString& inputDir,
                      const ProjectReader* reader,
-                     const DefaultParams& defaults) {
+                     const DefaultParams& defaults,
+                     const ProjectSession::LoadMode mode) {
   ProjectSession session;
   session.pages = pages;
 
@@ -33,13 +34,14 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
     }
   }
 
-  if (!outDir.isEmpty() && !QDir(outDir).exists()
+  const bool withSideEffects = (mode == ProjectSession::LoadMode::Normal);
+  if (withSideEffects && !outDir.isEmpty() && !QDir(outDir).exists()
       && project_files::isProjectInPlace(*pages, outDir, session.emptyProjectInputDir)) {
     // The output folder was deleted, e.g. to output everything again. The project is
     // where it was, so the folder is created again rather than asking for relinking.
     QDir().mkdir(outDir);
   }
-  if (!outDir.isEmpty()) {
+  if (withSideEffects && !outDir.isEmpty()) {
     core::CoreUtils::maybeCreateCacheDir(outDir);
   }
 
@@ -62,8 +64,9 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
     session.stages->startNewProject(defaults);
   }
 
-  // Thumbnails are stored relative to the output directory.
-  if (!outDir.isEmpty()) {
+  // Thumbnails are stored relative to the output directory. Loading without side effects leaves
+  // the cache on disk and this pointer null, so describing a project changes nothing.
+  if (withSideEffects && !outDir.isEmpty()) {
     session.thumbnailCache = core::CoreUtils::createThumbnailCache(outDir);
   }
   return session;
@@ -74,11 +77,13 @@ ProjectSession ProjectSession::createNew(const std::shared_ptr<ProjectPages>& pa
                                          const QString& outDir,
                                          const QString& inputDir,
                                          const DefaultParams& startValues) {
-  return setUp(pages, outDir, inputDir, nullptr, startValues);
+  return setUp(pages, outDir, inputDir, nullptr, startValues, ProjectSession::LoadMode::Normal);
 }
 
-ProjectSession ProjectSession::load(const ProjectReader& reader, const DefaultParams& fallback) {
-  return setUp(reader.pages(), reader.outputDirectory(), QString(), &reader, fallback);
+ProjectSession ProjectSession::load(const ProjectReader& reader,
+                                    const DefaultParams& fallback,
+                                    const ProjectSession::LoadMode mode) {
+  return setUp(reader.pages(), reader.outputDirectory(), QString(), &reader, fallback, mode);
 }
 
 bool ProjectSession::write(const QString& projectFile) const {
