@@ -45,6 +45,12 @@ if (BUILD_TESTS)
   add_cli_test(cli_profile_with_project 1 --profile=Default "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   add_cli_test(cli_dpi_with_project 1 --dpi=300 "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   add_cli_test(cli_dpi_fix_with_project 1 --dpi-fix=300 "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
+  add_cli_test(cli_profile_list_with_positional 1 --profile-list "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
+  add_cli_test(cli_profile_list_with_threads 1 --profile-list --threads=2)
+  add_cli_test(cli_profile_list_with_project_info 1 --profile-list --project-info x.ScanTailor)
+  add_cli_test(cli_project_info_with_folder 1 --project-info "${CMAKE_CURRENT_BINARY_DIR}")
+  add_cli_test(cli_project_info_with_last_step 1 --project-info --last-step=margins "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
+  add_cli_test(cli_project_info_without_arg 1 --project-info)
   # CommandLineRun::PROJECT_UNUSABLE
   add_cli_test(cli_missing_project 2 "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
 

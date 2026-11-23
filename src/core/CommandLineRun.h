@@ -142,6 +142,9 @@ class CommandLineRun {
                       const std::atomic<bool>& cancel,
                       QTextStream* progressJson = nullptr);
 
+  static ExitCode profileList(QTextStream& out, QTextStream& err);
+  static ExitCode projectInfo(const QString& projectFile, QTextStream& out, QTextStream& err);
+
   /**
    * Reads a list of the formats pdf, txt, hocr and alto, separated by commas or plus signs.
    * Returns false for an empty list or anything else in it.

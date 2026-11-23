@@ -188,7 +188,17 @@ int main(int argc, char* argv[]) {
       QStringLiteral("progress-json"),
       CommandLineRun::tr("The progress as JSON lines on the standard output, one per event; all other text then "
                          "goes to the standard error."));
+  const QCommandLineOption profileListOption(
+      QStringLiteral("profile-list"),
+      CommandLineRun::tr("The profiles --profile takes, as JSON on the standard output; also names the profile a "
+                         "run without --profile uses."));
+  const QCommandLineOption projectInfoOption(
+      QStringLiteral("project-info"),
+      CommandLineRun::tr("The pages of the project file, with their file, DPI, color mode and output file, as JSON "
+                         "on the standard output. Needs a project file."));
   parser.addOption(progressJsonOption);
+  parser.addOption(profileListOption);
+  parser.addOption(projectInfoOption);
   parser.addPositionalArgument(CommandLineRun::tr("folder or project file"),
                                CommandLineRun::tr("The input folder for a new project or an existing project file."));
   // Not QCommandLineParser::process(): on Windows, without a console, it shows help and errors in a
@@ -205,6 +215,40 @@ int main(int argc, char* argv[]) {
     out << QCoreApplication::applicationName() << ' ' << QCoreApplication::applicationVersion() << Qt::endl;
     return CommandLineRun::SUCCESS;
   }
+  const bool profileListMode = parser.isSet(profileListOption);
+  const bool projectInfoMode = parser.isSet(projectInfoOption);
+
+  if (profileListMode || projectInfoMode) {
+    if (profileListMode && projectInfoMode) {
+      err << CommandLineRun::tr("--profile-list and --project-info can't be used together.") << Qt::endl;
+      return CommandLineRun::USAGE_ERROR;
+    }
+    const QString modeOption = profileListMode ? QStringLiteral("profile-list") : QStringLiteral("project-info");
+    for (const QString& name : parser.optionNames()) {
+      if (name != modeOption) {
+        err << CommandLineRun::tr("The option --%1 can't be used with --%2.").arg(name, modeOption) << Qt::endl;
+        return CommandLineRun::USAGE_ERROR;
+      }
+    }
+    if (profileListMode) {
+      if (!parser.positionalArguments().isEmpty()) {
+        err << CommandLineRun::tr("--profile-list takes no argument.") << Qt::endl;
+        return CommandLineRun::USAGE_ERROR;
+      }
+      return CommandLineRun::profileList(out, err);
+    }
+    if (parser.positionalArguments().size() != 1) {
+      err << CommandLineRun::tr("--project-info needs a project file.") << Qt::endl;
+      return CommandLineRun::USAGE_ERROR;
+    }
+    const QString projectInfoArg = parser.positionalArguments().at(0);
+    if (!projectInfoArg.endsWith(QStringLiteral(".ScanTailor"), Qt::CaseInsensitive)) {
+      err << CommandLineRun::tr("--project-info needs a project file.") << Qt::endl;
+      return CommandLineRun::USAGE_ERROR;
+    }
+    return CommandLineRun::projectInfo(projectInfoArg, out, err);
+  }
+
   if (parser.positionalArguments().size() != 1) {
     err << parser.helpText();
     return CommandLineRun::USAGE_ERROR;

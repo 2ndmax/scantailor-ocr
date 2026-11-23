@@ -420,7 +420,9 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
  * The session of a project file: refuses, after telling \p err, what it can't be processed with
  * (an older or damaged project, one without images or without a usable DPI).
  */
-std::optional<ProjectSession> loadExistingProject(const ProjectReader& reader, QTextStream& err) {
+std::optional<ProjectSession> loadExistingProject(const ProjectReader& reader,
+                                                  QTextStream& err,
+                                                  ProjectSession::LoadMode mode) {
   // The app asks what to do with these; here they are left to the app.
   if (reader.isFromOlderVersion()) {
     err << CommandLineRun::tr(
@@ -454,7 +456,7 @@ std::optional<ProjectSession> loadExistingProject(const ProjectReader& reader, Q
     return std::nullopt;
   }
   // The fallback fills in what a project of 1.0.9 to 1.0.12 lacks.
-  return ProjectSession::load(reader, DefaultParams());
+  return ProjectSession::load(reader, DefaultParams(), mode);
 }
 
 /**
@@ -749,6 +751,20 @@ QJsonObject pageIdentity(const PageInfo& page) {
   return object;
 }
 
+/** The fields of a page that --project-info and the report share: file, page, subPage, dpi,
+ * dpiSource, colorMode and outputFile. */
+QJsonObject basePageObject(const PageInfo& page,
+                           const ProjectSession& session,
+                           const QString& dpiSource,
+                           const output::ColorMode colorMode) {
+  QJsonObject object = pageIdentity(page);
+  object["dpi"] = dpiObject(page.metadata().dpi());
+  object["dpiSource"] = dpiSource;
+  object["colorMode"] = colorModeName(colorMode);
+  object["outputFile"] = nativePath(session.outFileNameGen.filePathFor(page.id()));
+  return object;
+}
+
 /** The native paths of \p paths as a JSON array, shared by the report and the progress. */
 QJsonArray nativePaths(const QStringList& paths) {
   QJsonArray array;
@@ -824,19 +840,18 @@ bool writeReportFile(const QString& reportFile,
   QJsonArray pages;
   for (const PageInfo& page : session.pages->toPageSequence(PAGE_VIEW)) {
     const QFileInfo file(page.imageId().filePath());
-    QJsonObject pageObject = pageIdentity(page);
-    pageObject["dpi"] = dpiObject(page.metadata().dpi());
-    pageObject["dpiSource"] = (options.dpi || fixedFiles.contains(file.absoluteFilePath()))
+
+    const QString dpiSource = (options.dpi || fixedFiles.contains(file.absoluteFilePath()))
                                   ? QStringLiteral("command-line")
                                   : QStringLiteral("file");
     // Without detection, the page keeps the mode it has in the project. The flag says which of the
     // two the report shows.
     const auto detectedPage = detected.find(pageKey(page.id()));
-    pageObject["colorModeDetected"] = detectedPage != detected.end();
+    const bool colorModeDetected = detectedPage != detected.end();
     const output::ColorMode mode
         = detectedPage != detected.end() ? detectedPage->second : session.stages->outputFilter()->colorMode(page.id());
-    pageObject["colorMode"] = colorModeName(mode);
-    pageObject["outputFile"] = nativePath(session.outFileNameGen.filePathFor(page.id()));
+    QJsonObject pageObject = basePageObject(page, session, dpiSource, mode);
+    pageObject["colorModeDetected"] = colorModeDetected;
     const auto failure = failuresByPage.find(pageKey(page.id()));
     if (failure != failuresByPage.end()) {
       pageObject["status"] = QStringLiteral("failed");
@@ -877,6 +892,21 @@ bool writeReportFile(const QString& reportFile,
   file.close();
   return true;
 }
+
+/** Whether the project must be relinked before it can be processed; a deleted output folder is
+ * acceptable when the project is still in place, because a run recreates it. */
+bool projectNeedsRelinking(const ProjectSession& session) {
+  const ProjectPages& pages = *session.pages;
+  const QString outDir = session.outFileNameGen.outDir();
+  if (!project_files::allImagesExist(pages)) {
+    return true;
+  }
+  if (!QDir(outDir).exists()) {
+    return !project_files::isProjectInPlace(pages, outDir, QString());
+  }
+  return false;
+}
+
 }  // namespace
 
 bool CommandLineRun::parseFormats(const QString& list, ProcessingOptions::Formats* formats) {
@@ -1045,7 +1075,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       return PROJECT_UNUSABLE;
     }
     reader = read.reader.get();
-    session = loadExistingProject(*reader, err);
+    session = loadExistingProject(*reader, err, ProjectSession::LoadMode::Normal);
   }
   if (!session) {
     return PROJECT_UNUSABLE;
@@ -1105,7 +1135,9 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   const StageSequence& stages = *session->stages;
   // Loading has already recreated a deleted output folder if the project is where it was. Otherwise
   // the output would go to a folder created anew in the old place, and the images may be missing.
-  if (project_files::needsRelinking(*session->pages, session->outFileNameGen.outDir())) {
+  // A deleted output folder is acceptable when the project is still in place, because a run
+  // recreates it; that case is handled by projectNeedsRelinking below.
+  if (projectNeedsRelinking(*session)) {
     err << tr(
         "The output folder or some images of the project are missing, for example because the project was "
         "moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.")
@@ -1292,4 +1324,91 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     writeProgressLine(*progressJson, QStringLiteral("run-end"), runEnd);
   }
   return *exitCode;
+}
+
+CommandLineRun::ExitCode CommandLineRun::profileList(QTextStream& out, QTextStream& err) {
+  QJsonObject root;
+  root["schemaVersion"] = 1;
+
+  // The profile a run without --profile takes, only when it is readable.
+  ApplicationSettings& settings = ApplicationSettings::getInstance();
+  DefaultParamsProvider& provider = DefaultParamsProvider::getInstance();
+  if (settings.getCurrentProfile() == provider.getProfileName()) {
+    root["profile"] = provider.getProfileName();
+  }
+
+  QJsonArray profiles;
+  // Built-in profiles first.
+  {
+    QJsonObject entry;
+    entry["name"] = QStringLiteral("Default");
+    entry["source"] = QStringLiteral("built-in");
+    profiles.append(entry);
+  }
+  {
+    QJsonObject entry;
+    entry["name"] = QStringLiteral("Minimal");
+    entry["source"] = QStringLiteral("built-in");
+    profiles.append(entry);
+  }
+
+  // File profiles, sorted by name; skip names shadowed by the built-ins and unreadable files.
+  DefaultParamsProfileManager manager;
+  std::list<QString> fileNames = manager.getProfileList();
+  std::vector<QString> sorted(fileNames.begin(), fileNames.end());
+  std::sort(sorted.begin(), sorted.end());
+  for (const QString& name : sorted) {
+    if (name == QLatin1String("Default") || name == QLatin1String("Minimal") || name == QLatin1String("Source")) {
+      continue;
+    }
+    if (!manager.readProfile(name)) {
+      continue;
+    }
+    QJsonObject entry;
+    entry["name"] = name;
+    entry["source"] = QStringLiteral("file");
+    profiles.append(entry);
+  }
+  root["profiles"] = profiles;
+
+  out << QJsonDocument(root).toJson(QJsonDocument::Indented);
+  return SUCCESS;
+}
+
+CommandLineRun::ExitCode CommandLineRun::projectInfo(const QString& projectFile, QTextStream& out, QTextStream& err) {
+  // Read like a run.
+  ProjectReader::FileResult read = ProjectReader::readFile(projectFile);
+  if (read.error != ProjectReader::FileError::NONE) {
+    err << nativePath(projectFile) << ": " << ProjectReader::errorMessage(read.error) << Qt::endl;
+    return PROJECT_UNUSABLE;
+  }
+  std::optional<ProjectSession> session
+      = loadExistingProject(*read.reader, err, ProjectSession::LoadMode::WithoutSideEffects);
+  if (!session) {
+    return PROJECT_UNUSABLE;
+  }
+  // Relink check with deleted output folder accepted when in place.
+  if (projectNeedsRelinking(*session)) {
+    err << tr(
+        "The output folder or some images of the project are missing, for example because the project was "
+        "moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.")
+        << Qt::endl;
+    return PROJECT_UNUSABLE;
+  }
+
+  QJsonObject root;
+  root["schemaVersion"] = 1;
+  root["mode"] = QStringLiteral("project");
+  root["projectFile"] = nativePath(projectFile);
+  root["outputFolder"] = nativePath(session->outFileNameGen.outDir());
+
+  QJsonArray pages;
+  for (const PageInfo& page : session->pages->toPageSequence(PAGE_VIEW)) {
+    const output::ColorMode mode = session->stages->outputFilter()->colorMode(page.id());
+    pages.append(basePageObject(page, *session, QStringLiteral("file"), mode));
+  }
+  root["pages"] = pages;
+
+  out << QJsonDocument(root).toJson(QJsonDocument::Indented);
+  return SUCCESS;
 }
