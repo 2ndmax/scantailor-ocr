@@ -12,7 +12,6 @@
 
 #include "PageId.h"
 #include "PageInfo.h"
-#include "Settings.h"
 #include "TaskStatus.h"
 
 namespace fix_orientation {
@@ -48,19 +47,25 @@ class OrientationDetection {
   struct PageResult {
     enum Status { DETECTED, BOOK_RULE, UNDECIDED, FAILED };
     Status status = UNDECIDED;
+    // Correction angle in degrees (0/90/180/270). Meaningful for DETECTED and
+    // BOOK_RULE; 0 for UNDECIDED and FAILED.
     int angle = 0;
   };
 
   using PageResultCallback = std::function<void(const PageInfo& page, const PageResult& result)>;
 
   struct Result {
+    // Number of images decided by the detector itself.
     int detected = 0;
+    // Number of selected images whose stored rotation actually changed.
     int changed = 0;
+    // Number of images set by the book rule.
     int bookRule = 0;
+    // Number of images left undecided.
     int undecided = 0;
+    // Number of images that could not be loaded.
     int failed = 0;
     std::vector<std::pair<PageId, PageResult>> results;
-    std::vector<std::pair<PageId, int>> detectedAngles;
     bool cancelled = false;
   };
 

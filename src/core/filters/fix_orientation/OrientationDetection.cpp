@@ -13,6 +13,7 @@
 #include "ImageLoader.h"
 #include "OrientationDetector.h"
 #include "OrthogonalRotation.h"
+#include "Settings.h"
 
 #include <map>
 
@@ -20,8 +21,18 @@ namespace fix_orientation {
 
 namespace {
 
+// Minimum number of decided images before a book rotation is accepted at all.
+constexpr int kMinDecidedForBookRotation = 5;
+// A rotation is the book rotation only if at least this share of the decided
+// images agree (60 %).
+constexpr int kBookRotationMajorityPercent = 60;
+// An undecided image keeps its book neighbours' rotation only when its size is
+// within this many percent of the book's format on both sides.
+constexpr int kMaxSizeDifferencePercent = 5;
+
 bool similarSize(const QSize& a, const QSize& b) {
-  return std::abs(a.width() - b.width()) * 20 <= b.width() && std::abs(a.height() - b.height()) * 20 <= b.height();
+  return std::abs(a.width() - b.width()) * 100 <= b.width() * kMaxSizeDifferencePercent
+         && std::abs(a.height() - b.height()) * 100 <= b.height() * kMaxSizeDifferencePercent;
 }
 
 int majorityAngle(const std::vector<OrientationDetection::Detection>& scans, const std::function<bool(size_t)>& pick) {
@@ -42,7 +53,7 @@ int majorityAngle(const std::vector<OrientationDetection::Detection>& scans, con
   if (total == 0) {
     return -1;
   }
-  if (votes[best] >= 5 && votes[best] * 10 >= total * 6) {
+  if (votes[best] >= kMinDecidedForBookRotation && votes[best] * 100 >= total * kBookRotationMajorityPercent) {
     return best * 90;
   }
   return -1;
@@ -189,7 +200,7 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
   }
 
   // Pass 2: book rule.
-  std::vector<int> origin(total, -1);  // -1 not processed; 0 DETECTED,1 BOOK_RULE,2 UNDECIDED,3 FAILED
+  std::vector<PageResult::Status> origin(total, PageResult::UNDECIDED);
   std::vector<int> angle(total, 0);
 
   if (bookRule) {
@@ -220,21 +231,21 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
       if (!processed[i])
         continue;
       if (failed[i]) {
-        origin[i] = 3;  // FAILED
+        origin[i] = PageResult::FAILED;
         angle[i] = 0;
         continue;
       }
       switch (decisions[i].source) {
         case BookDecision::DETECTED:
-          origin[i] = 0;
+          origin[i] = PageResult::DETECTED;
           angle[i] = decisions[i].angle;
           break;
         case BookDecision::BOOK_RULE:
-          origin[i] = 1;
+          origin[i] = PageResult::BOOK_RULE;
           angle[i] = decisions[i].angle;
           break;
         default:
-          origin[i] = 2;
+          origin[i] = PageResult::UNDECIDED;
           angle[i] = 0;
           break;
       }
@@ -244,13 +255,13 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
       if (!processed[i])
         continue;
       if (failed[i]) {
-        origin[i] = 3;
+        origin[i] = PageResult::FAILED;
         angle[i] = 0;
       } else if (dets[i].decided) {
-        origin[i] = 0;
+        origin[i] = PageResult::DETECTED;
         angle[i] = dets[i].angle;
       } else {
-        origin[i] = 2;
+        origin[i] = PageResult::UNDECIDED;
         angle[i] = 0;
       }
     }
@@ -265,19 +276,8 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
     const PageInfo& page = pages[i];
 
     PageResult pr;
-    if (origin[i] == 3) {
-      pr.status = PageResult::FAILED;
-      pr.angle = 0;
-    } else if (origin[i] == 0) {
-      pr.status = PageResult::DETECTED;
-      pr.angle = angle[i];
-    } else if (origin[i] == 1) {
-      pr.status = PageResult::BOOK_RULE;
-      pr.angle = angle[i];
-    } else {
-      pr.status = PageResult::UNDECIDED;
-      pr.angle = 0;
-    }
+    pr.status = origin[i];
+    pr.angle = (origin[i] == PageResult::DETECTED || origin[i] == PageResult::BOOK_RULE) ? angle[i] : 0;
 
     // counters
     switch (pr.status) {
@@ -296,9 +296,6 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
     }
 
     result.results.emplace_back(page.id(), pr);
-    if (pr.status == PageResult::DETECTED) {
-      result.detectedAngles.emplace_back(page.id(), pr.angle);
-    }
 
     if (pageResult) {
       pageResult(page, pr);
