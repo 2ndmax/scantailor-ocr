@@ -2286,19 +2286,47 @@ BOOST_AUTO_TEST_CASE(test_profile_list_unreadable_program_profile) {
   BOOST_CHECK(!root["profiles"].toArray().isEmpty());
 }
 
-// --profile-list: an unreadable file profile is excluded, and a run rejects it.
+// --profile-list and --profile agree on an unreadable file in the profile folder: the list leaves
+// it out, and a run with its name refuses it, while the readable file next to it works in both.
 BOOST_AUTO_TEST_CASE(test_profile_list_unreadable_file_profile_rejected) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
+  const QString profileFolder = dir.filePath("profiles");
+  BOOST_REQUIRE(QDir().mkpath(profileFolder));
+  BOOST_REQUIRE(Tests::writeFile(profileFolder + QStringLiteral("/Bad.stp"), "not a profile"));
+  BOOST_REQUIRE(DefaultParamsProfileManager(profileFolder).writeProfile(DefaultParams(), QStringLiteral("Good")));
+
+  QString listOut;
+  QString listErr;
+  QTextStream listOutStream(&listOut);
+  QTextStream listErrStream(&listErr);
+  BOOST_CHECK_EQUAL(CommandLineRun::profileList(listOutStream, listErrStream, profileFolder), CommandLineRun::SUCCESS);
+  QStringList names;
+  for (const QJsonValue& profile : QJsonDocument::fromJson(listOut.toUtf8()).object()["profiles"].toArray()) {
+    names.append(profile.toObject()["name"].toString());
+  }
+  BOOST_CHECK(names.contains(QStringLiteral("Good")));
+  BOOST_CHECK(!names.contains(QStringLiteral("Bad")));
+
   const QString inputDir = dir.filePath("in");
   BOOST_REQUIRE(QDir().mkpath(inputDir));
   BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
-
-  QString out;
-  QString err;
-  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QStringLiteral("Bad")),
-                    CommandLineRun::PROJECT_UNUSABLE);
-  BOOST_CHECK(err.contains(QStringLiteral("Bad")));
+  const auto runWithProfile = [&](const QString& profile, QString* err) {
+    CommandLineRun::Options options;
+    options.inputFolder = inputDir;
+    options.profile = profile;
+    options.profileFolder = profileFolder;
+    options.lastStep = CommandLineRun::Options::FIX_ORIENTATION;
+    QString out;
+    QTextStream outStream(&out);
+    QTextStream errStream(err);
+    return CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false));
+  };
+  QString badErr;
+  BOOST_CHECK_EQUAL(runWithProfile(QStringLiteral("Bad"), &badErr), CommandLineRun::PROJECT_UNUSABLE);
+  BOOST_CHECK(badErr.contains(QStringLiteral("Bad")));
+  QString goodErr;
+  BOOST_CHECK_EQUAL(runWithProfile(QStringLiteral("Good"), &goodErr), CommandLineRun::SUCCESS);
 }
 
 // --project-info: a split image yields left and right pages.
@@ -2449,7 +2477,7 @@ BOOST_AUTO_TEST_CASE(test_project_info_moved_project_relinks) {
   BOOST_CHECK(err.contains(QStringLiteral("relink")));
 }
 
-// --project-info: a run recreates a deleted output folder at its place.
+// A run recreates a deleted output folder of a project that is still in place, and outputs into it.
 BOOST_AUTO_TEST_CASE(test_run_recreates_deleted_output_folder_at_place) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
