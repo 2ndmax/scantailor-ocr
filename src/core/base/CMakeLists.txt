@@ -66,6 +66,8 @@ set(sources
     JpegMetadataLoader.h
     LeptonicaDetector.cpp
     LeptonicaDetector.h
+    LeptonicaPix.cpp
+    LeptonicaPix.h
     Margins.cpp
     Margins.h
     OrderByCompletenessProvider.cpp
