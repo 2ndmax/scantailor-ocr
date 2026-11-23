@@ -10,6 +10,8 @@ ScanTailor OCR cleans up scanned pages and turns them into a **compact, searchab
 * **Text formats** TXT, hOCR and ALTO for further processing, also without a PDF.
 * A **command line tool**, `scantailor-ocr-cli`, processes a project and exports it without
   opening a window.
+* An **MCP server** in [tools/mcp](tools/mcp/README.md) lets an agent such as Claude Code or
+  Claude Desktop drive the command line tool.
 
 Website: [www.ScanTailorOCR.eu](https://www.ScanTailorOCR.eu)
 

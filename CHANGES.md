@@ -500,6 +500,9 @@ topic, not by version.
 * The command line tool processes several pages at once, as many as set under "Processor
   threads" in the settings; with 8 threads about five times as fast as one page after the other,
   with the same output. Memory use grows with the number of pages at once.
+* An MCP server (`tools/mcp`) lets an agent drive the command line tool: list the profiles,
+  describe a project, and start, follow and cancel runs, only in the folders it is allowed to
+  use.
 * At the end of batch processing, the system beep sounds when the alarm command doesn't start,
   e.g. on Linux without SoX, whose `play` is the default there; before, it stayed silent.
 * Batch processing no longer prepares the view of each page it passes (downscaled images, the
