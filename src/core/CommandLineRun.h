@@ -68,6 +68,8 @@ class CommandLineRun {
     std::optional<QString> outputFolder;
     /** --profile: the name or the file of a profile; empty for the profile of the program. */
     QString profile;
+    /** The folder --profile looks up a name in; empty for the profile folder of the program. For tests. */
+    QString profileFolder;
     /** --dpi: the DPI of all images of the new project; unset without it. */
     std::optional<Dpi> dpi;
     /** --dpi-fix: the DPI of the images that need fixing; unset without it. */
@@ -162,7 +164,7 @@ class CommandLineRun {
   static ExitCode profileList(QTextStream& out, QTextStream& err, const QString& profileDir = QString());
 
   /**
-   * Prints the pages of the project file, as JSON on \\p out, indented like the report. Exit codes:
+   * Prints the pages of the project file, as JSON on \p out, indented like the report. Exit codes:
    * 0 on success, 2 when the project can't be read or must be relinked. \p out stays empty then.
    * The schema (version 1):
    *

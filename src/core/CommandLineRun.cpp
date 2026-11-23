@@ -77,6 +77,12 @@ QString builtinProfileCanonicalName(const QString& name) {
   return QString();
 }
 
+/** The profiles of \p folder, or of the profile folder of the program when it is empty. */
+std::unique_ptr<DefaultParamsProfileManager> profileManager(const QString& folder) {
+  return folder.isEmpty() ? std::make_unique<DefaultParamsProfileManager>()
+                          : std::make_unique<DefaultParamsProfileManager>(folder);
+}
+
 /** The profile of the program, if it is readable; empty (null) otherwise. */
 std::optional<QString> programProfileName() {
   ApplicationSettings& settings = ApplicationSettings::getInstance();
@@ -288,7 +294,7 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
   DefaultParams startValues;
   QString profileName;
   if (!options.profile.isEmpty()) {
-    DefaultParamsProfileManager manager;
+    const std::unique_ptr<DefaultParamsProfileManager> manager = profileManager(options.profileFolder);
     std::unique_ptr<DefaultParams> profile;
     if (options.profile.endsWith(QStringLiteral(".stp"), Qt::CaseInsensitive)) {
       QFile file(options.profile);
@@ -306,12 +312,12 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
       const QString canonical = builtinProfileCanonicalName(options.profile);
       if (!canonical.isEmpty()) {
         if (canonical == QLatin1String("Default")) {
-          profile = manager.createDefaultProfile();
+          profile = manager->createDefaultProfile();
         } else {
-          profile = manager.createMinimalProfile();
+          profile = manager->createMinimalProfile();
         }
       } else {
-        profile = manager.readProfile(options.profile);
+        profile = manager->readProfile(options.profile);
       }
       if (!profile) {
         err << CommandLineRun::tr("The profile %1 isn't available.").arg(options.profile) << Qt::endl;
@@ -1387,12 +1393,7 @@ CommandLineRun::ExitCode CommandLineRun::profileList(QTextStream& out, QTextStre
   }
 
   // File profiles, sorted by name; skip names shadowed by the built-ins and unreadable files.
-  std::unique_ptr<DefaultParamsProfileManager> manager;
-  if (profileDir.isEmpty()) {
-    manager = std::make_unique<DefaultParamsProfileManager>();
-  } else {
-    manager = std::make_unique<DefaultParamsProfileManager>(profileDir);
-  }
+  const std::unique_ptr<DefaultParamsProfileManager> manager = profileManager(profileDir);
   std::list<QString> fileNames = manager->getProfileList();
   std::vector<QString> sorted(fileNames.begin(), fileNames.end());
   std::sort(sorted.begin(), sorted.end());
