@@ -10,10 +10,13 @@
 #include <QByteArray>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QTemporaryDir>
 #include <QThread>
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include <map>
+#include <tuple>
 #include <vector>
 
 #include "ScopedMaxThreads.h"
@@ -194,6 +197,69 @@ BOOST_AUTO_TEST_CASE(test_parallel_error_order) {
   BOOST_CHECK(!result.output);
   BOOST_CHECK(result.failures[0].page.imageId().filePath().endsWith(QStringLiteral("page1.png")));
   BOOST_CHECK(result.failures[1].page.imageId().filePath().endsWith(QStringLiteral("page3.png")));
+}
+
+// The progress names each page with its result: the halves of a split image, an image that fails,
+// and the pages of that image skipped in the later passes.
+BOOST_AUTO_TEST_CASE(test_progress_names_the_page_and_its_result) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const std::vector<ImageFileInfo> files{Tests::saveTextPageScan(dir.filePath(QStringLiteral("book.png")), 300),
+                                         Tests::saveTextPageScan(dir.filePath(QStringLiteral("broken.png")), 300)};
+  BOOST_REQUIRE(!files[0].imageInfo().empty());
+  BOOST_REQUIRE(!files[1].imageInfo().empty());
+  const QString outDir = dir.filePath(QStringLiteral("out"));
+  BOOST_REQUIRE(QDir().mkpath(outDir));
+  DefaultParams startValues;
+  // Two pages per image, so the Split pass cuts book.png without depending on the detection.
+  startValues.setPageSplitParams(page_split::PageSplitParams(page_split::TWO_PAGES));
+  const ProjectSession session = ProjectSession::createNew(
+      ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()), outDir, QString(), startValues);
+  BOOST_REQUIRE(Tests::writeFile(dir.filePath(QStringLiteral("broken.png")), "not an image"));
+
+  std::vector<StageSequence::PageProgress> calls;
+  session.stages->processAll(nullptr, session.outFileNameGen, session.stages->pageLayoutFilterIdx(),
+                             [&](const StageSequence::PageProgress& progress) {
+                               calls.push_back(progress);
+                               return true;
+                             });
+
+  // The result of each page by pass, file and half.
+  std::map<std::tuple<int, QString, PageId::SubPage>, StageSequence::PageProgress> byPage;
+  for (const StageSequence::PageProgress& progress : calls) {
+    const PageId& id = progress.page.id();
+    byPage[{progress.lastFilterIdx, QFileInfo(id.imageId().filePath()).fileName(), id.subPage()}] = progress;
+  }
+  BOOST_REQUIRE_EQUAL(byPage.size(), calls.size());
+
+  const int splitIdx = session.stages->pageSplitFilterIdx();
+  const int marginsIdx = session.stages->pageLayoutFilterIdx();
+  const auto status = [&](const int pass, const char* file, const PageId::SubPage subPage) {
+    const auto it = byPage.find({pass, QString::fromLatin1(file), subPage});
+    BOOST_REQUIRE_MESSAGE(it != byPage.end(), "no progress for " << file << " in pass " << pass);
+    return it->second;
+  };
+  BOOST_CHECK(status(splitIdx, "book.png", PageId::SINGLE_PAGE).status == StageSequence::PageProgress::OK);
+  const StageSequence::PageProgress broken = status(splitIdx, "broken.png", PageId::SINGLE_PAGE);
+  BOOST_CHECK(broken.status == StageSequence::PageProgress::FAILED);
+  BOOST_CHECK(broken.failure.kind == StageSequence::PageFailure::LOAD_FAILED);
+  BOOST_CHECK(broken.failure.page.imageId() == broken.page.imageId());
+
+  BOOST_CHECK(status(marginsIdx, "book.png", PageId::LEFT_PAGE).status == StageSequence::PageProgress::OK);
+  BOOST_CHECK(status(marginsIdx, "book.png", PageId::RIGHT_PAGE).status == StageSequence::PageProgress::OK);
+  for (const StageSequence::PageProgress& progress : calls) {
+    if ((progress.lastFilterIdx == marginsIdx) && progress.page.imageId().filePath().endsWith("broken.png")) {
+      BOOST_CHECK(progress.status == StageSequence::PageProgress::SKIPPED);
+    }
+  }
+  // Split: two images; Margins: the two halves of book.png and what broken.png has.
+  BOOST_CHECK_EQUAL(std::count_if(calls.begin(), calls.end(),
+                                  [&](const StageSequence::PageProgress& p) { return p.lastFilterIdx == splitIdx; }),
+                    2);
+  for (const StageSequence::PageProgress& progress : calls) {
+    BOOST_CHECK(progress.done >= 1);
+    BOOST_CHECK(progress.done <= progress.total);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
