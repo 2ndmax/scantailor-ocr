@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -18,6 +19,7 @@ from PIL import Image, ImageDraw
 from scantailor_ocr_mcp.server import build_server
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA_DIR = Path(__file__).resolve().parent / "data"
 
 
 def make_page(path: Path) -> None:
@@ -135,6 +137,14 @@ def test_run_export(cli, tmp_path: Path):
     book = make_book(allowed / "book", 1)
     export_dir = allowed / "export"
     export_dir.mkdir()
+    # The built-in profiles recognize German and English text, and the CLI refuses an export
+    # whose OCR languages aren't installed, as on the CI runners. This profile turns text
+    # recognition off, so the test doesn't depend on the languages of the machine. It is the
+    # Default profile with the PDF text layer off and no languages, as written by
+    # DefaultParamsProfileManager; profiles of older versions stay readable. The profile is a
+    # path, so it has to lie in an allowed folder too.
+    profile = allowed / "no-ocr.stp"
+    shutil.copyfile(DATA_DIR / "no-ocr.stp", profile)
 
     async def main():
         server, _ = build_server([allowed])
@@ -143,7 +153,7 @@ def test_run_export(cli, tmp_path: Path):
                 "run_start",
                 {
                     "folder": str(book),
-                    "profile": "Default",
+                    "profile": str(profile),
                     "last_step": "export",
                     "export_formats": ["pdf"],
                     "export_folder": str(export_dir),
