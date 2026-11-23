@@ -16,7 +16,7 @@ CLI's `--project-info`.
 
 ## Finding the CLI
 
-`cli.py` looks for the CLI in this order:
+The server looks for the CLI in this order:
 
 1. The environment variable `SCANTAILOR_OCR_CLI`, if set and pointing at an
    existing file.
@@ -48,10 +48,14 @@ and `run_start` refuse every path: there is no folder they are allowed to touch.
 
 **Allowed folders.** A path is allowed when it lies inside a folder the client
 supplies through MCP `roots`, or inside a folder given with `--allow-root`. Every
-path (input folder, project file, output, export, report) is resolved to an
-absolute, normalised path with symbolic links followed before the check; a path
-that escapes an allowed folder is refused. Without any allowed folder nothing
-that takes a path works.
+path an agent passes (input folder, project file, output folder, export folder,
+a profile file) is resolved to an absolute, normalised path with symbolic links
+followed before the check; a path that escapes an allowed folder is refused.
+Without any allowed folder nothing that takes a path works. The server logs the
+roots it gets from the client, or that the client provides none.
+
+The report of a run is written to a temporary folder of the server, never to a
+folder of the user, and removed when the server ends.
 
 All server logging goes to standard error. Standard output carries only the MCP
 protocol.
@@ -59,31 +63,21 @@ protocol.
 ## Registering in Claude Code
 
 ```
-claude mcp add scantailor-ocr \
-  --env SCANTAILOR_OCR_CLI=<path to scantailor-ocr-cli> \
-  --transport stdio \
-  -- uv run --directory <repo>/tools/mcp scantailor-ocr-mcp \
-     --allow-root <folder>
+claude mcp add --env SCANTAILOR_OCR_CLI=/path/to/scantailor-ocr-cli --transport stdio scantailor-ocr -- uv run --directory /path/to/repo/tools/mcp scantailor-ocr-mcp --allow-root /path/to/books
 ```
 
-The `--` separates Claude Code's own options from the command that starts the
-server; everything after it is passed to the server untouched. `--env` accepts
-several `KEY=value` pairs; put another option such as `--transport stdio`
-between `--env` and the server name so the name is not read as another pair.
+Claude Code's own options come before the server name; `--` separates them from
+the command that starts the server, which gets everything after it untouched.
+`--env` takes several `KEY=value` pairs, so another option such as
+`--transport stdio` stands between it and the name, which would otherwise be
+read as one more pair. `claude mcp add --help` shows the options of your
+version.
 
-On Windows use the absolute path to `scantailor-ocr-cli.exe`:
+On Windows, with absolute paths:
 
 ```
-claude mcp add scantailor-ocr ^
-  --env SCANTAILOR_OCR_CLI=C:\path\to\scantailor-ocr-cli.exe ^
-  --transport stdio ^
-  -- uv run --directory C:\path\to\repo\tools\mcp scantailor-ocr-mcp ^
-     --allow-root C:\path\to\bookfolder
+claude mcp add --env SCANTAILOR_OCR_CLI=C:\path\to\scantailor-ocr-cli.exe --transport stdio scantailor-ocr -- uv run --directory C:\path\to\repo\tools\mcp scantailor-ocr-mcp --allow-root C:\path\to\books
 ```
-
-`claude` was not available on the machine this README was written on, so this
-command is written from the documented syntax and marked unverified. Check with
-`claude mcp add --help` on your machine if it is rejected.
 
 ## Registering in Claude Desktop
 
@@ -97,7 +91,7 @@ Edit Config, which creates it if missing):
 {
   "mcpServers": {
     "scantailor-ocr": {
-      "command": "uv",
+      "command": "C:\\path\\to\\uv.exe",
       "args": [
         "run",
         "--directory",
@@ -115,13 +109,9 @@ Edit Config, which creates it if missing):
 ```
 
 Use absolute paths for both `uv` and the CLI: desktop apps usually do not see
-the shell's `PATH`. The config is read only when Claude Desktop starts, so
-restart the app after editing. If an edit seems to be ignored on a Windows
-Microsoft Store (MSIX) install, the app may read a second copy under
-`%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\`.
-
-The location and format above follow the official documentation; they were not
-checked against a running Claude Desktop and are marked unverified.
+the shell's `PATH` (`where uv` on Windows, `which uv` elsewhere, shows the path
+of `uv`). The config is read only when Claude Desktop starts, so restart the app
+after editing.
 
 ## The tools
 
@@ -138,24 +128,27 @@ cannot be read.
 a `job_id` immediately; poll with `run_status`. Either `folder` (create a new
 project) or `project` (an existing `.ScanTailor`), never both. Creation options
 (`profile`, `dpi`, `dpi_fix`, `project_file`, `output_folder`,
-`color_mode_detect`) are only valid with `folder`. Common options: `last_step`
+`color_mode_detect`) are only valid with `folder`; `profile` is a name from
+`profile_list` or a `.stp` file in an allowed folder. Common options: `last_step`
 (one of `fix-orientation`, `split-pages`, `deskew`, `select-content`,
 `margins`, `output`, `export`; default `output`), `threads`, `export_folder`,
-`export_name`, `export_formats` (`pdf`, `txt`, `hocr`, `alto`).
+`export_name`, `export_formats` (`pdf`, `txt`, `hocr`, `alto`). A second run of
+a project that is still running, or more runs than `--max-runs`, is refused
+with `isError`.
 
 **`run_status`** (`job_id`). Returns the state:
 
 | state | exit code | meaning |
 |---|---|---|
-| `running` | (none) | in progress; carries `step`, `done`, `total`, `passes_started` |
+| `running` | (none) | in progress; carries `step`, `done`, `total`, `passes_started`, `cancel_requested` |
 | `succeeded` | 0 | finished |
 | `pages_failed` | 3 | some pages failed |
 | `export_failed` | 4 | export failed |
 | `cancelled` | 5 | cancelled |
 | `refused` | 1 or 2 | CLI refused the run; carries `message` |
-| `crashed` | other | the CLI ended unexpectedly |
+| `crashed` | other | the CLI ended unexpectedly, or without its report; carries `message` |
 
-Terminal states 0, 3, 4 and 5 carry the full report; 1 and 2 carry a message.
+The states for exit codes 0, 3, 4 and 5 carry the full report under `report`.
 
 **`run_cancel`** (`job_id`). Cancels a running job like Ctrl+C; the project and
 the report are saved. Returns immediately; the final result is available through
@@ -194,8 +187,7 @@ repeat them.
 - When the server ends, it cancels running runs and waits up to 30 seconds for
   them to save.
 - On Windows the cancellation needs a console. If the server starts without one,
-  it allocates a hidden console first. One sentence is enough here; the details
-  are in `console.py`.
+  it allocates a hidden console first.
 
 ## Troubleshooting
 
@@ -205,14 +197,13 @@ repeat them.
   from this repository's state.
 - **Path refused.** The path is outside every allowed folder. Add the folder
   with `--allow-root`, or let the client provide it through MCP `roots`.
-- **Logs.** `--log-level DEBUG` prints to standard error. Where the client shows
-  them depends on the client; Claude Code prints them in its MCP log, Claude
-  Desktop writes them under its logs folder.
+- **Logs.** The server logs to standard error, more with `--log-level DEBUG`.
+  Where a client shows them depends on the client.
 
 ## Development and tests
 
-See `TESTING.md` (section on the server tests) for `uv run pytest` in
-`tools/mcp/` and the CI that runs them.
+See [TESTING.md](../../TESTING.md) (section on the server tests) for
+`uv run pytest` in `tools/mcp/` and the CI that runs them.
 
 ## Tested clients
 
