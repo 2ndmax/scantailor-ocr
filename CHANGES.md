@@ -477,7 +477,9 @@ topic, not by version.
   whether it was detected, output file, status and why it failed; the exported files and the
   files passed over). The schema is versioned (`schemaVersion`) and its keys aren't translated.
   The report is written for every run that gets to processing, also when pages failed or the
-  run was canceled.
+  run was canceled. `--progress-json` writes the progress as JSON lines on the standard output,
+  one per page of each pass, with the export and the end of the run; all other text then goes to
+  the standard error.
 * **Checks, canceling and exit codes:** an option for a step the run doesn't reach, an option
   for creating a project together with an existing project, and `--color-mode-detect` with an
   existing project are command line errors. Everything that can be checked is checked before
