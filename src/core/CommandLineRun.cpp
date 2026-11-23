@@ -1050,8 +1050,8 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     return PROJECT_UNUSABLE;
   }
 
-  const StageSequence::ProgressCallback progress = [&](const int lastFilterIdx, const int done, const int total) {
-    out << tr("%1: %2 of %3").arg(stages.filterAt(lastFilterIdx)->getName()).arg(done).arg(total) << Qt::endl;
+  const StageSequence::ProgressCallback progress = [&](const StageSequence::PageProgress& p) {
+    out << tr("%1: %2 of %3").arg(stages.filterAt(p.lastFilterIdx)->getName()).arg(p.done).arg(p.total) << Qt::endl;
     return !cancel;
   };
   // The filter of the run's last step; the export runs after the Output step.

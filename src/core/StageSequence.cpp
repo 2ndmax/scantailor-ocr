@@ -298,11 +298,24 @@ bool StageSequence::processPass(const PageView view,
   const int total = static_cast<int>(pages.size());
   int done = 0;
   // Returns false if processing is to be cancelled.
-  const auto countDone = [&]() {
+  const auto countDone = [&](const PageInfo& page, const StageSequence::PageProgress::Status status,
+                             const StageSequence::PageFailure* failure = nullptr) {
     ++done;
     // A cancel after the last page changes nothing: all pages are done, so the result counts as complete.
     const bool lastPage = (lastFilterIdx == m_outputFilterIdx) && (done == total);
-    return !progress || progress(lastFilterIdx, done, total) || lastPage;
+    if (!progress) {
+      return true;
+    }
+    StageSequence::PageProgress p;
+    p.lastFilterIdx = lastFilterIdx;
+    p.done = done;
+    p.total = total;
+    p.page = page;
+    p.status = status;
+    if (failure) {
+      p.failure = *failure;
+    }
+    return progress(p) || lastPage;
   };
 
   PassFailures failures;
@@ -331,7 +344,7 @@ bool StageSequence::processPass(const PageView view,
       const PageInfo& page = pages[pageIndex];
       if (failedImages.count(page.imageId()) != 0) {
         // The image failed in an earlier pass or with its other page.
-        if (!countDone()) {
+        if (!countDone(page, StageSequence::PageProgress::SKIPPED)) {
           cancelled = true;
           stopping = true;
         }
@@ -370,13 +383,22 @@ bool StageSequence::processPass(const PageView view,
     const PageInfo& page = pages[outcome.pageIndex];
     QStringList reasons;
     LoadFileTask::Failure failure = LoadFileTask::Failure::LOAD;
+    StageSequence::PageProgress::Status pageStatus = StageSequence::PageProgress::OK;
+    StageSequence::PageFailure pageFailure;
+    bool pageFailed = false;
     if (LoadFileTask::isFailure(outcome.result, &reasons, &failure)) {
       failedImages.insert(page.imageId());
       failures.addImageFailure(outcome.pageIndex, page, {page.id(), toPageFailureKind(failure), reasons});
+      pageFailed = true;
+      pageFailure = {page.id(), toPageFailureKind(failure), reasons};
+      pageStatus = StageSequence::PageProgress::FAILED;
     } else if ((lastFilterIdx == m_outputFilterIdx) && !m_outputFilter->hasOutputParams(page.id())) {
       failures.addOtherFailure(outcome.pageIndex, {page.id(), PageFailure::OUTPUT_NOT_WRITTEN, {}});
+      pageFailed = true;
+      pageFailure = {page.id(), PageFailure::OUTPUT_NOT_WRITTEN, {}};
+      pageStatus = StageSequence::PageProgress::FAILED;
     }
-    if (!countDone()) {
+    if (!countDone(page, pageStatus, pageFailed ? &pageFailure : nullptr)) {
       cancelled = true;
       stopping = true;
     }

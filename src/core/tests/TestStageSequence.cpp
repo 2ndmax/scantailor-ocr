@@ -110,13 +110,12 @@ BOOST_AUTO_TEST_CASE(test_parallel_progress) {
   const QThread* const caller = QThread::currentThread();
   bool inCaller = true;
   std::map<int, std::vector<int>> doneByPass;
-  const StageSequence::ProcessAllResult result
-      = session.stages->processAll(nullptr, session.outFileNameGen, session.stages->outputFilterIdx(),
-                                   [&](const int lastFilterIdx, const int done, int /*total*/) {
-                                     inCaller = inCaller && (QThread::currentThread() == caller);
-                                     doneByPass[lastFilterIdx].push_back(done);
-                                     return true;
-                                   });
+  const StageSequence::ProcessAllResult result = session.stages->processAll(
+      nullptr, session.outFileNameGen, session.stages->outputFilterIdx(), [&](const StageSequence::PageProgress& p) {
+        inCaller = inCaller && (QThread::currentThread() == caller);
+        doneByPass[p.lastFilterIdx].push_back(p.done);
+        return true;
+      });
   BOOST_CHECK(result.failures.empty());
   BOOST_CHECK(result.output);
   BOOST_CHECK(inCaller);
@@ -165,9 +164,9 @@ BOOST_AUTO_TEST_CASE(test_parallel_cancel) {
 
   const Tests::ScopedMaxThreads threads(4);
   const int outputIdx = session.stages->outputFilterIdx();
-  const StageSequence::ProcessAllResult cancelled = session.stages->processAll(
-      nullptr, session.outFileNameGen, outputIdx,
-      [&](const int lastFilterIdx, int /*done*/, int /*total*/) { return lastFilterIdx != outputIdx; });
+  const StageSequence::ProcessAllResult cancelled
+      = session.stages->processAll(nullptr, session.outFileNameGen, outputIdx,
+                                   [&](const StageSequence::PageProgress& p) { return p.lastFilterIdx != outputIdx; });
   BOOST_CHECK(cancelled.cancelled);
   BOOST_CHECK(!cancelled.output);
   BOOST_CHECK(cancelled.failures.empty());

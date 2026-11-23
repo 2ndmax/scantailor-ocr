@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "AbstractFilter.h"
+#include "PageInfo.h"
 class DefaultParams;
 #include "BackgroundTask.h"
 #include "ExportPage.h"
@@ -71,11 +72,25 @@ class StageSequence {
   };
 
   /**
-   * Called by processAll() after each page with the step the pages are processed up to and how many
-   * of the pages of this pass are done. Returning false cancels processing before the next page,
-   * so no output file is left half-written.
+   * The progress of one page in a pass of processAll(): the step the pages are processed up to, how
+   * many of the pages of this pass are done, the page itself, and whether it succeeded, failed (with
+   * the PageFailure) or was skipped.
    */
-  using ProgressCallback = std::function<bool(int lastFilterIdx, int done, int total)>;
+  struct PageProgress {
+    int lastFilterIdx = 0;
+    int done = 0;
+    int total = 0;
+    PageInfo page;
+    enum Status { OK, FAILED, SKIPPED };
+    Status status = OK;
+    PageFailure failure;  // valid when status == FAILED
+  };
+
+  /**
+   * Called by processAll() after each page with that page and its result. Returning false cancels
+   * processing before the next page, so no output file is left half-written.
+   */
+  using ProgressCallback = std::function<bool(const PageProgress&)>;
 
   /**
    * Called by processAll() after the Margins pass, before the Output pass, when the run reaches

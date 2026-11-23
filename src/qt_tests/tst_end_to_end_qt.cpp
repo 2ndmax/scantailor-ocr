@@ -398,15 +398,14 @@ void TestEndToEndQt::testCancelWithoutThumbnails() {
   // The cancel request comes from the progress of the output, after its first page. How often the
   // steps before report their progress is not checked here.
   bool cancelRequested = false;
-  const StageSequence::ProcessAllResult cancelled
-      = project.stages->processAll(nullptr, project.outFileNameGen, project.stages->outputFilterIdx(),
-                                   [&](const int lastFilterIdx, const int done, const int total) {
-                                     if (lastFilterIdx == outputIdx && done >= 1 && done < total) {
-                                       cancelRequested = true;
-                                       return false;
-                                     }
-                                     return true;
-                                   });
+  const StageSequence::ProcessAllResult cancelled = project.stages->processAll(
+      nullptr, project.outFileNameGen, project.stages->outputFilterIdx(), [&](const StageSequence::PageProgress& p) {
+        if (p.lastFilterIdx == outputIdx && p.done >= 1 && p.done < p.total) {
+          cancelRequested = true;
+          return false;
+        }
+        return true;
+      });
   QVERIFY(cancelRequested);
   QVERIFY(cancelled.cancelled);
   QVERIFY(!cancelled.output);
