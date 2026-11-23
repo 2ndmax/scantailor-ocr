@@ -10,6 +10,7 @@
 #include <exception>
 #include <map>
 #include <new>
+#include <optional>
 #include <queue>
 #include <set>
 #include <utility>
@@ -383,22 +384,17 @@ bool StageSequence::processPass(const PageView view,
     const PageInfo& page = pages[outcome.pageIndex];
     QStringList reasons;
     LoadFileTask::Failure failure = LoadFileTask::Failure::LOAD;
-    StageSequence::PageProgress::Status pageStatus = StageSequence::PageProgress::OK;
-    StageSequence::PageFailure pageFailure;
-    bool pageFailed = false;
+    std::optional<PageFailure> pageFailure;
     if (LoadFileTask::isFailure(outcome.result, &reasons, &failure)) {
       failedImages.insert(page.imageId());
-      failures.addImageFailure(outcome.pageIndex, page, {page.id(), toPageFailureKind(failure), reasons});
-      pageFailed = true;
-      pageFailure = {page.id(), toPageFailureKind(failure), reasons};
-      pageStatus = StageSequence::PageProgress::FAILED;
+      pageFailure = PageFailure{page.id(), toPageFailureKind(failure), reasons};
+      failures.addImageFailure(outcome.pageIndex, page, *pageFailure);
     } else if ((lastFilterIdx == m_outputFilterIdx) && !m_outputFilter->hasOutputParams(page.id())) {
-      failures.addOtherFailure(outcome.pageIndex, {page.id(), PageFailure::OUTPUT_NOT_WRITTEN, {}});
-      pageFailed = true;
-      pageFailure = {page.id(), PageFailure::OUTPUT_NOT_WRITTEN, {}};
-      pageStatus = StageSequence::PageProgress::FAILED;
+      pageFailure = PageFailure{page.id(), PageFailure::OUTPUT_NOT_WRITTEN, {}};
+      failures.addOtherFailure(outcome.pageIndex, *pageFailure);
     }
-    if (!countDone(page, pageStatus, pageFailed ? &pageFailure : nullptr)) {
+    if (!countDone(page, pageFailure ? PageProgress::FAILED : PageProgress::OK,
+                   pageFailure ? &*pageFailure : nullptr)) {
       cancelled = true;
       stopping = true;
     }
