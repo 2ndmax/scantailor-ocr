@@ -12,6 +12,13 @@
 
 OrthogonalRotation::OrthogonalRotation() : m_degrees(0) {}
 
+OrthogonalRotation::OrthogonalRotation(int degrees) : m_degrees(0) {
+  degrees = ((degrees % 360) + 360) % 360;
+  if (degrees % 90 == 0) {
+    m_degrees = degrees;
+  }
+}
+
 OrthogonalRotation::OrthogonalRotation(const QDomElement& el) : m_degrees(0) {
   // A damaged or hand-edited project file may hold any angle. transform() and rotate()
   // only handle 0, 90, 180 and 270, so full turns are removed and anything else becomes 0.

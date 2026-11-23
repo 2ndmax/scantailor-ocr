@@ -130,5 +130,193 @@ std::vector<OrientationDetection::BookDecision> OrientationDetection::applyBookR
   return out;
 }
 
+OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Settings>& settings,
+                                                       const std::vector<PageInfo>& pages,
+                                                       const std::set<PageId>& selection,
+                                                       bool bookRule,
+                                                       const TaskStatus& status,
+                                                       const std::function<bool(int)>& progress,
+                                                       const PageResultCallback& pageResult) {
+  Result result;
+  const int total = static_cast<int>(pages.size());
+
+  // Pass 1: detect.
+  std::vector<bool> processed(total, false);
+  std::vector<bool> failed(total, false);
+  std::vector<OrientationDetector::Result> dets(total);
+  std::vector<QSize> sizes(total);
+  bool cancelled = false;
+
+  for (int i = 0; i < total; ++i) {
+    if (progress && !progress(i)) {
+      cancelled = true;
+      break;
+    }
+    const PageInfo& page = pages[i];
+
+    bool shouldDetect = bookRule || (selection.count(page.id()) > 0);
+    if (!shouldDetect) {
+      continue;
+    }
+    processed[i] = true;
+
+    QImage image = ImageLoader::load(page.imageId());
+    if (image.isNull()) {
+      failed[i] = true;
+      continue;
+    }
+
+    int dpi = page.metadata().dpi().horizontal();
+    if (dpi <= 0) {
+      dpi = page.metadata().dpi().vertical();
+    }
+    if (dpi <= 0) {
+      const int stored = Dpi(Dpm(image)).horizontal();
+      if (stored > 0) {
+        dpi = stored;
+      } else {
+        dpi = 300;
+      }
+    }
+
+    dets[i] = OrientationDetector::detect(image, dpi);
+    sizes[i] = image.size();
+  }
+
+  if (cancelled) {
+    result.cancelled = true;
+    return result;
+  }
+
+  // Pass 2: book rule.
+  std::vector<int> origin(total, -1);  // -1 not processed; 0 DETECTED,1 BOOK_RULE,2 UNDECIDED,3 FAILED
+  std::vector<int> angle(total, 0);
+
+  if (bookRule) {
+    std::vector<Detection> detections(total);
+    for (int i = 0; i < total; ++i) {
+      if (!processed[i]) {
+        // In book mode all are processed, but guard anyway.
+        continue;
+      }
+      detections[i].decided = !failed[i] && dets[i].decided;
+      detections[i].angle = failed[i] ? 0 : dets[i].angle;
+    }
+    // Need sizes for all pages, including failed.
+    for (int i = 0; i < total; ++i) {
+      if (!processed[i])
+        continue;
+      if (failed[i]) {
+        detections[i].width = pages[i].metadata().size().width();
+        detections[i].height = pages[i].metadata().size().height();
+      } else {
+        detections[i].width = sizes[i].width();
+        detections[i].height = sizes[i].height();
+      }
+    }
+
+    const std::vector<BookDecision> decisions = applyBookRule(detections);
+    for (int i = 0; i < total; ++i) {
+      if (!processed[i])
+        continue;
+      if (failed[i]) {
+        origin[i] = 3;  // FAILED
+        angle[i] = 0;
+        continue;
+      }
+      switch (decisions[i].source) {
+        case BookDecision::DETECTED:
+          origin[i] = 0;
+          angle[i] = decisions[i].angle;
+          break;
+        case BookDecision::BOOK_RULE:
+          origin[i] = 1;
+          angle[i] = decisions[i].angle;
+          break;
+        default:
+          origin[i] = 2;
+          angle[i] = 0;
+          break;
+      }
+    }
+  } else {
+    for (int i = 0; i < total; ++i) {
+      if (!processed[i])
+        continue;
+      if (failed[i]) {
+        origin[i] = 3;
+        angle[i] = 0;
+      } else if (dets[i].decided) {
+        origin[i] = 0;
+        angle[i] = dets[i].angle;
+      } else {
+        origin[i] = 2;
+        angle[i] = 0;
+      }
+    }
+  }
+
+  // Pass 3: set rotations and callbacks.
+  // changed count among set pages
+  for (int i = 0; i < total; ++i) {
+    if (!processed[i]) {
+      continue;
+    }
+    const PageInfo& page = pages[i];
+
+    PageResult pr;
+    if (origin[i] == 3) {
+      pr.status = PageResult::FAILED;
+      pr.angle = 0;
+    } else if (origin[i] == 0) {
+      pr.status = PageResult::DETECTED;
+      pr.angle = angle[i];
+    } else if (origin[i] == 1) {
+      pr.status = PageResult::BOOK_RULE;
+      pr.angle = angle[i];
+    } else {
+      pr.status = PageResult::UNDECIDED;
+      pr.angle = 0;
+    }
+
+    // counters
+    switch (pr.status) {
+      case PageResult::DETECTED:
+        ++result.detected;
+        break;
+      case PageResult::BOOK_RULE:
+        ++result.bookRule;
+        break;
+      case PageResult::UNDECIDED:
+        ++result.undecided;
+        break;
+      case PageResult::FAILED:
+        ++result.failed;
+        break;
+    }
+
+    result.results.emplace_back(page.id(), pr);
+    if (pr.status == PageResult::DETECTED) {
+      result.detectedAngles.emplace_back(page.id(), pr.angle);
+    }
+
+    if (pageResult) {
+      pageResult(page, pr);
+    }
+
+    // set rotation if allowed
+    bool selected = selection.count(page.id()) > 0;
+    if (selected && (pr.status == PageResult::DETECTED || pr.status == PageResult::BOOK_RULE) && settings) {
+      const int stored = settings->getRotationFor(page.imageId()).toDegrees();
+      if (stored != pr.angle) {
+        ++result.changed;
+      }
+      settings->applyRotation(page.imageId(), OrthogonalRotation(pr.angle));
+    }
+  }
+
+  result.cancelled = false;
+  return result;
+}
 
 }  // namespace fix_orientation

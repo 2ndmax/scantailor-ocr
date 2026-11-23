@@ -15,6 +15,8 @@ class OrthogonalRotation {
  public:
   OrthogonalRotation();
 
+  explicit OrthogonalRotation(int degrees);
+
   explicit OrthogonalRotation(const QDomElement& el);
 
   QDomElement toXml(QDomDocument& doc, const QString& name) const;

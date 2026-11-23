@@ -62,6 +62,7 @@ set(sources
     TestColorModeDetector.cpp
     TestOrientationDetector.cpp
     TestOrientationDetection.cpp
+    TestOrientationDetectionRun.cpp
     TestColorModeDetectionProgress.cpp
     TestOcrEngine.cpp)
 
