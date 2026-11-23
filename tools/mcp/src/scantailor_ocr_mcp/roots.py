@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 from urllib.parse import unquote, urlparse
@@ -19,22 +18,29 @@ def _norm(p: Path) -> str:
     return s
 
 
+def _parts(p: Path) -> tuple[str, ...]:
+    """The components of the path for comparing, without case on Windows."""
+    if sys.platform == "win32":
+        return tuple(part.casefold() for part in p.parts)
+    return p.parts
+
+
 def is_allowed(path: str | Path, allowed: list[Path]) -> bool:
-    """True if the resolved path equals an allowed folder or lies inside it."""
+    """True if the resolved path equals an allowed folder or lies inside it.
+
+    Compared by path components, not by text: "C:\\Books2" is not inside "C:\\Books", and a drive
+    root or "/" contains everything on it.
+    """
     try:
-        resolved = resolve_path(path)
+        target = _parts(resolve_path(path))
     except (OSError, RuntimeError):
         return False
-    target = _norm(resolved)
     for root in allowed:
         try:
-            root_resolved = root.resolve()
+            base = _parts(root.resolve())
         except (OSError, RuntimeError):
             continue
-        base = _norm(root_resolved)
-        if target == base:
-            return True
-        if target.startswith(base + os.sep) or target.startswith(base + "/"):
+        if target[: len(base)] == base:
             return True
     return False
 

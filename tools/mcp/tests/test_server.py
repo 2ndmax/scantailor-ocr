@@ -281,3 +281,11 @@ def test_symlink(tmp_path: Path, cli: Path):
             assert r.is_error is True
 
     run_async(main())
+
+
+def test_a_drive_root_allows_what_is_on_it(tmp_path: Path):
+    """An allowed drive root (or "/") allows every path below it."""
+    from scantailor_ocr_mcp.roots import is_allowed
+
+    inside = tmp_path / "book.ScanTailor"
+    assert is_allowed(inside, [Path(tmp_path.anchor)])
