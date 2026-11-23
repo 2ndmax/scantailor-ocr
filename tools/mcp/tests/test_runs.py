@@ -87,8 +87,8 @@ def test_run_success(cli, tmp_path: Path):
             # output file exists
             out_dir = book / "out"
             assert any(out_dir.glob("*.tif"))
-            # report is not in the user folder
-            assert not list(book.rglob("*.json")) or True
+            # The report goes to the folder of the server, never to a folder of the user.
+            assert not list(allowed.rglob("*.json"))
 
     asyncio.run(main())
 
@@ -100,7 +100,7 @@ def test_run_progress(cli, tmp_path: Path):
     book = make_book(allowed / "book", 2)
 
     async def main():
-        server, _ = build_server([allowed])
+        server, state = build_server([allowed])
         async with Client(server) as client:
             r = await client.call_tool(
                 "run_start", {"folder": str(book), "profile": "Default", "last_step": "output"}
@@ -108,10 +108,21 @@ def test_run_progress(cli, tmp_path: Path):
             job_id = r.structured_content["job_id"]
             sc, running = await wait_finished(client, job_id)
             assert sc["state"] == "succeeded"
-            # at least one running status with step/done/total
-            assert (
-                any(rs.get("step") is not None and "done" in rs and "total" in rs for rs in running)
-                or sc["report"] is not None
+            # A short run may end before a status call sees it running, so the progress lines the
+            # job took from the CLI are checked instead: what run_status reports while running.
+            job = state["job_manager"].jobs[job_id]
+            steps = [e["step"] for e in job.progress_events if e.get("event") == "pass-start"]
+            assert steps == ["split-pages", "margins", "output"]
+            output_pages = [
+                e
+                for e in job.progress_events
+                if e.get("event") == "page" and e.get("step") == "output"
+            ]
+            assert [e["done"] for e in output_pages] == [1, 2]
+            assert all(e["total"] == 2 for e in output_pages)
+            # And what a status call saw while running had all three fields.
+            assert all(
+                rs["step"] is not None and rs["total"] >= rs["done"] for rs in running if rs["step"]
             )
 
     asyncio.run(main())
@@ -205,6 +216,9 @@ def test_run_cancel(cli, tmp_path: Path):
             assert sc["state"] == "cancelled"
             assert sc["exit_code"] == 5
             assert sc["report"]["run"].get("cancelled") is True
+            # The CLI writes the project of a folder after processing; it exists only if the
+            # cancel let the CLI end normally.
+            assert (book / "book.ScanTailor").is_file()
             out_dir = book / "out"
             tifs = list(out_dir.glob("*.tif")) if out_dir.exists() else []
             assert len(tifs) < 18
@@ -368,6 +382,8 @@ def test_no_console_cancel(cli, tmp_path: Path):
                     await asyncio.sleep(0.5)
                 assert sc["state"] == "cancelled"
                 assert sc["exit_code"] == 5
+        assert (book / "book.ScanTailor").is_file()
+        assert len(list((book / "out").glob("*.tif"))) < 18
 
     asyncio.run(main())
 
@@ -376,7 +392,7 @@ def test_no_console_cancel(cli, tmp_path: Path):
 def test_server_shutdown_during_run(cli, tmp_path: Path):
     allowed = tmp_path / "allowed"
     allowed.mkdir()
-    book = make_book(allowed / "book", 8)
+    book = make_book(allowed / "book", 18)
 
     async def main():
         env = dict(os.environ)
@@ -399,8 +415,15 @@ def test_server_shutdown_during_run(cli, tmp_path: Path):
                     },
                 )
                 assert r.is_error is False
-                await asyncio.sleep(2)
+                # The client leaves while the Output step is under way.
+                deadline = time.time() + 120
+                while not list((book / "out").glob("*.tif")):
+                    assert time.time() < deadline, "no output file before leaving"
+                    await asyncio.sleep(0.2)
+        # Leaving made the server cancel the run, not kill it, and not wait for its end: the
+        # project of the folder is written only when the CLI ends normally, and pages are left.
         assert (book / "book.ScanTailor").is_file()
+        assert len(list((book / "out").glob("*.tif"))) < 18
 
     asyncio.run(main())
 
