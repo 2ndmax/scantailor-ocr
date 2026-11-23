@@ -9,6 +9,7 @@ set(sources
     ImageTrim.cpp ImageTrim.h
     Filter.cpp Filter.h
     FixOrientationParams.cpp FixOrientationParams.h
+    OrientationDetection.cpp OrientationDetection.h
     Settings.cpp Settings.h
     Task.cpp Task.h
     TaskResult.cpp TaskResult.h
