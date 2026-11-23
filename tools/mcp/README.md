@@ -54,8 +54,8 @@ followed before the check; a path that escapes an allowed folder is refused.
 Without any allowed folder nothing that takes a path works. The server logs the
 roots it gets from the client, or that the client provides none.
 
-The report of a run is written to a temporary folder of the server, never to a
-folder of the user, and removed when the server ends.
+The report of a run is written to a temporary folder, never to a folder of the
+user, and removed as soon as the server has read it.
 
 All server logging goes to standard error. Standard output carries only the MCP
 protocol.
