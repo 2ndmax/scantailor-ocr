@@ -1114,7 +1114,9 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       return USAGE_ERROR;
     }
     if (options.orientationDetect != QStringLiteral("pages") && options.orientationDetect != QStringLiteral("book")) {
-      err << tr("The value after --orientation-detect must be pages or book.") << Qt::endl;
+      err << tr("Unknown method after --orientation-detect: %1. The methods are: pages and book.")
+                 .arg(options.orientationDetect)
+          << Qt::endl;
       return USAGE_ERROR;
     }
   }
@@ -1315,65 +1317,10 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
         });
     orientationDetectionCancelled = result.cancelled;
 
-    // Summary on stdout.
-    int detected = 0;
-    int byBookRule = 0;
-    QStringList uncertain;
-    QStringList unreadable;
-    for (const auto& [pageId, pr] : result.results) {
-      switch (pr.status) {
-        case fix_orientation::OrientationDetection::PageResult::DETECTED:
-          ++detected;
-          break;
-        case fix_orientation::OrientationDetection::PageResult::BOOK_RULE:
-          ++byBookRule;
-          break;
-        case fix_orientation::OrientationDetection::PageResult::UNDECIDED:
-          uncertain.push_back(pageName(pageId));
-          break;
-        case fix_orientation::OrientationDetection::PageResult::FAILED:
-          unreadable.push_back(pageName(pageId));
-          break;
-      }
-    }
-    if (result.cancelled) {
-      out << tr("The detection was canceled. No pages were rotated.") << Qt::endl;
-    } else {
-      const int rotated = result.changed;
-      const int alreadyCorrect = detected + byBookRule - rotated;
-      QString summary
-          = tr("Orientation detected for %n page(s): %1 rotated, %2 already correct.", nullptr, detected + byBookRule)
-                .arg(rotated)
-                .arg(alreadyCorrect);
-      if (bookRule) {
-        summary += "\n" + tr("Of these, %n like their neighbors or the majority.", nullptr, byBookRule);
-      }
-      if (!uncertain.isEmpty()) {
-        // Keep long lists short.
-        QStringList shown = uncertain;
-        if (shown.size() > 10) {
-          const int more = shown.size() - 10;
-          shown = shown.mid(0, 10);
-          shown.push_back(tr(", and %n more", nullptr, more));
-        }
-        summary += "\n\n"
-                   + tr("%n page(s) left unchanged because the orientation is uncertain: %1", nullptr,
-                        static_cast<int>(uncertain.size()))
-                         .arg(shown.join(QStringLiteral(", ")));
-      }
-      if (!unreadable.isEmpty()) {
-        QStringList shown = unreadable;
-        if (shown.size() > 10) {
-          const int more = shown.size() - 10;
-          shown = shown.mid(0, 10);
-          shown.push_back(tr(", and %n more", nullptr, more));
-        }
-        summary += "\n\n"
-                   + tr("%n page(s) could not be read: %1", nullptr, static_cast<int>(unreadable.size()))
-                         .arg(shown.join(QStringLiteral(", ")));
-      }
-      out << summary << Qt::endl;
-    }
+    // Summary on stdout, shared with the app.
+    out << fix_orientation::OrientationDetection::summary(result, selection, bookRule,
+                                                         [](const PageId& pageId) { return pageName(pageId); })
+        << Qt::endl;
   }
 
   // --color-mode-detect: as the app's Detect Color Mode, between the Margins and the Output passes.
