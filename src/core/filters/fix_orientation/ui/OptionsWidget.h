@@ -50,6 +50,8 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
 
   void showApplyToDialog();
 
+  void orientationDetectionButtonClicked();
+
   void appliedTo(const std::set<PageId>& pages, bool applyRotation, bool applyTrim);
 
   void trimEnableToggled(bool checked);

@@ -2,7 +2,8 @@ set(CMAKE_AUTOUIC ON)
 
 set(ui_files
     ApplyDialog.ui
-    OptionsWidget.ui)
+    OptionsWidget.ui
+    OrientationDetectionDialog.ui)
 
 # What processes the pages, without widgets.
 set(sources
@@ -25,6 +26,7 @@ set(ui_sources
     ImageView.cpp ImageView.h
     OptionsWidget.cpp OptionsWidget.h
     ApplyDialog.cpp ApplyDialog.h
+    OrientationDetectionDialog.cpp OrientationDetectionDialog.h
     FilterUi.cpp FilterUi.h)
 
 list(TRANSFORM ui_sources PREPEND "ui/")

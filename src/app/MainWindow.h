@@ -167,6 +167,8 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void colorModeDetectionRequested(const std::set<PageId>& pages);
 
+  void orientationDetectionRequested(const std::set<PageId>& pages, bool bookRule);
+
   void fixedDpiSubmitted();
 
   void sourceDpiChanged();

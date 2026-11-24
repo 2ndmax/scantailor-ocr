@@ -26,6 +26,7 @@
 #include <QTimer>
 #include <QToolTip>
 #include <QtWidgets/QInputDialog>
+#include <algorithm>
 #include <map>
 #include <memory>
 
@@ -83,6 +84,7 @@
 #include "WidgetUtils.h"
 #include "WorkerThreadPool.h"
 #include "config.h"
+#include "filters/fix_orientation/OrientationDetection.h"
 #include "filters/output/ColorModeDetection.h"
 #include "filters/output/Filter.h"
 #include "filters/output/Utils.h"
@@ -707,6 +709,8 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
   connect(widget, &FilterOptionsWidget::invalidateAllThumbnails, this, &MainWindow::invalidateAllThumbnails);
   connect(widget, &FilterOptionsWidget::fixDpiRequested, this, &MainWindow::fixDpiDialogRequested);
   connect(widget, &FilterOptionsWidget::colorModeDetectionRequested, this, &MainWindow::colorModeDetectionRequested);
+  connect(widget, &FilterOptionsWidget::orientationDetectionRequested, this,
+          &MainWindow::orientationDetectionRequested);
   // Asynchronous for the same reason as reloadRequested().
   connect(widget, &FilterOptionsWidget::sourceDpiChanged, this, &MainWindow::sourceDpiChanged, Qt::QueuedConnection);
 }  // MainWindow::setOptionsWidget
@@ -1511,6 +1515,122 @@ void MainWindow::colorModeDetectionRequested(const std::set<PageId>& pages) {
     summary += "\n\n" + tr("The detection was canceled.");
   }
   QMessageBox::information(this, tr("Detect Color Mode"), summary);
+}
+
+void MainWindow::orientationDetectionRequested(const std::set<PageId>& pages, bool bookRule) {
+  if (pages.empty() || !isProjectLoaded()) {
+    return;
+  }
+  if (isBatchProcessingInProgress()) {
+    return;
+  }
+
+  // The geometry of each page comes from the results of the steps before, as for the thumbnails,
+  // so only the source images have to be loaded.
+  std::vector<PageInfo> todo;
+  for (const PageInfo& page : m_thumbSequence->toPageSequence()) {
+    if (pages.find(page.id()) != pages.end()) {
+      todo.push_back(page);
+    }
+  }
+
+  // With the book rule the detection runs over all images of the project, so the total is the
+  // number of images run returns. Without it, only the chosen pages are detected.
+  std::vector<PageInfo> allPages;
+  if (bookRule) {
+    const PageSequence sequence = m_pages->toPageSequence(IMAGE_VIEW);
+    for (size_t i = 0; i < sequence.numPages(); ++i) {
+      allPages.push_back(sequence.pageAt(i));
+    }
+  } else {
+    allPages = todo;
+  }
+
+  QProgressDialog progress(tr("Detecting the orientation ..."), tr("Cancel"), 0, static_cast<int>(allPages.size()),
+                           this);
+  progress.setWindowTitle(tr("Detect Orientation"));
+  progress.setWindowModality(Qt::WindowModal);
+  progress.setMinimumDuration(0);
+
+  // REVIEW-NOTE (2026-11): many or large pages -> the detection runs on the GUI thread. Not fixed because
+  // the window only waits for one page at a time: the progress dialog handles events and the cancel button
+  // between pages; a worker thread would change how cancelling and progress work.
+  const NullTaskStatus status;
+  const fix_orientation::OrientationDetection::Result result = fix_orientation::OrientationDetection::run(
+      m_stages->fixOrientationFilter()->settings(), allPages, pages, bookRule, status, [&progress](const int done) {
+        progress.setValue(done);
+        return !progress.wasCanceled();
+      });
+
+  progress.setValue(static_cast<int>(allPages.size()));
+
+  invalidateAllThumbnails();
+  if (m_curFilter == m_stages->fixOrientationFilterIdx()) {
+    reloadRequested();
+  }
+
+  // Count only the chosen pages.
+  int selectedTotal = 0;
+  int selectedChanged = result.changed;  // already counts chosen pages
+  int selectedDetected = 0;
+  int selectedBookRule = 0;
+  int selectedUndecided = 0;
+  int selectedFailed = 0;
+  std::vector<QString> uncertainNames;
+  for (const auto& entry : result.results) {
+    if (pages.find(entry.first) == pages.end()) {
+      continue;
+    }
+    ++selectedTotal;
+    switch (entry.second.status) {
+      case fix_orientation::OrientationDetection::PageResult::DETECTED:
+        ++selectedDetected;
+        break;
+      case fix_orientation::OrientationDetection::PageResult::BOOK_RULE:
+        ++selectedBookRule;
+        break;
+      case fix_orientation::OrientationDetection::PageResult::UNDECIDED:
+        ++selectedUndecided;
+        uncertainNames.push_back(entry.first.imageId().filePath());
+        break;
+      case fix_orientation::OrientationDetection::PageResult::FAILED:
+        ++selectedFailed;
+        break;
+    }
+  }
+
+  const int alreadyCorrect = selectedDetected + selectedBookRule - selectedChanged;
+
+  if (result.cancelled) {
+    QString summary = tr("The detection was canceled. No pages were rotated.");
+    QMessageBox::information(this, tr("Detect Orientation"), summary);
+    return;
+  }
+
+  QString summary = tr("Orientation detected for %n page(s): %1 rotated, %2 already correct.", nullptr, selectedTotal)
+                        .arg(selectedChanged)
+                        .arg(alreadyCorrect);
+  if (bookRule) {
+    summary += "\n" + tr("%n by the book rule.", nullptr, selectedBookRule);
+  }
+  if (selectedUndecided > 0) {
+    const int shown = std::min(static_cast<int>(uncertainNames.size()), 10);
+    QString list;
+    for (int i = 0; i < shown; ++i) {
+      if (i > 0) {
+        list += ", ";
+      }
+      list += uncertainNames[i];
+    }
+    if (static_cast<int>(uncertainNames.size()) > shown) {
+      list += tr(", and %n more", nullptr, static_cast<int>(uncertainNames.size()) - shown);
+    }
+    summary += "\n\n" + tr("Uncertain: %1", nullptr, 0).arg(list);
+  }
+  if (selectedFailed > 0) {
+    summary += "\n\n" + tr("%n page(s) could not be read.", nullptr, selectedFailed);
+  }
+  QMessageBox::information(this, tr("Detect Orientation"), summary);
 }
 
 void MainWindow::fixDpiDialogRequested() {

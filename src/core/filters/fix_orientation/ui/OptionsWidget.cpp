@@ -16,6 +16,7 @@
 #include "../Filter.h"
 #include "../Settings.h"
 #include "ApplyDialog.h"
+#include "OrientationDetectionDialog.h"
 #include "ProjectPages.h"
 #include "UnitsConverter.h"
 #include "UnitsProvider.h"
@@ -84,6 +85,17 @@ void OptionsWidget::showApplyToDialog() {
   auto* dialog = new ApplyDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
   connect(dialog, &ApplyDialog::appliedTo, this, &OptionsWidget::appliedTo);
+  dialog->show();
+}
+
+void OptionsWidget::orientationDetectionButtonClicked() {
+  auto* dialog = new OrientationDetectionDialog(this, m_pageId, m_pageSelectionAccessor);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setThisPageIncluded(true);
+  connect(dialog, &OrientationDetectionDialog::accepted, this,
+          [this](const std::set<PageId>& pages, const bool bookRule) {
+            emit orientationDetectionRequested(pages, bookRule);
+          });
   dialog->show();
 }
 
@@ -287,6 +299,7 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(rotateLeftBtn, &QAbstractButton::clicked, this, &OptionsWidget::rotateLeft);
   CONNECT(rotateRightBtn, &QAbstractButton::clicked, this, &OptionsWidget::rotateRight);
   CONNECT(applyToBtn, &QAbstractButton::clicked, this, &OptionsWidget::showApplyToDialog);
+  CONNECT(orientationDetectionBtn, &QAbstractButton::clicked, this, &OptionsWidget::orientationDetectionButtonClicked);
   CONNECT(trimEnabledCheck, &QAbstractButton::toggled, this, &OptionsWidget::trimEnableToggled);
   CONNECT(trimLeftSpin, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);
   CONNECT(trimRightSpin, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::trimMarginsChanged);

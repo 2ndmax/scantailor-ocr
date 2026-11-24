@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>fix_orientation::OrientationDetectionDialog</class>
+ <widget class="QDialog" name="fix_orientation::OrientationDetectionDialog">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>360</width>
+    <height>220</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Detect Orientation</string>
+  </property>
+  <layout class="QVBoxLayout">
+   <item>
+    <widget class="PageScopeGroupBox" name="scopeGroupBox"/>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="bookRuleCheckBox">
+     <property name="toolTip">
+      <string>Detects the rotation of uncertain pages from their neighbors or the majority. All pages of the project are then detected, which takes longer. Only the chosen pages are rotated.</string>
+     </property>
+     <property name="text">
+      <string>Rotate uncertain pages like their neighbors or the majority</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>17</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PageScopeGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header location="global">PageScopeGroupBox.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>fix_orientation::OrientationDetectionDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>319</x>
+     <y>252</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>256</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

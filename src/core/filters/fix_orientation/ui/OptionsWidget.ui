@@ -312,6 +312,66 @@
     </widget>
    </item>
    <item>
+     <widget class="CollapsibleGroupBox" name="orientationDetectionPanel">
+      <property name="title">
+       <string>Orientation Detection</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <layout class="QVBoxLayout">
+       <item>
+        <layout class="QHBoxLayout" name="orientationDetectionBtnLayout">
+         <property name="topMargin">
+          <number>8</number>
+         </property>
+         <item>
+          <spacer name="orientationDetectionBtnSpacerLeft">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>1</width>
+             <height>1</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="orientationDetectionBtn">
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Detects the rotation of the chosen pages from their text. Safely detected pages are rotated; uncertain ones are left unchanged.</string>
+           </property>
+           <property name="text">
+            <string>Detect ...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="orientationDetectionBtnSpacerRight">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>1</width>
+             <height>1</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+   </item>   <item>
     <spacer>
      <property name="orientation">
       <enum>Qt::Vertical</enum>

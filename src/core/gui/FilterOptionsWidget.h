@@ -35,6 +35,9 @@ class FilterOptionsWidget : public QWidget {
   /** Asks the main window to detect the color mode of these pages (Output step). */
   void colorModeDetectionRequested(const std::set<PageId>& pages);
 
+  /** Asks the main window to detect the orientation of these pages (Fix Orientation step). */
+  void orientationDetectionRequested(const std::set<PageId>& pages, bool bookRule);
+
   /**
    * Emitted after the DPI of the current image was changed in the panel. The page list keeps
    * its own copy of the DPI, which the processing uses, so it has to be updated before reloading.
