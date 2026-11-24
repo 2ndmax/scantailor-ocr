@@ -219,6 +219,13 @@ topic, not by version.
   pixels as before; "Apply to ..." keeps the length on pages of another resolution unless the
   unit is pixels. A rotation of 0 is kept when the project is reopened. The arrow below the
   rotation buttons has a tooltip: it shows where the top edge of the original image points after the rotation.
+* *Import*: the new group **Orientation Detection** detects the orientation of chosen pages from
+  their text and rotates the pages whose orientation is certain; the others are left as they are
+  and named in the summary. Optionally, uncertain pages are rotated like their neighbors or the
+  majority of the pages, which also covers scans whose pages alternate between upright and upside
+  down (duplex). The idea of this rule follows
+  [andriusval's fork of ScanTailor Universal](https://github.com/andriusval/scantailor-universal);
+  the code is new.
 * *Deskew*: the oblique (shear) correction has **Auto / Manual buttons** like the rotation.
   Switching oblique to *Auto* measures the page; the oblique finder reports no angle when the
   image has too little structure. Dragging a handle makes only its own angle manual. "Apply
@@ -467,6 +474,9 @@ topic, not by version.
   `split-pages`, `deskew`, `select-content`, `margins`, `output` (the default) or `export`.
   `--color-mode-detect` (folder only, at least up to `margins`) detects the color mode of all
   pages after *Margins*, as Detect Color Mode in the app does, so the output already uses it.
+  `--orientation-detect=pages|book` (folder only) detects the orientation of all pages before the
+  first step, as Orientation Detection in the app does; `book` also rotates uncertain pages like
+  their neighbors or the majority.
   `--export-folder <folder>`, `--export-name <name>` and `--export-formats <list>` (e.g.
   `pdf,txt,alto`) lead the run to the export, which `--last-step export` does with the settings
   of the project alone; what isn't given comes from the project: next to the project file, named
@@ -474,7 +484,8 @@ topic, not by version.
   named before processing. `--threads <n>` limits this run without changing the setting of the
   app. `--report-file <file.json>` writes a report of the run (mode, project file, profile, last
   step, exit code; for each page its file, resolution and where it came from, color mode and
-  whether it was detected, output file, status and why it failed; the exported files and the
+  whether it was detected, its orientation and, with `--orientation-detect`, how it was found,
+  output file, status and why it failed; the exported files and the
   files passed over). The schema is versioned (`schemaVersion`) and its keys aren't translated.
   The report is written for every run that gets to processing, also when pages failed or the
   run was canceled. `--progress-json` writes the progress as JSON lines on the standard output,
@@ -483,8 +494,9 @@ topic, not by version.
   without it uses; `--project-info` describes the pages of a project (file, DPI, color mode,
   output file) without processing or creating anything. Both write JSON on the standard output.
 * **Checks, canceling and exit codes:** an option for a step the run doesn't reach, an option
-  for creating a project together with an existing project, and `--color-mode-detect` with an
-  existing project are command line errors. Everything that can be checked is checked before
+  for creating a project together with an existing project, `--color-mode-detect` with an
+  existing project, and `--orientation-detect` with an existing project or an unknown method are
+  command line errors. Everything that can be checked is checked before
   processing, so a long run isn't lost at its end: the project file and the report must be
   writable, the export and output folders writable or possible to create, and the OCR languages
   the export needs installed. A refused run creates no folder. The tool refuses what the app
