@@ -3346,7 +3346,7 @@ Möchten Sie sie ersetzen?</translation>
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="1089"/>
-        <location filename="../app/MainWindow.cpp" line="551"/>
+        <location filename="../app/MainWindow.cpp" line="550"/>
         <source>Save Project</source>
         <translation>Projekt speichern</translation>
     </message>
@@ -3408,7 +3408,7 @@ Möchten Sie sie ersetzen?</translation>
         <translation>Zu Seite wechseln ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3092"/>
+        <location filename="../app/MainWindow.cpp" line="3097"/>
         <source>Go to Page</source>
         <translation>Zu Seite wechseln</translation>
     </message>
@@ -3433,117 +3433,117 @@ Möchten Sie sie ersetzen?</translation>
         <translation>Aktuelle Seite neu laden</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="448"/>
+        <location filename="../app/MainWindow.cpp" line="447"/>
         <source>Stop batch processing</source>
         <translation>Stapelverarbeitung abbrechen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="551"/>
+        <location filename="../app/MainWindow.cpp" line="550"/>
         <source>Save the project?</source>
         <translation>Projekt speichern?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1052"/>
+        <location filename="../app/MainWindow.cpp" line="1051"/>
         <source>Insert Before ...</source>
         <translation>Einfügen vor ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1053"/>
+        <location filename="../app/MainWindow.cpp" line="1052"/>
         <source>Insert After ...</source>
         <translation>Einfügen nach ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1057"/>
+        <location filename="../app/MainWindow.cpp" line="1056"/>
         <source>Remove from Project ...</source>
         <translation>Aus Projekt entfernen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1131"/>
+        <location filename="../app/MainWindow.cpp" line="1130"/>
         <source>Insert Here ...</source>
         <translation>Hier einfügen ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1515"/>
+        <location filename="../app/MainWindow.cpp" line="1514"/>
         <source>The detection was canceled.</source>
         <translation>Die Erkennung wurde abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2178"/>
+        <location filename="../app/MainWindow.cpp" line="2183"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Die Ausgabe ist noch nicht möglich, da die endgültige Größe der Seiten noch nicht bekannt ist.
 Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt auswählen“ oder „Ränder“ aus.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2216"/>
+        <location filename="../app/MainWindow.cpp" line="2221"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation>%2 – ScanTailor OCR %3 [%1bit]</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1842"/>
+        <location filename="../app/MainWindow.cpp" line="1847"/>
         <location filename="../app/ProjectFileDialogs.cpp" line="27"/>
         <source>ScanTailor OCR Projects</source>
         <translation>ScanTailor-OCR-Projekte</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1067"/>
+        <location filename="../app/MainWindow.cpp" line="1066"/>
         <source>Select</source>
         <translation>Auswählen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1068"/>
+        <location filename="../app/MainWindow.cpp" line="1067"/>
         <source>All Pages</source>
         <translation>Alle Seiten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1069"/>
+        <location filename="../app/MainWindow.cpp" line="1068"/>
         <source>This Page and the Following Ones</source>
         <translation>Diese und darauffolgende Seiten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1071"/>
+        <location filename="../app/MainWindow.cpp" line="1070"/>
         <source>Every Other Page (Odd Pages)</source>
         <translation>Jede zweite Seite (ungerade Seiten)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1071"/>
+        <location filename="../app/MainWindow.cpp" line="1070"/>
         <source>Every Other Page (Even Pages)</source>
         <translation>Jede zweite Seite (gerade Seiten)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1072"/>
+        <location filename="../app/MainWindow.cpp" line="1071"/>
         <source>This Page and Every Other Following Page</source>
         <translation>Diese Seite und jede zweite darauffolgende Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1073"/>
+        <location filename="../app/MainWindow.cpp" line="1072"/>
         <source>Every Other Selected Page</source>
         <translation>Jede zweite ausgewählte Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1076"/>
+        <location filename="../app/MainWindow.cpp" line="1075"/>
         <source>This Page Only</source>
         <translation>Nur diese Seite</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1480"/>
+        <location filename="../app/MainWindow.cpp" line="1479"/>
         <source>Detecting the color mode ...</source>
         <translation>Der Farbmodus wird erkannt ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1480"/>
-        <location filename="../app/MainWindow.cpp" line="1549"/>
+        <location filename="../app/MainWindow.cpp" line="1479"/>
+        <location filename="../app/MainWindow.cpp" line="1546"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1481"/>
-        <location filename="../app/MainWindow.cpp" line="1517"/>
+        <location filename="../app/MainWindow.cpp" line="1480"/>
+        <location filename="../app/MainWindow.cpp" line="1516"/>
         <source>Detect Color Mode</source>
         <translation>Farbmodus erkennen</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1501"/>
+        <location filename="../app/MainWindow.cpp" line="1500"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation>
             <numerusform>Farbmodus für %n Seite erkannt: %1 Schwarz-Weiß, %2 Farbe / Graustufen, %3 Gemischt.</numerusform>
@@ -3551,7 +3551,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1509"/>
+        <location filename="../app/MainWindow.cpp" line="1508"/>
         <source>%n page(s) skipped because the steps before Output have not been done yet.</source>
         <translation>
             <numerusform>%n Seite übersprungen, weil die Schritte vor der Ausgabe noch nicht ausgeführt wurden.</numerusform>
@@ -3559,7 +3559,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1512"/>
+        <location filename="../app/MainWindow.cpp" line="1511"/>
         <source>%n page(s) could not be loaded.</source>
         <translation>
             <numerusform>%n Seite konnte nicht geladen werden.</numerusform>
@@ -3567,194 +3567,194 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1549"/>
+        <location filename="../app/MainWindow.cpp" line="1546"/>
         <source>Detecting the orientation ...</source>
-        <translation>Die Drehung wird erkannt ...</translation>
+        <translation>Die Orientierung wird erkannt ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1551"/>
-        <location filename="../app/MainWindow.cpp" line="1606"/>
-        <location filename="../app/MainWindow.cpp" line="1633"/>
+        <location filename="../app/MainWindow.cpp" line="1548"/>
+        <location filename="../app/MainWindow.cpp" line="1570"/>
+        <location filename="../app/MainWindow.cpp" line="1621"/>
         <source>Detect Orientation</source>
-        <translation>Drehung erkennen</translation>
+        <translation>Orientierung erkennen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1605"/>
+        <location filename="../app/MainWindow.cpp" line="1570"/>
         <source>The detection was canceled. No pages were rotated.</source>
         <translation>Die Erkennung wurde abgebrochen. Es wurden keine Seiten gedreht.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1610"/>
+        <location filename="../app/MainWindow.cpp" line="1604"/>
         <source>Orientation detected for %n page(s): %1 rotated, %2 already correct.</source>
         <translation>
-            <numerusform>Drehung für %n Seite erkannt: %1 gedreht, %2 bereits richtig.</numerusform>
-            <numerusform>Drehung für %n Seiten erkannt: %1 gedreht, %2 bereits richtig.</numerusform>
+            <numerusform>Orientierung für %n Seite erkannt: %1 gedreht, %2 bereits richtig.</numerusform>
+            <numerusform>Orientierung für %n Seiten erkannt: %1 gedreht, %2 bereits richtig.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1614"/>
-        <source>%n by the book rule.</source>
-        <translation>
-            <numerusform>%n nach der Buchregel.</numerusform>
-            <numerusform>%n nach der Buchregel.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1626"/>
+        <location filename="../app/MainWindow.cpp" line="1638"/>
         <source>, and %n more</source>
         <translation>
-            <numerusform>, und %n weitere</numerusform>
-            <numerusform>, und %n weitere</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1628"/>
-        <source>Uncertain: %1</source>
-        <translation>
-            <numerusform>Unsicher: %1</numerusform>
-            <numerusform>Unsicher: %1</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1631"/>
-        <source>%n page(s) could not be read.</source>
-        <translation>
-            <numerusform>%n Seite konnte nicht gelesen werden.</numerusform>
-            <numerusform>%n Seiten konnten nicht gelesen werden.</numerusform>
+            <numerusform> und %n weitere</numerusform>
+            <numerusform> und %n weitere</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1841"/>
+        <location filename="../app/MainWindow.cpp" line="1846"/>
         <source>Open Project</source>
         <translation>Projekt öffnen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1975"/>
+        <location filename="../app/MainWindow.cpp" line="1980"/>
         <source>Restart</source>
         <translation>Neustart</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1976"/>
+        <location filename="../app/MainWindow.cpp" line="1981"/>
         <source>Some of the changed settings only take full effect after a restart. Do you want to restart ScanTailor OCR now?</source>
         <translation>Einige der geänderten Einstellungen wirken erst nach einem Neustart vollständig. Möchten Sie ScanTailor OCR jetzt neu starten?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1979"/>
+        <location filename="../app/MainWindow.cpp" line="1984"/>
         <source>Restart</source>
         <comment>button</comment>
         <translation>Neu starten</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1980"/>
+        <location filename="../app/MainWindow.cpp" line="1985"/>
         <source>Later</source>
         <translation>Später</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2016"/>
+        <location filename="../app/MainWindow.cpp" line="2021"/>
         <source>ScanTailor OCR could not be restarted. Please start it again by hand.</source>
         <translation>ScanTailor OCR konnte nicht neu gestartet werden. Bitte starten Sie es von Hand neu.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2231"/>
+        <location filename="../app/MainWindow.cpp" line="2236"/>
         <source>Export</source>
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2231"/>
+        <location filename="../app/MainWindow.cpp" line="2236"/>
         <source>An export is running. Do you want to cancel it?</source>
         <translation>Ein Export läuft gerade. Möchten Sie ihn abbrechen?</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2015"/>
-        <location filename="../app/MainWindow.cpp" line="2291"/>
-        <location filename="../app/MainWindow.cpp" line="2316"/>
+        <location filename="../app/MainWindow.cpp" line="2020"/>
+        <location filename="../app/MainWindow.cpp" line="2296"/>
+        <location filename="../app/MainWindow.cpp" line="2321"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../app/MainWindow.cpp" line="1608"/>
+        <source>Of these, %n like their neighbors or the majority.</source>
+        <translation>
+            <numerusform>Davon %n wie ihre Nachbarn oder die Mehrheit.</numerusform>
+            <numerusform>Davon %n wie ihre Nachbarn oder die Mehrheit.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../app/MainWindow.cpp" line="1612"/>
+        <source>%n page(s) left unchanged because the orientation is uncertain: %1</source>
+        <translation>
+            <numerusform>%n Seite blieb unverändert, weil die Orientierung unsicher ist: %1</numerusform>
+            <numerusform>%n Seiten blieben unverändert, weil die Orientierung unsicher ist: %1</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../app/MainWindow.cpp" line="1618"/>
+        <source>%n page(s) could not be read: %1</source>
+        <translation>
+            <numerusform>%n Seite konnte nicht gelesen werden: %1</numerusform>
+            <numerusform>%n Seiten konnten nicht gelesen werden: %1</numerusform>
+        </translation>
+    </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1926"/>
+        <location filename="../app/MainWindow.cpp" line="1931"/>
         <source>Default Parameters</source>
         <translation>Standardparameter</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1927"/>
+        <location filename="../app/MainWindow.cpp" line="1932"/>
         <source>Also use these default parameters for the open project? Pages added to it later start with them. Otherwise, they only apply to new projects.</source>
         <translation>Diese Standardparameter auch für das geöffnete Projekt verwenden? Später hinzugefügte Seiten beginnen dann mit ihnen. Andernfalls gelten sie nur für neue Projekte.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2033"/>
+        <location filename="../app/MainWindow.cpp" line="2038"/>
         <source>version </source>
         <translation>Version </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2211"/>
+        <location filename="../app/MainWindow.cpp" line="2216"/>
         <source>Unnamed</source>
         <translation>Unbenannt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2291"/>
-        <location filename="../app/MainWindow.cpp" line="2316"/>
+        <location filename="../app/MainWindow.cpp" line="2296"/>
+        <location filename="../app/MainWindow.cpp" line="2321"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2362"/>
+        <location filename="../app/MainWindow.cpp" line="2367"/>
         <source>Files to Insert</source>
         <translation>Dateien zum Einfügen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2365"/>
+        <location filename="../app/MainWindow.cpp" line="2370"/>
         <source>Images not in project (%1)</source>
         <translation>Bilder nicht im Projekt (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2416"/>
+        <location filename="../app/MainWindow.cpp" line="2421"/>
         <source>Skip failed files</source>
         <translation>Fehlerhafte Dateien überspringen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2478"/>
+        <location filename="../app/MainWindow.cpp" line="2483"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2663"/>
-        <location filename="../app/MainWindow.cpp" line="2700"/>
+        <location filename="../app/MainWindow.cpp" line="2668"/>
+        <location filename="../app/MainWindow.cpp" line="2705"/>
         <source>Automatic Import</source>
         <translation>Automatischer Import</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2657"/>
+        <location filename="../app/MainWindow.cpp" line="2662"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation>Der neue Scan %1 ließ sich nicht in %2 umbenennen und behält seinen Namen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2677"/>
+        <location filename="../app/MainWindow.cpp" line="2682"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation>Das ersetzte Bild %1 ließ sich nicht nach %2 verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2701"/>
+        <location filename="../app/MainWindow.cpp" line="2706"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2755"/>
+        <location filename="../app/MainWindow.cpp" line="2760"/>
         <source>Folder for New Scans</source>
         <translation>Ordner für neue Scans</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2818"/>
+        <location filename="../app/MainWindow.cpp" line="2823"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen. Der neue Scan %1 wird am Ende eingefügt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2895"/>
+        <location filename="../app/MainWindow.cpp" line="2900"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation>Das neue Bild %1 lässt sich nicht öffnen und wird nicht übernommen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3092"/>
+        <location filename="../app/MainWindow.cpp" line="3097"/>
         <source>Enter the page number:</source>
         <translation>Seitennummer:</translation>
     </message>
@@ -5312,6 +5312,7 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>ThumbnailSequence</name>
     <message>
+        <location filename="../app/MainWindow.cpp" line="1629"/>
         <location filename="../app/ThumbnailSequence.cpp" line="1593"/>
         <source>%1 (page %2)</source>
         <translation>%1 (Seite %2)</translation>
@@ -5757,92 +5758,92 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
 <context>
     <name>fix_orientation::OptionsWidget</name>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="20"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="81"/>
         <source>Rotate and Trim</source>
         <translation>Drehen und Beschneiden</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="29"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="90"/>
         <source>Rotate</source>
         <translation>Drehen</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="54"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="115"/>
         <source>Rotate the page a quarter turn counterclockwise.</source>
         <translation>Dreht die Seite um eine Vierteldrehung gegen den Uhrzeigersinn.</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="74"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="135"/>
         <source>Rotate the page a quarter turn clockwise.</source>
         <translation>Dreht die Seite um eine Vierteldrehung im Uhrzeigersinn.</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="77"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="138"/>
         <source>Rotate right</source>
         <translation>Nach rechts drehen</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="124"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="185"/>
         <source>Shows where the top edge of the original image points after the rotation.</source>
         <translation>Zeigt, in welche Richtung die Oberkante des Originalbilds nach der Drehung weist.</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="152"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="213"/>
         <source>Trim</source>
         <translation>Beschneiden</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="184"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="245"/>
         <source>Top:</source>
         <translation>Oben:</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="201"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="262"/>
         <source>Bottom:</source>
         <translation>Unten:</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="218"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="279"/>
         <source>Left:</source>
         <translation>Links:</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="235"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="296"/>
         <source>Right:</source>
         <translation>Rechts:</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="289"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="350"/>
         <source>Applies the rotation and the trim of this page to other pages.</source>
         <translation>Überträgt die Drehung und den Beschnitt dieser Seite auf andere Seiten.</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="317"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="20"/>
         <source>Orientation Detection</source>
-        <translation>Drehungserkennung</translation>
+        <translation>Orientierungserkennung</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="350"/>
-        <source>Detects the rotation of the chosen pages from their text. Safely detected pages are rotated; uncertain ones are left unchanged.</source>
-        <translation>Erkennt die Drehung der gewählten Seiten anhand ihres Textes. Sicher erkannte Seiten werden gedreht; unsichere bleiben unverändert.</translation>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="53"/>
+        <source>Detects the orientation of the chosen pages from their text. Pages whose orientation is certain are rotated; the others are left unchanged.</source>
+        <translation>Die Orientierung der gewählten Seiten anhand ihres Textes erkennen. Seiten mit sicher erkannter Orientierung werden gedreht, die übrigen bleiben unverändert.</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="353"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="56"/>
         <source>Detect ...</source>
         <translation>Erkennen ...</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="159"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="220"/>
         <source>Enable manual trim</source>
         <translation>Manuellen Beschnitt aktivieren</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="57"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="118"/>
         <source>Rotate left</source>
         <translation>Nach links drehen</translation>
     </message>
     <message>
-        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="292"/>
+        <location filename="../core/filters/fix_orientation/ui/OptionsWidget.ui" line="353"/>
         <source>Apply to ...</source>
         <translation>Anwenden auf ...</translation>
     </message>
@@ -5852,17 +5853,17 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     <message>
         <location filename="../core/filters/fix_orientation/ui/OrientationDetectionDialog.ui" line="17"/>
         <source>Detect Orientation</source>
-        <translation>Drehung erkennen</translation>
+        <translation>Orientierung erkennen</translation>
     </message>
     <message>
         <location filename="../core/filters/fix_orientation/ui/OrientationDetectionDialog.ui" line="26"/>
-        <source>Detects the rotation of uncertain pages from their neighbors or the majority. All pages of the project are then detected, which takes longer. Only the chosen pages are rotated.</source>
-        <translation>Erkennt die Drehung unsicherer Seiten anhand ihrer Nachbarn oder der Mehrheit. Dann werden alle Seiten des Projekts erkannt, was länger dauert. Nur die gewählten Seiten werden gedreht.</translation>
+        <source>Gives uncertain pages the orientation of their neighbors, or else of most pages. All pages of the project are then detected, which takes longer. Only the chosen pages are rotated.</source>
+        <translation>Gibt unsicheren Seiten die Orientierung ihrer Nachbarn oder sonst der meisten Seiten. Dafür werden alle Seiten des Projekts erkannt, was länger dauert. Gedreht werden nur die gewählten Seiten.</translation>
     </message>
     <message>
         <location filename="../core/filters/fix_orientation/ui/OrientationDetectionDialog.ui" line="29"/>
         <source>Rotate uncertain pages like their neighbors or the majority</source>
-        <translation>Unsichere Seiten wie ihre Nachbarn bzw. die Mehrheit drehen</translation>
+        <translation>Unsichere Seiten wie ihre Nachbarn oder die Mehrheit drehen</translation>
     </message>
 </context>
 <context>
