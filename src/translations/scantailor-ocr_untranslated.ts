@@ -524,7 +524,7 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
     </message>
     <message>
         <location filename="../core/CommandLineRun.cpp" line="553"/>
-        <location filename="../core/CommandLineRun.cpp" line="1497"/>
+        <location filename="../core/CommandLineRun.cpp" line="1444"/>
         <source>Unable to create the export folder: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -580,153 +580,107 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1117"/>
-        <source>The value after --orientation-detect must be pages or book.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../core/CommandLineRun.cpp" line="1123"/>
+        <location filename="../core/CommandLineRun.cpp" line="1125"/>
         <source>The number of threads after --threads is too small; it must be at least 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1128"/>
+        <location filename="../core/CommandLineRun.cpp" line="1130"/>
         <source>The options --export-folder, --export-name and --export-formats need --last-step export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1182"/>
+        <location filename="../core/CommandLineRun.cpp" line="1184"/>
         <source>The output folder can&apos;t be written to: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1187"/>
+        <location filename="../core/CommandLineRun.cpp" line="1189"/>
         <source>%n other file(s) passed over.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1200"/>
+        <location filename="../core/CommandLineRun.cpp" line="1202"/>
         <source>The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them with --export-formats.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1221"/>
+        <location filename="../core/CommandLineRun.cpp" line="1223"/>
         <source>The export will create: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1228"/>
-        <location filename="../core/CommandLineRun.cpp" line="1586"/>
+        <location filename="../core/CommandLineRun.cpp" line="1230"/>
+        <location filename="../core/CommandLineRun.cpp" line="1533"/>
         <source>The output folder or some images of the project are missing, for example because the project was moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1237"/>
+        <location filename="../core/CommandLineRun.cpp" line="1239"/>
         <source>%1: %2 of %3</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../core/CommandLineRun.cpp" line="1340"/>
-        <source>The detection was canceled. No pages were rotated.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1345"/>
-        <source>Orientation detected for %n page(s): %1 rotated, %2 already correct.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1349"/>
-        <source>Of these, %n like their neighbors or the majority.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1357"/>
-        <location filename="../core/CommandLineRun.cpp" line="1369"/>
-        <source>, and %n more</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1360"/>
-        <source>%n page(s) left unchanged because the orientation is uncertain: %1</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1372"/>
-        <source>%n page(s) could not be read: %1</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1424"/>
+        <location filename="../core/CommandLineRun.cpp" line="1371"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1431"/>
+        <location filename="../core/CommandLineRun.cpp" line="1378"/>
         <source>%n page(s) skipped because the steps before the detection have no result yet.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1435"/>
+        <location filename="../core/CommandLineRun.cpp" line="1382"/>
         <source>%n page(s) could not be loaded.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1438"/>
+        <location filename="../core/CommandLineRun.cpp" line="1385"/>
         <source>The detection was canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1454"/>
+        <location filename="../core/CommandLineRun.cpp" line="1401"/>
         <source>The project file could not be saved: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1462"/>
+        <location filename="../core/CommandLineRun.cpp" line="1409"/>
         <source>Canceled. The pages output so far keep their output files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1466"/>
+        <location filename="../core/CommandLineRun.cpp" line="1413"/>
         <source>Pages that failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1468"/>
-        <location filename="../core/CommandLineRun.cpp" line="1480"/>
+        <location filename="../core/CommandLineRun.cpp" line="1415"/>
+        <location filename="../core/CommandLineRun.cpp" line="1427"/>
         <source>Nothing was exported, as not all pages were output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1478"/>
+        <location filename="../core/CommandLineRun.cpp" line="1425"/>
         <source>No page was output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1486"/>
+        <location filename="../core/CommandLineRun.cpp" line="1433"/>
         <source>Done. The output is in %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1488"/>
+        <location filename="../core/CommandLineRun.cpp" line="1435"/>
         <source>Done.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -791,11 +745,6 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
     <message>
         <location filename="../cli/main.cpp" line="131"/>
         <source>The DPI of the images that need fixing (red and yellow) in the new project: a number, or horizontal and vertical values like 600x300.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../cli/main.cpp" line="160"/>
-        <source>Detect the orientation of the pages in the folder mode, before the first step: pages detects only the certain ones, book also applies the book rotation rule.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -864,6 +813,11 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../cli/main.cpp" line="160"/>
+        <source>Detect the orientation of the pages in the folder mode, before the first step: pages rotates the pages whose orientation is certain; book also rotates uncertain pages like their neighbors or the majority.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../cli/main.cpp" line="188"/>
         <source>The JSON report of the run, written at the end: the mode, the project file, the profile and the last step, the exit code and cancelled, the pages with their DPI, color mode, output file and status, and the exports and the files passed over.</source>
         <translation type="unfinished"></translation>
@@ -910,17 +864,17 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="326"/>
+        <location filename="../core/CommandLineRun.cpp" line="1117"/>
         <source>Unknown method after --orientation-detect: %1. The methods are: pages and book.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="337"/>
+        <location filename="../cli/main.cpp" line="330"/>
         <source>Unknown thread number after --threads: %1; it must be at least 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="349"/>
+        <location filename="../cli/main.cpp" line="342"/>
         <source>Unknown step after --last-step: %1. The steps are: fix-orientation, split-pages, deskew, select-content, margins, output and export.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3502,7 +3456,7 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3097"/>
+        <location filename="../app/MainWindow.cpp" line="3043"/>
         <source>Go to Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3562,18 +3516,18 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2183"/>
+        <location filename="../app/MainWindow.cpp" line="2129"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2221"/>
+        <location filename="../app/MainWindow.cpp" line="2167"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1847"/>
+        <location filename="../app/MainWindow.cpp" line="1793"/>
         <location filename="../app/ProjectFileDialogs.cpp" line="27"/>
         <source>ScanTailor OCR Projects</source>
         <translation type="unfinished"></translation>
@@ -3664,7 +3618,7 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
     <message>
         <location filename="../app/MainWindow.cpp" line="1548"/>
         <location filename="../app/MainWindow.cpp" line="1570"/>
-        <location filename="../app/MainWindow.cpp" line="1621"/>
+        <location filename="../app/MainWindow.cpp" line="1576"/>
         <source>Detect Orientation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3673,173 +3627,138 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <source>The detection was canceled. No pages were rotated.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1604"/>
-        <source>Orientation detected for %n page(s): %1 rotated, %2 already correct.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1638"/>
-        <source>, and %n more</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1846"/>
+        <location filename="../app/MainWindow.cpp" line="1792"/>
         <source>Open Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1980"/>
+        <location filename="../app/MainWindow.cpp" line="1926"/>
         <source>Restart</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1981"/>
+        <location filename="../app/MainWindow.cpp" line="1927"/>
         <source>Some of the changed settings only take full effect after a restart. Do you want to restart ScanTailor OCR now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1984"/>
+        <location filename="../app/MainWindow.cpp" line="1930"/>
         <source>Restart</source>
         <comment>button</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1985"/>
+        <location filename="../app/MainWindow.cpp" line="1931"/>
         <source>Later</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2021"/>
+        <location filename="../app/MainWindow.cpp" line="1967"/>
         <source>ScanTailor OCR could not be restarted. Please start it again by hand.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2236"/>
+        <location filename="../app/MainWindow.cpp" line="2182"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2236"/>
+        <location filename="../app/MainWindow.cpp" line="2182"/>
         <source>An export is running. Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2020"/>
-        <location filename="../app/MainWindow.cpp" line="2296"/>
-        <location filename="../app/MainWindow.cpp" line="2321"/>
+        <location filename="../app/MainWindow.cpp" line="1966"/>
+        <location filename="../app/MainWindow.cpp" line="2242"/>
+        <location filename="../app/MainWindow.cpp" line="2267"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
-    <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1608"/>
-        <source>Of these, %n like their neighbors or the majority.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1612"/>
-        <source>%n page(s) left unchanged because the orientation is uncertain: %1</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../app/MainWindow.cpp" line="1618"/>
-        <source>%n page(s) could not be read: %1</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1931"/>
+        <location filename="../app/MainWindow.cpp" line="1877"/>
         <source>Default Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1932"/>
+        <location filename="../app/MainWindow.cpp" line="1878"/>
         <source>Also use these default parameters for the open project? Pages added to it later start with them. Otherwise, they only apply to new projects.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2038"/>
+        <location filename="../app/MainWindow.cpp" line="1984"/>
         <source>version </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2216"/>
+        <location filename="../app/MainWindow.cpp" line="2162"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2296"/>
-        <location filename="../app/MainWindow.cpp" line="2321"/>
+        <location filename="../app/MainWindow.cpp" line="2242"/>
+        <location filename="../app/MainWindow.cpp" line="2267"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2367"/>
+        <location filename="../app/MainWindow.cpp" line="2313"/>
         <source>Files to Insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2370"/>
+        <location filename="../app/MainWindow.cpp" line="2316"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2421"/>
+        <location filename="../app/MainWindow.cpp" line="2367"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2483"/>
+        <location filename="../app/MainWindow.cpp" line="2429"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2668"/>
-        <location filename="../app/MainWindow.cpp" line="2705"/>
+        <location filename="../app/MainWindow.cpp" line="2614"/>
+        <location filename="../app/MainWindow.cpp" line="2651"/>
         <source>Automatic Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2662"/>
+        <location filename="../app/MainWindow.cpp" line="2608"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2682"/>
+        <location filename="../app/MainWindow.cpp" line="2628"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2706"/>
+        <location filename="../app/MainWindow.cpp" line="2652"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2760"/>
+        <location filename="../app/MainWindow.cpp" line="2706"/>
         <source>Folder for New Scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2823"/>
+        <location filename="../app/MainWindow.cpp" line="2769"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2900"/>
+        <location filename="../app/MainWindow.cpp" line="2846"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3097"/>
+        <location filename="../app/MainWindow.cpp" line="3043"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4028,6 +3947,49 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <location filename="../core/OcrTextOutputs.cpp" line="194"/>
         <source>There is a file named like the folder %1, so the folder could not be created. Move the file or choose another name.</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>OrientationDetection</name>
+    <message>
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="332"/>
+        <source>The detection was canceled. No pages were rotated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="362"/>
+        <source>Orientation detected for %n page(s): %1 rotated, %2 already correct.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="367"/>
+        <source>Of these, %n like their neighbors or the majority.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="375"/>
+        <source>, and %n more</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="380"/>
+        <source>%n page(s) left unchanged because the orientation is uncertain: %1</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="385"/>
+        <source>%n page(s) could not be read: %1</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -5310,7 +5272,7 @@ Without an internet connection, the installed languages can still be used. Langu
 <context>
     <name>ThumbnailSequence</name>
     <message>
-        <location filename="../app/MainWindow.cpp" line="1629"/>
+        <location filename="../app/MainWindow.cpp" line="1584"/>
         <location filename="../app/ThumbnailSequence.cpp" line="1593"/>
         <source>%1 (page %2)</source>
         <translation type="unfinished"></translation>
