@@ -26,7 +26,6 @@
 #include <QTimer>
 #include <QToolTip>
 #include <QtWidgets/QInputDialog>
-#include <algorithm>
 #include <map>
 #include <memory>
 
@@ -1525,8 +1524,6 @@ void MainWindow::orientationDetectionRequested(const std::set<PageId>& pages, bo
     return;
   }
 
-  // The geometry of each page comes from the results of the steps before, as for the thumbnails,
-  // so only the source images have to be loaded.
   std::vector<PageInfo> todo;
   for (const PageInfo& page : m_thumbSequence->toPageSequence()) {
     if (pages.find(page.id()) != pages.end()) {
@@ -1569,68 +1566,76 @@ void MainWindow::orientationDetectionRequested(const std::set<PageId>& pages, bo
     reloadRequested();
   }
 
-  // Count only the chosen pages.
-  int selectedTotal = 0;
-  int selectedChanged = result.changed;  // already counts chosen pages
-  int selectedDetected = 0;
-  int selectedBookRule = 0;
-  int selectedUndecided = 0;
-  int selectedFailed = 0;
-  std::vector<QString> uncertainNames;
-  for (const auto& entry : result.results) {
-    if (pages.find(entry.first) == pages.end()) {
-      continue;
-    }
-    ++selectedTotal;
-    switch (entry.second.status) {
-      case fix_orientation::OrientationDetection::PageResult::DETECTED:
-        ++selectedDetected;
-        break;
-      case fix_orientation::OrientationDetection::PageResult::BOOK_RULE:
-        ++selectedBookRule;
-        break;
-      case fix_orientation::OrientationDetection::PageResult::UNDECIDED:
-        ++selectedUndecided;
-        uncertainNames.push_back(entry.first.imageId().filePath());
-        break;
-      case fix_orientation::OrientationDetection::PageResult::FAILED:
-        ++selectedFailed;
-        break;
-    }
-  }
-
-  const int alreadyCorrect = selectedDetected + selectedBookRule - selectedChanged;
-
   if (result.cancelled) {
-    QString summary = tr("The detection was canceled. No pages were rotated.");
-    QMessageBox::information(this, tr("Detect Orientation"), summary);
+    QMessageBox::information(this, tr("Detect Orientation"), tr("The detection was canceled. No pages were rotated."));
     return;
   }
 
-  QString summary = tr("Orientation detected for %n page(s): %1 rotated, %2 already correct.", nullptr, selectedTotal)
-                        .arg(selectedChanged)
-                        .arg(alreadyCorrect);
+  // With the book rule, run() also reports the images that were only detected to vote; the summary
+  // counts the chosen pages alone.
+  int detected = 0;
+  int byBookRule = 0;
+  QStringList uncertain;
+  QStringList unreadable;
+  for (const auto& [pageId, pageResult] : result.results) {
+    if (pages.find(pageId) == pages.end()) {
+      continue;
+    }
+    switch (pageResult.status) {
+      case fix_orientation::OrientationDetection::PageResult::DETECTED:
+        ++detected;
+        break;
+      case fix_orientation::OrientationDetection::PageResult::BOOK_RULE:
+        ++byBookRule;
+        break;
+      case fix_orientation::OrientationDetection::PageResult::UNDECIDED:
+        uncertain.push_back(pageNameForMessages(pageId));
+        break;
+      case fix_orientation::OrientationDetection::PageResult::FAILED:
+        unreadable.push_back(pageNameForMessages(pageId));
+        break;
+    }
+  }
+  // result.changed counts only the chosen pages, as only they are rotated.
+  const int rotated = result.changed;
+  const int alreadyCorrect = detected + byBookRule - rotated;
+
+  QString summary
+      = tr("Orientation detected for %n page(s): %1 rotated, %2 already correct.", nullptr, detected + byBookRule)
+            .arg(rotated)
+            .arg(alreadyCorrect);
   if (bookRule) {
-    summary += "\n" + tr("%n by the book rule.", nullptr, selectedBookRule);
+    summary += "\n" + tr("Of these, %n like their neighbors or the majority.", nullptr, byBookRule);
   }
-  if (selectedUndecided > 0) {
-    const int shown = std::min(static_cast<int>(uncertainNames.size()), 10);
-    QString list;
-    for (int i = 0; i < shown; ++i) {
-      if (i > 0) {
-        list += ", ";
-      }
-      list += uncertainNames[i];
-    }
-    if (static_cast<int>(uncertainNames.size()) > shown) {
-      list += tr(", and %n more", nullptr, static_cast<int>(uncertainNames.size()) - shown);
-    }
-    summary += "\n\n" + tr("Uncertain: %1", nullptr, 0).arg(list);
+  if (!uncertain.isEmpty()) {
+    summary += "\n\n"
+               + tr("%n page(s) left unchanged because the orientation is uncertain: %1", nullptr,
+                    static_cast<int>(uncertain.size()))
+                     .arg(shortNameList(uncertain));
   }
-  if (selectedFailed > 0) {
-    summary += "\n\n" + tr("%n page(s) could not be read.", nullptr, selectedFailed);
+  if (!unreadable.isEmpty()) {
+    summary += "\n\n"
+               + tr("%n page(s) could not be read: %1", nullptr, static_cast<int>(unreadable.size()))
+                     .arg(shortNameList(unreadable));
   }
   QMessageBox::information(this, tr("Detect Orientation"), summary);
+}
+
+QString MainWindow::pageNameForMessages(const PageId& pageId) {
+  const QString fileName = QFileInfo(pageId.imageId().filePath()).fileName();
+  if (!pageId.imageId().isMultiPageFile()) {
+    return fileName;
+  }
+  return ThumbnailSequence::tr("%1 (page %2)").arg(fileName).arg(pageId.imageId().page());
+}
+
+QString MainWindow::shortNameList(const QStringList& names) {
+  // Long lists would make the message box taller than the screen; the rest is counted instead.
+  const int maxShown = 10;
+  if (names.size() <= maxShown) {
+    return names.join(", ");
+  }
+  return names.mid(0, maxShown).join(", ") + tr(", and %n more", nullptr, static_cast<int>(names.size()) - maxShown);
 }
 
 void MainWindow::fixDpiDialogRequested() {
