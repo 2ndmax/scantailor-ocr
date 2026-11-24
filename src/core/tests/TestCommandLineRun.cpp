@@ -147,7 +147,7 @@ CommandLineRun::ExitCode runFolder(const QString& inputFolder,
   options.dpiFix = dpiFix;
   options.profile = profile;
   options.colorModeDetect = colorModeDetect;
-   options.orientationDetect = orientationDetect;
+  options.orientationDetect = orientationDetect;
   options.reportFile = reportFile;
   return CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false),
                              progressJson ? &progressStream : nullptr);
@@ -1292,8 +1292,9 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_color_mode_detect) {
 
   QString out;
   QString err;
-  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), true, QString()),
-                    CommandLineRun::SUCCESS);
+  BOOST_CHECK_EQUAL(
+      runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), true, QString()),
+      CommandLineRun::SUCCESS);
   BOOST_CHECK(out.contains(QStringLiteral("Color mode detected for 1 page(s)")));
   const ProjectReader::FileResult read = ProjectReader::readFile(project_files::defaultProjectFile(inputDir));
   BOOST_REQUIRE(read.reader);
@@ -1922,9 +1923,9 @@ BOOST_AUTO_TEST_CASE(test_progress_json_color_mode_detect) {
   QString out;
   QString err;
   QString progress;
-  BOOST_CHECK_EQUAL(
-      runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), true, QString(), reportFile, &progress),
-      CommandLineRun::SUCCESS);
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), true,
+                              QString(), reportFile, &progress),
+                    CommandLineRun::SUCCESS);
   const std::vector<QJsonObject> lines = parseProgress(progress);
 
   std::vector<QString> passSteps;
@@ -2254,9 +2255,9 @@ BOOST_AUTO_TEST_CASE(test_profile_list_profile_matches_run) {
   const QString reportFile = dir.filePath("report.json");
   QString out;
   QString err;
-  BOOST_CHECK_EQUAL(
-      runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), false, QString(), reportFile),
-      CommandLineRun::SUCCESS);
+  BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), false,
+                              QString(), reportFile),
+                    CommandLineRun::SUCCESS);
 
   const QJsonObject report = readReport(reportFile);
   const QString runProfile = report["run"].toObject()["profile"].toString();
@@ -2513,8 +2514,8 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_orientation_detect_pages) {
   QString err;
   QString progress;
   BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), false,
-                             QStringLiteral("pages"), reportFile, &progress),
-                   CommandLineRun::SUCCESS);
+                              QStringLiteral("pages"), reportFile, &progress),
+                    CommandLineRun::SUCCESS);
   const QJsonArray pages = readReport(reportFile)["pages"].toArray();
   BOOST_REQUIRE_EQUAL(pages.size(), 2);
   bool foundDetected = false;
@@ -2552,8 +2553,8 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_orientation_detect_book) {
   QString out;
   QString err;
   BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), false,
-                             QStringLiteral("book"), reportFile),
-                   CommandLineRun::SUCCESS);
+                              QStringLiteral("book"), reportFile),
+                    CommandLineRun::SUCCESS);
   const QJsonArray pages = readReport(reportFile)["pages"].toArray();
   bool foundBookRule = false;
   for (const QJsonValue& v : pages) {
@@ -2575,8 +2576,8 @@ BOOST_AUTO_TEST_CASE(test_report_has_rotation_without_detection) {
   QString out;
   QString err;
   BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, std::atomic<bool>(false),
-                       CommandLineRun::Options::MARGINS, reportFile),
-                   CommandLineRun::SUCCESS);
+                        CommandLineRun::Options::MARGINS, reportFile),
+                    CommandLineRun::SUCCESS);
   const QJsonArray pages = readReport(reportFile)["pages"].toArray();
   BOOST_REQUIRE_EQUAL(pages.size(), 1);
   const QJsonObject page = pages[0].toObject();
@@ -2598,7 +2599,7 @@ BOOST_AUTO_TEST_CASE(test_orientation_detect_only_folder_mode) {
   QTextStream outStream(&out);
   QTextStream errStream(&err);
   BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
-                   CommandLineRun::USAGE_ERROR);
+                    CommandLineRun::USAGE_ERROR);
   BOOST_CHECK(!err.isEmpty());
 }
 
@@ -2616,7 +2617,7 @@ BOOST_AUTO_TEST_CASE(test_orientation_detect_unknown_value) {
   QTextStream outStream(&out);
   QTextStream errStream(&err);
   BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
-                   CommandLineRun::USAGE_ERROR);
+                    CommandLineRun::USAGE_ERROR);
   BOOST_CHECK(!err.isEmpty());
 }
 
@@ -2632,8 +2633,8 @@ BOOST_AUTO_TEST_CASE(test_progress_json_orientation_detect) {
   QString err;
   QString progress;
   BOOST_CHECK_EQUAL(runFolder(inputDir, &out, &err, std::nullopt, std::nullopt, std::nullopt, QString(), false,
-                             QStringLiteral("pages"), reportFile, &progress),
-                   CommandLineRun::SUCCESS);
+                              QStringLiteral("pages"), reportFile, &progress),
+                    CommandLineRun::SUCCESS);
   const std::vector<QJsonObject> lines = parseProgress(progress);
   std::vector<QString> passSteps;
   for (const QJsonObject& line : lines) {
