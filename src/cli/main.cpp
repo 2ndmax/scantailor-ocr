@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
   const QCommandLineOption orientationDetectOption(
       QStringLiteral("orientation-detect"),
       CommandLineRun::tr("Detect the orientation of the pages in the folder mode, before the first step: "
-                         "pages detects only the certain ones, book also applies the book rotation rule."),
+                         "pages rotates the pages whose orientation is certain; book also rotates uncertain pages like their neighbors or the majority."),
       CommandLineRun::tr("method"));
   parser.addOption(orientationDetectOption);
   const QCommandLineOption folderOption(
@@ -320,16 +320,9 @@ int main(int argc, char* argv[]) {
     options.dpiFix = dpi;
   }
   options.colorModeDetect = parser.isSet(colorModeDetectOption);
-  if (parser.isSet(orientationDetectOption)) {
-    const QString method = parser.value(orientationDetectOption);
-    if (method != QStringLiteral("pages") && method != QStringLiteral("book")) {
-      err << CommandLineRun::tr("Unknown method after --orientation-detect: %1. The methods are: pages and book.")
-                 .arg(method)
-          << Qt::endl;
-      return CommandLineRun::USAGE_ERROR;
-    }
-    options.orientationDetect = method;
-  }
+   if (parser.isSet(orientationDetectOption)) {
+     options.orientationDetect = parser.value(orientationDetectOption);
+   }
   if (parser.isSet(threadsOption)) {
     bool ok = false;
     const int threads = parser.value(threadsOption).toInt(&ok);
