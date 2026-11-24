@@ -214,6 +214,93 @@ function Invoke-StepMenu([string]$Title, [object]$Info, [object[]]$Steps, [int[]
     }
 }
 
+# The version number a tool prints ("graphify 0.9.112", "uv 0.13.9"), or ''. Graphviz's dot
+# prints it for -V, and to stderr ("dot - graphviz version 16.1.1 (...)").
+function Get-ToolVersion([string]$Exe, [string]$Arguments = '--version 2>nul') {
+    if (-not $Exe) { return '' }
+    $line = cmd /c "`"$Exe`" $Arguments" | Select-Object -First 1
+    if ("$line" -match '(\d+\.\d+\.\d+)') { return $Matches[1] }
+    return ''
+}
+
+# --- uv (05-setup-overview.ps1 and 06-setup-mcp.ps1) ------------------------------------------
+
+# Installs uv with winget unless it is there. $Purpose says what uv is needed for, shown before
+# installing. Returns $true when uv is there afterwards.
+function Install-Uv([string]$Purpose, [string]$Log) {
+    $uv = Find-Uv
+    if (-not $uv) {
+        Write-Host "Installs uv with winget. $Purpose"
+        if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+            Write-Host 'winget (App Installer) is not available. Install uv from https://docs.astral.sh/uv/.' -ForegroundColor Yellow
+            return $false
+        }
+        if (-not (Read-YesNo 'Install now?' $false)) { return $false }
+        Add-LogLine $Log "# $(Get-Stamp) winget install --id astral-sh.uv --exact --source winget"
+        # Run directly in the console, so the questions of winget can be answered.
+        & winget install --id astral-sh.uv --exact --source winget
+        Add-LogLine $Log "# Exit code: $LASTEXITCODE"
+        Update-Path
+        $uv = Find-Uv
+        if (-not $uv) { Write-Host 'uv is installed, but not found. Open a new window.' -ForegroundColor Red; return $false }
+    }
+    Write-Host "uv: $uv ($(Get-ToolVersion $uv))"
+    return $true
+}
+
+function Test-UvDirs {
+    return ([Environment]::GetEnvironmentVariable('UV_PYTHON_INSTALL_DIR', 'User') -and
+            [Environment]::GetEnvironmentVariable('UV_TOOL_DIR', 'User'))
+}
+
+# The folder uv keeps its Pythons ($Kind 'python') or tools ('tool') in now, or ''.
+function Get-UvDirInUse([string]$Uv, [string]$Kind) {
+    return "$(cmd /c "`"$Uv`" $Kind dir 2>nul" | Select-Object -First 1)".Trim()
+}
+
+# Sets UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR for the user account (see $UvHome in common.ps1),
+# unless they are set already. $IfDeclined is shown when the user answers no: what then does not
+# work, and how to set them later. Returns $true when both are set afterwards.
+function Set-UvDirs([string]$IfDeclined, [string]$Log) {
+    $uv = Find-Uv
+    if (-not $uv) { Write-Host 'uv is missing; install it first.' -ForegroundColor Red; return $false }
+    $dirs = @(@{ Name = 'UV_PYTHON_INSTALL_DIR'; Kind = 'python'; Value = "$UvHome\python" },
+              @{ Name = 'UV_TOOL_DIR'; Kind = 'tool'; Value = "$UvHome\tools" })
+    # Folders set before, by this setup or by the user, are kept.
+    $missing = @($dirs | Where-Object { -not [Environment]::GetEnvironmentVariable($_.Name, 'User') })
+    foreach ($item in $dirs) {
+        if ($missing -notcontains $item) {
+            Write-Host "$($item.Name) = $([Environment]::GetEnvironmentVariable($item.Name, 'User')) (set before, kept)"
+        }
+    }
+    if (-not $missing.Count) { return $true }
+
+    Write-Host 'uv is to keep its Pythons and tools outside AppData: a program installed as an app package,'
+    Write-Host 'such as the Claude desktop app, has its writes there redirected, and uv then cannot find the'
+    Write-Host 'Python it has just installed. Sets for your user account:'
+    foreach ($item in $missing) { Write-Host "  $($item.Name) = $($item.Value)" }
+    # What uv has in the folders it uses now, it no longer sees once they are moved.
+    $inUse = @(foreach ($item in $missing) {
+            $dir = Get-UvDirInUse $uv $item.Kind
+            if ($dir -and (Test-Path -LiteralPath $dir) -and
+                (Get-ChildItem -LiteralPath $dir -Force -ErrorAction SilentlyContinue | Select-Object -First 1)) { $dir }
+        })
+    foreach ($dir in $inUse) {
+        Write-Host "uv has Pythons or tools in $dir; after this, uv no longer sees them." -ForegroundColor Yellow
+    }
+    if (-not (Read-YesNo 'Set them now?' ($inUse.Count -eq 0))) {
+        Write-Host "Not set. $IfDeclined" -ForegroundColor Yellow
+        return $false
+    }
+    foreach ($item in $missing) {
+        [Environment]::SetEnvironmentVariable($item.Name, $item.Value, 'User')
+        [Environment]::SetEnvironmentVariable($item.Name, $item.Value, 'Process')
+        Add-LogLine $Log "# $(Get-Stamp) $($item.Name)=$($item.Value) (user environment)"
+    }
+    Write-Host 'Set for your user account; windows opened from now on see them.'
+    return $true
+}
+
 # Adds the PATH entries from the registry that this window does not have yet. A window keeps the
 # PATH it was opened with, so a tool installed since then (Git by 01-setup-windows.ps1, say)
 # would count as missing. The window's own entries stay, e.g. those of a Developer PowerShell.

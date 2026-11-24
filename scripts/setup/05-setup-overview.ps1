@@ -63,15 +63,6 @@ Write-Intro 'ScanTailor OCR - set up the overview tools' @(
     'the targets of the build. It shows the steps in a menu; nothing is installed without asking.'
 )
 
-# The version number a tool prints ("graphify 0.9.112", "clang-uml 0.6.3"), or ''. Graphviz's dot
-# prints it for -V, and to stderr ("dot - graphviz version 16.1.1 (...)").
-function Get-ToolVersion([string]$Exe, [string]$Arguments = '--version 2>nul') {
-    if (-not $Exe) { return '' }
-    $line = cmd /c "`"$Exe`" $Arguments" | Select-Object -First 1
-    if ("$line" -match '(\d+\.\d+\.\d+)') { return $Matches[1] }
-    return ''
-}
-
 # Asks which version to install: the tested one, or the newest. Unattended: -Latest decides.
 function Read-VersionChoice([string]$Tool, [string]$Tested) {
     if ($Unattended) { return [bool]$Latest }
@@ -80,79 +71,17 @@ function Read-VersionChoice([string]$Tool, [string]$Tested) {
         'the newest one (not tested with this setup)')) -eq 1)
 }
 
-function Test-UvDirs {
-    return ([Environment]::GetEnvironmentVariable('UV_PYTHON_INSTALL_DIR', 'User') -and
-            [Environment]::GetEnvironmentVariable('UV_TOOL_DIR', 'User'))
-}
-
 # --- Step 1: uv -------------------------------------------------------------------------------
 
 $stepUv = {
-    $uv = Find-Uv
-    if (-not $uv) {
-        Write-Host 'Installs uv with winget. uv then installs graphify with a Python of its own (step 3).'
-        if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-            Write-Host 'winget (App Installer) is not available. Install uv from https://docs.astral.sh/uv/.' -ForegroundColor Yellow
-            return $false
-        }
-        if (-not (Read-YesNo 'Install now?' $false)) { return $false }
-        Add-LogLine $log "# $(Get-Stamp) winget install --id astral-sh.uv --exact --source winget"
-        # Run directly in the console, so the questions of winget can be answered.
-        & winget install --id astral-sh.uv --exact --source winget
-        Add-LogLine $log "# Exit code: $LASTEXITCODE"
-        Update-Path
-        $uv = Find-Uv
-        if (-not $uv) { Write-Host 'uv is installed, but not found. Open a new window.' -ForegroundColor Red; return $false }
-    }
-    Write-Host "uv: $uv ($(Get-ToolVersion $uv))"
-    return $true
+    return (Install-Uv 'uv then installs graphify with a Python of its own (step 3).' $log)
 }
 
 # --- Step 2: the folders of uv ----------------------------------------------------------------
 
-# The folder uv keeps its Pythons ($Kind 'python') or tools ('tool') in now, or ''.
-function Get-UvDirInUse([string]$Uv, [string]$Kind) {
-    return "$(cmd /c "`"$Uv`" $Kind dir 2>nul" | Select-Object -First 1)".Trim()
-}
-
 $stepUvDirs = {
-    $uv = Find-Uv
-    if (-not $uv) { Write-Host 'uv is missing; run step 1 first.' -ForegroundColor Red; return $false }
-    $dirs = @(@{ Name = 'UV_PYTHON_INSTALL_DIR'; Kind = 'python'; Value = "$UvHome\python" },
-              @{ Name = 'UV_TOOL_DIR'; Kind = 'tool'; Value = "$UvHome\tools" })
-    # Folders set before, by this setup or by the user, are kept.
-    $missing = @($dirs | Where-Object { -not [Environment]::GetEnvironmentVariable($_.Name, 'User') })
-    foreach ($item in $dirs) {
-        if ($missing -notcontains $item) {
-            Write-Host "$($item.Name) = $([Environment]::GetEnvironmentVariable($item.Name, 'User')) (set before, kept)"
-        }
-    }
-    if (-not $missing.Count) { return $true }
-
-    Write-Host 'uv is to keep its Pythons and tools outside AppData: a program installed as an app package,'
-    Write-Host 'such as the Claude desktop app, has its writes there redirected, and uv then cannot find the'
-    Write-Host 'Python it has just installed. Sets for your user account:'
-    foreach ($item in $missing) { Write-Host "  $($item.Name) = $($item.Value)" }
-    # What uv has in the folders it uses now, it no longer sees once they are moved.
-    $inUse = @(foreach ($item in $missing) {
-            $dir = Get-UvDirInUse $uv $item.Kind
-            if ($dir -and (Test-Path -LiteralPath $dir) -and
-                (Get-ChildItem -LiteralPath $dir -Force -ErrorAction SilentlyContinue | Select-Object -First 1)) { $dir }
-        })
-    foreach ($dir in $inUse) {
-        Write-Host "uv has Pythons or tools in $dir; after this, uv no longer sees them." -ForegroundColor Yellow
-    }
-    if (-not (Read-YesNo 'Set them now?' ($inUse.Count -eq 0))) {
-        Write-Host 'Not set. graphify (step 3) is installed only with these folders; to install it, run step 2 again and answer yes.' -ForegroundColor Yellow
-        return $false
-    }
-    foreach ($item in $missing) {
-        [Environment]::SetEnvironmentVariable($item.Name, $item.Value, 'User')
-        [Environment]::SetEnvironmentVariable($item.Name, $item.Value, 'Process')
-        Add-LogLine $log "# $(Get-Stamp) $($item.Name)=$($item.Value) (user environment)"
-    }
-    Write-Host 'Set for your user account; windows opened from now on see them.'
-    return $true
+    if (-not (Find-Uv)) { Write-Host 'uv is missing; run step 1 first.' -ForegroundColor Red; return $false }
+    return (Set-UvDirs 'graphify (step 3) is installed only with these folders; to install it, run step 2 again and answer yes.' $log)
 }
 
 # --- Step 3: graphify -------------------------------------------------------------------------
