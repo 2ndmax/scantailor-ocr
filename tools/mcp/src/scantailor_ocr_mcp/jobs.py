@@ -310,6 +310,7 @@ class JobManager:
         project_file: str | None = None,
         output_folder: str | None = None,
         color_mode_detect: bool = False,
+        orientation_detect: str | None = None,
         last_step: str | None = None,
         threads: int | None = None,
         export_folder: str | None = None,
@@ -333,6 +334,7 @@ class JobManager:
             or project_file is not None
             or output_folder is not None
             or bool(color_mode_detect)
+            or orientation_detect is not None
         )
         if has_project and anlege_used:
             _tool_error("creation options cannot be used with 'project'")
@@ -340,6 +342,12 @@ class JobManager:
         # types
         if last_step is not None and last_step not in LAST_STEPS:
             _tool_error(f"unknown last_step: {last_step}")
+        if orientation_detect is not None:
+            if not isinstance(orientation_detect, str) or orientation_detect not in (
+                "pages",
+                "book",
+            ):
+                _tool_error("orientation_detect must be 'pages' or 'book'")
         if threads is not None:
             if not _is_int(threads) or threads < 1:
                 _tool_error("threads must be an integer >= 1")
@@ -456,6 +464,8 @@ class JobManager:
                 args.append(f"--output-folder={output_folder_resolved}")
             if color_mode_detect:
                 args.append("--color-mode-detect")
+            if orientation_detect is not None:
+                args.append(f"--orientation-detect={orientation_detect}")
         else:
             args.append(str(project_resolved))
 

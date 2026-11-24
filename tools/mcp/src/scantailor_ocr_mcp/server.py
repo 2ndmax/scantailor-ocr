@@ -145,7 +145,12 @@ def build_server(
             "Start a run of scantailor-ocr-cli and return immediately with a job_id. "
             "Either 'folder' (create a new project) or 'project' (an existing .ScanTailor) "
             "is required, never both. Poll run_status for progress; cancel with run_cancel. "
-            "Do not process a project that is open in the ScanTailor app."
+            "Do not process a project that is open in the ScanTailor app. Creation option "
+            "'orientation_detect' ('pages' or 'book', folder only) detects page orientation "
+            "before the first step: 'pages' rotates only pages whose orientation is certain, "
+            "'book' also rotates uncertain pages like their neighbors or the majority; the "
+            "report then carries 'rotationDetection' per page ('undecided' pages need a manual "
+            "check)."
         )
     )
     async def run_start(
@@ -157,6 +162,7 @@ def build_server(
         project_file: str | None = None,
         output_folder: str | None = None,
         color_mode_detect: bool = False,
+        orientation_detect: str | None = None,
         last_step: str | None = None,
         threads: int | None = None,
         export_folder: str | None = None,
@@ -174,6 +180,7 @@ def build_server(
             project_file=project_file,
             output_folder=output_folder,
             color_mode_detect=color_mode_detect,
+            orientation_detect=orientation_detect,
             last_step=last_step,
             threads=threads,
             export_folder=export_folder,

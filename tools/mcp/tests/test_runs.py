@@ -37,6 +37,24 @@ def make_book(folder: Path, pages: int = 1) -> Path:
     return folder
 
 
+def make_text_page(path: Path) -> None:
+    """A page of 'text' bars rotated 90 degrees clockwise, so the detector
+    returns 270 degrees for it. Drawn from makeTextPage in TestHelpers.h."""
+    base = Image.new("RGB", (800, 2100), "white")
+    d = ImageDraw.Draw(base)
+    for line in range(45):
+        y = 50 + line * 40
+        for g in range(38):
+            x = 60 + g * 18
+            d.rectangle([x, y - 20, x + 2, y - 1], fill="black")
+            if g % 2 == 0:
+                d.rectangle([x, y - 32, x + 2, y - 21], fill="black")
+            if g % 17 == 0:
+                d.rectangle([x - 2, y - 12, x + 5, y - 10], fill="black")
+    out = base.transpose(Image.ROTATE_270)
+    out.save(path, dpi=(300, 300))
+
+
 async def wait_finished(client, job_id, timeout: float = 120.0):
     deadline = time.time() + timeout
     last = None
@@ -489,5 +507,197 @@ def test_report_folder_goes_when_the_run_ends(cli, tmp_path: Path, monkeypatch):
             assert final["state"] == "succeeded"
             assert final["report"] is not None
             assert list(temp.iterdir()) == []
+
+    asyncio.run(main())
+
+
+# orientation detection: pages
+def test_run_orientation_detect_pages(cli, tmp_path: Path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    book = allowed / "book"
+    book.mkdir()
+    make_text_page(book / "text1.png")
+    make_text_page(book / "text2.png")
+    empty = Image.new("RGB", (2100, 800), "white")
+    empty.save(book / "empty.png", dpi=(300, 300))
+
+    async def main():
+        server, _ = build_server([allowed])
+        async with Client(server) as client:
+            r = await client.call_tool(
+                "run_start",
+                {
+                    "folder": str(book),
+                    "profile": "Default",
+                    "last_step": "output",
+                    "orientation_detect": "pages",
+                },
+            )
+            assert r.is_error is False
+            job_id = r.structured_content["job_id"]
+            sc, _ = await wait_finished(client, job_id)
+            assert sc["state"] == "succeeded"
+            assert sc["exit_code"] == 0
+            pages = sc["report"]["pages"]
+            by_name = {Path(p["file"]).name: p for p in pages}
+            assert by_name["text1.png"]["rotation"] == 270
+            assert by_name["text1.png"]["rotationDetection"] == "detected"
+            assert by_name["text2.png"]["rotation"] == 270
+            assert by_name["text2.png"]["rotationDetection"] == "detected"
+            assert by_name["empty.png"]["rotationDetection"] == "undecided"
+
+    asyncio.run(main())
+
+
+# orientation detection: book
+def test_run_orientation_detect_book(cli, tmp_path: Path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    book = allowed / "book"
+    book.mkdir()
+    for i in range(5):
+        make_text_page(book / f"text{i}.png")
+    empty = Image.new("RGB", (2100, 800), "white")
+    empty.save(book / "empty.png", dpi=(300, 300))
+
+    async def main():
+        server, _ = build_server([allowed])
+        async with Client(server) as client:
+            r = await client.call_tool(
+                "run_start",
+                {
+                    "folder": str(book),
+                    "profile": "Default",
+                    "last_step": "output",
+                    "orientation_detect": "book",
+                },
+            )
+            assert r.is_error is False
+            job_id = r.structured_content["job_id"]
+            sc, _ = await wait_finished(client, job_id)
+            assert sc["state"] == "succeeded"
+            pages = sc["report"]["pages"]
+            by_name = {Path(p["file"]).name: p for p in pages}
+            assert by_name["empty.png"]["rotation"] == 270
+            assert by_name["empty.png"]["rotationDetection"] == "book-rule"
+
+    asyncio.run(main())
+
+
+# orientation detection: tool errors
+def test_run_orientation_detect_tool_errors(cli, tmp_path: Path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    book = allowed / "book"
+    book.mkdir()
+    make_page(book / "page1.png")
+    proj = book / "book.ScanTailor"
+    subprocess.run(
+        [str(cli_path()), str(book), "--profile=Default", "--last-step=fix-orientation"],
+        check=True,
+        capture_output=True,
+    )
+
+    async def main():
+        server, _ = build_server([allowed])
+        async with Client(server) as client:
+            # unknown value
+            r = await client.call_tool(
+                "run_start", {"folder": str(book), "orientation_detect": "nope"}
+            )
+            assert r.is_error is True
+            # orientation_detect with project
+            r = await client.call_tool(
+                "run_start", {"project": str(proj), "orientation_detect": "pages"}
+            )
+            assert r.is_error is True
+
+    asyncio.run(main())
+
+
+# orientation detection: arguments
+def test_run_orientation_detect_args(cli, tmp_path: Path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    book = allowed / "book"
+    book.mkdir()
+    make_page(book / "page1.png")
+
+    async def main():
+        server, state = build_server([allowed])
+        async with Client(server) as client:
+            r = await client.call_tool(
+                "run_start",
+                {
+                    "folder": str(book),
+                    "profile": "Default",
+                    "last_step": "output",
+                    "orientation_detect": "book",
+                },
+            )
+            assert r.is_error is False
+            job_id = r.structured_content["job_id"]
+            job = state["job_manager"].jobs[job_id]
+            assert "--orientation-detect=book" in job.args
+            await wait_finished(client, job_id)
+
+            # without the parameter
+            book2 = allowed / "book2"
+            book2.mkdir()
+            make_page(book2 / "page1.png")
+            r2 = await client.call_tool(
+                "run_start", {"folder": str(book2), "profile": "Default", "last_step": "output"}
+            )
+            assert r2.is_error is False
+            job_id2 = r2.structured_content["job_id"]
+            job2 = state["job_manager"].jobs[job_id2]
+            assert not any(a.startswith("--orientation-detect") for a in job2.args)
+            await wait_finished(client, job_id2)
+
+    asyncio.run(main())
+
+
+# orientation detection: progress
+def test_run_orientation_detect_progress(cli, tmp_path: Path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    book = allowed / "book"
+    book.mkdir()
+    make_text_page(book / "text1.png")
+    make_text_page(book / "text2.png")
+    empty = Image.new("RGB", (2100, 800), "white")
+    empty.save(book / "empty.png", dpi=(300, 300))
+
+    async def main():
+        server, state = build_server([allowed])
+        async with Client(server) as client:
+            r = await client.call_tool(
+                "run_start",
+                {
+                    "folder": str(book),
+                    "profile": "Default",
+                    "last_step": "output",
+                    "orientation_detect": "pages",
+                },
+            )
+            assert r.is_error is False
+            job_id = r.structured_content["job_id"]
+            sc, running = await wait_finished(client, job_id)
+            assert sc["state"] == "succeeded"
+            job = state["job_manager"].jobs[job_id]
+            steps = [e["step"] for e in job.progress_events if e.get("event") == "pass-start"]
+            assert steps and steps[0] == "orientation-detect"
+            od_pages = [
+                e
+                for e in job.progress_events
+                if e.get("event") == "page" and e.get("step") == "orientation-detect"
+            ]
+            statuses = {e.get("status") for e in od_pages}
+            assert "ok" in statuses
+            assert "uncertain" in statuses
+            ok_events = [e for e in od_pages if e.get("status") == "ok"]
+            assert all(e.get("rotation") == 270 for e in ok_events)
+            assert all(e.get("rotationDetection") == "detected" for e in ok_events)
 
     asyncio.run(main())
