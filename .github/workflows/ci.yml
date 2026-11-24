@@ -31,7 +31,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Ends a hanging package mirror early instead of at GitHub's six-hour limit
+      # (same as in codeql.yml).
       - name: Install dependencies
+        timeout-minutes: 15
         run: |
           sudo apt-get update
           sudo apt-get install -y \
