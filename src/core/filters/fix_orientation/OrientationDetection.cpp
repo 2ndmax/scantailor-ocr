@@ -366,14 +366,15 @@ QString OrientationDetection::summary(const Result& result,
   if (bookRule && byBookRule > 0) {
     text += "\n" + tr("Of these, %n like their neighbors or the majority.", nullptr, byBookRule);
   }
+  // Long lists would make the message taller than the screen; the rest is counted instead. The text
+  // for the rest brings its own separator (none before "und" in German), so it is appended, not joined.
   const auto shorten = [&](const QStringList& names) {
     const int maxShown = 10;
     if (names.size() <= maxShown) {
       return names.join(QStringLiteral(", "));
     }
-    QStringList shown = names.mid(0, maxShown);
-    shown.push_back(tr(", and %n more", nullptr, static_cast<int>(names.size()) - maxShown));
-    return shown.join(QStringLiteral(", "));
+    return names.mid(0, maxShown).join(QStringLiteral(", "))
+           + tr(", and %n more", nullptr, static_cast<int>(names.size()) - maxShown);
   };
   if (!uncertain.isEmpty()) {
     text += "\n\n"

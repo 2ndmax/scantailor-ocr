@@ -261,4 +261,21 @@ BOOST_AUTO_TEST_CASE(gap_next_to_undecided) {
   }
 }
 
+// A long list of uncertain pages names the first ten and counts the rest, without a doubled comma.
+BOOST_AUTO_TEST_CASE(summary_shortens_a_long_list) {
+  OrientationDetection::Result result;
+  std::set<PageId> selection;
+  for (int i = 0; i < 12; ++i) {
+    const PageId page(ImageId(QStringLiteral("p%1.png").arg(i)), PageId::SINGLE_PAGE);
+    OrientationDetection::PageResult pageResult;
+    pageResult.status = OrientationDetection::PageResult::UNDECIDED;
+    result.results.emplace_back(page, pageResult);
+    result.undecided += 1;
+    selection.insert(page);
+  }
+  const QString text = OrientationDetection::summary(result, selection, false,
+                                                     [](const PageId& page) { return page.imageId().filePath(); });
+  BOOST_CHECK_MESSAGE(text.endsWith(QStringLiteral("p8.png, p9.png, and 2 more")), text.toStdString());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
