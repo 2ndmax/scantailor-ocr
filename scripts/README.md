@@ -23,6 +23,7 @@ They run in Windows PowerShell 5.1 or PowerShell 7, from any folder:
 | `03-setup-edg.ps1` | the EDG C++ front end, with `EDG_ROOT` | analysis run 04 |
 | `04-setup-wsl-gcc.ps1` | WSL with Ubuntu 24.04, GCC and the project's packages | analysis run 08 |
 | `05-setup-overview.ps1` | uv, graphify, clang-uml and optionally Graphviz, each in the tested or the newest version, and optionally `/graphify` for Claude Code | the overview runs |
+| `06-setup-mcp.ps1` | uv, the MCP server in `tools\mcp` and its entry in Claude Code, Claude Desktop and Antigravity, each optional; needs the CLI from 01 | the MCP server ([tools/mcp/README.md](../tools/mcp/README.md)) |
 
 Each setup script shows its steps in a menu; each step can be run on its own, 0 runs all of them,
 and a step skips what is already there.

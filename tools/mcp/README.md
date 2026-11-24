@@ -14,6 +14,11 @@ CLI's `--project-info`.
 - `uv` (0.13.9 or newer). `uv` fetches Python 3.11 or newer and the package
   dependencies on its own; no separate Python installation is needed.
 
+On Windows, `scripts\setup\06-setup-mcp.ps1` installs uv and the server and
+enters the server in Claude Code, Claude Desktop and Antigravity (see
+[scripts/README.md](../../scripts/README.md)). The sections below describe the
+same by hand.
+
 ## Finding the CLI
 
 The server looks for the CLI in this order:
