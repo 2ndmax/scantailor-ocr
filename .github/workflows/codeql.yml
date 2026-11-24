@@ -23,7 +23,10 @@ jobs:
 
       # The packages of the Linux build in ci.yml, without poppler-utils (the analysis runs no
       # tests). Kept by hand, see the REVIEW-NOTE in scripts/setup/support/ubuntu-packages.txt.
+      # A hanging package mirror otherwise holds the job until GitHub's six-hour limit
+      # (seen on 2026-11-23); the installation normally takes a few minutes.
       - name: Install dependencies
+        timeout-minutes: 15
         run: |
           sudo apt-get update
           sudo apt-get install -y \
