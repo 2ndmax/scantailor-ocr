@@ -84,10 +84,17 @@ results are also written as SARIF files, one per source file.  Its build directo
 ### 02 – clang-tidy
 
 clang-tidy with the repository's `.clang-tidy` over all sources in `src\` without the tests and
-generated files.  Besides the log, the diagnostics are written as YAML per source file (only for
+generated files. Besides the log, the diagnostics are written as YAML per source file (only for
 files that have any).
 
+When started without `-Extended`, `-ExtraChecks` or `-Yes`, the script asks whether to run only
+the standard checks of `.clang-tidy` or the extended set, which adds 14 curated bug-pattern and
+clarity checks on top of `.clang-tidy` in the same pass. `-Extended` selects the extended set
+directly, `-ExtraChecks` appends arbitrary check patterns (comma-separated or as an array), and
+`-Yes` runs the standard set without asking unless `-Extended` or `-ExtraChecks` is given.
+
     powershell -ExecutionPolicy Bypass -File scripts\analysis\02-clang-tidy.ps1
+    powershell -ExecutionPolicy Bypass -File scripts\analysis\02-clang-tidy.ps1 -Extended
 
 ### 03 – cppcheck
 
