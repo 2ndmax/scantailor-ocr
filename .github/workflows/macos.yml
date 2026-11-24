@@ -35,7 +35,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Ends a hanging download early instead of at GitHub's six-hour limit (as in
+      # codeql.yml). Homebrew normally needs about four minutes; Qt and Boost are large,
+      # so the limit leaves more room than the apt steps get.
       - name: Install dependencies (Homebrew)
+        timeout-minutes: 20
         run: |
           brew update
           brew install ninja pkgconf qt boost tesseract leptonica libtiff jpeg-turbo libpng openjpeg poppler
