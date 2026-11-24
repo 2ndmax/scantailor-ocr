@@ -126,7 +126,9 @@ compares the output. The two process pages in different ways: the app runs batch
   "Tests" in [CLAUDE.md](CLAUDE.md).
 - Tests must not depend on the machine: no user settings, no files outside the test's own
   temporary directory, no image files in the repository (draw the pages in the test, as the
-  end-to-end test does).
+  end-to-end test does). A page the orientation detection decides on is drawn by
+  `Tests::makeTextPage` in `src/core/tests/TestHelpers.h`: lines of bars with ascenders, as text
+  can't be drawn without fonts.
 
 ## Developer tools
 
