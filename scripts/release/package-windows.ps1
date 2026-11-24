@@ -328,10 +328,16 @@ Set-Content -Path (Join-Path $licensesDir "jbig2enc.txt") -Value ($jbig2Note + (
 # patches vcpkg applies; the vcpkg commit pins both.
 $qtSpdx = Join-Path $vcpkgInstalled "$Triplet\share\qtbase\vcpkg.spdx.json"
 if (-not (Test-Path $qtSpdx)) { Fail "$qtSpdx doesn't exist." }
-$qtVersion = ((Get-Content $qtSpdx -Raw | ConvertFrom-Json).packages | Where-Object { $_.name -eq "qtbase" } |
+$qtVersionInfo = ((Get-Content $qtSpdx -Raw | ConvertFrom-Json).packages | Where-Object { $_.name -eq "qtbase" } |
   Select-Object -First 1).versionInfo
-if ($qtVersion -notmatch '^(\d+\.\d+)\.\d+$') { Fail "No Qt version found in $qtSpdx." }
-$qtMinor = $Matches[1]
+# vcpkg appends the revision of its port when it has one ("6.11.3#1"); Qt's own version is the
+# part before it, and only that one has a folder in Qt's archive.
+# REVIEW-NOTE (2026-11): a qtbase version with a port revision stopped the release build of
+# v1.2.1. Fixed without a regression test because the release scripts have no tests; checked by
+# packaging against a vcpkg whose qtbase is "6.11.3#1".
+if ($qtVersionInfo -notmatch '^((\d+\.\d+)\.\d+)(#\d+)?$') { Fail "No Qt version found in $qtSpdx." }
+$qtVersion = $Matches[1]
+$qtMinor = $Matches[2]
 $vcpkgCommit = (& git -C $VcpkgRoot rev-parse HEAD 2>$null)
 if ($LASTEXITCODE -ne 0 -or $vcpkgCommit -notmatch '^[0-9a-f]{40}$') { Fail "$VcpkgRoot is not a git checkout of vcpkg." }
 
