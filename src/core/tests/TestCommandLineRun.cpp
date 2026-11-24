@@ -2706,6 +2706,14 @@ BOOST_AUTO_TEST_CASE(test_orientation_detect_cancelled) {
   BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, cancel), CommandLineRun::CANCELLED);
   // Project was saved despite cancellation.
   BOOST_CHECK(QFile::exists(projectFile));
+  // The page, which the detection would turn by 270 degrees, keeps its rotation. A cancel after some
+  // images were detected is tested on OrientationDetection::run itself (cancel_sets_nothing).
+  // The sideways scan counts as a two-page spread, so the report has both halves.
+  const QJsonArray pages = readReport(reportFile)["pages"].toArray();
+  BOOST_REQUIRE(!pages.isEmpty());
+  for (const QJsonValue& page : pages) {
+    BOOST_CHECK_EQUAL(page.toObject()["rotation"].toInt(), 0);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
