@@ -325,9 +325,9 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
 }
 
 QString OrientationDetection::summary(const Result& result,
-                                     const std::set<PageId>& selection,
-                                     bool bookRule,
-                                     const std::function<QString(const PageId&)>& pageName) {
+                                      const std::set<PageId>& selection,
+                                      bool bookRule,
+                                      const std::function<QString(const PageId&)>& pageName) {
   if (result.cancelled) {
     return tr("The detection was canceled. No pages were rotated.");
   }
@@ -359,10 +359,10 @@ QString OrientationDetection::summary(const Result& result,
   const int rotated = result.changed;
   const int alreadyCorrect = detected + byBookRule - rotated;
 
-  QString text = tr("Orientation detected for %n page(s): %1 rotated, %2 already correct.", nullptr,
-                    detected + byBookRule)
-                     .arg(rotated)
-                     .arg(alreadyCorrect);
+  QString text
+      = tr("Orientation detected for %n page(s): %1 rotated, %2 already correct.", nullptr, detected + byBookRule)
+            .arg(rotated)
+            .arg(alreadyCorrect);
   if (bookRule && byBookRule > 0) {
     text += "\n" + tr("Of these, %n like their neighbors or the majority.", nullptr, byBookRule);
   }
@@ -382,8 +382,9 @@ QString OrientationDetection::summary(const Result& result,
                   .arg(shorten(uncertain));
   }
   if (!unreadable.isEmpty()) {
-    text += "\n\n" + tr("%n page(s) could not be read: %1", nullptr, static_cast<int>(unreadable.size()))
-                      .arg(shorten(unreadable));
+    text += "\n\n"
+            + tr("%n page(s) could not be read: %1", nullptr, static_cast<int>(unreadable.size()))
+                  .arg(shorten(unreadable));
   }
   return text;
 }

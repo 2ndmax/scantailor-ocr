@@ -158,7 +158,8 @@ int main(int argc, char* argv[]) {
   const QCommandLineOption orientationDetectOption(
       QStringLiteral("orientation-detect"),
       CommandLineRun::tr("Detect the orientation of the pages in the folder mode, before the first step: "
-                         "pages rotates the pages whose orientation is certain; book also rotates uncertain pages like their neighbors or the majority."),
+                         "pages rotates the pages whose orientation is certain; book also rotates uncertain pages like "
+                         "their neighbors or the majority."),
       CommandLineRun::tr("method"));
   parser.addOption(orientationDetectOption);
   const QCommandLineOption folderOption(
@@ -320,9 +321,9 @@ int main(int argc, char* argv[]) {
     options.dpiFix = dpi;
   }
   options.colorModeDetect = parser.isSet(colorModeDetectOption);
-   if (parser.isSet(orientationDetectOption)) {
-     options.orientationDetect = parser.value(orientationDetectOption);
-   }
+  if (parser.isSet(orientationDetectOption)) {
+    options.orientationDetect = parser.value(orientationDetectOption);
+  }
   if (parser.isSet(threadsOption)) {
     bool ok = false;
     const int threads = parser.value(threadsOption).toInt(&ok);

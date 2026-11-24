@@ -1318,9 +1318,9 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     orientationDetectionCancelled = result.cancelled;
 
     // Summary on stdout, shared with the app.
-    out << fix_orientation::OrientationDetection::summary(result, selection, bookRule,
-                                                         [](const PageId& pageId) { return pageName(pageId); })
-        << Qt::endl;
+    out << fix_orientation::OrientationDetection::summary(result, selection, bookRule, [](const PageId& pageId) {
+      return pageName(pageId);
+    }) << Qt::endl;
   }
 
   // --color-mode-detect: as the app's Detect Color Mode, between the Margins and the Output passes.

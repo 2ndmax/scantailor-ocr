@@ -26,7 +26,7 @@ class Settings;
  * the Fix Orientation settings, following ColorModeDetection's shape.
  */
 class OrientationDetection {
-   Q_DECLARE_TR_FUNCTIONS(OrientationDetection)
+  Q_DECLARE_TR_FUNCTIONS(OrientationDetection)
 
  public:
   struct Detection {
