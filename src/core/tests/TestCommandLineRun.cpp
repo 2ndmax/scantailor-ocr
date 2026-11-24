@@ -17,6 +17,7 @@
 #include <ProjectSession.h>
 #include <StageSequence.h>
 #include <ThreadBudget.h>
+#include <filters/fix_orientation/Settings.h>
 #include <filters/output/Settings.h>
 
 #include <QDir>
@@ -2518,20 +2519,26 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_orientation_detect_pages) {
                     CommandLineRun::SUCCESS);
   const QJsonArray pages = readReport(reportFile)["pages"].toArray();
   BOOST_REQUIRE_EQUAL(pages.size(), 2);
-  bool foundDetected = false;
-  bool foundUndecided = false;
   for (const QJsonValue& v : pages) {
     const QJsonObject p = v.toObject();
-    BOOST_CHECK(p.contains("rotation"));
-    const QString rd = p["rotationDetection"].toString();
-    if (rd == QStringLiteral("detected")) {
-      foundDetected = true;
-    } else if (rd == QStringLiteral("undecided")) {
-      foundUndecided = true;
+    const QString file = QFileInfo(p["file"].toString()).fileName();
+    if (file == QStringLiteral("rot90.png")) {
+      BOOST_CHECK_EQUAL(p["rotation"].toInt(), 270);
+      BOOST_CHECK(p["rotationDetection"].toString() == QStringLiteral("detected"));
+    } else {
+      BOOST_CHECK_EQUAL(p["rotation"].toInt(), 0);
+      BOOST_CHECK(p["rotationDetection"].toString() == QStringLiteral("undecided"));
     }
   }
-  BOOST_CHECK(foundDetected);
-  BOOST_CHECK(foundUndecided);
+
+  // The rotation is also stored in the project.
+  const QString projectFile = project_files::defaultProjectFile(inputDir);
+  const ProjectReader::FileResult read = ProjectReader::readFile(projectFile);
+  BOOST_REQUIRE(read.reader);
+  ProjectSession session = ProjectSession::load(*read.reader, DefaultParams());
+  const PageId page(ImageId(inputDir + QStringLiteral("/rot90.png")), PageId::SINGLE_PAGE);
+  BOOST_CHECK_EQUAL(session.stages->fixOrientationFilter()->settings()->getRotationFor(page.imageId()).toDegrees(),
+                    270);
 }
 
 // Book rule: the empty page inherits the neighbors' orientation.
@@ -2556,14 +2563,16 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_orientation_detect_book) {
                               QStringLiteral("book"), reportFile),
                     CommandLineRun::SUCCESS);
   const QJsonArray pages = readReport(reportFile)["pages"].toArray();
-  bool foundBookRule = false;
   for (const QJsonValue& v : pages) {
     const QJsonObject p = v.toObject();
-    if (p["rotationDetection"].toString() == QStringLiteral("book-rule")) {
-      foundBookRule = true;
+    const QString file = QFileInfo(p["file"].toString()).fileName();
+    if (file == QStringLiteral("empty.png")) {
+      BOOST_CHECK(p["rotationDetection"].toString() == QStringLiteral("book-rule"));
+      BOOST_CHECK_EQUAL(p["rotation"].toInt(), 270);
+    } else {
+      BOOST_CHECK(p["rotationDetection"].toString() == QStringLiteral("detected"));
     }
   }
-  BOOST_CHECK(foundBookRule);
 }
 
 // Without the option: rotation is present, rotationDetection is not.
@@ -2618,7 +2627,8 @@ BOOST_AUTO_TEST_CASE(test_orientation_detect_unknown_value) {
   QTextStream errStream(&err);
   BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
                     CommandLineRun::USAGE_ERROR);
-  BOOST_CHECK(!err.isEmpty());
+  BOOST_CHECK(err.contains(QStringLiteral("foo")));
+  BOOST_CHECK(!QFile::exists(project_files::defaultProjectFile(inputDir)));
 }
 
 // Progress json has orientation-detect pass.
@@ -2627,7 +2637,13 @@ BOOST_AUTO_TEST_CASE(test_progress_json_orientation_detect) {
   BOOST_REQUIRE(dir.isValid());
   const QString inputDir = dir.filePath("in");
   BOOST_REQUIRE(QDir().mkpath(inputDir));
-  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+  BOOST_REQUIRE(!Tests::saveTextPage(inputDir + QStringLiteral("/rot90.png"), 90, 300).imageInfo().empty());
+  QImage empty(800, 1000, QImage::Format_RGB32);
+  empty.fill(Qt::white);
+  const Dpm dpm(Dpi(300, 300));
+  empty.setDotsPerMeterX(dpm.horizontal());
+  empty.setDotsPerMeterY(dpm.vertical());
+  BOOST_REQUIRE(empty.save(inputDir + QStringLiteral("/empty.png")));
   const QString reportFile = dir.filePath("report.json");
   QString out;
   QString err;
@@ -2636,22 +2652,60 @@ BOOST_AUTO_TEST_CASE(test_progress_json_orientation_detect) {
                               QStringLiteral("pages"), reportFile, &progress),
                     CommandLineRun::SUCCESS);
   const std::vector<QJsonObject> lines = parseProgress(progress);
+  // orientation-detect is the first pass.
   std::vector<QString> passSteps;
   for (const QJsonObject& line : lines) {
     if (line["event"].toString() == QStringLiteral("pass-start")) {
       passSteps.push_back(line["step"].toString());
     }
   }
+  BOOST_REQUIRE(!passSteps.empty());
+  BOOST_CHECK(passSteps.front() == QStringLiteral("orientation-detect"));
   BOOST_CHECK(std::find(passSteps.begin(), passSteps.end(), QStringLiteral("orientation-detect")) != passSteps.end());
-  bool seen = false;
+
+  bool textSeen = false;
+  bool emptySeen = false;
   for (const QJsonObject& line : lines) {
     if (line["event"].toString() == QStringLiteral("page")
         && line["step"].toString() == QStringLiteral("orientation-detect")) {
-      BOOST_CHECK(line.contains(QStringLiteral("status")));
-      seen = true;
+      if (line["status"].toString() == QStringLiteral("ok")) {
+        BOOST_CHECK_EQUAL(line["rotation"].toInt(), 270);
+        BOOST_CHECK(line["rotationDetection"].toString() == QStringLiteral("detected"));
+        BOOST_CHECK(line.contains(QStringLiteral("done")));
+        BOOST_CHECK(line.contains(QStringLiteral("total")));
+        textSeen = true;
+      } else if (line["status"].toString() == QStringLiteral("uncertain")) {
+        BOOST_CHECK(!line.contains(QStringLiteral("rotation")));
+        emptySeen = true;
+      }
     }
   }
-  BOOST_CHECK(seen);
+  BOOST_CHECK(textSeen);
+  BOOST_CHECK(emptySeen);
+}
+
+// Cancelled during detection: nothing is rotated, exit 5, project is saved.
+BOOST_AUTO_TEST_CASE(test_orientation_detect_cancelled) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPage(inputDir + QStringLiteral("/rot90.png"), 90, 300).imageInfo().empty());
+  const QString projectFile = dir.filePath("p.ScanTailor");
+  const QString reportFile = dir.filePath("report.json");
+  std::atomic<bool> cancel(true);
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  CommandLineRun::Options options;
+  options.inputFolder = inputDir;
+  options.projectFile = projectFile;
+  options.orientationDetect = QStringLiteral("pages");
+  options.reportFile = reportFile;
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, cancel), CommandLineRun::CANCELLED);
+  // Project was saved despite cancellation.
+  BOOST_CHECK(QFile::exists(projectFile));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
