@@ -600,18 +600,21 @@ def test_run_orientation_detect_tool_errors(cli, tmp_path: Path):
     )
 
     async def main():
-        server, _ = build_server([allowed])
+        server, state = build_server([allowed])
         async with Client(server) as client:
-            # unknown value
+            # unknown value: refused by the server, naming the allowed values
             r = await client.call_tool(
                 "run_start", {"folder": str(book), "orientation_detect": "nope"}
             )
             assert r.is_error is True
+            assert "'pages' or 'book'" in r.content[0].text
             # orientation_detect with project
             r = await client.call_tool(
                 "run_start", {"project": str(proj), "orientation_detect": "pages"}
             )
             assert r.is_error is True
+            # neither call started a run
+            assert state["job_manager"].jobs == {}
 
     asyncio.run(main())
 
