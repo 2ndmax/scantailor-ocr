@@ -23,7 +23,7 @@
    <item>
     <widget class="QCheckBox" name="bookRuleCheckBox">
      <property name="toolTip">
-      <string>Detects the rotation of uncertain pages from their neighbors or the majority. All pages of the project are then detected, which takes longer. Only the chosen pages are rotated.</string>
+      <string>Gives uncertain pages the orientation of their neighbors, or else of most pages. All pages of the project are then detected, which takes longer. Only the chosen pages are rotated.</string>
      </property>
      <property name="text">
       <string>Rotate uncertain pages like their neighbors or the majority</string>
