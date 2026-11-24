@@ -351,11 +351,39 @@ void TestFixOrientationQt::testThumbnailOfPage() {
   QVERIFY(typeid(*thumbnail) == typeid(ThumbnailBase));
 }
 
-void TestFixOrientationQt::testOrientationDetectionButtonExists() {
-  auto settings = std::make_shared<Settings>();
-  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
-  auto* const button = widget.findChild<QPushButton*>("orientationDetectionBtn");
+void TestFixOrientationQt::testOrientationDetectionButtonRequestsDetection() {
+  // The button opens the dialog, and the panel passes its choice on to the main window: the pages
+  // and whether the book rule is on. The panel is where the choice could get lost.
+  // The dialog asks the page selection for its choices, which the project of filter_ui_checks
+  // leaves out, so the panel gets one of its own.
+  filter_ui_checks::OnePageProject one;
+  QVERIFY(one.isValid());
+  const PageInfo page = one.page(IMAGE_VIEW);
+  OptionsWidget widget(std::make_shared<Settings>(),
+                       PageSelectionAccessor(std::make_shared<filter_ui_checks::EmptyPageSelectionProvider>()));
+  widget.preUpdateUI(page, OrthogonalRotation());
+  OptionsWidget* const panel = &widget;
+
+  std::vector<std::pair<std::set<PageId>, bool>> requests;
+  QObject::connect(
+      panel, &FilterOptionsWidget::orientationDetectionRequested,
+      [&requests](const std::set<PageId>& pages, const bool bookRule) { requests.emplace_back(pages, bookRule); });
+
+  auto* const button = panel->findChild<QPushButton*>("orientationDetectionBtn");
   QVERIFY(button != nullptr);
+  button->click();
+  auto* const dialog = panel->findChild<OrientationDetectionDialog*>();
+  QVERIFY(dialog != nullptr);
+  auto* const bookRule = dialog->findChild<QCheckBox*>("bookRuleCheckBox");
+  auto* const buttonBox = dialog->findChild<QDialogButtonBox*>("buttonBox");
+  QVERIFY(bookRule != nullptr);
+  QVERIFY(buttonBox != nullptr);
+  bookRule->setChecked(true);
+  buttonBox->button(QDialogButtonBox::Ok)->click();
+
+  QCOMPARE(requests.size(), size_t(1));
+  QVERIFY(requests[0].first == std::set<PageId>{page.id()});
+  QCOMPARE(requests[0].second, true);
 }
 
 void TestFixOrientationQt::testOrientationDetectionDialogHasBookRuleOptionOff() {
@@ -373,13 +401,17 @@ void TestFixOrientationQt::testOrientationDetectionDialogDeliversBookRuleInSigna
   QVERIFY(bookRule != nullptr);
   bookRule->setChecked(true);
 
-  QSignalSpy spy(&dialog, &OrientationDetectionDialog::accepted);
+  // "This page only" is the preset scope; it has to give the current page, as the detection has not
+  // run on it yet.
+  std::vector<std::pair<std::set<PageId>, bool>> accepted;
+  QObject::connect(
+      &dialog, &OrientationDetectionDialog::accepted,
+      [&accepted](const std::set<PageId>& pages, const bool bookRule) { accepted.emplace_back(pages, bookRule); });
   auto* const buttonBox = dialog.findChild<QDialogButtonBox*>("buttonBox");
   QVERIFY(buttonBox != nullptr);
   buttonBox->button(QDialogButtonBox::Ok)->click();
 
-  QCOMPARE(spy.count(), 1);
-  const auto args = spy.takeFirst();
-  QVERIFY(args.at(0).value<std::set<PageId>>().size() >= 0);
-  QCOMPARE(args.at(1).toBool(), true);
+  QCOMPARE(accepted.size(), size_t(1));
+  QVERIFY(accepted[0].first == std::set<PageId>{PageId(ImageId("page.png"))});
+  QCOMPARE(accepted[0].second, true);
 }
