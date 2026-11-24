@@ -76,6 +76,8 @@ class CommandLineRun {
     std::optional<Dpi> dpiFix;
     /** --color-mode-detect: after the Margins step, as the app's Detect Color Mode does. */
     bool colorModeDetect = false;
+    /** --orientation-detect: "pages" or "book"; empty without it. */
+    QString orientationDetect;
     /** --threads: the number of threads of this run; unset without it. */
     std::optional<int> threads;
 
@@ -111,6 +113,8 @@ class CommandLineRun {
      *   dpiSource: string, "command-line" or "file".
      *   colorMode: string, "black-and-white", "color-grayscale" or "mixed".
      *   colorModeDetected: bool, true when --color-mode-detect supplied colorMode.
+     *   rotation: integer, the orientation of the page's image in degrees clockwise, as stored in the project.
+     *   rotationDetection: string, only with --orientation-detect: "detected", "book-rule", "undecided" or "failed".
      *   outputFile: string, the native path of the output file.
      *   status: string, "ok" or "failed".
      *   errorKind: string, only for status "failed": "LOAD_FAILED", "PROCESSING_FAILED",

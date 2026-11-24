@@ -42,6 +42,8 @@
 #include "ProjectSession.h"
 #include "StageSequence.h"
 #include "ThreadBudget.h"
+#include "filters/fix_orientation/OrientationDetection.h"
+#include "filters/fix_orientation/Settings.h"
 #include "filters/output/ColorModeDetection.h"
 
 namespace {
@@ -861,19 +863,21 @@ QString stepNameForFilterIndex(const StageSequence& stages, const int filterIdx)
  * Writes the report of the run to \p reportFile: the schema is the one in the doc of
  * Options::reportFile. Returns false after telling \p err why it couldn't be written.
  */
-bool writeReportFile(const QString& reportFile,
-                     const QString& projectFile,
-                     const QString& usedProfile,
-                     const CommandLineRun::Options& options,
-                     const CommandLineRun::ExitCode exitCode,
-                     const bool cancelled,
-                     const ProjectSession& session,
-                     const QStringList& passedOver,
-                     const std::vector<std::pair<PageId, output::ColorMode>>& detectedPages,
-                     const QStringList& exportedFiles,
-                     const std::vector<StageSequence::PageFailure>& pageFailures,
-                     const QStringList& fixedFiles,
-                     QTextStream& err) {
+bool writeReportFile(
+    const QString& reportFile,
+    const QString& projectFile,
+    const QString& usedProfile,
+    const CommandLineRun::Options& options,
+    const CommandLineRun::ExitCode exitCode,
+    const bool cancelled,
+    const ProjectSession& session,
+    const QStringList& passedOver,
+    const std::vector<std::pair<PageId, output::ColorMode>>& detectedPages,
+    const std::vector<std::pair<ImageId, fix_orientation::OrientationDetection::PageResult>>& detectedOrientations,
+    const QStringList& exportedFiles,
+    const std::vector<StageSequence::PageFailure>& pageFailures,
+    const QStringList& fixedFiles,
+    QTextStream& err) {
   std::map<QString, const StageSequence::PageFailure*> failuresByPage;
   for (const StageSequence::PageFailure& failure : pageFailures) {
     failuresByPage.emplace(pageKey(failure.page), &failure);
@@ -881,6 +885,10 @@ bool writeReportFile(const QString& reportFile,
   std::map<QString, output::ColorMode> detected;
   for (const std::pair<PageId, output::ColorMode>& entry : detectedPages) {
     detected.emplace(pageKey(entry.first), entry.second);
+  }
+  std::map<ImageId, fix_orientation::OrientationDetection::PageResult> detectedOrientation;
+  for (const std::pair<ImageId, fix_orientation::OrientationDetection::PageResult>& entry : detectedOrientations) {
+    detectedOrientation.emplace(entry.first, entry.second);
   }
 
   QJsonArray pages;
@@ -898,6 +906,30 @@ bool writeReportFile(const QString& reportFile,
         = detectedPage != detected.end() ? detectedPage->second : session.stages->outputFilter()->colorMode(page.id());
     QJsonObject pageObject = basePageObject(page, session, dpiSource, mode);
     pageObject["colorModeDetected"] = colorModeDetected;
+    pageObject["rotation"]
+        = session.stages->fixOrientationFilter()->settings()->getRotationFor(page.imageId()).toDegrees();
+    if (!options.orientationDetect.isEmpty()) {
+      const auto detectedOrientationIt = detectedOrientation.find(page.imageId());
+      if (detectedOrientationIt != detectedOrientation.end()) {
+        const fix_orientation::OrientationDetection::PageResult::Status status = detectedOrientationIt->second.status;
+        QString value;
+        switch (status) {
+          case fix_orientation::OrientationDetection::PageResult::DETECTED:
+            value = QStringLiteral("detected");
+            break;
+          case fix_orientation::OrientationDetection::PageResult::BOOK_RULE:
+            value = QStringLiteral("book-rule");
+            break;
+          case fix_orientation::OrientationDetection::PageResult::UNDECIDED:
+            value = QStringLiteral("undecided");
+            break;
+          case fix_orientation::OrientationDetection::PageResult::FAILED:
+            value = QStringLiteral("failed");
+            break;
+        }
+        pageObject["rotationDetection"] = value;
+      }
+    }
     const auto failure = failuresByPage.find(pageKey(page.id()));
     if (failure != failuresByPage.end()) {
       pageObject["status"] = QStringLiteral("failed");
@@ -1075,6 +1107,17 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       return USAGE_ERROR;
     }
   }
+  // --orientation-detect runs in the folder mode, before the first step.
+  if (!options.orientationDetect.isEmpty()) {
+    if (!folderMode) {
+      err << tr("The option --orientation-detect is only for the folder mode.") << Qt::endl;
+      return USAGE_ERROR;
+    }
+    if (options.orientationDetect != QStringLiteral("pages") && options.orientationDetect != QStringLiteral("book")) {
+      err << tr("The value after --orientation-detect must be pages or book.") << Qt::endl;
+      return USAGE_ERROR;
+    }
+  }
   // --threads: the budget of this run; the setting of the program stays as it is.
   if (options.threads && (*options.threads < 1)) {
     err << tr("The number of threads after --threads is too small; it must be at least 1.") << Qt::endl;
@@ -1223,6 +1266,116 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   };
   // The filter of the run's last step; the export runs after the Output step.
   const int runLastFilterIdx = filterIndexForLastStep(stages, options.lastStep);
+
+  // --orientation-detect: before the first step, in the folder mode.
+  std::vector<std::pair<ImageId, fix_orientation::OrientationDetection::PageResult>> detectedOrientations;
+  bool orientationDetectionCancelled = false;
+  if (!options.orientationDetect.isEmpty()) {
+    const bool bookRule = (options.orientationDetect == QStringLiteral("book"));
+    std::vector<PageInfo> pages;
+    for (const PageInfo& page : session->pages->toPageSequence(IMAGE_VIEW)) {
+      pages.push_back(page);
+    }
+    std::set<PageId> selection;
+    for (const PageInfo& page : pages) {
+      selection.insert(page.id());
+    }
+    if (progressJson) {
+      QJsonObject passStart;
+      passStart["step"] = QStringLiteral("orientation-detect");
+      passStart["total"] = static_cast<int>(pages.size());
+      writeProgressLine(*progressJson, QStringLiteral("pass-start"), passStart);
+    }
+    int orientationDone = 0;
+    const fix_orientation::OrientationDetection::Result result = fix_orientation::OrientationDetection::run(
+        stages.fixOrientationFilter()->settings(), pages, selection, bookRule, NullTaskStatus(),
+        [&cancel](const int) { return !cancel; },
+        [&](const PageInfo& page, const fix_orientation::OrientationDetection::PageResult& pr) {
+          detectedOrientations.emplace_back(page.imageId(), pr);
+          if (progressJson) {
+            ++orientationDone;
+            QJsonObject pageObj = pageIdentity(page);
+            pageObj["step"] = QStringLiteral("orientation-detect");
+            pageObj["done"] = orientationDone;
+            pageObj["total"] = static_cast<int>(pages.size());
+            if (pr.status == fix_orientation::OrientationDetection::PageResult::DETECTED
+                || pr.status == fix_orientation::OrientationDetection::PageResult::BOOK_RULE) {
+              pageObj["status"] = QStringLiteral("ok");
+              pageObj["rotation"] = pr.angle;
+              pageObj["rotationDetection"] = (pr.status == fix_orientation::OrientationDetection::PageResult::DETECTED)
+                                                 ? QStringLiteral("detected")
+                                                 : QStringLiteral("book-rule");
+            } else if (pr.status == fix_orientation::OrientationDetection::PageResult::UNDECIDED) {
+              pageObj["status"] = QStringLiteral("uncertain");
+            } else {
+              pageObj["status"] = QStringLiteral("failed");
+            }
+            writeProgressLine(*progressJson, QStringLiteral("page"), pageObj);
+          }
+        });
+    orientationDetectionCancelled = result.cancelled;
+
+    // Summary on stdout.
+    int detected = 0;
+    int byBookRule = 0;
+    QStringList uncertain;
+    QStringList unreadable;
+    for (const auto& [pageId, pr] : result.results) {
+      switch (pr.status) {
+        case fix_orientation::OrientationDetection::PageResult::DETECTED:
+          ++detected;
+          break;
+        case fix_orientation::OrientationDetection::PageResult::BOOK_RULE:
+          ++byBookRule;
+          break;
+        case fix_orientation::OrientationDetection::PageResult::UNDECIDED:
+          uncertain.push_back(pageName(pageId));
+          break;
+        case fix_orientation::OrientationDetection::PageResult::FAILED:
+          unreadable.push_back(pageName(pageId));
+          break;
+      }
+    }
+    if (result.cancelled) {
+      out << tr("The detection was canceled. No pages were rotated.") << Qt::endl;
+    } else {
+      const int rotated = result.changed;
+      const int alreadyCorrect = detected + byBookRule - rotated;
+      QString summary
+          = tr("Orientation detected for %n page(s): %1 rotated, %2 already correct.", nullptr, detected + byBookRule)
+                .arg(rotated)
+                .arg(alreadyCorrect);
+      if (bookRule) {
+        summary += "\n" + tr("Of these, %n like their neighbors or the majority.", nullptr, byBookRule);
+      }
+      if (!uncertain.isEmpty()) {
+        // Keep long lists short.
+        QStringList shown = uncertain;
+        if (shown.size() > 10) {
+          const int more = shown.size() - 10;
+          shown = shown.mid(0, 10);
+          shown.push_back(tr(", and %n more", nullptr, more));
+        }
+        summary += "\n\n"
+                   + tr("%n page(s) left unchanged because the orientation is uncertain: %1", nullptr,
+                        static_cast<int>(uncertain.size()))
+                         .arg(shown.join(QStringLiteral(", ")));
+      }
+      if (!unreadable.isEmpty()) {
+        QStringList shown = unreadable;
+        if (shown.size() > 10) {
+          const int more = shown.size() - 10;
+          shown = shown.mid(0, 10);
+          shown.push_back(tr(", and %n more", nullptr, more));
+        }
+        summary += "\n\n"
+                   + tr("%n page(s) could not be read: %1", nullptr, static_cast<int>(unreadable.size()))
+                         .arg(shown.join(QStringLiteral(", ")));
+      }
+      out << summary << Qt::endl;
+    }
+  }
+
   // --color-mode-detect: as the app's Detect Color Mode, between the Margins and the Output passes.
   // The hook also runs when the last step is Margins, where there is no Output pass.
   std::vector<std::pair<PageId, output::ColorMode>> detectedPages;
@@ -1294,7 +1447,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   for (const StageSequence::PageFailure& failure : processed.failures) {
     err << failureMessage(failure) << Qt::endl;
   }
-  const bool cancelled = processed.cancelled || detectionCancelled;
+  const bool cancelled = processed.cancelled || detectionCancelled || orientationDetectionCancelled;
 
   // Also after a failure or cancelling: the steps stored their results for the pages done.
   if (!session->write(projectFile)) {
@@ -1356,7 +1509,8 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   if (options.reportFile) {
     // cancelled follows the exit code: any cancellation, including one during the export, is exit 5.
     writeReportFile(*options.reportFile, projectFile, usedProfile, options, *exitCode, *exitCode == CANCELLED, *session,
-                    passedOver, detectedPages, exportedFiles, processed.failures, fixedFiles, err);
+                    passedOver, detectedPages, detectedOrientations, exportedFiles, processed.failures, fixedFiles,
+                    err);
   }
   // Exit codes 1 and 2 return earlier, and the late PROJECT_UNUSABLE from saving the project returns
   // before this point, so only 0, 3, 4 and 5 reach here.

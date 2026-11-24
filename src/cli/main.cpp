@@ -155,6 +155,12 @@ int main(int argc, char* argv[]) {
       CommandLineRun::tr("Detect the color mode of the pages after the Margins step, as the app's Detect "
                          "Color Mode does, and report it per page."));
   parser.addOption(colorModeDetectOption);
+  const QCommandLineOption orientationDetectOption(
+      QStringLiteral("orientation-detect"),
+      CommandLineRun::tr("Detect the orientation of the pages in the folder mode, before the first step: "
+                         "pages detects only the certain ones, book also applies the book rotation rule."),
+      CommandLineRun::tr("method"));
+  parser.addOption(orientationDetectOption);
   const QCommandLineOption folderOption(
       QStringLiteral("export-folder"),
       CommandLineRun::tr("The folder for the exported files instead of the folder of the project file; it is "
@@ -314,6 +320,16 @@ int main(int argc, char* argv[]) {
     options.dpiFix = dpi;
   }
   options.colorModeDetect = parser.isSet(colorModeDetectOption);
+  if (parser.isSet(orientationDetectOption)) {
+    const QString method = parser.value(orientationDetectOption);
+    if (method != QStringLiteral("pages") && method != QStringLiteral("book")) {
+      err << CommandLineRun::tr("Unknown method after --orientation-detect: %1. The methods are: pages and book.")
+                 .arg(method)
+          << Qt::endl;
+      return CommandLineRun::USAGE_ERROR;
+    }
+    options.orientationDetect = method;
+  }
   if (parser.isSet(threadsOption)) {
     bool ok = false;
     const int threads = parser.value(threadsOption).toInt(&ok);
