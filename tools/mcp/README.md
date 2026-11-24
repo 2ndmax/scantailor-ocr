@@ -90,7 +90,12 @@ Edit `claude_desktop_config.json` (open it from the app: Settings, Developer,
 Edit Config, which creates it if missing):
 
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+- Windows, depending on the version of the app (the menu entry opens the right one):
+  - `%LOCALAPPDATA%\Claude-Data\claude_<package>\claude_desktop_config.json`
+    (newer versions from the Microsoft Store)
+  - `%LOCALAPPDATA%\Packages\Claude_<package>\LocalCache\Roaming\Claude\claude_desktop_config.json`
+    (older versions from the Microsoft Store)
+  - `%APPDATA%\Claude\claude_desktop_config.json` (the older installer)
 
 ```json
 {
