@@ -234,9 +234,6 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   /** The file name of the page for a message, with the page number for a multi-page file. */
   static QString pageNameForMessages(const PageId& pageId);
 
-  /** The first names of \p names joined by commas, and how many more there are. */
-  static QString shortNameList(const QStringList& names);
-
   struct SavedMainAreaViewState {
     double zoom = 1.0;
     bool hasScrollNorm = false;

@@ -324,4 +324,68 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
   return result;
 }
 
+QString OrientationDetection::summary(const Result& result,
+                                     const std::set<PageId>& selection,
+                                     bool bookRule,
+                                     const std::function<QString(const PageId&)>& pageName) {
+  if (result.cancelled) {
+    return tr("The detection was canceled. No pages were rotated.");
+  }
+
+  int detected = 0;
+  int byBookRule = 0;
+  QStringList uncertain;
+  QStringList unreadable;
+  for (const auto& [pageId, pageResult] : result.results) {
+    if (selection.find(pageId) == selection.end()) {
+      continue;
+    }
+    switch (pageResult.status) {
+      case PageResult::DETECTED:
+        ++detected;
+        break;
+      case PageResult::BOOK_RULE:
+        ++byBookRule;
+        break;
+      case PageResult::UNDECIDED:
+        uncertain.push_back(pageName(pageId));
+        break;
+      case PageResult::FAILED:
+        unreadable.push_back(pageName(pageId));
+        break;
+    }
+  }
+
+  const int rotated = result.changed;
+  const int alreadyCorrect = detected + byBookRule - rotated;
+
+  QString text = tr("Orientation detected for %n page(s): %1 rotated, %2 already correct.", nullptr,
+                    detected + byBookRule)
+                     .arg(rotated)
+                     .arg(alreadyCorrect);
+  if (bookRule && byBookRule > 0) {
+    text += "\n" + tr("Of these, %n like their neighbors or the majority.", nullptr, byBookRule);
+  }
+  const auto shorten = [&](const QStringList& names) {
+    const int maxShown = 10;
+    if (names.size() <= maxShown) {
+      return names.join(QStringLiteral(", "));
+    }
+    QStringList shown = names.mid(0, maxShown);
+    shown.push_back(tr(", and %n more", nullptr, static_cast<int>(names.size()) - maxShown));
+    return shown.join(QStringLiteral(", "));
+  };
+  if (!uncertain.isEmpty()) {
+    text += "\n\n"
+            + tr("%n page(s) left unchanged because the orientation is uncertain: %1", nullptr,
+                 static_cast<int>(uncertain.size()))
+                  .arg(shorten(uncertain));
+  }
+  if (!unreadable.isEmpty()) {
+    text += "\n\n" + tr("%n page(s) could not be read: %1", nullptr, static_cast<int>(unreadable.size()))
+                      .arg(shorten(unreadable));
+  }
+  return text;
+}
+
 }  // namespace fix_orientation

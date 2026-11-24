@@ -1571,53 +1571,8 @@ void MainWindow::orientationDetectionRequested(const std::set<PageId>& pages, bo
     return;
   }
 
-  // With the book rule, run() also reports the images that were only detected to vote; the summary
-  // counts the chosen pages alone.
-  int detected = 0;
-  int byBookRule = 0;
-  QStringList uncertain;
-  QStringList unreadable;
-  for (const auto& [pageId, pageResult] : result.results) {
-    if (pages.find(pageId) == pages.end()) {
-      continue;
-    }
-    switch (pageResult.status) {
-      case fix_orientation::OrientationDetection::PageResult::DETECTED:
-        ++detected;
-        break;
-      case fix_orientation::OrientationDetection::PageResult::BOOK_RULE:
-        ++byBookRule;
-        break;
-      case fix_orientation::OrientationDetection::PageResult::UNDECIDED:
-        uncertain.push_back(pageNameForMessages(pageId));
-        break;
-      case fix_orientation::OrientationDetection::PageResult::FAILED:
-        unreadable.push_back(pageNameForMessages(pageId));
-        break;
-    }
-  }
-  // result.changed counts only the chosen pages, as only they are rotated.
-  const int rotated = result.changed;
-  const int alreadyCorrect = detected + byBookRule - rotated;
-
-  QString summary
-      = tr("Orientation detected for %n page(s): %1 rotated, %2 already correct.", nullptr, detected + byBookRule)
-            .arg(rotated)
-            .arg(alreadyCorrect);
-  if (bookRule) {
-    summary += "\n" + tr("Of these, %n like their neighbors or the majority.", nullptr, byBookRule);
-  }
-  if (!uncertain.isEmpty()) {
-    summary += "\n\n"
-               + tr("%n page(s) left unchanged because the orientation is uncertain: %1", nullptr,
-                    static_cast<int>(uncertain.size()))
-                     .arg(shortNameList(uncertain));
-  }
-  if (!unreadable.isEmpty()) {
-    summary += "\n\n"
-               + tr("%n page(s) could not be read: %1", nullptr, static_cast<int>(unreadable.size()))
-                     .arg(shortNameList(unreadable));
-  }
+  const QString summary = fix_orientation::OrientationDetection::summary(
+      result, pages, bookRule, [this](const PageId& pageId) { return pageNameForMessages(pageId); });
   QMessageBox::information(this, tr("Detect Orientation"), summary);
 }
 
@@ -1627,15 +1582,6 @@ QString MainWindow::pageNameForMessages(const PageId& pageId) {
     return fileName;
   }
   return ThumbnailSequence::tr("%1 (page %2)").arg(fileName).arg(pageId.imageId().page());
-}
-
-QString MainWindow::shortNameList(const QStringList& names) {
-  // Long lists would make the message box taller than the screen; the rest is counted instead.
-  const int maxShown = 10;
-  if (names.size() <= maxShown) {
-    return names.join(", ");
-  }
-  return names.mid(0, maxShown).join(", ") + tr(", and %n more", nullptr, static_cast<int>(names.size()) - maxShown);
 }
 
 void MainWindow::fixDpiDialogRequested() {

@@ -14,6 +14,9 @@
 #include "PageInfo.h"
 #include "TaskStatus.h"
 
+#include <QCoreApplication>
+#include <QString>
+
 namespace fix_orientation {
 
 class Settings;
@@ -23,6 +26,8 @@ class Settings;
  * the Fix Orientation settings, following ColorModeDetection's shape.
  */
 class OrientationDetection {
+   Q_DECLARE_TR_FUNCTIONS(OrientationDetection)
+
  public:
   struct Detection {
     bool decided = false;
@@ -82,6 +87,15 @@ class OrientationDetection {
                     const TaskStatus& status,
                     const std::function<bool(int)>& progress = {},
                     const PageResultCallback& pageResult = {});
+
+  /**
+   * Builds the summary text of a detection run, shared by the app and the CLI. \p pageName
+   * turns a page into the name shown (file name in the app, full path in the CLI).
+   */
+  static QString summary(const Result& result,
+                         const std::set<PageId>& selection,
+                         bool bookRule,
+                         const std::function<QString(const PageId&)>& pageName);
 };
 
 }  // namespace fix_orientation
