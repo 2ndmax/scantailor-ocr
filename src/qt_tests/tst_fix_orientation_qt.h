@@ -20,6 +20,9 @@ class TestFixOrientationQt : public QObject {
   void testTrimFieldsShowPixelsWithoutResolution();
   void testTrimFieldsSetDecimalsStepAndUnit();
   void testApplyDialogNeedsAnOption();
+  void testOrientationDetectionButtonExists();
+  void testOrientationDetectionDialogHasBookRuleOptionOff();
+  void testOrientationDetectionDialogDeliversBookRuleInSignal();
   void testShowsPanelAndConnectedView();
   void testThumbnailOfPage();
 };

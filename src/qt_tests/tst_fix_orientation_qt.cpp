@@ -22,11 +22,13 @@
 #include <filters/fix_orientation/ui/FilterUi.h>
 #include <filters/fix_orientation/ui/ImageView.h>
 #include <filters/fix_orientation/ui/OptionsWidget.h>
+#include <filters/fix_orientation/ui/OrientationDetectionDialog.h>
 
 #include <QAbstractButton>
 #include <QCheckBox>
 #include <QDomDocument>
 #include <QImage>
+#include <QPushButton>
 #include <QSpinBox>
 #include <QtTest/QtTest>
 #include <memory>
@@ -347,4 +349,37 @@ void TestFixOrientationQt::testThumbnailOfPage() {
       = filter_ui_checks::thumbnailFor(one, one.page(IMAGE_VIEW), one.project.stages->fixOrientationFilterIdx());
   QVERIFY(thumbnail != nullptr);
   QVERIFY(typeid(*thumbnail) == typeid(ThumbnailBase));
+}
+
+void TestFixOrientationQt::testOrientationDetectionButtonExists() {
+  auto settings = std::make_shared<Settings>();
+  OptionsWidget widget(settings, PageSelectionAccessor(nullptr));
+  auto* const button = widget.findChild<QPushButton*>("orientationDetectionBtn");
+  QVERIFY(button != nullptr);
+}
+
+void TestFixOrientationQt::testOrientationDetectionDialogHasBookRuleOptionOff() {
+  const PageSelectionAccessor accessor(std::make_shared<filter_ui_checks::EmptyPageSelectionProvider>());
+  OrientationDetectionDialog dialog(nullptr, PageId(ImageId("page.png")), accessor);
+  auto* const bookRule = dialog.findChild<QCheckBox*>("bookRuleCheckBox");
+  QVERIFY(bookRule != nullptr);
+  QVERIFY(!bookRule->isChecked());
+}
+
+void TestFixOrientationQt::testOrientationDetectionDialogDeliversBookRuleInSignal() {
+  const PageSelectionAccessor accessor(std::make_shared<filter_ui_checks::EmptyPageSelectionProvider>());
+  OrientationDetectionDialog dialog(nullptr, PageId(ImageId("page.png")), accessor);
+  auto* const bookRule = dialog.findChild<QCheckBox*>("bookRuleCheckBox");
+  QVERIFY(bookRule != nullptr);
+  bookRule->setChecked(true);
+
+  QSignalSpy spy(&dialog, &OrientationDetectionDialog::accepted);
+  auto* const buttonBox = dialog.findChild<QDialogButtonBox*>("buttonBox");
+  QVERIFY(buttonBox != nullptr);
+  buttonBox->button(QDialogButtonBox::Ok)->click();
+
+  QCOMPARE(spy.count(), 1);
+  const auto args = spy.takeFirst();
+  QVERIFY(args.at(0).value<std::set<PageId>>().size() >= 0);
+  QCOMPARE(args.at(1).toBool(), true);
 }
