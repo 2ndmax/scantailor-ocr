@@ -128,11 +128,15 @@ cannot be read.
 a `job_id` immediately; poll with `run_status`. Either `folder` (create a new
 project) or `project` (an existing `.ScanTailor`), never both. Creation options
 (`profile`, `dpi`, `dpi_fix`, `project_file`, `output_folder`,
-`color_mode_detect`) are only valid with `folder`; `profile` is a name from
+`color_mode_detect`, `orientation_detect`) are only valid with `folder`; `profile` is a name from
 `profile_list` or a `.stp` file in an allowed folder. Common options: `last_step`
 (one of `fix-orientation`, `split-pages`, `deskew`, `select-content`,
 `margins`, `output`, `export`; default `output`), `threads`, `export_folder`,
-`export_name`, `export_formats` (`pdf`, `txt`, `hocr`, `alto`). A second run of
+`export_name`, `export_formats` (`pdf`, `txt`, `hocr`, `alto`). `orientation_detect`
+(`pages` or `book`) detects page orientation before the first step: `pages` rotates
+only pages whose orientation is certain, `book` also rotates uncertain pages like
+their neighbors or the majority; the report then carries `rotationDetection` per
+page, and pages marked `undecided` need a manual check. A second run of
 a project that is still running, or more runs than `--max-runs`, is refused
 with `isError`.
 
@@ -169,6 +173,8 @@ repeat them.
 2. `run_start` with a folder (or an existing project).
 3. `run_status` in intervals until the state is no longer `running`.
 4. Read the result and the errors from `report`.
+5. If the run used `orientation_detect`, inspect the pages whose `rotationDetection`
+   is `undecided` before reporting a result.
 
 ## What the server deliberately does not do
 
