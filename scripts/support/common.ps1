@@ -68,7 +68,8 @@ function Find-AppVerif {
 # Where uv keeps its Pythons and tools: outside AppData. A program installed as an app package
 # (the Claude desktop app, say) has its writes below AppData redirected into the package's own
 # folder, and uv then can't find the Python it has just installed. Set for the user account by
-# 05-setup-overview.ps1; a window opened before that takes them from the account here.
+# 05-setup-overview.ps1 and 06-setup-mcp.ps1; a window opened before that takes them from the
+# account here.
 $UvHome = "$env:USERPROFILE\.local\share\uv"
 foreach ($name in 'UV_PYTHON_INSTALL_DIR', 'UV_TOOL_DIR') {
     if (-not [Environment]::GetEnvironmentVariable($name, 'Process')) {
