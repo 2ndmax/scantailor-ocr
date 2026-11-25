@@ -11,6 +11,8 @@
 
 #include <QString>
 #include <boost/test/unit_test.hpp>
+#include <memory>
+#include <set>
 
 BOOST_AUTO_TEST_SUITE(CoreUnitsTestSuite)
 
@@ -42,6 +44,7 @@ BOOST_AUTO_TEST_CASE(test_units_to_localized_string) {
   BOOST_CHECK(!mm.isEmpty());
   BOOST_CHECK(!cm.isEmpty());
   BOOST_CHECK(!in.isEmpty());
+  BOOST_CHECK_EQUAL((std::set<QString>{px, mm, cm, in}).size(), 4u);
 }
 
 // Millimetres, centimetres and inches convert without a resolution; only pixels need one.
@@ -81,17 +84,32 @@ BOOST_AUTO_TEST_CASE(test_pixel_conversion_is_exact) {
 }
 
 namespace {
+class UnitsGuard {
+ public:
+  UnitsGuard() : m_provider(UnitsProvider::getInstance()), m_original(m_provider.getUnits()) {}
+  ~UnitsGuard() { m_provider.setUnits(m_original); }
+  UnitsGuard(const UnitsGuard&) = delete;
+  UnitsGuard& operator=(const UnitsGuard&) = delete;
+
+  Units original() const { return m_original; }
+
+ private:
+  UnitsProvider& m_provider;
+  Units m_original;
+};
+
 // Takes itself off the listener list when the units change, as a widget being destroyed in the handler would.
 class SelfDeletingListener : public UnitsListener {
  public:
-  explicit SelfDeletingListener(int& calls) : m_calls(calls) {}
+  SelfDeletingListener(int& calls, std::unique_ptr<SelfDeletingListener>& owner) : m_calls(calls), m_owner(owner) {}
   void onUnitsChanged(Units /*units*/) override {
     ++m_calls;
-    delete this;
+    m_owner.reset();
   }
 
  private:
   int& m_calls;
+  std::unique_ptr<SelfDeletingListener>& m_owner;
 };
 
 class CountingListener : public UnitsListener {
@@ -105,14 +123,17 @@ class CountingListener : public UnitsListener {
 }  // namespace
 
 BOOST_AUTO_TEST_CASE(test_listener_may_remove_itself_while_notified) {
+  const UnitsGuard guard;
   UnitsProvider& provider = UnitsProvider::getInstance();
-  const Units original = provider.getUnits();
+  const Units original = guard.original();
   int calls[3] = {0, 0, 0};
   CountingListener first(calls[0]);
-  new SelfDeletingListener(calls[1]);
+  std::unique_ptr<SelfDeletingListener> selfDeleting;
+  selfDeleting = std::make_unique<SelfDeletingListener>(calls[1], selfDeleting);
   CountingListener last(calls[2]);
 
   provider.setUnits(original == INCHES ? MILLIMETRES : INCHES);
+  BOOST_CHECK(!selfDeleting);
   BOOST_CHECK_EQUAL(calls[0], 1);
   BOOST_CHECK_EQUAL(calls[1], 1);
   BOOST_CHECK_EQUAL(calls[2], 1);
