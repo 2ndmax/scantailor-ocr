@@ -2,11 +2,13 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <AutoManualMode.h>
+#include <BinaryImage.h>
 #include <Dpi.h>
 #include <Dpm.h>
 #include <FilterData.h>
 #include <NullTaskStatus.h>
 #include <PageId.h>
+#include <filters/select_content/ContentBoxFinder.h>
 #include <filters/select_content/DetectionOptions.h>
 #include <filters/select_content/Params.h>
 #include <filters/select_content/Settings.h>
@@ -74,6 +76,25 @@ BOOST_AUTO_TEST_CASE(manual_page_box_follows_into_a_smaller_outline) {
   const FilterData data(whitePage());
   const QRectF pageRect(runTask(params, data));
   BOOST_CHECK(data.xform().resultingRect().contains(pageRect));
+}
+
+BOOST_AUTO_TEST_CASE(narrow_crop_does_not_underflow_border_removal) {
+  imageproc::BinaryImage blocks(3, 20, imageproc::WHITE);
+  blocks.fill(QRect(1, 0, 1, 10), imageproc::BLACK);
+  ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(blocks, 0);
+  BOOST_CHECK_GE(blocks.countBlackPixels(), 8);
+  BOOST_CHECK_LT(blocks.countBlackPixels(), 10);
+
+  QImage image(3, 120, QImage::Format_RGB32);
+  image.fill(Qt::white);
+  for (int y = 0; y < image.height(); ++y) {
+    image.setPixel(1, y, qRgb(0, 0, 0));
+  }
+  const Dpm dpm(Dpi(150, 150));
+  image.setDotsPerMeterX(dpm.horizontal());
+  image.setDotsPerMeterY(dpm.vertical());
+  const FilterData data(image);
+  ContentBoxFinder::findContentBox(NullTaskStatus(), data, QRectF(0, 0, 3, 120), DetectionOptions());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

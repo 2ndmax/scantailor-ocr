@@ -501,15 +501,19 @@ void ContentBoxFinder::inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage&
 
   const int width = contentBlocks.width();
   const int height = contentBlocks.height();
+  if ((width <= 0) || (height <= 0)) {
+    return;
+  }
 
   // The border tolerance (0..100 %) shortens the spread distance: 0 keeps the full distance,
-  // 100 removes only the pixels on the border itself.
-  const int fullSpreadDist = std::min(width, height) / 4;
+  // 100 removes only the pixels on the border itself. Enforce >= 1 so border pixels never push 0
+  // and wrap uint16_t(*cell - 1) on narrow crops.
+  const int fullSpreadDist = std::max(1, std::min(width, height) / 4);
   const int spreadDist = (borderTolerance <= 0)
                              ? fullSpreadDist
                              : std::max(1, fullSpreadDist * (DetectionOptions::MAX_BORDER_TOLERANCE - borderTolerance)
                                                / DetectionOptions::MAX_BORDER_TOLERANCE);
-  const auto maxSpreadDist = static_cast<uint16_t>(spreadDist);
+  const auto maxSpreadDist = static_cast<uint16_t>(std::min<int>(spreadDist, std::numeric_limits<uint16_t>::max() - 1));
 
   std::vector<uint16_t> map((width + 2) * (height + 2), std::numeric_limits<uint16_t>::max());
 

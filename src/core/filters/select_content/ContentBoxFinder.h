@@ -33,6 +33,10 @@ class ContentBoxFinder {
                                const DetectionOptions& options,
                                DebugImages* dbg = nullptr);
 
+  static void inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage& contentBlocks,
+                                                int borderTolerance,
+                                                DebugImages* dbg = nullptr);
+
  private:
   class Garbage;
 
@@ -42,10 +46,6 @@ class ContentBoxFinder {
                              DebugImages* dbg);
 
   static void trimContentBlocksInPlace(const imageproc::BinaryImage& content, imageproc::BinaryImage& contentBlocks);
-
-  static void inPlaceRemoveAreasTouchingBorders(imageproc::BinaryImage& contentBlocks,
-                                                int borderTolerance,
-                                                DebugImages* dbg);
 
   static imageproc::BinaryImage estimateTextMask(const imageproc::BinaryImage& content,
                                                  const imageproc::BinaryImage& contentBlocks,
