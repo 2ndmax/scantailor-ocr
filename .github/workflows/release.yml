@@ -230,6 +230,8 @@ jobs:
         env:
           IS_TAG: ${{ startsWith(github.ref, 'refs/tags/v') }}
           RUN_NUMBER: ${{ github.run_number }}
+          # Run linuxdeploy and its Qt plugin without requiring FUSE (libfuse2) on the runner.
+          APPIMAGE_EXTRACT_AND_RUN: "1"
         run: |
           # The version as for the ZIP: from version.h.in, which the step above sets from the tag, and
           # for a run started by hand marked as a test build. github.ref_name would add the "v" of the
