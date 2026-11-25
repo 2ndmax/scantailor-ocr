@@ -36,7 +36,7 @@ ImageView::ImageView(const QImage& image, const QImage& downscaledImage, const I
 
   const QString rotationTip(tr("Drag this handle to rotate the image."));
   const QString obliqueTip(tr("Drag this handle to adjust oblique (shear)."));
-  const double hitRadius = std::max<double>(0.5 * m_handlePixmap.width(), 15.0);
+  const double hitRadius = std::max<double>(0.5 * m_handlePixmap.deviceIndependentSize().width(), 15.0);
   for (int i = 0; i < 4; ++i) {
     m_handles[i].setHitRadius(hitRadius);
     m_handles[i].setPositionCallback(std::bind(&ImageView::handlePosition, this, i));
@@ -150,7 +150,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction
 
   const std::pair<QPointF, QPointF> handles(getRotationHandles(arcSquare));
 
-  QRectF rect(m_handlePixmap.rect());
+  QRectF rect(QPointF(0, 0), m_handlePixmap.deviceIndependentSize());
   rect.moveCenter(handles.first);
   painter.drawPixmap(rect.topLeft(), m_handlePixmap);
   rect.moveCenter(handles.second);
@@ -267,13 +267,14 @@ QPointF ImageView::getImageRotationOrigin() const {
 }
 
 QRectF ImageView::getContentAreaRect() const {
+  const QSizeF handleSize(m_handlePixmap.deviceIndependentSize());
   const double hMargin
-      = 0.5 * m_handlePixmap.width()
+      = 0.5 * handleSize.width()
         + (verticalScrollBar()->isVisible()
                ? verticalScrollBar()->style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr, verticalScrollBar())
                : 0.0);
   const double vMargin
-      = 0.5 * m_handlePixmap.height()
+      = 0.5 * handleSize.height()
         + (horizontalScrollBar()->isVisible()
                ? horizontalScrollBar()->style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr, horizontalScrollBar())
                : 0.0);

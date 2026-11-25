@@ -21,6 +21,8 @@
 #include <filters/deskew/ui/Thumbnail.h>
 
 #include <QAbstractButton>
+#include <QFrame>
+#include <QImage>
 #include <QPolygonF>
 #include <QtTest/QtTest>
 #include <memory>
@@ -182,4 +184,91 @@ void TestDeskewQt::testThumbnailOfPage() {
   const std::unique_ptr<QGraphicsItem> after = filter_ui_checks::thumbnailFor(one, page, filterIdx);
   QVERIFY(after != nullptr);
   QVERIFY(typeid(*after) == typeid(Thumbnail));
+}
+
+void TestDeskewQt::testHandlesStayCenteredAtHiDpi() {
+  QImage page(200, 200, QImage::Format_RGB32);
+  page.fill(Qt::white);
+  const Dpm dpm(Dpi(300, 300));
+  page.setDotsPerMeterX(dpm.horizontal());
+  page.setDotsPerMeterY(dpm.vertical());
+  const ImageTransformation xform(QRectF(0, 0, 200, 200), Dpi(300, 300));
+
+  ImageView view(page, page, xform);
+  view.setFrameShape(QFrame::NoFrame);
+  view.resize(400, 400);
+  view.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&view));
+  QCoreApplication::processEvents();
+  const QImage shot = view.grab().toImage();
+  const qreal dpr = shot.devicePixelRatio();
+
+  qreal horY = 0.0;
+  int horCount = 0;
+  const int horYStart = qRound(190 * dpr);
+  const int horYEnd = qMin(shot.height(), qRound(210 * dpr));
+  const int horXStart = qRound(120 * dpr);
+  const int horXEnd = qMin(shot.width(), qRound(170 * dpr));
+  for (int y = horYStart; y < horYEnd; ++y) {
+    for (int x = horXStart; x < horXEnd; ++x) {
+      const QRgb px = shot.pixel(x, y);
+      if (qBlue(px) > qRed(px) + 80) {
+        horY += y / dpr;
+        ++horCount;
+      }
+    }
+  }
+
+  qreal vertX = 0.0;
+  int vertCount = 0;
+  const int vertYStart = qRound(120 * dpr);
+  const int vertYEnd = qMin(shot.height(), qRound(170 * dpr));
+  const int vertXStart = qRound(190 * dpr);
+  const int vertXEnd = qMin(shot.width(), qRound(210 * dpr));
+  for (int y = vertYStart; y < vertYEnd; ++y) {
+    for (int x = vertXStart; x < vertXEnd; ++x) {
+      const QRgb px = shot.pixel(x, y);
+      if (qBlue(px) > qRed(px) + 80) {
+        vertX += x / dpr;
+        ++vertCount;
+      }
+    }
+  }
+
+  QVERIFY(horCount > 0 && vertCount > 0);
+  const qreal crosshairY = horY / horCount;
+  const qreal crosshairX = vertX / vertCount;
+
+  int upperHandleBlue = 0;
+  int lowerHandleBlue = 0;
+  for (int y = 0; y < shot.height(); ++y) {
+    const qreal ly = y / dpr;
+    const qreal dy = ly - crosshairY;
+    if (qAbs(dy) <= 3.5 || qAbs(dy) >= 16.0) {
+      continue;
+    }
+    for (int x = 0; x < shot.width(); ++x) {
+      const qreal lx = x / dpr;
+      if (qAbs(lx - crosshairX) <= 4.0) {
+        continue;
+      }
+      const QRgb px = shot.pixel(x, y);
+      if (qBlue(px) > qRed(px) + 80) {
+        if (dy < 0.0) {
+          ++upperHandleBlue;
+        } else {
+          ++lowerHandleBlue;
+        }
+      }
+    }
+  }
+
+  QVERIFY(upperHandleBlue > 0 && lowerHandleBlue > 0);
+  QVERIFY2(qAbs(upperHandleBlue - lowerHandleBlue) <= qMax(20, (upperHandleBlue + lowerHandleBlue) / 10),
+           qPrintable(QString("upperHandleBlue=%1, lowerHandleBlue=%2, crosshairX=%3, crosshairY=%4, dpr=%5")
+                          .arg(upperHandleBlue)
+                          .arg(lowerHandleBlue)
+                          .arg(crosshairX)
+                          .arg(crosshairY)
+                          .arg(dpr)));
 }

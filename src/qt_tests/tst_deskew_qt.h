@@ -16,6 +16,7 @@ class TestDeskewQt : public QObject {
   void testApplyDialogNeedsAnOption();
   void testShowsPanelAndConnectedView();
   void testThumbnailOfPage();
+  void testHandlesStayCenteredAtHiDpi();
 };
 
 #endif

@@ -11,6 +11,7 @@ class TestPageSplitQt : public QObject {
  private slots:
   void testShowsPanelAndConnectedView();
   void testThumbnailOfPage();
+  void testHandlesStayCenteredAtHiDpi();
 };
 
 #endif  // TST_PAGE_SPLIT_QT_H
