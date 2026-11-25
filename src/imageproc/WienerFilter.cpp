@@ -26,6 +26,7 @@
 #include <cstdint>
 #include <stdexcept>
 
+#include "BrightnessFilter.h"
 #include "GrayImage.h"
 #include "IntegralImage.h"
 
@@ -124,42 +125,7 @@ void wienerColorFilterInPlace(QImage& image, QSize const& window_size, double co
   }
 
   if (coef > 0.0) {
-    int const w = image.width();
-    int const h = image.height();
-    uint8_t* image_line = (uint8_t*) image.bits();
-    int const image_bpl = image.bytesPerLine();
-    // A 32-bit pixel has 3 color channels; the 4th byte is alpha (or unused) and stays as it is.
-    int const pixelBytes = image.depth() / 8;
-    // REVIEW-NOTE (2026-10): the loop assumes B,G,R,A byte order (little-endian) -> on big-endian hosts alpha
-    // is filtered and blue is skipped. Not fixed because releases are built for little-endian targets only.
-    int const cnum = (pixelBytes == 4) ? 3 : pixelBytes;
-
-    GrayImage gray = GrayImage(image);
-    uint8_t* gray_line = gray.data();
-    int const gray_bpl = gray.stride();
-    GrayImage wiener(wienerFilter(gray, window_size, 255.0 * coef));
-    uint8_t* wiener_line = wiener.data();
-    int const wiener_bpl = wiener.stride();
-
-    for (int y = 0; y < h; ++y) {
-      for (int x = 0; x < w; ++x) {
-        float const origin = gray_line[x];
-        float color = wiener_line[x];
-
-        float const colscale = (color + 1.0f) / (origin + 1.0f);
-        float const coldelta = color - origin * colscale;
-        for (int c = 0; c < cnum; ++c) {
-          int const indx = x * pixelBytes + c;
-          float origcol = image_line[indx];
-          float val = origcol * colscale + coldelta;
-          val = (val < 0.0f) ? 0.0f : (val < 255.0f) ? val : 255.0f;
-          image_line[indx] = (uint8_t) (val + 0.5f);
-        }
-      }
-      image_line += image_bpl;
-      gray_line += gray_bpl;
-      wiener_line += wiener_bpl;
-    }
+    filterBrightnessInPlace(image, [&](GrayImage& gray) { wienerFilterInPlace(gray, window_size, 255.0 * coef); });
   }
 }
 
