@@ -103,24 +103,42 @@ class ModalDialogWatchdog : public QObject {
   QString m_message;
 };
 
-void waitForProjectLoaded(MainWindow& mw, ModalDialogWatchdog& watchdog) {
-  QTRY_VERIFY_WITH_TIMEOUT(mw.allPages().numPages() > 0, 60000);
-  QVERIFY2(watchdog.message().isEmpty(), qPrintable(watchdog.message()));
+[[nodiscard]] bool checkOrFail(const bool condition, const char* message, const char* file, const int line) {
+  if (!condition) {
+    QTest::qFail(message, file, line);
+    return false;
+  }
+  return true;
 }
 
-void waitForBatchFinished(StageListView* filterList, ModalDialogWatchdog& watchdog) {
-  QTRY_VERIFY_WITH_TIMEOUT(filterList->isEnabled(), 180000);
-  QVERIFY2(watchdog.message().isEmpty(), qPrintable(watchdog.message()));
+[[nodiscard]] bool waitForProjectLoaded(MainWindow& mw, ModalDialogWatchdog& watchdog) {
+  if (!checkOrFail(QTest::qWaitFor([&mw]() { return mw.allPages().numPages() > 0; }, 60000),
+                   "Timed out waiting for project pages to load", __FILE__, __LINE__)) {
+    return false;
+  }
+  return checkOrFail(watchdog.message().isEmpty(), qPrintable(watchdog.message()), __FILE__, __LINE__);
 }
 
-void runGuiBatch(MainWindow& mw, const QString& projectFile) {
+[[nodiscard]] bool waitForBatchFinished(StageListView* filterList, ModalDialogWatchdog& watchdog) {
+  if (!checkOrFail(QTest::qWaitFor([filterList]() { return filterList->isEnabled(); }, 180000),
+                   "Timed out waiting for batch processing to finish", __FILE__, __LINE__)) {
+    return false;
+  }
+  return checkOrFail(watchdog.message().isEmpty(), qPrintable(watchdog.message()), __FILE__, __LINE__);
+}
+
+[[nodiscard]] bool runGuiBatch(MainWindow& mw, const QString& projectFile) {
   ModalDialogWatchdog watchdog(&mw);
 
   mw.openProject(projectFile);
-  waitForProjectLoaded(mw, watchdog);
+  if (!waitForProjectLoaded(mw, watchdog)) {
+    return false;
+  }
 
   auto* filterList = mw.findChild<StageListView*>(QStringLiteral("filterList"));
-  QVERIFY2(filterList != nullptr, "MainWindow filterList not found");
+  if (!checkOrFail(filterList != nullptr, "MainWindow filterList not found", __FILE__, __LINE__)) {
+    return false;
+  }
 
   // StageSequence defines the filter order used by the app: ... page_layout, output.
   // Using StageSequence here avoids hard-coded row numbers and keeps the test tied to
@@ -130,24 +148,48 @@ void runGuiBatch(MainWindow& mw, const QString& projectFile) {
   const int outputRow = stages.outputFilterIdx();
 
   filterList->selectRow(marginsRow);
-  QTRY_COMPARE_WITH_TIMEOUT(filterList->currentIndex().row(), marginsRow, 10000);
-  QVERIFY2(watchdog.message().isEmpty(), qPrintable(watchdog.message()));
+  if (!checkOrFail(
+          QTest::qWaitFor([filterList, marginsRow]() { return filterList->currentIndex().row() == marginsRow; }, 10000),
+          "Timed out selecting Margins stage", __FILE__, __LINE__)) {
+    return false;
+  }
+  if (!checkOrFail(watchdog.message().isEmpty(), qPrintable(watchdog.message()), __FILE__, __LINE__)) {
+    return false;
+  }
 
-  QVERIFY(QMetaObject::invokeMethod(&mw, "startBatchProcessing", Qt::DirectConnection));
+  if (!checkOrFail(QMetaObject::invokeMethod(&mw, "startBatchProcessing", Qt::DirectConnection),
+                   "Failed to invoke startBatchProcessing for Margins", __FILE__, __LINE__)) {
+    return false;
+  }
   // MainWindow::startBatchProcessingOf() disables the filter list before it hands out the
   // tasks. The results arrive in the GUI thread, and MainWindow::filterResult() enables the
   // list again through stopBatchProcessing() only once all pages are processed, however many
   // run at the same time.
-  QVERIFY2(!filterList->isEnabled(), "Batch processing did not start");
-  waitForBatchFinished(filterList, watchdog);
+  if (!checkOrFail(!filterList->isEnabled(), "Batch processing did not start", __FILE__, __LINE__)) {
+    return false;
+  }
+  if (!waitForBatchFinished(filterList, watchdog)) {
+    return false;
+  }
 
   filterList->selectRow(outputRow);
-  QTRY_COMPARE_WITH_TIMEOUT(filterList->currentIndex().row(), outputRow, 10000);
-  QVERIFY2(watchdog.message().isEmpty(), qPrintable(watchdog.message()));
+  if (!checkOrFail(
+          QTest::qWaitFor([filterList, outputRow]() { return filterList->currentIndex().row() == outputRow; }, 10000),
+          "Timed out selecting Output stage", __FILE__, __LINE__)) {
+    return false;
+  }
+  if (!checkOrFail(watchdog.message().isEmpty(), qPrintable(watchdog.message()), __FILE__, __LINE__)) {
+    return false;
+  }
 
-  QVERIFY(QMetaObject::invokeMethod(&mw, "startBatchProcessing", Qt::DirectConnection));
-  QVERIFY2(!filterList->isEnabled(), "Batch processing did not start");
-  waitForBatchFinished(filterList, watchdog);
+  if (!checkOrFail(QMetaObject::invokeMethod(&mw, "startBatchProcessing", Qt::DirectConnection),
+                   "Failed to invoke startBatchProcessing for Output", __FILE__, __LINE__)) {
+    return false;
+  }
+  if (!checkOrFail(!filterList->isEnabled(), "Batch processing did not start", __FILE__, __LINE__)) {
+    return false;
+  }
+  return waitForBatchFinished(filterList, watchdog);
 }
 
 QStringList createProject(const QDir& dir, const DefaultParams& startValues) {
@@ -191,11 +233,15 @@ void TestMainWindowBatchCliQt::testGuiBatchMatchesCli() {
 
   QElapsedTimer guiTimer;
   guiTimer.start();
+  bool guiOk = false;
   {
     // The app path processes pages one at a time in the GUI batch.
     const Tests::ScopedMaxThreads scopedThreads(1);
     MainWindow mw;
-    runGuiBatch(mw, guiProjectFile);
+    guiOk = runGuiBatch(mw, guiProjectFile);
+  }
+  if (!guiOk) {
+    return;
   }
   const qint64 guiMs = guiTimer.elapsed();
 
