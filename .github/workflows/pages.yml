@@ -1,4 +1,4 @@
-# Pages: publish the website/ folder to GitHub Pages
+# Pages: build the manual into website/manual and publish the website/ folder to GitHub Pages
 name: Pages
 
 on:
@@ -6,6 +6,7 @@ on:
     branches: [master]
     paths:
       - "website/**"
+      - "manual/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -28,6 +29,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/configure-pages@v6
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      # The manual (MkDocs) is built into website/manual and published with the website.
+      - name: Build manual
+        run: uvx --from mkdocs --with-requirements manual/requirements.txt mkdocs build --strict -f manual/mkdocs.yml -d ../website/manual
       - uses: actions/upload-pages-artifact@v5
         with:
           path: website

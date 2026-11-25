@@ -157,3 +157,7 @@ local.cmake
 *.bak
 *.cache
 .cache/
+
+# Manual build output (the Pages workflow builds it into website/manual)
+manual/site/
+website/manual/
