@@ -4,15 +4,17 @@ name: CI
 on:
   push:
     branches: [master, main]
-    # Changes to the website or to Markdown files alone don't need a build.
+    # Changes to the website, the manual or to Markdown files alone don't need a build.
     paths-ignore:
       - "website/**"
+      - "manual/**"
       - "**/*.md"
   pull_request:
     branches: [master, main]
-    # Changes to the website or to Markdown files alone don't need a build.
+    # Changes to the website, the manual or to Markdown files alone don't need a build.
     paths-ignore:
       - "website/**"
+      - "manual/**"
       - "**/*.md"
   workflow_dispatch:
 
