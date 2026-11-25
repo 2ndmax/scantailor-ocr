@@ -1761,7 +1761,7 @@ ThumbnailSequence::LabelGroup::LabelGroup(std::unique_ptr<QGraphicsSimpleTextIte
   }
 }
 
-void ThumbnailSequence::LabelGroup::updateAppearence(bool /*selected*/, bool selectionLeader) {
+void ThumbnailSequence::LabelGroup::updateAppearence([[maybe_unused]] bool selected, bool selectionLeader) {
   m_normalLabel->setVisible(!selectionLeader);
   m_boldLabel->setVisible(selectionLeader);
 
