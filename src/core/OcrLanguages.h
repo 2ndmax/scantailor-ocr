@@ -29,6 +29,13 @@ class OcrLanguages {
   static QString userDir();
 
   /**
+   * \brief Overrides userDir() for tests so parallel runs stay isolated.
+   *
+   * Passing an empty path restores the default QStandardPaths location.
+   */
+  static void setUserDirOverride(const QString& dir);
+
+  /**
    * \brief The available languages: code (e.g. "deu") to the folder holding its file.
    *
    * If a language exists in several folders, the first one in searchDirs() order wins.

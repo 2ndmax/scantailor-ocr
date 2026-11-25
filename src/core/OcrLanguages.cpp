@@ -9,12 +9,23 @@
 #include <QFileInfo>
 #include <QLocale>
 #include <QStandardPaths>
+#include <mutex>
 
 #include "PathNames.h"
 
 namespace {
 const QString kSuffix = QStringLiteral(".traineddata");
 const QString kScriptPrefix = QStringLiteral("script/");
+
+std::mutex& userDirOverrideMutex() {
+  static std::mutex mutex;
+  return mutex;
+}
+
+QString& userDirOverrideStorage() {
+  static QString dir;
+  return dir;
+}
 
 /** Adds the language files directly in \p dirPath, with \p codePrefix in front of their names. */
 void collectLanguages(const QString& dirPath,
@@ -76,11 +87,22 @@ QString OcrLanguages::programDir() {
 }
 
 QString OcrLanguages::userDir() {
+  {
+    std::lock_guard<std::mutex> lock(userDirOverrideMutex());
+    if (!userDirOverrideStorage().isEmpty()) {
+      return userDirOverrideStorage();
+    }
+  }
   const QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
   if (appData.isEmpty()) {
     return QString();
   }
   return QDir::cleanPath(QDir(appData).filePath("tessdata"));
+}
+
+void OcrLanguages::setUserDirOverride(const QString& dir) {
+  std::lock_guard<std::mutex> lock(userDirOverrideMutex());
+  userDirOverrideStorage() = dir.isEmpty() ? QString() : QDir::cleanPath(dir);
 }
 
 std::map<QString, QString> OcrLanguages::available() {

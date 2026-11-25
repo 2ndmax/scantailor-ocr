@@ -37,37 +37,48 @@ class TessdataPrefix {
 };
 
 /**
- * Turns on the test mode of QStandardPaths for the lifetime of the object and
- * removes the test user folder on both ends, so a failed check can't leave
- * the test mode on for later tests or a folder behind for the next run.
+ * Points OcrLanguages::userDir() to a private QTemporaryDir for the lifetime of the object
+ * so parallel test runs stay isolated without touching shared QStandardPaths folders.
  */
 class TestUserDir {
  public:
-  TestUserDir() {
-    QStandardPaths::setTestModeEnabled(true);
-    m_path = OcrLanguages::userDir();
-    removeFolder();
+  TestUserDir() : m_path(m_dir.isValid() ? QDir::cleanPath(m_dir.filePath("tessdata")) : QString()) {
+    if (!m_path.isEmpty()) {
+      OcrLanguages::setUserDirOverride(m_path);
+    }
   }
 
-  ~TestUserDir() {
-    removeFolder();
-    QStandardPaths::setTestModeEnabled(false);
-  }
+  ~TestUserDir() { OcrLanguages::setUserDirOverride(QString()); }
+
+  TestUserDir(const TestUserDir&) = delete;
+  TestUserDir& operator=(const TestUserDir&) = delete;
+  TestUserDir(TestUserDir&&) = delete;
+  TestUserDir& operator=(TestUserDir&&) = delete;
 
   const QString& path() const { return m_path; }
 
  private:
-  void removeFolder() const {
-    if (!m_path.isEmpty()) {
-      QDir(m_path).removeRecursively();
-    }
-  }
-
+  QTemporaryDir m_dir;
   QString m_path;
 };
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE(OcrLanguagesTestSuite)
+
+BOOST_AUTO_TEST_CASE(test_default_user_dir_ends_with_tessdata) {
+  struct TestModeGuard {
+    explicit TestModeGuard(const bool enabled) : wasEnabled(QStandardPaths::isTestModeEnabled()) {
+      QStandardPaths::setTestModeEnabled(enabled);
+    }
+    ~TestModeGuard() { QStandardPaths::setTestModeEnabled(wasEnabled); }
+    bool wasEnabled;
+  };
+  const TestModeGuard guard(true);
+  OcrLanguages::setUserDirOverride(QString());
+  const QString defaultDir = OcrLanguages::userDir();
+  BOOST_CHECK(!defaultDir.isEmpty());
+  BOOST_CHECK(defaultDir.endsWith(QStringLiteral("/tessdata")));
+}
 
 BOOST_AUTO_TEST_CASE(test_git_blob_sha1) {
   // The same as "echo hello | git hash-object --stdin".
