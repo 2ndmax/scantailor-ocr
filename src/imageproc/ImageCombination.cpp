@@ -5,6 +5,7 @@
 #include "ImageCombination.h"
 
 #include <QImage>
+#include <cstdint>
 #include <limits>
 #include <stdexcept>
 #include <unordered_map>
@@ -132,7 +133,11 @@ void combineImagesColor<uint32_t, uint8_t>(QImage& mixedImage, const QImage& for
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      uint32_t color = foregroundPalette[foregroundLine[x]];
+      const uint8_t idx = foregroundLine[x];
+      if (idx >= foregroundPalette.size()) {
+        throw std::invalid_argument("ImageCombination: color index out of palette range.");
+      }
+      uint32_t color = foregroundPalette[idx];
       if ((color & msb) != msb) {
         mixedLine[x] = color;
       }
@@ -140,6 +145,22 @@ void combineImagesColor<uint32_t, uint8_t>(QImage& mixedImage, const QImage& for
     mixedLine += mixedStride;
     foregroundLine += foregroundStride;
   }
+}
+
+bool isIdentityGray(const QImage& image) {
+  if ((image.format() != QImage::Format_Indexed8) || !image.isGrayscale()) {
+    return false;
+  }
+  const QVector<QRgb> palette = image.colorTable();
+  if (palette.size() != 256) {
+    return false;
+  }
+  for (int i = 0; i < 256; ++i) {
+    if (palette[i] != qRgb(i, i, i)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void mergePalettes(QVector<uint32_t>& mixedPalette, const QVector<uint32_t>& palette) {
@@ -168,11 +189,41 @@ int nearestPaletteIndex(const QVector<uint32_t>& palette, const uint32_t color) 
   return nearest;
 }
 
+uint8_t resolveOrAddPaletteIndex(QVector<uint32_t>& palette,
+                                 std::unordered_map<uint32_t, uint8_t>& colorToIndex,
+                                 const uint32_t color) {
+  const uint32_t opaque = color | 0xff000000u;
+  const auto it = colorToIndex.find(opaque);
+  if (it != colorToIndex.end()) {
+    return it->second;
+  }
+  uint8_t idx = 0;
+  if (palette.size() < 256) {
+    palette.push_back(opaque);
+    idx = static_cast<uint8_t>(palette.size() - 1);
+  } else {
+    idx = static_cast<uint8_t>(nearestPaletteIndex(palette, opaque));
+  }
+  colorToIndex[opaque] = idx;
+  return idx;
+}
+
+std::unordered_map<uint32_t, uint8_t> buildColorToIndexMap(const QVector<uint32_t>& palette) {
+  std::unordered_map<uint32_t, uint8_t> colorToIndex;
+  for (int i = 0; i < palette.size() && i < 256; ++i) {
+    colorToIndex[palette[i]] = static_cast<uint8_t>(i);
+  }
+  return colorToIndex;
+}
+
 // Adds the foreground colors to the palette of the 8-bit mixedImage and returns, for each foreground
 // index, the index of its color in the mixed palette. The palette holds 256 colors at most, so a color
 // that no longer fits gets the nearest color already in it.
 std::vector<uint8_t> mergeForegroundPalette(QImage& mixedImage, const QVector<uint32_t>& foregroundPalette) {
   QVector<uint32_t> mixedPalette = mixedImage.colorTable();
+  if (mixedPalette.isEmpty()) {
+    throw std::invalid_argument("ImageCombination: empty color table.");
+  }
   if (mixedPalette.size() < 256) {
     mergePalettes(mixedPalette, foregroundPalette);
     if (mixedPalette.size() > 256) {
@@ -181,10 +232,7 @@ std::vector<uint8_t> mergeForegroundPalette(QImage& mixedImage, const QVector<ui
     mixedImage.setColorTable(mixedPalette);
   }
 
-  std::unordered_map<uint32_t, uint8_t> colorToIndex;
-  for (int i = 0; i < mixedPalette.size(); ++i) {
-    colorToIndex[mixedPalette[i]] = static_cast<uint8_t>(i);
-  }
+  const std::unordered_map<uint32_t, uint8_t> colorToIndex = buildColorToIndexMap(mixedPalette);
 
   std::vector<uint8_t> toMixedIndex(256, 0);
   for (int i = 0; i < foregroundPalette.size() && i < 256; ++i) {
@@ -211,13 +259,50 @@ void combineImagesColor<uint8_t, uint8_t>(QImage& mixedImage, const QImage& fore
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      uint32_t color = foregroundPalette[foregroundLine[x]];
+      const uint8_t idx = foregroundLine[x];
+      if (idx >= foregroundPalette.size()) {
+        throw std::invalid_argument("ImageCombination: color index out of palette range.");
+      }
+      uint32_t color = foregroundPalette[idx];
       if ((color & msb) != msb) {
-        mixedLine[x] = toMixedIndex[foregroundLine[x]];
+        mixedLine[x] = toMixedIndex[idx];
       }
     }
     mixedLine += mixedStride;
     foregroundLine += foregroundStride;
+  }
+}
+
+template <>
+void combineImagesColor<uint8_t, uint32_t>(QImage& mixedImage, const QImage& foreground) {
+  QVector<uint32_t> mixedPalette = mixedImage.colorTable();
+  if (mixedPalette.isEmpty()) {
+    throw std::invalid_argument("ImageCombination: empty color table.");
+  }
+  const int initialPaletteSize = mixedPalette.size();
+  std::unordered_map<uint32_t, uint8_t> colorToIndex = buildColorToIndexMap(mixedPalette);
+
+  auto* mixedLine = mixedImage.bits();
+  const int mixedStride = mixedImage.bytesPerLine();
+  const auto* foregroundLine = reinterpret_cast<const uint32_t*>(foreground.bits());
+  const int foregroundStride = foreground.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
+  const int width = mixedImage.width();
+  const int height = mixedImage.height();
+  const auto msb = uint32_t(0x00ffffff);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const uint32_t color = foregroundLine[x];
+      if ((color & msb) != msb) {
+        mixedLine[x] = resolveOrAddPaletteIndex(mixedPalette, colorToIndex, color);
+      }
+    }
+    mixedLine += mixedStride;
+    foregroundLine += foregroundStride;
+  }
+
+  if (mixedPalette.size() != initialPaletteSize) {
+    mixedImage.setColorTable(mixedPalette);
   }
 }
 
@@ -265,8 +350,11 @@ void combineImagesColor<uint32_t, uint8_t>(QImage& mixedImage, const QImage& for
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       if (maskLine[x >> 5] & (msb >> (x & 31))) {
-        uint32_t color = foregroundPalette[foregroundLine[x]];
-        mixedLine[x] = color;
+        const uint8_t idx = foregroundLine[x];
+        if (idx >= foregroundPalette.size()) {
+          throw std::invalid_argument("ImageCombination: color index out of palette range.");
+        }
+        mixedLine[x] = foregroundPalette[idx];
       }
     }
     mixedLine += mixedStride;
@@ -293,12 +381,51 @@ void combineImagesColor<uint8_t, uint8_t>(QImage& mixedImage, const QImage& fore
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       if (maskLine[x >> 5] & (msb >> (x & 31))) {
-        mixedLine[x] = toMixedIndex[foregroundLine[x]];
+        const uint8_t idx = foregroundLine[x];
+        if (idx >= foregroundPalette.size()) {
+          throw std::invalid_argument("ImageCombination: color index out of palette range.");
+        }
+        mixedLine[x] = toMixedIndex[idx];
       }
     }
     mixedLine += mixedStride;
     foregroundLine += foregroundStride;
     maskLine += maskStride;
+  }
+}
+
+template <>
+void combineImagesColor<uint8_t, uint32_t>(QImage& mixedImage, const QImage& foreground, const BinaryImage& mask) {
+  QVector<uint32_t> mixedPalette = mixedImage.colorTable();
+  if (mixedPalette.isEmpty()) {
+    throw std::invalid_argument("ImageCombination: empty color table.");
+  }
+  const int initialPaletteSize = mixedPalette.size();
+  std::unordered_map<uint32_t, uint8_t> colorToIndex = buildColorToIndexMap(mixedPalette);
+
+  auto* mixedLine = mixedImage.bits();
+  const int mixedStride = mixedImage.bytesPerLine();
+  const auto* foregroundLine = reinterpret_cast<const uint32_t*>(foreground.bits());
+  const int foregroundStride = foreground.bytesPerLine() / static_cast<int>(sizeof(uint32_t));
+  const uint32_t* maskLine = mask.data();
+  const int maskStride = mask.wordsPerLine();
+  const int width = mixedImage.width();
+  const int height = mixedImage.height();
+  const uint32_t msb = uint32_t(1) << 31;
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      if (maskLine[x >> 5] & (msb >> (x & 31))) {
+        mixedLine[x] = resolveOrAddPaletteIndex(mixedPalette, colorToIndex, foregroundLine[x]);
+      }
+    }
+    mixedLine += mixedStride;
+    foregroundLine += foregroundStride;
+    maskLine += maskStride;
+  }
+
+  if (mixedPalette.size() != initialPaletteSize) {
+    mixedImage.setColorTable(mixedPalette);
   }
 }
 
@@ -350,9 +477,111 @@ inline void checkImagesHaveEqualSize(const T1& image1, const T2& image2, const T
 }  // namespace
 
 namespace impl {
+void combineImagesMonoIndexed8(QImage& mixedImage, const BinaryImage& foreground) {
+  QVector<uint32_t> mixedPalette = mixedImage.colorTable();
+  if (mixedPalette.isEmpty()) {
+    throw std::invalid_argument("ImageCombination: empty color table.");
+  }
+  const int initialPaletteSize = mixedPalette.size();
+  std::unordered_map<uint32_t, uint8_t> colorToIndex = buildColorToIndexMap(mixedPalette);
+  const uint8_t blackIndex = resolveOrAddPaletteIndex(mixedPalette, colorToIndex, 0xff000000u);
+  if (mixedPalette.size() != initialPaletteSize) {
+    mixedImage.setColorTable(mixedPalette);
+  }
+
+  auto* mixedLine = mixedImage.bits();
+  const int mixedStride = mixedImage.bytesPerLine();
+  const uint32_t* foregroundLine = foreground.data();
+  const int foregroundStride = foreground.wordsPerLine();
+  const int width = mixedImage.width();
+  const int height = mixedImage.height();
+  const uint32_t msb = uint32_t(1) << 31;
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      if (foregroundLine[x >> 5] & (msb >> (x & 31))) {
+        mixedLine[x] = blackIndex;
+      }
+    }
+    mixedLine += mixedStride;
+    foregroundLine += foregroundStride;
+  }
+}
+
+void combineImagesMonoIndexed8(QImage& mixedImage, const BinaryImage& foreground, const BinaryImage& mask) {
+  QVector<uint32_t> mixedPalette = mixedImage.colorTable();
+  if (mixedPalette.isEmpty()) {
+    throw std::invalid_argument("ImageCombination: empty color table.");
+  }
+  const int initialPaletteSize = mixedPalette.size();
+  std::unordered_map<uint32_t, uint8_t> colorToIndex = buildColorToIndexMap(mixedPalette);
+  const uint8_t blackIndex = resolveOrAddPaletteIndex(mixedPalette, colorToIndex, 0xff000000u);
+  const uint8_t whiteIndex = resolveOrAddPaletteIndex(mixedPalette, colorToIndex, 0xffffffffu);
+  if (mixedPalette.size() != initialPaletteSize) {
+    mixedImage.setColorTable(mixedPalette);
+  }
+
+  auto* mixedLine = mixedImage.bits();
+  const int mixedStride = mixedImage.bytesPerLine();
+  const uint32_t* foregroundLine = foreground.data();
+  const int foregroundStride = foreground.wordsPerLine();
+  const uint32_t* maskLine = mask.data();
+  const int maskStride = mask.wordsPerLine();
+  const int width = mixedImage.width();
+  const int height = mixedImage.height();
+  const uint32_t msb = uint32_t(1) << 31;
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      if (maskLine[x >> 5] & (msb >> (x & 31))) {
+        mixedLine[x] = (foregroundLine[x >> 5] & (msb >> (x & 31))) ? blackIndex : whiteIndex;
+      }
+    }
+    mixedLine += mixedStride;
+    foregroundLine += foregroundStride;
+    maskLine += maskStride;
+  }
+}
+
+void applyMaskIndexed8(QImage& image, const BinaryImage& bwMask, const BWColor fillingColor) {
+  QVector<uint32_t> palette = image.colorTable();
+  if (palette.isEmpty()) {
+    throw std::invalid_argument("ImageCombination: empty color table.");
+  }
+  const int initialPaletteSize = palette.size();
+  std::unordered_map<uint32_t, uint8_t> colorToIndex = buildColorToIndexMap(palette);
+  const uint8_t fillIdx
+      = resolveOrAddPaletteIndex(palette, colorToIndex, (fillingColor == WHITE) ? 0xffffffffu : 0xff000000u);
+  if (palette.size() != initialPaletteSize) {
+    image.setColorTable(palette);
+  }
+
+  auto* imageLine = image.bits();
+  const int imageStride = image.bytesPerLine();
+  const uint32_t* bwMaskLine = bwMask.data();
+  const int bwMaskStride = bwMask.wordsPerLine();
+  const int width = image.width();
+  const int height = image.height();
+  const uint32_t msb = uint32_t(1) << 31;
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      if (!(bwMaskLine[x >> 5] & (msb >> (x & 31)))) {
+        imageLine[x] = fillIdx;
+      }
+    }
+    imageLine += imageStride;
+    bwMaskLine += bwMaskStride;
+  }
+}
+
 void combineImagesMono(QImage& mixedImage, const BinaryImage& foreground) {
   if (mixedImage.format() == QImage::Format_Indexed8) {
-    combineImagesMono<uint8_t>(mixedImage, foreground);
+    if (isIdentityGray(mixedImage)) {
+      combineImagesMono<uint8_t>(mixedImage, foreground);
+    } else {
+      combineImagesMonoIndexed8(mixedImage, foreground);
+    }
   } else {
     combineImagesMono<uint32_t>(mixedImage, foreground);
   }
@@ -360,7 +589,11 @@ void combineImagesMono(QImage& mixedImage, const BinaryImage& foreground) {
 
 void combineImagesMono(QImage& mixedImage, const BinaryImage& foreground, const BinaryImage& mask) {
   if (mixedImage.format() == QImage::Format_Indexed8) {
-    combineImagesMono<uint8_t>(mixedImage, foreground, mask);
+    if (isIdentityGray(mixedImage)) {
+      combineImagesMono<uint8_t>(mixedImage, foreground, mask);
+    } else {
+      combineImagesMonoIndexed8(mixedImage, foreground, mask);
+    }
   } else {
     combineImagesMono<uint32_t>(mixedImage, foreground, mask);
   }
@@ -368,7 +601,9 @@ void combineImagesMono(QImage& mixedImage, const BinaryImage& foreground, const 
 
 void combineImagesColor(QImage& mixedImage, const QImage& foreground) {
   if (mixedImage.format() == QImage::Format_Indexed8) {
-    if (mixedImage.isGrayscale() && foreground.isGrayscale()) {
+    if ((foreground.format() == QImage::Format_RGB32) || (foreground.format() == QImage::Format_ARGB32)) {
+      combineImagesColor<uint8_t, uint32_t>(mixedImage, foreground);
+    } else if (isIdentityGray(mixedImage) && isIdentityGray(foreground)) {
       combineImagesColor<uint8_t>(mixedImage, foreground);
     } else {
       combineImagesColor<uint8_t, uint8_t>(mixedImage, foreground);
@@ -384,7 +619,9 @@ void combineImagesColor(QImage& mixedImage, const QImage& foreground) {
 
 void combineImagesColor(QImage& mixedImage, const QImage& foreground, const BinaryImage& mask) {
   if (mixedImage.format() == QImage::Format_Indexed8) {
-    if (mixedImage.isGrayscale() && foreground.isGrayscale()) {
+    if ((foreground.format() == QImage::Format_RGB32) || (foreground.format() == QImage::Format_ARGB32)) {
+      combineImagesColor<uint8_t, uint32_t>(mixedImage, foreground, mask);
+    } else if (isIdentityGray(mixedImage) && isIdentityGray(foreground)) {
       combineImagesColor<uint8_t>(mixedImage, foreground, mask);
     } else {
       combineImagesColor<uint8_t, uint8_t>(mixedImage, foreground, mask);
@@ -400,7 +637,11 @@ void combineImagesColor(QImage& mixedImage, const QImage& foreground, const Bina
 
 void applyMask(QImage& image, const BinaryImage& bwMask, const BWColor fillingColor) {
   if (image.format() == QImage::Format_Indexed8) {
-    applyMask<uint8_t>(image, bwMask, fillingColor);
+    if (isIdentityGray(image)) {
+      applyMask<uint8_t>(image, bwMask, fillingColor);
+    } else {
+      applyMaskIndexed8(image, bwMask, fillingColor);
+    }
   } else {
     applyMask<uint32_t>(image, bwMask, fillingColor);
   }
@@ -428,6 +669,7 @@ void combineImages(QImage& mixedImage, const QImage& foreground) {
   if ((foreground.format() == QImage::Format_Mono) || (foreground.format() == QImage::Format_MonoLSB)) {
     impl::combineImagesMono(mixedImage, BinaryImage(foreground));
   } else {
+    checkImageFormatSupported(foreground);
     impl::combineImagesColor(mixedImage, foreground);
   }
 }
@@ -439,6 +681,7 @@ void combineImages(QImage& mixedImage, const QImage& foreground, const BinaryIma
   if ((foreground.format() == QImage::Format_Mono) || (foreground.format() == QImage::Format_MonoLSB)) {
     impl::combineImagesMono(mixedImage, BinaryImage(foreground), mask);
   } else {
+    checkImageFormatSupported(foreground);
     impl::combineImagesColor(mixedImage, foreground, mask);
   }
 }

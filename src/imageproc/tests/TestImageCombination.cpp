@@ -90,6 +90,50 @@ BOOST_AUTO_TEST_CASE(test_apply_mask_black_is_opaque) {
   BOOST_CHECK_EQUAL(image.pixel(1, 0), 0xff000000u);
 }
 
+BOOST_AUTO_TEST_CASE(test_unsupported_foreground_format_throws) {
+  QImage mixed(4, 1, QImage::Format_RGB32);
+  mixed.fill(Qt::white);
+  const QImage rgb888(4, 1, QImage::Format_RGB888);
+  const QImage gray8(4, 1, QImage::Format_Grayscale8);
+  const BinaryImage mask(4, 1, BLACK);
+
+  BOOST_CHECK_THROW(combineImages(mixed, rgb888), std::invalid_argument);
+  BOOST_CHECK_THROW(combineImages(mixed, rgb888, mask), std::invalid_argument);
+  BOOST_CHECK_THROW(combineImages(mixed, gray8), std::invalid_argument);
+  BOOST_CHECK_THROW(combineImages(mixed, gray8, mask), std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(test_indexed8_mixed_with_rgb32_foreground) {
+  QImage mixed(4, 1, QImage::Format_Indexed8);
+  mixed.setColorTable({qRgb(100, 100, 100)});
+  mixed.fill(0);
+  QImage foreground(4, 1, QImage::Format_RGB32);
+  foreground.fill(qRgb(255, 255, 255));
+  foreground.setPixel(1, 0, qRgb(200, 0, 0));
+  foreground.setPixel(2, 0, qRgb(0, 180, 0));
+
+  BinaryImage mask(4, 1, WHITE);
+  mask.setPixel(1, 0, BLACK);
+
+  QImage masked(mixed);
+  combineImages(mixed, foreground);
+  combineImages(masked, foreground, mask);
+
+  BOOST_CHECK_EQUAL(mixed.pixel(0, 0), qRgb(100, 100, 100));
+  BOOST_CHECK_EQUAL(mixed.pixel(1, 0), qRgb(200, 0, 0));
+  BOOST_CHECK_EQUAL(mixed.pixel(2, 0), qRgb(0, 180, 0));
+  BOOST_CHECK_EQUAL(masked.pixel(0, 0), qRgb(100, 100, 100));
+  BOOST_CHECK_EQUAL(masked.pixel(1, 0), qRgb(200, 0, 0));
+  BOOST_CHECK_EQUAL(masked.pixel(2, 0), qRgb(100, 100, 100));
+
+  // With a full 256-entry palette, RGB32 foreground colors fall back to the nearest existing color.
+  static const int fullPaletteData[] = {100, 100, 100, 100};
+  QImage fullMixed(makeGrayImage(fullPaletteData, 4, 1));
+  combineImages(fullMixed, foreground);
+  BOOST_CHECK_EQUAL(fullMixed.pixel(1, 0), qRgb(67, 67, 67));
+  BOOST_CHECK_EQUAL(fullMixed.pixel(2, 0), qRgb(60, 60, 60));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc
