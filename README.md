@@ -63,12 +63,11 @@ Ready-to-run versions for Windows (portable ZIP) and Linux (`.deb` and AppImage)
 
 ## Using the program
 
-There is no manual of its own yet. The basic way of working is still that of ScanTailor: a
-project goes through the steps one after another, page by page or as a batch. The
-[documentation of ScanTailor Advanced](https://github.com/ScanTailor-Advanced/scantailor-advanced#readme)
-can help to get started, but it is old, and much has changed since: panels were merged and
-renamed, options added or removed, and some steps work differently. Where it no longer matches
-the program, go by the program and its tooltips. [CHANGES.md](CHANGES.md) lists every change.
+The [manual](manual/docs/index.md) explains every step and setting, with a quick start and
+screenshots, and shows what the binarization methods, filters, dewarping and compression
+actually do. It is also published on the project website under `/manual/`; how it is built
+is described in [manual/README.md](manual/README.md). [CHANGES.md](CHANGES.md) lists every
+change.
 
 ## Project files
 

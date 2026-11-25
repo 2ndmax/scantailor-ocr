@@ -1,0 +1,102 @@
+site_name: ScanTailor OCR Manual
+site_description: How to turn scanned pages into clean, searchable PDFs with ScanTailor OCR.
+site_url: https://2ndmax.github.io/scantailor-ocr/manual/
+repo_url: https://github.com/2ndmax/scantailor-ocr
+repo_name: 2ndmax/scantailor-ocr
+edit_uri: ""
+copyright: ScanTailor OCR is free software under the GNU GPLv3.
+
+theme:
+  name: material
+  language: en
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  icon:
+    repo: fontawesome/brands/github
+  font: false
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.tooltips
+
+extra_css:
+  - assets/extra.css
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.keys
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+      - The Main Window: getting-started/main-window.md
+      - Projects: getting-started/projects.md
+  - The Steps:
+      - steps/index.md
+      - 1 Import: steps/import.md
+      - 2 Split Pages: steps/split-pages.md
+      - 3 Deskew: steps/deskew.md
+      - 4 Select Content: steps/select-content.md
+      - 5 Margins: steps/margins.md
+      - 6 Output: steps/output.md
+      - 7 Export: steps/export.md
+  - Methods Explained:
+      - methods/index.md
+      - Color Modes: methods/color-modes.md
+      - Binarization: methods/binarization.md
+      - Enhancement Filters: methods/enhancement.md
+      - Dewarping: methods/dewarping.md
+      - Compression: methods/compression.md
+      - Text Recognition: methods/ocr.md
+  - Reference:
+      - reference/index.md
+      - Default Parameters: reference/default-parameters.md
+      - Program Settings: reference/program-settings.md
+      - Tools Menu: reference/tools.md
+      - Command Line Tool: reference/command-line.md
+      - MCP Server: reference/mcp.md
+      - Keyboard and Mouse: reference/keyboard.md
+  - Tips & FAQ: faq.md

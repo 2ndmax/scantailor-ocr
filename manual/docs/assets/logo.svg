@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="256" height="256" viewBox="0 0 64 64">
+  <title>ScanTailor OCR</title>
+  <rect width="64" height="64" rx="14" ry="14" fill="#13263A"/>
+  <g transform="translate(5.5 5.5) scale(0.828125)">
+    <path d="M28.3 21.2L13.6 16.6V47.4L32.8 44.4V22L50.4 16.4V48L37.4 44.8"
+          fill="none" stroke="#FFFFFF" stroke-width="3.9"
+          stroke-linejoin="miter" stroke-miterlimit="8"/>
+  </g>
+  <path d="M8 17.5V8H17.5M46.5 8H56V17.5M56 46.5V56H46.5M17.5 56H8V46.5"
+        fill="none" stroke="#F5B841" stroke-width="3.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

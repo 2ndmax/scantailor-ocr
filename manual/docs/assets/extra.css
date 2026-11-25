@@ -1,0 +1,102 @@
+/* Colors taken from the project website (website/css/style.css). */
+:root {
+  --md-primary-fg-color: #12324f;
+  --md-primary-fg-color--light: #2f9be3;
+  --md-primary-fg-color--dark: #0c2c48;
+  --md-accent-fg-color: #2f9be3;
+  --md-typeset-a-color: #0a5fa8;
+  --md-text-font: "Segoe UI", Frutiger, "Helvetica Neue", Arial, sans-serif;
+  --md-code-font: Consolas, "Cascadia Mono", Menlo, monospace;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #12324f;
+  --md-accent-fg-color: #7cc8f2;
+  --md-typeset-a-color: #7cc8f2;
+}
+
+/* Screenshots: a thin frame and a little air. */
+.md-typeset img.shot {
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(10, 70, 130, 0.12);
+}
+
+.md-typeset figure {
+  margin: 1.2em auto;
+}
+
+.md-typeset figcaption {
+  max-width: 44rem;
+  font-size: 0.72rem;
+  color: var(--md-default-fg-color--light);
+}
+
+/* Narrow panel screenshots next to the text. */
+.md-typeset img.panel {
+  float: right;
+  max-width: 210px;
+  margin: 0 0 1em 1.5em;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  border-radius: 6px;
+}
+
+@media screen and (max-width: 44.9375em) {
+  .md-typeset img.panel {
+    float: none;
+    display: block;
+    margin: 1em auto;
+  }
+}
+
+.md-typeset .clear {
+  clear: both;
+}
+
+/* Binarization gallery: two results per row on wide screens. */
+.md-typeset .gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1rem;
+  margin: 1em 0;
+}
+
+.md-typeset .gallery figure {
+  margin: 0;
+}
+
+.md-typeset .gallery img {
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  border-radius: 4px;
+  background: #fff;
+}
+
+/* The seven steps on the home page. */
+.md-typeset .steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.6rem;
+  margin: 1.2em 0;
+}
+
+.md-typeset .steps a {
+  display: block;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  border-radius: 8px;
+  color: inherit;
+}
+
+.md-typeset .steps a:hover {
+  border-color: var(--md-accent-fg-color);
+}
+
+.md-typeset .steps strong {
+  display: block;
+  color: var(--md-typeset-a-color);
+}
+
+.md-typeset .steps span {
+  font-size: 0.68rem;
+  color: var(--md-default-fg-color--light);
+}
