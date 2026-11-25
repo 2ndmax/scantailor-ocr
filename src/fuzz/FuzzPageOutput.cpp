@@ -38,6 +38,7 @@
 #include <FilterData.h>
 #include <Grayscale.h>
 #include <ImageId.h>
+#include <ImageSizeLimit.h>
 #include <ImageTransformation.h>
 #include <NullTaskStatus.h>
 #include <OrthogonalRotation.h>
@@ -67,6 +68,8 @@ using namespace imageproc;
 namespace {
 const size_t HEADER_SIZE = 14;
 const int MAX_OUTPUT_DPI = 1200;
+// Cap output page pixels so low raw input DPI values (byte 4 & 8) cannot trigger multi-GB OOMs.
+constexpr qint64 MAX_FUZZ_OUTPUT_PIXELS = 4 * 1000 * 1000;
 
 // A broken rule: reported like a crash, so that libFuzzer keeps the input.
 void check(const bool ok, const char* rule) {
@@ -207,6 +210,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
   ImageTransformation outputXform(xform);
   outputXform.postScaleToDpi(params.outputDpi());
   const output::OutputGenerator generator(outputXform, contentRectPhys);
+  const QSize outputSize = generator.outputImageSize();
+  if (ImageSizeLimit::exceeds(outputSize)
+      || (static_cast<qint64>(outputSize.width()) * outputSize.height() > MAX_FUZZ_OUTPUT_PIXELS)) {
+    return 0;
+  }
   dewarping::DistortionModel distortionModel;
   if (params.dewarpingOptions().dewarpingMode() == output::MANUAL) {
     distortionModel = params.distortionModel();
@@ -218,13 +226,15 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
     outputImage = generator.process(NullTaskStatus(), pageData, pictureZones, fillZones, distortionModel,
                                     params.depthPerception(), &autoPictureMask, &specklesImage, nullptr, pageId,
                                     settings, true);
+  } catch (const OutputTooLargeError&) {
+    // Expected when the page geometry exceeds ImageSizeLimit.
+    return 0;
   } catch (const std::bad_alloc&) {
     // The program hands it to its out-of-memory handler.
     return 0;
   }
 
   check(outputImage && !outputImage->isNull(), "the output is not empty");
-  const QSize outputSize = generator.outputImageSize();
   const QImage image = outputImage->toImage();
   check(image.size() == outputSize, "the output has the size the generator announces");
   const output::RenderParams renderParams(params.colorParams(), params.splittingOptions());
