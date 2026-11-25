@@ -3,6 +3,9 @@
 
 #include "Grayscale.h"
 
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <stdexcept>
 
 #include "BinaryImage.h"
@@ -176,35 +179,40 @@ GrayImage stretchGrayRange(const GrayImage& src, const double blackClipFraction,
 
   const int width = dst.width();
   const int height = dst.height();
-
-  const int numPixels = width * height;
-  int blackClipPixels = qRound(blackClipFraction * numPixels);
-  int whiteClipPixels = qRound(whiteClipFraction * numPixels);
+  const int64_t numPixels = static_cast<int64_t>(width) * height;
+  const double safeBlackClip
+      = (std::isfinite(blackClipFraction) && (blackClipFraction > 0.0)) ? blackClipFraction : 0.0;
+  const double safeWhiteClip
+      = (std::isfinite(whiteClipFraction) && (whiteClipFraction > 0.0)) ? whiteClipFraction : 0.0;
 
   const GrayscaleHistogram hist(dst);
 
   int min = 0;
-  if (blackClipFraction >= 1.0) {
-    min = qRound(blackClipFraction);
+  if (safeBlackClip >= 1.0) {
+    min = qBound(0, static_cast<int>(std::lround(std::min(safeBlackClip, 255.0))), 255);
   } else {
+    int64_t blackClipPixels = std::llround(safeBlackClip * static_cast<double>(numPixels));
     for (; min <= 255; ++min) {
       if (blackClipPixels < hist[min]) {
         break;
       }
       blackClipPixels -= hist[min];
     }
+    min = qBound(0, min, 255);
   }
 
   int max = 255;
-  if (whiteClipFraction >= 1.0) {
-    max = qRound(whiteClipFraction);
+  if (safeWhiteClip >= 1.0) {
+    max = qBound(0, static_cast<int>(std::lround(std::min(safeWhiteClip, 255.0))), 255);
   } else {
+    int64_t whiteClipPixels = std::llround(safeWhiteClip * static_cast<double>(numPixels));
     for (; max >= 0; --max) {
       if (whiteClipPixels < hist[max]) {
         break;
       }
       whiteClipPixels -= hist[max];
     }
+    max = qBound(0, max, 255);
   }
 
   uint8_t gray_mapping[256];
