@@ -97,6 +97,12 @@ OptimizationResult Optimizer::optimize(double internalForceWeight) {
   }
 
   const double totalForceBefore = m_internalForce.c;
+  if (m_A.rows() == 0) {
+    m_externalForce.reset();
+    m_internalForce.reset();
+    m_x.fill(0);
+    return OptimizationResult(totalForceBefore, totalForceBefore);
+  }
   DynamicMatrixCalc<double> mc;
 
   try {

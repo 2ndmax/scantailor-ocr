@@ -4,6 +4,7 @@
 #include "CylindricalSurfaceDewarper.h"
 
 #include <QDebug>
+#include <cmath>
 #include <limits>
 
 #include "ToLineProjector.h"
@@ -193,7 +194,7 @@ double CylindricalSurfaceDewarper::calcPlnStraightLineY(const std::vector<QPoint
   }
   // Two straight curves, or two bent alike, tell of no such level; the middle of the page is as good as any.
   const double tooLittleToTell = 1e-9;
-  return (squaredDifferenceAccum < tooLittleToTell) ? 0.5 : offByDifferenceAccum / squaredDifferenceAccum;
+  return !(squaredDifferenceAccum >= tooLittleToTell) ? 0.5 : offByDifferenceAccum / squaredDifferenceAccum;
 }  // CylindricalSurfaceDewarper::calcPlnStraightLineY
 
 HomographicTransform<2, double> CylindricalSurfaceDewarper::fourPoint2DHomography(
@@ -244,12 +245,19 @@ HomographicTransform<2, double> CylindricalSurfaceDewarper::fourPoint2DHomograph
 
 HomographicTransform<1, double> CylindricalSurfaceDewarper::threePoint1DHomography(
     const std::array<std::pair<double, double>, 3>& pairs) {
+  using Pair = std::pair<double, double>;
+  for (const Pair& pair : pairs) {
+    if (!std::isfinite(pair.first) || !std::isfinite(pair.second)) {
+      const double qnan = std::numeric_limits<double>::quiet_NaN();
+      return HomographicTransform<1, double>(Vec4d(qnan, qnan, qnan, qnan));
+    }
+  }
+
   VecNT<9, double> A;
   VecNT<3, double> B;
   double* pa = A.data();
   double* pb = B.data();
 
-  using Pair = std::pair<double, double>;
   for (const Pair& pair : pairs) {
     const double from = pair.first;
     const double to = pair.second;

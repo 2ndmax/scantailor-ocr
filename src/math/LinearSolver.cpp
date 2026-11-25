@@ -3,10 +3,11 @@
 
 #include "LinearSolver.h"
 
-// REVIEW-NOTE (2026-11): cols_A_rows_X of 0 -> pointer arithmetic in solve() underflows. Not fixed because
-// the only caller, MatrixCalc, never has a matrix without columns.
 LinearSolver::LinearSolver(size_t rows_AB, size_t cols_A_rows_X, size_t cols_BX)
     : m_rowsAB(rows_AB), m_colsArowsX(cols_A_rows_X), m_colsBX(cols_BX) {
+  if (m_colsArowsX == 0) {
+    throw std::runtime_error("LinearSolver: system has no variables");
+  }
   if (m_rowsAB < m_colsArowsX) {
     throw std::runtime_error("LinearSolver: can's solve underdetermined systems");
   }

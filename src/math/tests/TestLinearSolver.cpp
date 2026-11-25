@@ -5,6 +5,7 @@
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+#include <limits>
 #include <stdexcept>
 
 namespace imageproc {
@@ -62,6 +63,29 @@ BOOST_AUTO_TEST_CASE(singular_system_is_rejected) {
   const double B[] = {1, 2};
   double X[2];
   BOOST_CHECK_THROW(LinearSolver(2, 2, 1).solve(A, X, B), std::runtime_error);
+}
+
+BOOST_AUTO_TEST_CASE(nan_in_matrix_or_rhs_is_rejected) {
+  const double qnan = std::numeric_limits<double>::quiet_NaN();
+  const double A_nan_pivot[] = {qnan, 0, 0, 1};
+  const double A_nan_off[] = {1, 0, qnan, 1};
+  const double B_ok[] = {1, 2};
+  double X[2];
+  BOOST_CHECK_THROW(LinearSolver(2, 2, 1).solve(A_nan_pivot, X, B_ok), std::runtime_error);
+  BOOST_CHECK_THROW(LinearSolver(2, 2, 1).solve(A_nan_off, X, B_ok), std::runtime_error);
+
+  const double A_ok2[] = {1, 0, 0, 1};
+  const double B_nan2[] = {1, qnan};
+  BOOST_CHECK_THROW(LinearSolver(2, 2, 1).solve(A_ok2, X, B_nan2), std::runtime_error);
+
+  const double A_ok3[] = {1, 0, 1, 0, 1, 1};
+  const double B_nan3[] = {1, 2, qnan};
+  BOOST_CHECK_THROW(LinearSolver(3, 2, 1).solve(A_ok3, X, B_nan3), std::runtime_error);
+}
+
+BOOST_AUTO_TEST_CASE(zero_columns_is_rejected) {
+  BOOST_CHECK_THROW(LinearSolver(0, 0, 1), std::runtime_error);
+  BOOST_CHECK_THROW(LinearSolver(2, 0, 1), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -79,6 +79,9 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
   // Copy this matrix to lu.
   T largestAbsEntry = T();
   for (size_t i = 0; i < num_elements_A; ++i) {
+    if (!std::isfinite(A[i])) {
+      throw std::runtime_error("LinearSolver: non-finite matrix entry");
+    }
     luData[i] = A[i];
     largestAbsEntry = std::max(largestAbsEntry, T(std::abs(A[i])));
   }
@@ -107,8 +110,8 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
       }
     }
 
-    // Also catches an all-zero matrix, whose threshold is 0.
-    if (largestAbsPivot <= pivotThreshold) {
+    // Also catches an all-zero or NaN matrix, whose threshold or pivot comparison is false.
+    if (!(largestAbsPivot > pivotThreshold)) {
       throw std::runtime_error("LinearSolver: not a full rank matrix");
     }
 
@@ -156,6 +159,9 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
     for (; virtRow < m_colsArowsX; ++virtRow) {
       const int physRow = static_cast<int>(perm[virtRow]);
       T right(pBCol[physRow]);
+      if (!std::isfinite(right)) {
+        throw std::runtime_error("LinearSolver: non-finite right-hand side");
+      }
 
       // Move already calculated factors to the right side.
       const T* pLu = luData + physRow;
@@ -173,6 +179,9 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
     for (; virtRow < m_rowsAB; ++virtRow) {
       const int physRow = static_cast<int>(perm[virtRow]);
       T right(pBCol[physRow]);
+      if (!std::isfinite(right)) {
+        throw std::runtime_error("LinearSolver: non-finite right-hand side");
+      }
 
       // Move everything to the right side, then verify it's zero, relative to the size
       // of the terms: their rounding errors grow with them. Never stricter than the former
@@ -186,7 +195,7 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
         magnitude += std::abs(term);
         pLu += m_rowsAB;
       }
-      if (std::abs(right) > epsilon * std::max(T(1), magnitude)) {
+      if (!(std::abs(right) <= epsilon * std::max(T(1), magnitude))) {
         throw std::runtime_error("LinearSolver: inconsistent overdetermined system");
       }
     }
