@@ -5,6 +5,7 @@
 
 #include <QImage>
 #include <boost/test/unit_test.hpp>
+#include <stdexcept>
 
 namespace imageproc {
 namespace tests {
@@ -43,6 +44,24 @@ BOOST_AUTO_TEST_CASE(normalizing_a_page_of_one_tone_keeps_it) {
   image.fill(qRgb(200, 200, 200));
   const QImage result = Posterizer(4, true).posterize(image);
   BOOST_CHECK_EQUAL(result.pixel(5, 5), qRgb(200, 200, 200));
+}
+
+BOOST_AUTO_TEST_CASE(invalid_normalize_levels_throw) {
+  BOOST_CHECK_THROW(Posterizer(4, true, false, -1, 255), std::invalid_argument);
+  BOOST_CHECK_THROW(Posterizer(4, true, false, 0, 300), std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(convert_to_indexed_rejects_non_rgb32_formats) {
+  const QImage rgb888(4, 4, QImage::Format_RGB888);
+  BOOST_CHECK_THROW(Posterizer::convertToIndexed(rgb888, {qRgb(0, 0, 0)}), std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(indexed_image_with_out_of_range_color_index_throws) {
+  QImage img(2, 1, QImage::Format_Indexed8);
+  img.setColorTable({qRgb(10, 20, 30)});
+  img.bits()[0] = 5;
+  img.bits()[1] = 0;
+  BOOST_CHECK_THROW(Posterizer(4).posterize(img), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

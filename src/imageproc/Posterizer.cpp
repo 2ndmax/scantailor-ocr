@@ -4,11 +4,13 @@
 #include "Posterizer.h"
 
 #include <cassert>
+#include <cstdint>
 #include <list>
 #include <set>
 #include <stdexcept>
 #include <unordered_set>
 
+#include "BadAllocIfNull.h"
 #include "BinaryImage.h"
 
 namespace imageproc {
@@ -24,6 +26,10 @@ Posterizer::Posterizer(int level,
       m_normalizeWhiteLevel(normalizeWhiteLevel) {
   if ((level < 2) || (level > 255)) {
     throw std::invalid_argument("Posterizer: level must be a value between 2 and 255 inclusive");
+  }
+  if ((normalizeBlackLevel < 0) || (normalizeBlackLevel > 255) || (normalizeWhiteLevel < 0)
+      || (normalizeWhiteLevel > 255)) {
+    throw std::invalid_argument("Posterizer: normalize levels must be between 0 and 255 inclusive");
   }
 }
 
@@ -72,11 +78,15 @@ QImage Posterizer::convertToIndexed(const QImage& image, const QVector<QRgb>& pa
   if (image.format() == QImage::Format_Indexed8) {
     return image;
   }
+  if ((image.format() != QImage::Format_RGB32) && (image.format() != QImage::Format_ARGB32)) {
+    throw std::invalid_argument("Posterizer::convertToIndexed(): invalid image format");
+  }
   if (palette.size() > 256) {
     return image;
   }
 
   QImage dst(image.size(), QImage::Format_Indexed8);
+  badAllocIfNull(dst);
   dst.setColorTable(palette);
 
   const int width = image.width();
@@ -95,7 +105,11 @@ QImage Posterizer::convertToIndexed(const QImage& image, const QVector<QRgb>& pa
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      dstLine[x] = colorToIndex[imgLine[x]];
+      const auto it = colorToIndex.find(imgLine[x]);
+      if (it == colorToIndex.end()) {
+        throw std::invalid_argument("Posterizer::convertToIndexed(): image color missing from palette");
+      }
+      dstLine[x] = it->second;
     }
     imgLine += imgStride;
     dstLine += dstStride;
@@ -120,8 +134,11 @@ std::unordered_map<uint32_t, int> paletteFromIndexedWithStatistics(const QImage&
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      uint8_t colorIndex = imgLine[x];
-      uint32_t color = colorTable[colorIndex];
+      const uint8_t colorIndex = imgLine[x];
+      if (colorIndex >= colorTable.size()) {
+        throw std::invalid_argument("Posterizer: color index out of palette range");
+      }
+      const uint32_t color = colorTable[colorIndex];
       ++palette[color];
     }
     imgLine += imgStride;
@@ -170,8 +187,12 @@ void remapColorsInIndexedImage(QImage& image, const std::unordered_map<uint32_t,
 
     for (int y = 0; y < height; ++y) {
       for (int x = 0; x < width; ++x) {
-        uint32_t color = colorTable[imgLine[x]];
-        uint32_t newColor = colorMap.at(color);
+        const uint8_t colorIndex = imgLine[x];
+        if (colorIndex >= colorTable.size()) {
+          throw std::invalid_argument("Posterizer: color index out of palette range");
+        }
+        const uint32_t color = colorTable[colorIndex];
+        const uint32_t newColor = colorMap.at(color);
         imgLine[x] = colorToIndexMap[newColor];
       }
       imgLine += imgStride;
@@ -215,7 +236,10 @@ std::unordered_map<uint32_t, uint32_t> normalizePalette(const QImage& image,
                                                         const std::unordered_map<uint32_t, int>& palette,
                                                         const int normalizeBlackLevel = 0,
                                                         const int normalizeWhiteLevel = 255) {
-  const int pixelCount = image.width() * image.height();
+  const int64_t pixelCount = static_cast<int64_t>(image.width()) * image.height();
+  if ((pixelCount <= 0) || palette.empty()) {
+    return std::unordered_map<uint32_t, uint32_t>();
+  }
   const double threshold = 0.0005;  // mustn't be larger than (1 / 256)
 
   int minLevel = 255;
