@@ -53,6 +53,10 @@ BOOST_AUTO_TEST_CASE(test_t_just_outside_the_range) {
     BOOST_TEST(c.controlPointIdx < spline.numControlPoints());
   }
   BOOST_TEST(near(spline.pointAndDtsAt(1.0 + 1e-12).point, spline.pointAt(1.0)));
+  BOOST_TEST(near(spline.pointAndDtsAt(-1e-12).point, spline.pointAt(0.0)));
+  const QPointF nanPoint = spline.pointAndDtsAt(std::numeric_limits<double>::quiet_NaN()).point;
+  BOOST_TEST((std::isfinite(nanPoint.x()) && std::isfinite(nanPoint.y())));
+  BOOST_TEST(near(nanPoint, spline.pointAt(0.0)));
 }
 
 BOOST_AUTO_TEST_CASE(test_single_control_point) {

@@ -343,7 +343,7 @@ int XSpline::linearCombinationFor(LinearCoefficient* coeffs, int segment, double
 }  // XSpline::linearCombinationFor
 
 XSpline::PointAndDerivs XSpline::pointAndDtsAt(double t) const {
-  assert(t >= 0 && t <= 1);
+  assert(!m_controlPoints.empty());
   PointAndDerivs pd;
 
   const DecomposedDerivs derivs(decomposedDerivs(t));
