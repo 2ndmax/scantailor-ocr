@@ -18,6 +18,20 @@ using namespace page_split;
 using namespace output;
 using namespace page_layout;
 
+namespace {
+bool isValidProfileName(const QString& name) {
+  if (name.isEmpty() || (name == QLatin1String(".")) || (name == QLatin1String(".."))) {
+    return false;
+  }
+  for (const QChar ch : name) {
+    if ((ch == QLatin1Char('/')) || (ch == QLatin1Char('\\')) || (ch == QLatin1Char(':')) || ch.isNull()) {
+      return false;
+    }
+  }
+  return true;
+}
+}  // namespace
+
 DefaultParamsProfileManager::DefaultParamsProfileManager() {
   const QString portableConfigPath = settings_setup::portableConfigPath();
   if (!portableConfigPath.isNull()) {
@@ -49,6 +63,9 @@ std::list<QString> DefaultParamsProfileManager::getProfileList() const {
 }
 
 QFileInfo DefaultParamsProfileManager::profileFile(const QString& name) const {
+  if (!isValidProfileName(name)) {
+    return QFileInfo();
+  }
   const QDir dir(m_path);
   // .xml is the format of older versions; once saved again, the profile is a .stp file.
   const QFileInfo stp(dir.absoluteFilePath(name + ".stp"));
@@ -57,7 +74,7 @@ QFileInfo DefaultParamsProfileManager::profileFile(const QString& name) const {
 
 std::unique_ptr<DefaultParams> DefaultParamsProfileManager::readProfile(const QString& name, LoadStatus* status) const {
   const QFileInfo profile = profileFile(name);
-  if (!profile.exists()) {
+  if (profile.filePath().isEmpty() || !profile.exists()) {
     if (status) {
       *status = IO_ERROR;
     }
@@ -105,6 +122,9 @@ std::unique_ptr<DefaultParams> DefaultParamsProfileManager::readProfile(QIODevic
 }
 
 bool DefaultParamsProfileManager::writeProfile(const DefaultParams& params, const QString& name) const {
+  if (!isValidProfileName(name)) {
+    return false;
+  }
   QDomDocument doc;
   QDomElement rootElement(doc.createElement("profile"));
   doc.appendChild(rootElement);
@@ -191,6 +211,9 @@ DefaultParamsProfileManager::StartProfile DefaultParamsProfileManager::startProf
 }
 
 bool DefaultParamsProfileManager::deleteProfile(const QString& name) const {
+  if (!isValidProfileName(name)) {
+    return false;
+  }
   // Both files go, or the old .xml one would take the place of the deleted profile.
   const QDir dir(m_path);
   bool found = false;

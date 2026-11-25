@@ -1233,6 +1233,42 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_profile_by_file) {
   BOOST_CHECK(err.contains(QStringLiteral("NoSuchProfile")));
 }
 
+// Named profiles may not contain path separators or escape the profile folder.
+BOOST_AUTO_TEST_CASE(test_folder_mode_rejects_profile_path_traversal) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+
+  const QString profilesDir = dir.filePath("profiles");
+  BOOST_REQUIRE(QDir().mkpath(profilesDir));
+  // Valid .stp profile placed outside profilesDir (in dir.path()).
+  BOOST_REQUIRE(DefaultParamsProfileManager(dir.path()).writeProfile(DefaultParams(), QStringLiteral("secret")));
+  BOOST_REQUIRE(QFile::exists(dir.filePath("secret.stp")));
+
+  const QString traversalCases[] = {
+      QStringLiteral("../secret"),
+      dir.filePath("secret"),
+      QStringLiteral("..\\secret"),
+  };
+  int caseIndex = 0;
+  for (const QString& badProfile : traversalCases) {
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    CommandLineRun::Options options;
+    options.inputFolder = inputDir;
+    options.projectFile = dir.filePath(QStringLiteral("p_%1.ScanTailor").arg(caseIndex++));
+    options.profileFolder = profilesDir;
+    options.profile = badProfile;
+    BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                      CommandLineRun::PROJECT_UNUSABLE);
+    BOOST_CHECK(!QFile::exists(options.projectFile));
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_folder_mode_refuses_an_unreadable_settings_profile) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
