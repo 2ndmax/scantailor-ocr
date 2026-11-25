@@ -11,6 +11,7 @@ set(sources
     TestSkewFinder.cpp
     TestScale.cpp
     TestTransform.cpp
+    TestMaxWhitespaceFinder.cpp
     TestMorphology.cpp
     TestBinarize.cpp
     TestPolygonRasterizer.cpp

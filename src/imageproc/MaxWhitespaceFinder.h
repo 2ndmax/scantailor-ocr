@@ -118,7 +118,12 @@ class MaxWhitespaceFinder {
 
     const std::vector<QRect>& obstacles() const { return m_obstacles; }
 
-    void addObstacle(const QRect& obstacle) { m_obstacles.push_back(obstacle); }
+    void addObstacle(const QRect& obstacle) {
+      const QRect intersected(obstacle.intersected(m_bounds));
+      if (!intersected.isEmpty()) {
+        m_obstacles.push_back(intersected);
+      }
+    }
 
     void addObstacles(const Region& otherRegion);
 
