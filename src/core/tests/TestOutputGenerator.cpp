@@ -584,10 +584,17 @@ BOOST_AUTO_TEST_CASE(filling_color_decides_the_margins_in_both_paths) {
             run.content = QRectF(TEXT_RECT);
             run.takeOverBlackOnWhite = false;
             run.blackOnWhite = blackOnWhite;
-            run.thinManualDewarping = dewarping;
+            if (dewarping) {
+              run.manualModel = undistortedModel(QRectF(0, 0, WIDTH, HEIGHT));
+            }
             run.fillingColor = fillingCase.fillingColor;
             run.withPictureZone = (mode == MIXED);
-            const std::set<int> levels = grayLevels(process(run), inner(PICTURE_RECT));
+            const QImage output = process(run);
+            const std::set<int> textLevels = grayLevels(output, inner(TEXT_RECT));
+            BOOST_REQUIRE_GE(textLevels.size(), 2u);
+            BOOST_CHECK_LT(*textLevels.begin(), 100);
+            BOOST_CHECK_GT(*textLevels.rbegin(), 150);
+            const std::set<int> levels = grayLevels(output, inner(PICTURE_RECT));
             BOOST_REQUIRE_EQUAL(levels.size(), 1u);
             const int level = *levels.begin();
             if (mode == BLACK_AND_WHITE) {
