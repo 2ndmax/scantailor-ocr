@@ -150,7 +150,7 @@ bool surroundingsIntact(const QImage& img1, const QImage& img2, const QRect& rec
   }
 
   if (rect.right() != img1.rect().right()) {
-    const QRect rightOf(rect.x() + w, 0, w - rect.x() - rect.width(), h);
+    const QRect rightOf(rect.x() + rect.width(), 0, w - rect.x() - rect.width(), h);
     if (img1.copy(rightOf) != img2.copy(rightOf)) {
       return false;
     }

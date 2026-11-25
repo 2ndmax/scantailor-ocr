@@ -20,7 +20,7 @@ using namespace utils;
 BOOST_AUTO_TEST_SUITE(RasterOpTestSuite)
 
 template <typename Rop>
-static bool checkSubimageRop(const QImage& dst, const QRect& dstRect, const QImage& src, const QPoint& srcPt) {
+static bool checkSubimageRop(QImage& dst, const QRect& dstRect, const QImage& src, const QPoint& srcPt) {
   BinaryImage dstBi(dst);
   const BinaryImage srcBi(src);
   rasterOp<Rop>(dstBi, dstRect, srcBi, srcPt);
@@ -29,7 +29,8 @@ static bool checkSubimageRop(const QImage& dst, const QRect& dstRect, const QIma
   const QRect srcRect(srcPt, dstRect.size());
   const BinaryImage srcSubimage(src.copy(srcRect));
   rasterOp<Rop>(dstSubimage, dstSubimage.rect(), srcSubimage, QPoint(0, 0));
-  return dstSubimage.toQImage() == dstBi.toQImage().copy(dstRect);
+  dst = dstBi.toQImage();
+  return dstSubimage.toQImage() == dst.copy(dstRect);
 }
 
 BOOST_AUTO_TEST_CASE(test_small_image) {
@@ -104,7 +105,7 @@ bool Tester1::testFullImage() const {
 
 bool Tester1::testSubImage(const QRect& dstRect, const QPoint& srcPt) const {
   const QImage dstBefore(m_dstBefore.toQImage());
-  const QImage& dst(dstBefore);
+  QImage dst(dstBefore);
   const QImage src(m_src.toQImage());
 
   if (!checkSubimageRop<Rop>(dst, dstRect, src, srcPt)) {
@@ -119,6 +120,14 @@ BOOST_AUTO_TEST_CASE(test_large_image) {
   BOOST_REQUIRE(tester.testSubImage(QRect(101, 32, 211, 151), QPoint(101, 41)));
   BOOST_REQUIRE(tester.testSubImage(QRect(101, 32, 211, 151), QPoint(99, 99)));
   BOOST_REQUIRE(tester.testSubImage(QRect(101, 32, 211, 151), QPoint(104, 64)));
+}
+
+BOOST_AUTO_TEST_CASE(test_surroundings_intact_detects_right_edge_change) {
+  QImage img1(20, 10, QImage::Format_Mono);
+  img1.fill(0);
+  QImage img2(img1);
+  img2.setPixel(15, 5, 1);
+  BOOST_CHECK(!surroundingsIntact(img1, img2, QRect(2, 2, 5, 5)));
 }
 
 namespace {
