@@ -92,6 +92,11 @@ void areaMapGeneratrix(const PixelType* const srcData,
     auto src32Right = (int) std::ceil(fSrc32Right);
     auto src32Top = (int) std::floor(fSrc32Top);
     auto src32Bottom = (int) std::ceil(fSrc32Bottom);
+    if ((src32Right <= src32Left) || (src32Bottom <= src32Top)) {
+      *pDst = bgColor;
+      pDst += dstStride;
+      continue;
+    }
     int srcLeft = src32Left >> 5;
     int srcRight = (src32Right - 1) >> 5;  // inclusive
     int srcTop = src32Top >> 5;

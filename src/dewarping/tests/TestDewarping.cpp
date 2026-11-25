@@ -599,6 +599,16 @@ BOOST_AUTO_TEST_CASE(test_point_mapper_stays_finite_for_an_empty_model_domain) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_raster_dewarper_handles_collapsed_quad) {
+  std::vector<QPointF> top{QPointF(0, 0), QPointF(20, 0)};
+  std::vector<QPointF> bottom{QPointF(0, 20), QPointF(20, 20)};
+  const CylindricalSurfaceDewarper dewarper(top, bottom, 2.0);
+  const QImage src = uniformGray(QSize(20, 20), 100);
+  const QSize dstSize(4, 4);
+  const QImage result = RasterDewarper::dewarp(src, dstSize, dewarper, QRectF(-5e8, -5e8, 1e9, 1e9), Qt::white);
+  BOOST_CHECK(result.size() == dstSize);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace dewarping
