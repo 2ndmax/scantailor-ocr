@@ -18,8 +18,9 @@
 // Taken from ScanTailor Experimental (commit 80e1c57), only put into the namespace
 // imageproc::stexp, for comparing binarization methods. GPLv3, as the original.
 // Fixes: the windows of grayMapMean (as in imageproc/ExperimentalBinarization.cpp) and
-// grayEMDenoiserInPlace were one row or column too small, and grayBiModalTiledMap
-// extrapolated at the top and left edges.
+// grayEMDenoiserInPlace were one row or column too small, grayBiModalTiledMap
+// extrapolated at the top and left edges, and grayEqualizeInPlace avoids division by zero
+// on images smaller than 256 pixels.
 // Speed: grayMapMax and grayMapContrast use imageproc's erodeGray and dilateGray, which give the
 // same result in O(1) instead of O(radius) per pixel.
 
@@ -2787,7 +2788,12 @@ void grayEqualizeInPlace(GrayImage& src, int const radius, float const coef, boo
     int const gmean_stride = gmean.stride();
 
     uint64_t histogram[256] = {0};
-    uint64_t szi = (h * w) >> 8;
+    // Deviation from ScanTailor Experimental (commit 80e1c57): avoid division by zero on
+    // images with fewer than 256 pixels and 32-bit int overflow in h * w.
+    uint64_t const total = static_cast<uint64_t>(w) * static_cast<uint64_t>(h);
+    if (total == 0) {
+      return;
+    }
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
         unsigned int const mean = gmean_line[x];
@@ -2800,8 +2806,7 @@ void grayEqualizeInPlace(GrayImage& src, int const radius, float const coef, boo
       histogram[i] += histogram[i - 1];
     }
     for (unsigned int i = 0; i < 256; i++) {
-      histogram[i] += (szi >> 1);
-      histogram[i] /= szi;
+      histogram[i] = (histogram[i] * 255 + (total >> 1)) / total;
       histogram[i] = (histogram[i] < 255) ? histogram[i] : 255;
     }
 
