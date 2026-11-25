@@ -157,6 +157,11 @@ QByteArray inflate(const QByteArray& zlib, const int size) {
 
 /** Reverses the PNG predictors of rows with a leading filter type byte. */
 QByteArray unpredict(const QByteArray& filtered, const int bytesPerRow, const int bytesPerPixel, const int height) {
+  BOOST_REQUIRE_GE(bytesPerRow, 0);
+  BOOST_REQUIRE_GE(bytesPerPixel, 0);
+  BOOST_REQUIRE_GE(height, 0);
+  BOOST_REQUIRE_EQUAL(filtered.size(), static_cast<qsizetype>(height) * (bytesPerRow + 1));
+
   QByteArray out(bytesPerRow * height, 0);
   for (int y = 0; y < height; ++y) {
     const auto* src = reinterpret_cast<const uchar*>(filtered.constData()) + y * (bytesPerRow + 1);
@@ -195,18 +200,34 @@ QByteArray unpredict(const QByteArray& filtered, const int bytesPerRow, const in
 }
 
 // Unpacks the compressed stream whose "/Length " entry starts at or after \p from.
-QByteArray inflateStream(const QByteArray& pdf, const int from) {
+QByteArray inflateStream(const QByteArray& pdf, const qsizetype from) {
+  BOOST_REQUIRE_GE(from, 0);
   const QByteArray lengthKey = "/Length ";
-  const int lengthStart = pdf.indexOf(lengthKey, from) + static_cast<int>(lengthKey.size());
-  const int length = pdf.mid(lengthStart, pdf.indexOf(' ', lengthStart) - lengthStart).toInt();
+  const qsizetype lengthPos = pdf.indexOf(lengthKey, from);
+  BOOST_REQUIRE_GE(lengthPos, 0);
+  const qsizetype lengthStart = lengthPos + lengthKey.size();
+  const qsizetype lengthEnd = pdf.indexOf(' ', lengthStart);
+  BOOST_REQUIRE_GT(lengthEnd, lengthStart);
+  bool ok = false;
+  const int length = pdf.mid(lengthStart, lengthEnd - lengthStart).toInt(&ok);
+  BOOST_REQUIRE(ok && (length >= 0));
+  const QByteArray streamKey = "stream\n";
+  const qsizetype streamPos = pdf.indexOf(streamKey, lengthStart);
+  BOOST_REQUIRE_GE(streamPos, 0);
+  const qsizetype dataStart = streamPos + streamKey.size();
+  BOOST_REQUIRE_LE(dataStart + length, pdf.size());
   // inflate() needs the uncompressed size; a generous upper bound will do.
-  return inflate(pdf.mid(pdf.indexOf("stream\n", lengthStart) + 7, length), 1 << 20);
+  return inflate(pdf.mid(dataStart, length), 1 << 20);
 }
 
 // The content stream of the first page, written right before the page.
 QByteArray firstPageContent(const QByteArray& pdf) {
-  const int contentPos = pdf.lastIndexOf("/Filter /FlateDecode /Length ", pdf.indexOf("/Type /Page "));
-  return (contentPos > 0) ? inflateStream(pdf, contentPos) : QByteArray();
+  const qsizetype pagePos = pdf.indexOf("/Type /Page ");
+  if (pagePos < 0) {
+    return QByteArray();
+  }
+  const qsizetype contentPos = pdf.lastIndexOf("/Filter /FlateDecode /Length ", pagePos);
+  return (contentPos >= 0) ? inflateStream(pdf, contentPos) : QByteArray();
 }
 
 boost::test_tools::assertion_result hasVerapdf(boost::unit_test::test_unit_id /*id*/) {
