@@ -1434,7 +1434,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         <location filename="../app/DefaultParamsDialog.ui" line="1894"/>
         <location filename="../app/DefaultParamsDialog.ui" line="1904"/>
         <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
-        <translation>Seiten, die größer als die Ausgabegröße sind, werden höchstens bis auf diesen Prozentwert verkleinert; braucht eine Seite mehr, bleibt sie größer.</translation>
+        <translation>Seiten, die größer als die Ausgabegröße sind, werden auf nicht weniger als diesen Prozentwert verkleinert; braucht eine Seite mehr, bleibt sie größer.</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2656"/>
@@ -1767,8 +1767,8 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1897"/>
-        <source>Reduce to at most:</source>
-        <translation>Verkleinern bis höchstens:</translation>
+        <source>Reduce to at least:</source>
+        <translation>Verkleinern auf mindestens:</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2096"/>
@@ -7378,8 +7378,8 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
     </message>
     <message>
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="702"/>
-        <source>Reduce to at most:</source>
-        <translation>Verkleinern bis höchstens:</translation>
+        <source>Reduce to at least:</source>
+        <translation>Verkleinern auf mindestens:</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="770"/>
@@ -7544,7 +7544,7 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="699"/>
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="709"/>
         <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
-        <translation>Seiten, die größer als die Ausgabegröße sind, werden höchstens bis auf diesen Prozentwert verkleinert; braucht eine Seite mehr, bleibt sie größer.</translation>
+        <translation>Seiten, die größer als die Ausgabegröße sind, werden auf nicht weniger als diesen Prozentwert verkleinert; braucht eine Seite mehr, bleibt sie größer.</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="846"/>

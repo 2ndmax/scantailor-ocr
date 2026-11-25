@@ -1894,7 +1894,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                     <string>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</string>
                    </property>
                    <property name="text">
-                    <string>Reduce to at most:</string>
+                    <string>Reduce to at least:</string>
                    </property>
                   </widget>
                  </item>

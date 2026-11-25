@@ -1264,7 +1264,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1897"/>
-        <source>Reduce to at most:</source>
+        <source>Reduce to at least:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7202,7 +7202,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
     </message>
     <message>
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="702"/>
-        <source>Reduce to at most:</source>
+        <source>Reduce to at least:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
