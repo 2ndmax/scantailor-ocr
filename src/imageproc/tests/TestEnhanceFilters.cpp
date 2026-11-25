@@ -171,6 +171,38 @@ BOOST_AUTO_TEST_CASE(test_clamp_to_byte_maps_nan_to_0) {
   BOOST_CHECK_EQUAL(int(clampToByte(254.6f)), 255);
 }
 
+BOOST_AUTO_TEST_CASE(test_wiener_handles_indexed_color_and_rgb888) {
+  QImage indexed(60, 40, QImage::Format_Indexed8);
+  indexed.setColorTable({qRgb(200, 60, 60), qRgb(240, 240, 240)});
+  for (int y = 0; y < indexed.height(); ++y) {
+    for (int x = 0; x < indexed.width(); ++x) {
+      indexed.setPixel(x, y, (x < 30) ? 0 : 1);
+    }
+  }
+  wienerColorFilterInPlace(indexed, QSize(5, 5), 0.5);
+  const QRgb indexedPx = indexed.pixel(10, 20);
+  BOOST_CHECK_GT(qRed(indexedPx), qGreen(indexedPx) + 100);
+
+  QImage rgb888(60, 40, QImage::Format_RGB888);
+  unsigned seed = 54321;
+  for (int y = 0; y < rgb888.height(); ++y) {
+    for (int x = 0; x < rgb888.width(); ++x) {
+      seed = seed * 1103515245u + 12345u;
+      const int delta = static_cast<int>((seed >> 16) % 21) - 10;
+      if (x < 30) {
+        rgb888.setPixel(x, y, qRgb(200 + delta, 60, 60));
+      } else {
+        rgb888.setPixel(x, y, qRgb(230 + delta, 230 + delta, 230 + delta));
+      }
+    }
+  }
+  const QImage originalRgb888 = rgb888.copy();
+  wienerColorFilterInPlace(rgb888, QSize(5, 5), 0.5);
+  BOOST_CHECK(rgb888 != originalRgb888);
+  const QRgb rgbPx = rgb888.pixel(10, 20);
+  BOOST_CHECK_GT(qRed(rgbPx), qGreen(rgbPx) + 100);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc
