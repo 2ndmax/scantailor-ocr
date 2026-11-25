@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <new>
 #include <vector>
 
 #include "FuzzSetup.h"
@@ -134,9 +135,13 @@ bool jp2CodestreamExceedsFuzzLimit(const QByteArray& input) {
 QImage load(QBuffer& buffer, const int pageNum, const QSize& minSize = QSize()) {
   buffer.seek(0);
   ImageLoadErrorCapture errors;
-  QImage image = ImageLoader::load(buffer, pageNum, minSize);
-  (void) errors.messages();
-  return image;
+  try {
+    QImage image = ImageLoader::load(buffer, pageNum, minSize);
+    (void) errors.messages();
+    return image;
+  } catch (const std::bad_alloc&) {
+    return QImage();
+  }
 }
 }  // namespace
 
@@ -150,9 +155,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
 
   std::vector<QSize> pageSizes;
   ImageMetadataLoader::Status status = ImageMetadataLoader::FORMAT_NOT_RECOGNIZED;
-  {
+  try {
     ImageLoadErrorCapture errors;
     status = ImageMetadataLoader::load(buffer, [&](const ImageMetadata& page) { pageSizes.push_back(page.size()); });
+  } catch (const std::bad_alloc&) {
+    return 0;
   }
   // A recognized container whose metadata failed (e.g. a later damaged/huge TIFF page leaving
   // pageSizes empty) must not fall through to load(buffer, 0) without a size check.
