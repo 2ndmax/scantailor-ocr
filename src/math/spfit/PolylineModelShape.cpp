@@ -4,6 +4,7 @@
 #include "PolylineModelShape.h"
 
 #include <QDebug>
+#include <cmath>
 #include <limits>
 #include <stdexcept>
 
@@ -32,7 +33,7 @@ PolylineModelShape::PolylineModelShape(const std::vector<QPointF>& polyline) {
 
 SqDistApproximant PolylineModelShape::localSqDistApproximant(const QPointF& pt,
                                                              FittableSpline::SampleFlags sampleFlags) const {
-  if (m_vertices.empty()) {
+  if (m_vertices.empty() || !std::isfinite(pt.x()) || !std::isfinite(pt.y())) {
     return SqDistApproximant();
   }
 
@@ -88,10 +89,8 @@ SqDistApproximant PolylineModelShape::localSqDistApproximant(const QPointF& pt,
     const double k2 = pd2.signedCurvature();
     const double weightedK = k1 + segmentT * (k2 - k1);
     return calcApproximant(pt, sampleFlags, DEFAULT_FLAGS, frenetFrame, weightedK);
-  } else {
+  } else if (vertexIdx != -1) {
     // The foot point is a vertex of the polyline.
-    assert(vertexIdx != -1);
-
     const XSpline::PointAndDerivs& pd = m_vertices[vertexIdx];
     const FrenetFrame frenetFrame(bestFootPoint, pd.firstDeriv);
 
@@ -103,6 +102,8 @@ SqDistApproximant PolylineModelShape::localSqDistApproximant(const QPointF& pt,
       polylineFlags |= POLYLINE_BACK;
     }
     return calcApproximant(pt, sampleFlags, polylineFlags, frenetFrame, pd.signedCurvature());
+  } else {
+    return SqDistApproximant();
   }
 }  // PolylineModelShape::localSqDistApproximant
 

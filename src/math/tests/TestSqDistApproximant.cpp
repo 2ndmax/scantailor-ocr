@@ -12,6 +12,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdlib>
+#include <limits>
 #include <vector>
 
 namespace spfit {
@@ -93,6 +94,16 @@ BOOST_AUTO_TEST_CASE(test_curvature_without_tangent) {
   BOOST_CHECK_EQUAL(pd.signedCurvature(), 0.0);
   pd.firstDeriv = QPointF(1e-120, 0);
   BOOST_CHECK_EQUAL(pd.signedCurvature(), 0.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_polyline_nonfinite_and_huge_points) {
+  const PolylineModelShape shape(std::vector<QPointF>{QPointF(0, 0), QPointF(10, 0)});
+  const SqDistApproximant nanApprox = shape.localSqDistApproximant(QPointF(std::numeric_limits<double>::quiet_NaN(), 0),
+                                                                   FittableSpline::DEFAULT_SAMPLE);
+  BOOST_CHECK_EQUAL(nanApprox.evaluate(QPointF(0, 0)), 0.0);
+
+  const SqDistApproximant hugeApprox = shape.localSqDistApproximant(QPointF(1e200, 0), FittableSpline::DEFAULT_SAMPLE);
+  BOOST_CHECK_EQUAL(hugeApprox.evaluate(QPointF(0, 0)), 0.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
