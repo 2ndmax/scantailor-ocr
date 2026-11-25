@@ -26,6 +26,7 @@
 #include <cstring>
 #include <limits>
 #include <set>
+#include <string>
 #include <vector>
 
 #include "TestHelpers.h"
@@ -207,6 +208,15 @@ QByteArray firstPageContent(const QByteArray& pdf) {
   const int contentPos = pdf.lastIndexOf("/Filter /FlateDecode /Length ", pdf.indexOf("/Type /Page "));
   return (contentPos > 0) ? inflateStream(pdf, contentPos) : QByteArray();
 }
+
+boost::test_tools::assertion_result hasVerapdf(boost::unit_test::test_unit_id /*id*/) {
+  if (!qEnvironmentVariable("VERAPDF").isEmpty()) {
+    return true;
+  }
+  boost::test_tools::assertion_result result(false);
+  result.message() << "VERAPDF environment variable is not set";
+  return result;
+}
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE(PdfWriterTestSuite)
@@ -363,12 +373,9 @@ BOOST_AUTO_TEST_CASE(test_pdf_a) {
 }
 
 // Runs only if CMake found veraPDF, see CMakeLists.txt.
-BOOST_AUTO_TEST_CASE(test_pdf_a_with_verapdf) {
+BOOST_AUTO_TEST_CASE(test_pdf_a_with_verapdf, *boost::unit_test::precondition(hasVerapdf)) {
   const QString verapdf = qEnvironmentVariable("VERAPDF");
-  if (verapdf.isEmpty()) {
-    BOOST_TEST_MESSAGE("veraPDF not found, PDF/A validation skipped");
-    return;
-  }
+  BOOST_REQUIRE(!verapdf.isEmpty());
 
   // Every kind of image the writer knows, and a text layer.
   const QSizeF pageSize(300, 200);
@@ -440,6 +447,9 @@ BOOST_AUTO_TEST_CASE(test_pdf_a_with_verapdf) {
   process.start(verapdf, {"--flavour", "2b", "--format", "text", path});
   BOOST_REQUIRE(process.waitForFinished(300000));
   const QString output = QString::fromLocal8Bit(process.readAll());
+  BOOST_CHECK_MESSAGE(process.exitStatus() == QProcess::NormalExit, output.toStdString());
+  BOOST_CHECK_MESSAGE(process.exitCode() == 0,
+                      ("veraPDF exited with code " + std::to_string(process.exitCode()) + ": " + output.toStdString()));
   BOOST_CHECK_MESSAGE(output.startsWith("PASS "), output.toStdString());
 }
 
