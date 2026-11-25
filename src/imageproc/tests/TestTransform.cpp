@@ -61,6 +61,30 @@ BOOST_AUTO_TEST_CASE(test_transparent_gray_palette_keeps_alpha) {
   BOOST_CHECK_EQUAL(qGray(dst.pixel(1, 0)), 0xff);
 }
 
+BOOST_AUTO_TEST_CASE(test_large_downscale_does_not_overflow) {
+  const OutsidePixels outsidePixels(OutsidePixels::assumeColor(QColor(255, 255, 255)));
+  const QTransform scaleXform(QTransform::fromScale(1.0 / 150.0, 1.0 / 150.0));
+  const QRect dstRect(0, 0, 2, 2);
+
+  GrayImage graySrc(QSize(300, 300));
+  graySrc.fill(255);
+  const GrayImage grayDst(transformToGray(graySrc, scaleXform, dstRect, outsidePixels));
+  for (int y = 0; y < grayDst.height(); ++y) {
+    for (int x = 0; x < grayDst.width(); ++x) {
+      BOOST_REQUIRE_EQUAL(int(grayDst.data()[y * grayDst.stride() + x]), 255);
+    }
+  }
+
+  QImage rgbSrc(300, 300, QImage::Format_RGB32);
+  rgbSrc.fill(qRgb(255, 255, 255));
+  const QImage rgbDst(transform(rgbSrc, scaleXform, dstRect, outsidePixels));
+  for (int y = 0; y < rgbDst.height(); ++y) {
+    for (int x = 0; x < rgbDst.width(); ++x) {
+      BOOST_REQUIRE_EQUAL(rgbDst.pixel(x, y), qRgb(255, 255, 255));
+    }
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc

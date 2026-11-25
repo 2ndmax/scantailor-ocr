@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <cassert>
+#include <cstdint>
 #include <stdexcept>
 
 #include "BadAllocIfNull.h"
@@ -118,40 +119,42 @@ static void transformGeneric(const StorageUnit* const srcData,
        * works correctly with both positive and negative src32Top.
        */
 
-      unsigned backgroundArea = 0;
+      using MixingWeight = uint64_t;
+      using AccumType = typename Mixer::accumType;
+      MixingWeight backgroundArea = 0;
 
       if (srcTop < 0) {
-        const unsigned topFraction = 32 - (src32Top & 31);
-        const unsigned horFraction = src32Right - src32Left;
+        const MixingWeight topFraction = 32 - (src32Top & 31);
+        const MixingWeight horFraction = src32Right - src32Left;
         backgroundArea += topFraction * horFraction;
-        const unsigned fullPixelsVer = -1 - srcTop;
+        const MixingWeight fullPixelsVer = -1 - srcTop;
         backgroundArea += horFraction * (fullPixelsVer << 5);
         srcTop = 0;
         src32Top = 0;
       }
       if (srcBottom >= sh) {
-        const unsigned bottomFraction = src32Bottom - (srcBottom << 5);
-        const unsigned horFraction = src32Right - src32Left;
+        const MixingWeight bottomFraction = src32Bottom - (srcBottom << 5);
+        const MixingWeight horFraction = src32Right - src32Left;
         backgroundArea += bottomFraction * horFraction;
-        const unsigned fullPixelsVer = srcBottom - sh;
+        const MixingWeight fullPixelsVer = srcBottom - sh;
         backgroundArea += horFraction * (fullPixelsVer << 5);
         srcBottom = sh - 1;     // inclusive
         src32Bottom = sh << 5;  // exclusive
       }
       if (srcLeft < 0) {
-        const unsigned leftFraction = 32 - (src32Left & 31);
-        const unsigned vertFraction = src32Bottom - src32Top;
+        const MixingWeight leftFraction = 32 - (src32Left & 31);
+        const MixingWeight vertFraction = src32Bottom - src32Top;
         backgroundArea += leftFraction * vertFraction;
-        const unsigned fullPixelsHor = -1 - srcLeft;
+        const MixingWeight fullPixelsHor = -1 - srcLeft;
         backgroundArea += vertFraction * (fullPixelsHor << 5);
         srcLeft = 0;
         src32Left = 0;
       }
       if (srcRight >= sw) {
-        const unsigned rightFraction = src32Right - (srcRight << 5);
-        const unsigned vertFraction = src32Bottom - src32Top;
+        const MixingWeight rightFraction = src32Right - (srcRight << 5);
+        const MixingWeight vertFraction = src32Bottom - src32Top;
         backgroundArea += rightFraction * vertFraction;
-        const unsigned fullPixelsHor = srcRight - sw;
+        const MixingWeight fullPixelsHor = srcRight - sw;
         backgroundArea += vertFraction * (fullPixelsHor << 5);
         srcRight = sw - 1;     // inclusive
         src32Right = sw << 5;  // exclusive
@@ -164,20 +167,20 @@ static void transformGeneric(const StorageUnit* const srcData,
         backgroundArea = 0;
       } else {
         assert(outsideFlags & OutsidePixels::COLOR);
-        mixer.add(outsideColor, backgroundArea);
+        mixer.add(outsideColor, static_cast<AccumType>(backgroundArea));
       }
 
-      const unsigned leftFraction = 32 - (src32Left & 31);
-      const unsigned topFraction = 32 - (src32Top & 31);
-      const unsigned rightFraction = src32Right - (srcRight << 5);
-      const unsigned bottomFraction = src32Bottom - (srcBottom << 5);
+      const MixingWeight leftFraction = 32 - (src32Left & 31);
+      const MixingWeight topFraction = 32 - (src32Top & 31);
+      const MixingWeight rightFraction = src32Right - (srcRight << 5);
+      const MixingWeight bottomFraction = src32Bottom - (srcBottom << 5);
 
-      assert(leftFraction + rightFraction + (srcRight - srcLeft - 1) * 32
-             == static_cast<unsigned>(src32Right - src32Left));
-      assert(topFraction + bottomFraction + (srcBottom - srcTop - 1) * 32
-             == static_cast<unsigned>(src32Bottom - src32Top));
+      assert(leftFraction + rightFraction + static_cast<MixingWeight>(srcRight - srcLeft - 1) * 32
+             == static_cast<MixingWeight>(src32Right - src32Left));
+      assert(topFraction + bottomFraction + static_cast<MixingWeight>(srcBottom - srcTop - 1) * 32
+             == static_cast<MixingWeight>(src32Bottom - src32Top));
 
-      const unsigned srcArea = (src32Bottom - src32Top) * (src32Right - src32Left);
+      const MixingWeight srcArea = static_cast<MixingWeight>(src32Bottom - src32Top) * (src32Right - src32Left);
       if (srcArea == 0) {
         if ((outsideFlags & OutsidePixels::COLOR)) {
           dstLine[dx] = outsideColor;
@@ -200,89 +203,89 @@ static void transformGeneric(const StorageUnit* const srcData,
             dstLine[dx] = c;
             continue;
           }
-          mixer.add(c, srcArea);
+          mixer.add(c, static_cast<AccumType>(srcArea));
         } else {
           // dst pixel maps to a horizontal line of src pixels
-          const unsigned vertFraction = src32Bottom - src32Top;
-          const unsigned leftArea = vertFraction * leftFraction;
-          const unsigned middleArea = vertFraction << 5;
-          const unsigned rightArea = vertFraction * rightFraction;
+          const MixingWeight vertFraction = src32Bottom - src32Top;
+          const MixingWeight leftArea = vertFraction * leftFraction;
+          const MixingWeight middleArea = vertFraction << 5;
+          const MixingWeight rightArea = vertFraction * rightFraction;
 
-          mixer.add(srcLine[srcLeft], leftArea);
+          mixer.add(srcLine[srcLeft], static_cast<AccumType>(leftArea));
 
           for (int sx = srcLeft + 1; sx < srcRight; ++sx) {
-            mixer.add(srcLine[sx], middleArea);
+            mixer.add(srcLine[sx], static_cast<AccumType>(middleArea));
           }
 
-          mixer.add(srcLine[srcRight], rightArea);
+          mixer.add(srcLine[srcRight], static_cast<AccumType>(rightArea));
         }
       } else if (srcLeft == srcRight) {
         // dst pixel maps to a vertical line of src pixels
-        const unsigned horFraction = src32Right - src32Left;
-        const unsigned topArea = horFraction * topFraction;
-        const unsigned middleArea = horFraction << 5;
-        const unsigned bottomArea = horFraction * bottomFraction;
+        const MixingWeight horFraction = src32Right - src32Left;
+        const MixingWeight topArea = horFraction * topFraction;
+        const MixingWeight middleArea = horFraction << 5;
+        const MixingWeight bottomArea = horFraction * bottomFraction;
 
         srcLine += srcLeft;
-        mixer.add(*srcLine, topArea);
+        mixer.add(*srcLine, static_cast<AccumType>(topArea));
 
         srcLine += srcStride;
 
         for (int sy = srcTop + 1; sy < srcBottom; ++sy) {
-          mixer.add(*srcLine, middleArea);
+          mixer.add(*srcLine, static_cast<AccumType>(middleArea));
           srcLine += srcStride;
         }
 
-        mixer.add(*srcLine, bottomArea);
+        mixer.add(*srcLine, static_cast<AccumType>(bottomArea));
       } else {
         // dst pixel maps to a block of src pixels
-        const unsigned topArea = topFraction << 5;
-        const unsigned bottomArea = bottomFraction << 5;
-        const unsigned leftArea = leftFraction << 5;
-        const unsigned rightArea = rightFraction << 5;
-        const unsigned topleftArea = topFraction * leftFraction;
-        const unsigned toprightArea = topFraction * rightFraction;
-        const unsigned bottomleftArea = bottomFraction * leftFraction;
-        const unsigned bottomrightArea = bottomFraction * rightFraction;
+        const MixingWeight topArea = topFraction << 5;
+        const MixingWeight bottomArea = bottomFraction << 5;
+        const MixingWeight leftArea = leftFraction << 5;
+        const MixingWeight rightArea = rightFraction << 5;
+        const MixingWeight topleftArea = topFraction * leftFraction;
+        const MixingWeight toprightArea = topFraction * rightFraction;
+        const MixingWeight bottomleftArea = bottomFraction * leftFraction;
+        const MixingWeight bottomrightArea = bottomFraction * rightFraction;
 
         // process the top-left corner
-        mixer.add(srcLine[srcLeft], topleftArea);
+        mixer.add(srcLine[srcLeft], static_cast<AccumType>(topleftArea));
 
         // process the top line (without corners)
         for (int sx = srcLeft + 1; sx < srcRight; ++sx) {
-          mixer.add(srcLine[sx], topArea);
+          mixer.add(srcLine[sx], static_cast<AccumType>(topArea));
         }
 
         // process the top-right corner
-        mixer.add(srcLine[srcRight], toprightArea);
+        mixer.add(srcLine[srcRight], static_cast<AccumType>(toprightArea));
 
         srcLine += srcStride;
         // process middle lines
         for (int sy = srcTop + 1; sy < srcBottom; ++sy) {
-          mixer.add(srcLine[srcLeft], leftArea);
+          mixer.add(srcLine[srcLeft], static_cast<AccumType>(leftArea));
 
           for (int sx = srcLeft + 1; sx < srcRight; ++sx) {
-            mixer.add(srcLine[sx], 32 * 32);
+            mixer.add(srcLine[sx], static_cast<AccumType>(MixingWeight(32 * 32)));
           }
 
-          mixer.add(srcLine[srcRight], rightArea);
+          mixer.add(srcLine[srcRight], static_cast<AccumType>(rightArea));
 
           srcLine += srcStride;
         }
 
         // process bottom-left corner
-        mixer.add(srcLine[srcLeft], bottomleftArea);
+        mixer.add(srcLine[srcLeft], static_cast<AccumType>(bottomleftArea));
 
         // process the bottom line (without corners)
         for (int sx = srcLeft + 1; sx < srcRight; ++sx) {
-          mixer.add(srcLine[sx], bottomArea);
+          mixer.add(srcLine[sx], static_cast<AccumType>(bottomArea));
         }
 
         // process the bottom-right corner
-        mixer.add(srcLine[srcRight], bottomrightArea);
+        mixer.add(srcLine[srcRight], static_cast<AccumType>(bottomrightArea));
       }
 
-      dstLine[dx] = mixer.mix(srcArea + backgroundArea);
+      dstLine[dx] = mixer.mix(static_cast<AccumType>(srcArea + backgroundArea));
     }
   }
 }  // transformGeneric
@@ -325,7 +328,7 @@ QImage transform(const QImage& src,
         // which is guaranteed to have a standard palette.
         GrayImage graySrc(src);
         GrayImage grayDst(dstRect.size());
-        using AccumType = uint32_t;
+        using AccumType = uint64_t;
         transformGeneric<uint8_t, GrayColorMixer<AccumType>>(
             graySrc.data(), graySrc.stride(), src.size(), grayDst.data(), grayDst.stride(), xform, dstRect,
             outsidePixels.grayLevel(), outsidePixels.flags(), minMappingArea);
@@ -341,7 +344,7 @@ QImage transform(const QImage& src,
         QImage dst(dstRect.size(), QImage::Format_RGB32);
         badAllocIfNull(dst);
 
-        using AccumType = uint32_t;
+        using AccumType = uint64_t;
         transformGeneric<uint32_t, RgbColorMixer<AccumType>>(
             (const uint32_t*) srcRgb32.bits(), srcRgb32.bytesPerLine() / 4, srcRgb32.size(), (uint32_t*) dst.bits(),
             dst.bytesPerLine() / 4, xform, dstRect, outsidePixels.rgb(), outsidePixels.flags(), minMappingArea);
@@ -383,7 +386,7 @@ GrayImage transformToGray(const QImage& src,
   const GrayImage graySrc(src);
   GrayImage dst(dstRect.size());
 
-  using AccumType = unsigned;
+  using AccumType = uint64_t;
   transformGeneric<uint8_t, GrayColorMixer<AccumType>>(graySrc.data(), graySrc.stride(), graySrc.size(), dst.data(),
                                                        dst.stride(), xform, dstRect, outsidePixels.grayLevel(),
                                                        outsidePixels.flags(), minMappingArea);
