@@ -33,6 +33,7 @@
 #include <QDomDocument>
 #include <QPolygonF>
 #include <QTransform>
+#include <QtGlobal>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -244,7 +245,12 @@ void processPage(Steps& steps, const PageInfo& page) {
   // As output::Task::process() up to the size of the output.
   xform.postScaleToDpi(steps.output.getParams(page.id()).outputDpi());
   checkGeometry(xform, "the output resolution leaves a finite geometry");
-  check(xform.resultingRect().toRect().topLeft() == QPoint(0, 0), "the output starts at 0, 0");
+  const QRectF intSafeRange(-(1 << 29), -(1 << 29), 1 << 30, 1 << 30);
+  const QRectF resultingRect = xform.resultingRect();
+  check(intSafeRange.contains(resultingRect.topLeft()) && (qRound(resultingRect.left()) == 0)
+            && (qRound(resultingRect.top()) == 0)
+            && (resultingRect.intersected(intSafeRange).toRect().topLeft() == QPoint(0, 0)),
+        "the output starts at 0, 0");
   const output::OutputGenerator generator(xform, contentRectPhys);
   (void) generator.outputImageSize();
 }
