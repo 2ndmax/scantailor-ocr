@@ -229,20 +229,34 @@ BOOST_AUTO_TEST_CASE(test_text_layer_of_older_versions_is_read) {
   BOOST_CHECK(!textLayerOf("", false));
 }
 
-BOOST_AUTO_TEST_CASE(test_projects_of_older_versions_create_a_pdf) {
+BOOST_AUTO_TEST_CASE(test_projects_without_formats_element_keep_fallback_formats) {
   const QDomDocument doc = parse(QStringLiteral(
       "<processing-options><pdf pdfA=\"1\"/><ocr enabled=\"1\" languages=\"deu\"/></processing-options>"));
-  const ProcessingOptions read(doc.documentElement(), ProcessingOptions());
-  BOOST_CHECK(read.formats.pdf);
-  BOOST_CHECK(!read.formats.txt);
-  BOOST_CHECK(!read.formats.hocr);
-  BOOST_CHECK(!read.formats.alto);
 
-  // Without the element, the formats are those of the fallback, not fixed ones.
-  ProcessingOptions fallback;
-  fallback.formats.pdf = false;
-  fallback.formats.alto = true;
-  BOOST_CHECK(ProcessingOptions(doc.documentElement(), fallback).formats == fallback.formats);
+  // Default fallback has only PDF enabled.
+  const ProcessingOptions defaultFallback;
+  const ProcessingOptions fromDefault(doc.documentElement(), defaultFallback);
+  BOOST_CHECK(fromDefault.formats == defaultFallback.formats);
+
+  // Without a <formats> element, custom fallback formats stay preserved.
+  ProcessingOptions altoFallback;
+  altoFallback.formats.pdf = false;
+  altoFallback.formats.alto = true;
+  BOOST_CHECK(ProcessingOptions(doc.documentElement(), altoFallback).formats == altoFallback.formats);
+
+  ProcessingOptions textHocrFallback;
+  textHocrFallback.formats.pdf = false;
+  textHocrFallback.formats.txt = true;
+  textHocrFallback.formats.hocr = true;
+  BOOST_CHECK(ProcessingOptions(doc.documentElement(), textHocrFallback).formats == textHocrFallback.formats);
+
+  // An explicit <formats> element overrides the fallback.
+  const QDomDocument withFormats = parse(
+      QStringLiteral("<processing-options><formats pdf=\"0\" txt=\"1\"/><pdf pdfA=\"1\"/></processing-options>"));
+  ProcessingOptions::Formats expectedOverride;
+  expectedOverride.pdf = false;
+  expectedOverride.txt = true;
+  BOOST_CHECK(ProcessingOptions(withFormats.documentElement(), defaultFallback).formats == expectedOverride);
 }
 
 BOOST_AUTO_TEST_CASE(test_profiles_store_formats_and_read_older_versions) {
