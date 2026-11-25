@@ -24,6 +24,7 @@
 #include <QDialog>
 #include <QDoubleSpinBox>
 #include <QFile>
+#include <QFocusEvent>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QLabel>
@@ -367,17 +368,22 @@ void clickControl(QWidget* control) {
     list->hidePopup();
   }
 }
+[[nodiscard]] bool activateWindowForTest(QWidget& window) {
+  window.show();
+  window.raise();
+  window.activateWindow();
+  return QTest::qWaitForWindowActive(&window, 2000);
+}
 }  // namespace
 
 void TestUxQt::testWheelStaysWithAClickedControl() {
   const InstalledWheelFocusTracker tracker;
   PanelWithControls controls;
-  controls.panel.show();
-  QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
+  QVERIFY(activateWindowForTest(controls.panel));
 
   for (QWidget* control : std::vector<QWidget*>{controls.list, controls.numberField, controls.slider}) {
     clickControl(control);
-    QVERIFY(control->hasFocus());
+    QTRY_VERIFY(control->hasFocus());
     QCOMPARE(Application::wheelReceiverInsteadOf(control), static_cast<QWidget*>(nullptr));
   }
 }
@@ -385,21 +391,29 @@ void TestUxQt::testWheelStaysWithAClickedControl() {
 void TestUxQt::testWheelStaysWithAClickedControlAfterAnotherWindow() {
   const InstalledWheelFocusTracker tracker;
   PanelWithControls controls;
-  controls.panel.show();
-  QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
+  QVERIFY(activateWindowForTest(controls.panel));
   // The list has the focus from the opening of the window already, so the click brings no new focus.
-  QVERIFY(controls.list->hasFocus());
+  QTRY_VERIFY(controls.list->hasFocus());
   clickControl(controls.list);
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.list), static_cast<QWidget*>(nullptr));
 
-  QWidget otherWindow;
-  otherWindow.show();
-  otherWindow.activateWindow();
-  QVERIFY(QTest::qWaitForWindowActive(&otherWindow));
-  controls.panel.activateWindow();
-  QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
+  auto sendFocusCycle = [&](const Qt::FocusReason reason) {
+    QFocusEvent outEvent(QEvent::FocusOut, reason);
+    QCoreApplication::sendEvent(controls.list, &outEvent);
+    QFocusEvent inEvent(QEvent::FocusIn, reason);
+    QCoreApplication::sendEvent(controls.list, &inEvent);
+  };
 
+  sendFocusCycle(Qt::ActiveWindowFocusReason);
   QVERIFY(controls.list->hasFocus());
   QCOMPARE(Application::wheelReceiverInsteadOf(controls.list), static_cast<QWidget*>(nullptr));
+
+  sendFocusCycle(Qt::PopupFocusReason);
+  QVERIFY(controls.list->hasFocus());
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.list), static_cast<QWidget*>(nullptr));
+
+  sendFocusCycle(Qt::TabFocusReason);
+  QCOMPARE(Application::wheelReceiverInsteadOf(controls.list), &controls.panel);
 }
 
 void TestUxQt::testWheelGoesPastAControlFocusedByOpeningAWindow() {
@@ -408,17 +422,15 @@ void TestUxQt::testWheelGoesPastAControlFocusedByOpeningAWindow() {
   QDialog dialog;
   auto* list = new QComboBox(&dialog);
   new QSpinBox(&dialog);
-  dialog.show();
-  QVERIFY(QTest::qWaitForWindowActive(&dialog));
-  QVERIFY(list->hasFocus());
+  QVERIFY(activateWindowForTest(dialog));
+  QTRY_VERIFY(list->hasFocus());
   QCOMPARE(Application::wheelReceiverInsteadOf(list), static_cast<QWidget*>(&dialog));
 }
 
 void TestUxQt::testWheelGoesPastAControlThatGotTheFocusOfAHiddenOne() {
   const InstalledWheelFocusTracker tracker;
   PanelWithControls controls;
-  controls.panel.show();
-  QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
+  QVERIFY(activateWindowForTest(controls.panel));
   clickControl(controls.numberField);
 
   // Qt moves the focus on as if by the Tab key.
@@ -430,7 +442,7 @@ void TestUxQt::testWheelGoesPastAControlThatGotTheFocusOfAHiddenOne() {
   // A click counts only until the control loses the focus. A slider, because on macOS a list takes no focus
   // by a click (see the next test).
   clickControl(controls.slider);
-  QVERIFY(controls.slider->hasFocus());
+  QTRY_VERIFY(controls.slider->hasFocus());
   controls.list->setFocus();
   controls.slider->setFocus();
   QCOMPARE(Application::wheelReceiverInsteadOf(controls.slider), &controls.panel);
@@ -442,8 +454,7 @@ void TestUxQt::testWheelGoesPastAControlClickedWithoutTakingTheFocus() {
   // On macOS a list takes no focus by a click, as the CI run there shows; sliders and number fields do.
   // Qt::TabFocus does the same on every system.
   controls.list->setFocusPolicy(Qt::TabFocus);
-  controls.panel.show();
-  QVERIFY(QTest::qWaitForWindowActive(&controls.panel));
+  QVERIFY(activateWindowForTest(controls.panel));
   controls.numberField->setFocus();
 
   clickControl(controls.list);
