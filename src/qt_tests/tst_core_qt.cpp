@@ -422,6 +422,44 @@ void TestCoreQt::testFailedTaskReportsBack() {
 }
 
 void TestCoreQt::testImplausibleSettingsFallBackToDefaults() {
+  struct ImplausibleSettingsGuard {
+    ImplausibleSettingsGuard()
+        : settings(ApplicationSettings::getInstance()),
+          thumbnailQuality(settings.getThumbnailQuality()),
+          maxLogicalThumbnailSize(settings.getMaxLogicalThumbnailSize()),
+          deskewDeviationCoef(settings.getDeskewDeviationCoef()),
+          selectContentDeviationCoef(settings.getSelectContentDeviationCoef()),
+          marginsDeviationCoef(settings.getMarginsDeviationCoef()),
+          deskewDeviationThreshold(settings.getDeskewDeviationThreshold()),
+          selectContentDeviationThreshold(settings.getSelectContentDeviationThreshold()),
+          marginsDeviationThreshold(settings.getMarginsDeviationThreshold()) {}
+
+    ~ImplausibleSettingsGuard() {
+      settings.setThumbnailQuality(thumbnailQuality);
+      settings.setMaxLogicalThumbnailSize(maxLogicalThumbnailSize);
+      settings.setDeskewDeviationCoef(deskewDeviationCoef);
+      settings.setSelectContentDeviationCoef(selectContentDeviationCoef);
+      settings.setMarginsDeviationCoef(marginsDeviationCoef);
+      settings.setDeskewDeviationThreshold(deskewDeviationThreshold);
+      settings.setSelectContentDeviationThreshold(selectContentDeviationThreshold);
+      settings.setMarginsDeviationThreshold(marginsDeviationThreshold);
+    }
+
+    ImplausibleSettingsGuard(const ImplausibleSettingsGuard&) = delete;
+    ImplausibleSettingsGuard& operator=(const ImplausibleSettingsGuard&) = delete;
+
+    ApplicationSettings& settings;
+    QSize thumbnailQuality;
+    QSizeF maxLogicalThumbnailSize;
+    double deskewDeviationCoef;
+    double selectContentDeviationCoef;
+    double marginsDeviationCoef;
+    double deskewDeviationThreshold;
+    double selectContentDeviationThreshold;
+    double marginsDeviationThreshold;
+  };
+  const ImplausibleSettingsGuard guard;
+
   // A damaged or hand-edited settings file must not give empty thumbnails or mark every page as deviating.
   ApplicationSettings& settings = ApplicationSettings::getInstance();
   settings.setThumbnailQuality(QSize());
@@ -451,16 +489,6 @@ void TestCoreQt::testImplausibleSettingsFallBackToDefaults() {
   QCOMPARE(settings.getDeskewDeviationCoef(), 2.0);
   settings.setDeskewDeviationThreshold(0.0);
   QCOMPARE(settings.getDeskewDeviationThreshold(), 0.0);
-
-  // Leave the settings as the other tests expect them.
-  settings.setThumbnailQuality(QSize(200, 200));
-  settings.setMaxLogicalThumbnailSize(QSizeF(250, 160));
-  settings.setDeskewDeviationCoef(1.5);
-  settings.setSelectContentDeviationCoef(0.35);
-  settings.setMarginsDeviationCoef(0.35);
-  settings.setDeskewDeviationThreshold(1.0);
-  settings.setSelectContentDeviationThreshold(1.0);
-  settings.setMarginsDeviationThreshold(1.0);
 }
 
 // A split line that misses the page has no inscribed part, a line from (0,0) to (0,0). The thumbnail
