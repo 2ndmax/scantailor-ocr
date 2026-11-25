@@ -84,6 +84,16 @@ struct Bounds {
 // The default bounds, which most methods leave out, and narrower ones.
 const Bounds kBounds[] = {{1, 254}, {110, 150}};
 
+BlackWhiteOptions makeProgrammaticOptions(const BinarizationMethod method, const Bounds& bounds) {
+  BlackWhiteOptions options;
+  options.setBinarizationMethod(method);
+  const bool strengthOfWolf = (method == T_WOLF) || (method == T_FOX) || (method == T_WINDOW) || (method == T_GRAD);
+  options.setValues(method, {7, strengthOfWolf ? 0.17 : 0.41, 31});
+  options.setLowerBound(bounds.lower);
+  options.setUpperBound(bounds.upper);
+  return options;
+}
+
 struct Expected {
   BinarizationMethod method;
   const char* name;
@@ -118,18 +128,19 @@ BOOST_AUTO_TEST_CASE(test_every_method_reads_its_own_settings) {
   for (const Expected& expected : kExpected) {
     for (size_t boundsIndex = 0; boundsIndex < expected.perBounds.size(); ++boundsIndex) {
       BOOST_TEST_CONTEXT("method " << static_cast<int>(expected.method) << ", bounds " << boundsIndex) {
-        BlackWhiteOptions options;
-        options.setBinarizationMethod(expected.method);
-        const bool strengthOfWolf = (expected.method == T_WOLF) || (expected.method == T_FOX)
-                                    || (expected.method == T_WINDOW) || (expected.method == T_GRAD);
-        options.setValues(expected.method, {7, strengthOfWolf ? 0.17 : 0.41, 31});
-        options.setLowerBound(kBounds[boundsIndex].lower);
-        options.setUpperBound(kBounds[boundsIndex].upper);
+        const BlackWhiteOptions options = makeProgrammaticOptions(expected.method, kBounds[boundsIndex]);
 
         Checksum checksum;
-        for (const QImage& page : pages) {
+        for (size_t pageIndex = 0; pageIndex < std::size(pages); ++pageIndex) {
+          const QImage& page = pages[pageIndex];
           const BinaryImage result = binarizeBlackWhite(page, options);
           BOOST_CHECK_EQUAL(result.size().width(), page.width());
+          BOOST_CHECK_EQUAL(result.size().height(), page.height());
+          if (pageIndex == 0) {
+            const int blackPixels = result.countBlackPixels();
+            BOOST_CHECK_GT(blackPixels, 0);
+            BOOST_CHECK_LT(blackPixels, result.width() * result.height());
+          }
           checksum.add(result);
         }
         if (kChecksumsApply) {
@@ -158,10 +169,18 @@ BOOST_AUTO_TEST_CASE(test_a_file_with_the_values_as_attributes_gives_the_same_re
         el.setAttribute(QStringLiteral("wolfLowerBound"), kBounds[boundsIndex].lower);
         el.setAttribute(QStringLiteral("wolfUpperBound"), kBounds[boundsIndex].upper);
         const BlackWhiteOptions options(el);
+        const BlackWhiteOptions programmatic = makeProgrammaticOptions(expected.method, kBounds[boundsIndex]);
+        BOOST_CHECK(options.getBinarizationMethod() == programmatic.getBinarizationMethod());
+        BOOST_CHECK(options.values() == programmatic.values());
+        BOOST_CHECK_EQUAL(options.getLowerBound(), programmatic.getLowerBound());
+        BOOST_CHECK_EQUAL(options.getUpperBound(), programmatic.getUpperBound());
 
         Checksum checksum;
         for (const QImage& page : pages) {
-          checksum.add(binarizeBlackWhite(page, options));
+          const BinaryImage fromXml = binarizeBlackWhite(page, options);
+          const BinaryImage fromProgrammatic = binarizeBlackWhite(page, programmatic);
+          BOOST_CHECK(fromXml == fromProgrammatic);
+          checksum.add(fromXml);
         }
         if (kChecksumsApply) {
           BOOST_CHECK_EQUAL(checksum.value(), expected.perBounds[boundsIndex]);
