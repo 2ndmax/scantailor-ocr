@@ -19,8 +19,8 @@
 // imageproc::stexp, for comparing binarization methods. GPLv3, as the original.
 // Fixes: the windows of grayMapMean (as in imageproc/ExperimentalBinarization.cpp) and
 // grayEMDenoiserInPlace were one row or column too small, grayBiModalTiledMap
-// extrapolated at the top and left edges, and grayEqualizeInPlace avoids division by zero
-// on images smaller than 256 pixels.
+// extrapolated at the top and left edges, grayEqualizeInPlace avoids division by zero
+// on images smaller than 256 pixels, and grayRetinexInPlace clamps before casting.
 // Speed: grayMapMax and grayMapContrast use imageproc's erodeGray and dilateGray, which give the
 // same result in O(1) instead of O(radius) per pixel.
 
@@ -2732,7 +2732,10 @@ void grayRetinexInPlace(GrayImage& src, int const radius, float const coef) {
         float const origin = 1.0f + src_line[x];
         float const mean = 1.0f + gmean_line[x];
         float const frac = origin / mean;
-        float const retinex = 127.5f * frac + 0.5f;
+        // Deviation from ScanTailor Experimental (commit 80e1c57): clamp to [0, 255] before
+        // casting to unsigned char to avoid UB and wraparound on bright pixels over dark regions.
+        float retinex = 127.5f * frac + 0.5f;
+        retinex = (retinex < 0.0f) ? 0.0f : (retinex < 255.0f) ? retinex : 255.0f;
 
         gmean_line[x] = (unsigned char) retinex;
       }

@@ -48,11 +48,38 @@ void testEqualizeSmallImages() {
   require(!screened.isNull(), "grayScreen returned null on < 256 px image");
   require(screened.size() == QSize(10, 10), "grayScreen changed image size");
 }
+
+void testRetinexClamping() {
+  {
+    imageproc::GrayImage img(QSize(32, 32));
+    require(!img.isNull(), "black image allocation failed");
+    img.fill(0);
+    img.data()[16 * img.stride() + 16] = 255;
+
+    const imageproc::GrayImage out = stexp::grayRetinex(img, 5, 1.0f);
+    require(!out.isNull(), "grayRetinex returned null");
+    const unsigned char center = out.data()[16 * out.stride() + 16];
+    require(center == 255, "grayRetinex wrapped center 255 pixel on black background");
+  }
+
+  {
+    imageproc::GrayImage img(QSize(32, 32));
+    require(!img.isNull(), "uniform image allocation failed");
+    img.fill(10);
+    img.data()[16 * img.stride() + 16] = 23;
+
+    const imageproc::GrayImage out = stexp::grayRetinex(img, 5, 1.0f);
+    require(!out.isNull(), "grayRetinex returned null");
+    const unsigned char center = out.data()[16 * out.stride() + 16];
+    require(center == 255, "grayRetinex wrapped center 23 pixel on gray 10 background");
+  }
+}
 }  // namespace
 
 int main() {
   try {
     testEqualizeSmallImages();
+    testRetinexClamping();
   } catch (const std::exception& e) {
     std::cerr << "Test failed: " << e.what() << '\n';
     return 1;
