@@ -3317,7 +3317,7 @@ Möchten Sie sie ersetzen?</translation>
     <message>
         <location filename="../app/MainWindow.ui" line="348"/>
         <source>Navigate through selected pages only.</source>
-        <translation>Durch ausgewählte Seiten navigieren.</translation>
+        <translation>Nur durch ausgewählte Seiten navigieren.</translation>
     </message>
     <message>
         <location filename="../app/MainWindow.ui" line="418"/>
