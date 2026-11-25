@@ -7,6 +7,7 @@
 #include <Dpi.h>
 #include <ErrorWidget.h>
 #include <ImageTransformation.h>
+#include <OutOfMemoryHandler.h>
 #include <PageSelectionAccessor.h>
 #include <ProjectReader.h>
 #include <SmartFilenameOrdering.h>
@@ -30,6 +31,7 @@
 #include <QImage>
 #include <QLineEdit>
 #include <QPainter>
+#include <QPointer>
 #include <QSignalSpy>
 #include <QSpinBox>
 #include <QStackedWidget>
@@ -39,6 +41,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "app/MainWindow.h"
+#include "app/OutOfMemoryDialog.h"
 #include "filter_ui_checks.h"
 #include "tst_project_xml.h"
 
@@ -494,4 +498,20 @@ void TestCoreQt::testMissingImageShowsError() {
   QVERIFY(result);
   QVERIFY(result->filter() == nullptr);
   QVERIFY(dynamic_cast<ErrorWidget*>(ui.imageWidget.get()) != nullptr);
+}
+
+void TestCoreQt::testRepeatedOutOfMemoryDoesNotCrash() {
+  QPointer<MainWindow> mw(new MainWindow());
+  QMetaObject::invokeMethod(&OutOfMemoryHandler::instance(), "outOfMemory", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(&OutOfMemoryHandler::instance(), "outOfMemory", Qt::QueuedConnection);
+  QCoreApplication::processEvents();
+  for (QWidget* w : QApplication::topLevelWidgets()) {
+    if (qobject_cast<OutOfMemoryDialog*>(w)) {
+      w->close();
+    }
+  }
+  if (mw) {
+    mw->deleteLater();
+  }
+  QCoreApplication::processEvents();
 }

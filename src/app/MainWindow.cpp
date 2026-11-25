@@ -1995,6 +1995,11 @@ void MainWindow::showAboutDialog() {
  * This function is called asynchronously, always from the main thread.
  */
 void MainWindow::handleOutOfMemorySituation() {
+  if (!m_outOfMemoryDialog) {
+    return;
+  }
+  OutOfMemoryHandler::instance().disconnect(this);
+
   deleteLater();
 
   m_outOfMemoryDialog->setParams(m_projectFile, m_stages, m_pages, m_selectedPage, m_outFileNameGen,

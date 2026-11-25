@@ -28,6 +28,7 @@ class TestCoreQt : public QObject {
   void testImplausibleSettingsFallBackToDefaults();
   void testPageSplitThumbnailSkipsLineOutsideThePage();
   void testMissingImageShowsError();
+  void testRepeatedOutOfMemoryDoesNotCrash();
 };
 
 #endif
