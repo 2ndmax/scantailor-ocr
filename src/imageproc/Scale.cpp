@@ -3,7 +3,9 @@
 
 #include "Scale.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <stdexcept>
 
 #include "GrayImage.h"
@@ -21,7 +23,7 @@ static GrayImage scaleDownIntGrayToGray(const GrayImage& src, const QSize& dstSi
 
   const int xscale = sw / dw;
   const int yscale = sh / dh;
-  const int totalArea = xscale * yscale;
+  const uint64_t totalArea = static_cast<uint64_t>(xscale) * yscale;
 
   GrayImage dst(dstSize);
 
@@ -37,7 +39,7 @@ static GrayImage scaleDownIntGrayToGray(const GrayImage& src, const QSize& dstSi
     int sx = 0;
     int dx = 0;
     for (; dx < dw; ++dx, sx += xscale) {
-      unsigned grayLevel = 0;
+      uint64_t grayLevel = 0;
       const uint8_t* psrc = srcLine + sx;
 
       for (int i = 0; i < yscale; ++i, psrc += srcStride) {
@@ -46,7 +48,7 @@ static GrayImage scaleDownIntGrayToGray(const GrayImage& src, const QSize& dstSi
         }
       }
 
-      const unsigned pixValue = (grayLevel + (totalArea >> 1)) / totalArea;
+      const uint64_t pixValue = std::min<uint64_t>((grayLevel + (totalArea >> 1)) / totalArea, 255);
       assert(pixValue < 256);
       dstLine[dx] = static_cast<uint8_t>(pixValue);
     }
@@ -234,11 +236,11 @@ static GrayImage scaleGrayToGray(const GrayImage& src, const QSize& dstSize) {
     sy32bottom = (int) (dy1 * dy2sy32);
     const int sytop = sy32top >> 5;
     const int sybottom = (sy32bottom - 1) >> 5;
-    const unsigned topFraction = 32 - (sy32top & 31);
-    const unsigned bottomFraction = sy32bottom - (sybottom << 5);
+    const uint64_t topFraction = 32 - (sy32top & 31);
+    const uint64_t bottomFraction = sy32bottom - (sybottom << 5);
     assert(sybottom < sh);  // calc32xRatio2() ensures that.
-    const unsigned topArea = topFraction << 5;
-    const unsigned bottomArea = bottomFraction << 5;
+    const uint64_t topArea = topFraction << 5;
+    const uint64_t bottomArea = bottomFraction << 5;
 
     const uint8_t* const srcLineConst = srcData + sytop * srcStride;
 
@@ -248,11 +250,11 @@ static GrayImage scaleGrayToGray(const GrayImage& src, const QSize& dstSize) {
       sx32right = (int) ((dx + 1) * dx2sx32);
       const int sxleft = sx32left >> 5;
       const int sxright = (sx32right - 1) >> 5;
-      const unsigned leftFraction = 32 - (sx32left & 31);
-      const unsigned rightFraction = sx32right - (sxright << 5);
+      const uint64_t leftFraction = 32 - (sx32left & 31);
+      const uint64_t rightFraction = sx32right - (sxright << 5);
       assert(sxright < sw);  // calc32xRatio2() ensures that.
       const uint8_t* srcLine = srcLineConst;
-      unsigned grayLevel = 0;
+      uint64_t grayLevel = 0;
 
       if (sytop == sybottom) {
         if (sxleft == sxright) {
@@ -261,10 +263,10 @@ static GrayImage scaleGrayToGray(const GrayImage& src, const QSize& dstSize) {
           continue;
         } else {
           // dst pixel maps to a horizontal line of src pixels
-          const unsigned vertFraction = sy32bottom - sy32top;
-          const unsigned leftArea = vertFraction * leftFraction;
-          const unsigned middleArea = vertFraction << 5;
-          const unsigned rightArea = vertFraction * rightFraction;
+          const uint64_t vertFraction = sy32bottom - sy32top;
+          const uint64_t leftArea = vertFraction * leftFraction;
+          const uint64_t middleArea = vertFraction << 5;
+          const uint64_t rightArea = vertFraction * rightFraction;
 
           grayLevel += srcLine[sxleft] * leftArea;
 
@@ -276,10 +278,10 @@ static GrayImage scaleGrayToGray(const GrayImage& src, const QSize& dstSize) {
         }
       } else if (sxleft == sxright) {
         // dst pixel maps to a vertical line of src pixels
-        const unsigned horFraction = sx32right - sx32left;
-        const unsigned lineTopArea = horFraction * topFraction;
-        const unsigned middleArea = horFraction << 5;
-        const unsigned lineBottomArea = horFraction * bottomFraction;
+        const uint64_t horFraction = sx32right - sx32left;
+        const uint64_t lineTopArea = horFraction * topFraction;
+        const uint64_t middleArea = horFraction << 5;
+        const uint64_t lineBottomArea = horFraction * bottomFraction;
 
         grayLevel += srcLine[sxleft] * lineTopArea;
 
@@ -293,12 +295,12 @@ static GrayImage scaleGrayToGray(const GrayImage& src, const QSize& dstSize) {
         grayLevel += srcLine[sxleft] * lineBottomArea;
       } else {
         // dst pixel maps to a block of src pixels
-        const unsigned leftArea = leftFraction << 5;
-        const unsigned rightArea = rightFraction << 5;
-        const unsigned topleftArea = topFraction * leftFraction;
-        const unsigned toprightArea = topFraction * rightFraction;
-        const unsigned bottomleftArea = bottomFraction * leftFraction;
-        const unsigned bottomrightArea = bottomFraction * rightFraction;
+        const uint64_t leftArea = leftFraction << 5;
+        const uint64_t rightArea = rightFraction << 5;
+        const uint64_t topleftArea = topFraction * leftFraction;
+        const uint64_t toprightArea = topFraction * rightFraction;
+        const uint64_t bottomleftArea = bottomFraction * leftFraction;
+        const uint64_t bottomrightArea = bottomFraction * rightFraction;
 
         // process the top-left corner
         grayLevel += srcLine[sxleft] * topleftArea;
@@ -317,7 +319,7 @@ static GrayImage scaleGrayToGray(const GrayImage& src, const QSize& dstSize) {
           grayLevel += srcLine[sxleft] * leftArea;
 
           for (int sx = sxleft + 1; sx < sxright; ++sx) {
-            grayLevel += srcLine[sx] << (5 + 5);
+            grayLevel += static_cast<uint64_t>(srcLine[sx]) << (5 + 5);
           }
 
           grayLevel += srcLine[sxright] * rightArea;
@@ -336,8 +338,8 @@ static GrayImage scaleGrayToGray(const GrayImage& src, const QSize& dstSize) {
         grayLevel += srcLine[sxright] * bottomrightArea;
       }
 
-      const unsigned totalArea = (sy32bottom - sy32top) * (sx32right - sx32left);
-      const unsigned pixValue = (grayLevel + (totalArea >> 1)) / totalArea;
+      const uint64_t totalArea = static_cast<uint64_t>(sy32bottom - sy32top) * (sx32right - sx32left);
+      const uint64_t pixValue = std::min<uint64_t>((grayLevel + (totalArea >> 1)) / totalArea, 255);
       assert(pixValue < 256);
       dstLine[dx] = static_cast<uint8_t>(pixValue);
     }

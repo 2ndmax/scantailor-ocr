@@ -142,6 +142,28 @@ BOOST_AUTO_TEST_CASE(test_upscale_of_one_pixel_wide_or_high_images) {
     }
   }
 }
+
+BOOST_AUTO_TEST_CASE(test_large_downscale_does_not_overflow) {
+  {
+    GrayImage src(QSize(301, 301));
+    src.fill(255);
+    const GrayImage dst(scaleToGray(src, QSize(2, 2)));
+    for (int y = 0; y < dst.height(); ++y) {
+      for (int x = 0; x < dst.width(); ++x) {
+        BOOST_REQUIRE_EQUAL(int(dst.data()[y * dst.stride() + x]), 255);
+      }
+    }
+  }
+  {
+    GrayImage src(QSize(40001, 1));
+    src.fill(255);
+    const GrayImage dst(scaleToGray(src, QSize(2, 1)));
+    for (int x = 0; x < dst.width(); ++x) {
+      BOOST_REQUIRE_EQUAL(int(dst.data()[x]), 255);
+    }
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc
