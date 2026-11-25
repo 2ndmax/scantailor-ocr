@@ -4,11 +4,13 @@
 #include "WorkerThreadPool.h"
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QThreadPool>
 #include <exception>
 #include <utility>
 
 #include "ImageLoadErrors.h"
+#include "LoadFileTask.h"
 #include "OutOfMemoryHandler.h"
 #include "ThreadBudget.h"
 
@@ -63,11 +65,15 @@ void WorkerThreadPool::submitTask(const BackgroundTaskPtr& task) {
         } catch (const std::exception& e) {
           // Page tasks catch their own errors (see LoadFileTask), so this is a last resort,
           // which keeps the program alive instead of terminating it.
-          ImageLoadErrorReporter::instance().reportProcessingFailure(QString(), 0,
-                                                                     QStringList(QString::fromUtf8(e.what())));
+          const QString detail = QString::fromUtf8(e.what());
+          qCritical().noquote() << "Unexpected error in background task:" << detail;
+          ImageLoadErrorReporter::instance().reportProcessingFailure(
+              QString(), 0, QStringList(LoadFileTask::unexpectedErrorReason(detail)));
         } catch (...) {
           // An exception leaving a thread of the pool would terminate the program.
-          ImageLoadErrorReporter::instance().reportProcessingFailure(QString(), 0, QStringList());
+          qCritical().noquote() << "Unexpected error in background task.";
+          ImageLoadErrorReporter::instance().reportProcessingFailure(
+              QString(), 0, QStringList(QCoreApplication::translate("LoadFileTask", "Unknown error.")));
         }
       }
 

@@ -209,7 +209,7 @@ void fillMarginsInPlace(BinaryImage& image, const QPolygonF& contentPoly, const 
 
 void fillMarginsInPlace(BinaryImage& image, const BinaryImage& contentMask, const BWColor color) {
   if (image.size() != contentMask.size()) {
-    throw std::invalid_argument("fillMarginsInPlace: img and mask have different sizes");
+    throw std::invalid_argument("fillMarginsInPlace: image and mask have different sizes.");
   }
 
   fillExcept(image, contentMask, color);
@@ -217,7 +217,7 @@ void fillMarginsInPlace(BinaryImage& image, const BinaryImage& contentMask, cons
 
 void fillMarginsInPlace(QImage& image, const BinaryImage& contentMask, const QColor& color) {
   if (image.size() != contentMask.size()) {
-    throw std::invalid_argument("fillMarginsInPlace: img and mask have different sizes");
+    throw std::invalid_argument("fillMarginsInPlace: image and mask have different sizes.");
   }
 
   if ((image.format() == QImage::Format_Mono) || (image.format() == QImage::Format_MonoLSB)) {

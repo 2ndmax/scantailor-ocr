@@ -4,7 +4,7 @@
 #include "BackgroundTask.h"
 
 const char* BackgroundTask::CancelledException::what() const noexcept {
-  return "BackgroundTask cancelled";
+  return "BackgroundTask canceled.";
 }
 
 void BackgroundTask::throwIfCancelled() const {

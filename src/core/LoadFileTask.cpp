@@ -6,6 +6,7 @@
 #include <imageproc/Grayscale.h>
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QStringList>
@@ -94,8 +95,11 @@ FilterResultPtr LoadFileTask::operator()() {
   } catch (const std::exception& e) {
     // An unexpected error in one of the filters. Report it and show it in place of
     // the page, instead of letting it terminate the whole program.
-    return processingFailed(QString::fromUtf8(e.what()));
+    const QString detail = QString::fromUtf8(e.what());
+    qCritical().noquote() << "Unexpected error while processing page" << m_imageId.filePath() << ":" << detail;
+    return processingFailed(unexpectedErrorReason(detail));
   } catch (...) {
+    qCritical().noquote() << "Unexpected error while processing page" << m_imageId.filePath();
     return processingFailed(QCoreApplication::translate("LoadFileTask", "Unknown error."));
   }
 }
@@ -117,6 +121,14 @@ bool LoadFileTask::errorMessage(const FilterResult& result, QString* message, Qt
   }
   *message = error->message(format);
   return true;
+}
+
+QString LoadFileTask::unexpectedErrorReason(const QString& detail) {
+  const QString trimmed = detail.trimmed();
+  if (trimmed.isEmpty()) {
+    return QCoreApplication::translate("LoadFileTask", "Internal processing error.");
+  }
+  return QCoreApplication::translate("LoadFileTask", "Internal processing error (technical detail: %1).").arg(trimmed);
 }
 
 FilterResultPtr LoadFileTask::processingFailed(const QString& reason, const Failure failure) const {

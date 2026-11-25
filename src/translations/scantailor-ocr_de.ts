@@ -712,7 +712,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
     </message>
     <message>
         <location filename="../cli/main.cpp" line="139"/>
-        <location filename="../cli/main.cpp" line="191"/>
+        <location filename="../cli/main.cpp" line="192"/>
         <source>file</source>
         <translation>Datei</translation>
     </message>
@@ -723,7 +723,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
     </message>
     <message>
         <location filename="../cli/main.cpp" line="145"/>
-        <location filename="../cli/main.cpp" line="168"/>
+        <location filename="../cli/main.cpp" line="169"/>
         <source>folder</source>
         <translation>Ordner</translation>
     </message>
@@ -759,67 +759,67 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         <translation>DPI der im neuen Projekt zu korrigierenden Bilder (rot und gelb): eine Zahl oder horizontale und vertikale Werte wie 600x300.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="162"/>
+        <location filename="../cli/main.cpp" line="163"/>
         <source>method</source>
         <translation>Methode</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="166"/>
+        <location filename="../cli/main.cpp" line="167"/>
         <source>The folder for the exported files instead of the folder of the project file; it is created when it doesn&apos;t exist.</source>
         <translation>Der Ordner für die exportierten Dateien statt des Ordners der Projektdatei; er wird erstellt, wenn er nicht existiert.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="172"/>
+        <location filename="../cli/main.cpp" line="173"/>
         <source>The name of the exported files, without extension, instead of the name of the project file.</source>
         <translation>Der Name der exportierten Dateien ohne Endung, statt des Namens der Projektdatei.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="173"/>
+        <location filename="../cli/main.cpp" line="174"/>
         <source>name</source>
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="177"/>
+        <location filename="../cli/main.cpp" line="178"/>
         <source>The formats to export instead of those ticked in the project: pdf, txt, hocr and alto, separated by commas or plus signs.</source>
         <translation>Die Formate, die statt der im Projekt angehakten exportiert werden: pdf, txt, hocr und alto, getrennt durch Kommas oder Pluszeichen.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="179"/>
+        <location filename="../cli/main.cpp" line="180"/>
         <source>list</source>
         <translation>Liste</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="183"/>
+        <location filename="../cli/main.cpp" line="184"/>
         <source>The number of threads of the run, instead of the setting of the program; at least 1.</source>
         <translation>Die Anzahl der Threads des Laufs statt der Einstellung des Programms; mindestens 1.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="184"/>
+        <location filename="../cli/main.cpp" line="185"/>
         <source>n</source>
         <translation>n</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="195"/>
+        <location filename="../cli/main.cpp" line="196"/>
         <source>The progress as JSON lines on the standard output, one per event; all other text then goes to the standard error.</source>
         <translation>Der Fortschritt als JSON-Zeilen auf der Standardausgabe, eine je Ereignis; alle übrigen Texte gehen dann auf die Standardfehlerausgabe.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="199"/>
+        <location filename="../cli/main.cpp" line="200"/>
         <source>The profiles --profile takes, as JSON on the standard output; also names the profile a run without --profile uses.</source>
         <translation>Die Profile, die --profile annimmt, als JSON auf der Standardausgabe; nennt auch das Profil, das ein Lauf ohne --profile verwendet.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="203"/>
+        <location filename="../cli/main.cpp" line="204"/>
         <source>The pages of the project file, with their file, DPI, color mode and output file, as JSON on the standard output. Needs a project file.</source>
         <translation>Die Seiten der Projektdatei mit Datei, DPI, Farbmodus und Ausgabedatei, als JSON auf der Standardausgabe. Benötigt eine Projektdatei.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="208"/>
+        <location filename="../cli/main.cpp" line="209"/>
         <source>folder or project file</source>
         <translation>Ordner oder Projektdatei</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="209"/>
+        <location filename="../cli/main.cpp" line="210"/>
         <source>The input folder for a new project or an existing project file.</source>
         <translation>Der Eingabeordner für ein neues Projekt oder eine vorhandene Projektdatei.</translation>
     </message>
@@ -834,43 +834,43 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         <translation>Erkennt die Orientierung der Seiten im Ordnermodus vor dem ersten Schritt: pages dreht die Seiten, deren Orientierung sicher ist; book dreht auch unsichere Seiten wie ihre Nachbarn oder die Mehrheit.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="188"/>
+        <location filename="../cli/main.cpp" line="189"/>
         <source>The JSON report of the run, written at the end: the mode, the project file, the profile and the last step, the exit code and cancelled, the pages with their DPI, color mode, output file and status, and the exports and the files passed over.</source>
         <translation>Der JSON-Bericht des Laufs, am Ende geschrieben: Modus, Projektdatei, Profil und letzter Schritt, Exit-Code und Abbruch, die Seiten mit DPI, Farbmodus, Ausgabedatei und Status, sowie die Exporte und die übergangenen Dateien.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="229"/>
+        <location filename="../cli/main.cpp" line="230"/>
         <source>--profile-list and --project-info can&apos;t be used together.</source>
         <translation>--profile-list und --project-info können nicht zusammen verwendet werden.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="235"/>
+        <location filename="../cli/main.cpp" line="236"/>
         <source>The option --%1 can&apos;t be used with --%2.</source>
         <translation>Die Option --%1 kann nicht mit --%2 verwendet werden.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="241"/>
+        <location filename="../cli/main.cpp" line="242"/>
         <source>--profile-list takes no argument.</source>
         <translation>--profile-list nimmt kein Argument.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="247"/>
-        <location filename="../cli/main.cpp" line="252"/>
+        <location filename="../cli/main.cpp" line="248"/>
+        <location filename="../cli/main.cpp" line="253"/>
         <source>--project-info needs a project file.</source>
         <translation>--project-info benötigt eine Projektdatei.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="284"/>
+        <location filename="../cli/main.cpp" line="285"/>
         <source>The project file is the argument of the call; --project-file is for the folder mode.</source>
         <translation>Die Projektdatei ist das Argument des Aufrufs; --project-file gilt für den Ordnermodus.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="301"/>
+        <location filename="../cli/main.cpp" line="302"/>
         <source>Unknown DPI after --dpi: %1; pass a number or horizontal and vertical values like 600x300.</source>
         <translation>Unbekannter DPI-Wert nach --dpi: %1; übergeben Sie eine Zahl oder horizontale und vertikale Werte wie 600x300.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="313"/>
+        <location filename="../cli/main.cpp" line="314"/>
         <source>Unknown DPI after --dpi-fix: %1; pass a number or horizontal and vertical values like 600x300.</source>
         <translation>Unbekannter DPI-Wert nach --dpi-fix: %1; übergeben Sie eine Zahl oder horizontale und vertikale Werte wie 600x300.</translation>
     </message>
@@ -880,12 +880,12 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         <translation>Unbekannte Methode nach --orientation-detect: %1. Die Methoden sind: pages und book.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="330"/>
+        <location filename="../cli/main.cpp" line="331"/>
         <source>Unknown thread number after --threads: %1; it must be at least 1.</source>
         <translation>Unbekannte Threadanzahl nach --threads: %1; sie muss mindestens 1 sein.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="342"/>
+        <location filename="../cli/main.cpp" line="343"/>
         <source>Unknown step after --last-step: %1. The steps are: fix-orientation, split-pages, deskew, select-content, margins, output and export.</source>
         <translation>Unbekannter Schritt nach --last-step: %1. Die Schritte sind: fix-orientation, split-pages, deskew, select-content, margins, output und export.</translation>
     </message>
@@ -1766,11 +1766,6 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <translation>Vergrößern bis höchstens:</translation>
     </message>
     <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1897"/>
-        <source>Reduce to at least:</source>
-        <translation>Verkleinern auf mindestens:</translation>
-    </message>
-    <message>
         <location filename="../app/DefaultParamsDialog.ui" line="2096"/>
         <source>Align the content box to the top left of the page.</source>
         <translation>Inhaltsbereich oben links auf der Seite ausrichten.</translation>
@@ -1944,6 +1939,11 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <location filename="../app/DefaultParamsDialog.ui" line="3254"/>
         <source>Splits the image into color segments and colors the black and white mask.</source>
         <translation>Teilt das Bild in Farbsegmente auf und färbt die Schwarz-Weiß-Maske ein.</translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="1897"/>
+        <source>Reduce to at least:</source>
+        <translation>Verkleinern auf mindestens:</translation>
     </message>
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="3447"/>
@@ -3231,43 +3231,54 @@ Möchten Sie sie ersetzen?</translation>
 <context>
     <name>LoadFileTask</name>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="182"/>
-        <location filename="../core/LoadFileTask.cpp" line="187"/>
-        <location filename="../core/LoadFileTask.cpp" line="197"/>
+        <location filename="../core/LoadFileTask.cpp" line="194"/>
+        <location filename="../core/LoadFileTask.cpp" line="199"/>
+        <location filename="../core/LoadFileTask.cpp" line="209"/>
         <source>Reason:</source>
         <translation>Grund:</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="185"/>
+        <location filename="../core/LoadFileTask.cpp" line="197"/>
         <source>This page could not be processed because of an unexpected error:
 %1</source>
         <translation>Diese Seite konnte wegen eines unerwarteten Fehlers nicht verarbeitet werden:
 %1</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="190"/>
+        <location filename="../core/LoadFileTask.cpp" line="202"/>
         <source>Changing the settings of this page or of a previous step may help. Please report this error together with the steps that led to it.</source>
         <translation>Möglicherweise hilft es, die Einstellungen dieser Seite oder eines vorherigen Schritts zu ändern. Bitte melden Sie diesen Fehler zusammen mit den Schritten, die dazu geführt haben.</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="201"/>
+        <location filename="../core/LoadFileTask.cpp" line="213"/>
         <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use &lt;a href=&quot;#relink&quot;&gt;Relink&lt;/a&gt; to locate it.</source>
         <translation>Die folgende Datei existiert nicht:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Verwenden Sie &lt;a href=&quot;#relink&quot;&gt;Neu verknüpfen&lt;/a&gt;, um sie zu finden.</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="99"/>
+        <location filename="../core/LoadFileTask.cpp" line="103"/>
+        <location filename="../core/WorkerThreadPool.cpp" line="76"/>
         <source>Unknown error.</source>
         <translation>Unbekannter Fehler.</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="181"/>
+        <location filename="../core/LoadFileTask.cpp" line="129"/>
+        <source>Internal processing error.</source>
+        <translation>Interner Verarbeitungsfehler.</translation>
+    </message>
+    <message>
+        <location filename="../core/LoadFileTask.cpp" line="131"/>
+        <source>Internal processing error (technical detail: %1).</source>
+        <translation>Interner Verarbeitungsfehler (technisches Detail: %1).</translation>
+    </message>
+    <message>
+        <location filename="../core/LoadFileTask.cpp" line="193"/>
         <source>This page cannot be processed with the current settings:
 %1</source>
         <translation>Diese Seite lässt sich mit den aktuellen Einstellungen nicht verarbeiten:
 %1</translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="195"/>
+        <location filename="../core/LoadFileTask.cpp" line="207"/>
         <source>The following file could not be loaded:
 %1</source>
         <translation>Die folgende Datei konnte nicht geladen werden:
@@ -3428,7 +3439,7 @@ Möchten Sie sie ersetzen?</translation>
         <translation>Zu Seite wechseln ...</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3043"/>
+        <location filename="../app/MainWindow.cpp" line="3048"/>
         <source>Go to Page</source>
         <translation>Zu Seite wechseln</translation>
     </message>
@@ -3488,14 +3499,14 @@ Möchten Sie sie ersetzen?</translation>
         <translation>Die Erkennung wurde abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2129"/>
+        <location filename="../app/MainWindow.cpp" line="2134"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation>Die Ausgabe ist noch nicht möglich, da die endgültige Größe der Seiten noch nicht bekannt ist.
 Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt auswählen“ oder „Ränder“ aus.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2167"/>
+        <location filename="../app/MainWindow.cpp" line="2172"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation>%2 – ScanTailor OCR %3 [%1bit]</translation>
     </message>
@@ -3635,19 +3646,19 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>ScanTailor OCR konnte nicht neu gestartet werden. Bitte starten Sie es von Hand neu.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2182"/>
+        <location filename="../app/MainWindow.cpp" line="2187"/>
         <source>Export</source>
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2182"/>
+        <location filename="../app/MainWindow.cpp" line="2187"/>
         <source>An export is running. Do you want to cancel it?</source>
         <translation>Ein Export läuft gerade. Möchten Sie ihn abbrechen?</translation>
     </message>
     <message>
         <location filename="../app/MainWindow.cpp" line="1966"/>
-        <location filename="../app/MainWindow.cpp" line="2242"/>
-        <location filename="../app/MainWindow.cpp" line="2267"/>
+        <location filename="../app/MainWindow.cpp" line="2247"/>
+        <location filename="../app/MainWindow.cpp" line="2272"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
@@ -3667,74 +3678,74 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Version </translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2162"/>
+        <location filename="../app/MainWindow.cpp" line="2167"/>
         <source>Unnamed</source>
         <translation>Unbenannt</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2242"/>
-        <location filename="../app/MainWindow.cpp" line="2267"/>
+        <location filename="../app/MainWindow.cpp" line="2247"/>
+        <location filename="../app/MainWindow.cpp" line="2272"/>
         <source>Error saving the project file!</source>
         <translation>Fehler beim Speichern der Projektdatei!</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2313"/>
+        <location filename="../app/MainWindow.cpp" line="2318"/>
         <source>Files to Insert</source>
         <translation>Dateien zum Einfügen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2316"/>
+        <location filename="../app/MainWindow.cpp" line="2321"/>
         <source>Images not in project (%1)</source>
         <translation>Bilder nicht im Projekt (%1)</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2367"/>
+        <location filename="../app/MainWindow.cpp" line="2372"/>
         <source>Skip failed files</source>
         <translation>Fehlerhafte Dateien überspringen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2429"/>
+        <location filename="../app/MainWindow.cpp" line="2434"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2614"/>
-        <location filename="../app/MainWindow.cpp" line="2651"/>
+        <location filename="../app/MainWindow.cpp" line="2619"/>
+        <location filename="../app/MainWindow.cpp" line="2656"/>
         <source>Automatic Import</source>
         <translation>Automatischer Import</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2608"/>
+        <location filename="../app/MainWindow.cpp" line="2613"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation>Der neue Scan %1 ließ sich nicht in %2 umbenennen und behält seinen Namen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2628"/>
+        <location filename="../app/MainWindow.cpp" line="2633"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation>Das ersetzte Bild %1 ließ sich nicht nach %2 verschieben.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2652"/>
+        <location filename="../app/MainWindow.cpp" line="2657"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation>Der Ordner %1 existiert nicht.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2706"/>
+        <location filename="../app/MainWindow.cpp" line="2711"/>
         <source>Folder for New Scans</source>
         <translation>Ordner für neue Scans</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2769"/>
+        <location filename="../app/MainWindow.cpp" line="2774"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation>Nur nebeneinanderliegende Seiten lassen sich gemeinsam ersetzen. Der neue Scan %1 wird am Ende eingefügt.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2846"/>
+        <location filename="../app/MainWindow.cpp" line="2851"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation>Das neue Bild %1 lässt sich nicht öffnen und wird nicht übernommen.</translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3043"/>
+        <location filename="../app/MainWindow.cpp" line="3048"/>
         <source>Enter the page number:</source>
         <translation>Seitennummer:</translation>
     </message>
@@ -3999,7 +4010,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Die Erkennung wurde abgebrochen. Es wurden keine Seiten gedreht.</translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="362"/>
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="363"/>
         <source>Orientation detected for %n page(s): %1 rotated, %2 already correct.</source>
         <translation>
             <numerusform>Orientierung für %n Seite erkannt: %1 gedreht, %2 bereits richtig.</numerusform>
@@ -4015,7 +4026,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="375"/>
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="377"/>
         <source>, and %n more</source>
         <translation>
             <numerusform> und %n weitere</numerusform>
@@ -4023,7 +4034,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="380"/>
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="381"/>
         <source>%n page(s) left unchanged because the orientation is uncertain: %1</source>
         <translation>
             <numerusform>%n Seite blieb unverändert, weil die Orientierung unsicher ist: %1</numerusform>
@@ -4031,7 +4042,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="385"/>
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="387"/>
         <source>%n page(s) could not be read: %1</source>
         <translation>
             <numerusform>%n Seite konnte nicht gelesen werden: %1</numerusform>
@@ -7377,11 +7388,6 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <translation>Vergrößern bis höchstens:</translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="702"/>
-        <source>Reduce to at least:</source>
-        <translation>Verkleinern auf mindestens:</translation>
-    </message>
-    <message>
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="770"/>
         <source>Applies &quot;Match size&quot; of this page to other pages. The settings under &quot;All Pages&quot; apply to all pages anyway.</source>
         <translation>Überträgt „Angleichen“ dieser Seite auf andere Seiten. Die Einstellungen unter „Alle Seiten“ gelten ohnehin für alle Seiten.</translation>
@@ -7545,6 +7551,11 @@ Skalieren: Der Inhalt wird passend zur Ausgabegröße vergrößert oder verklein
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="709"/>
         <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
         <translation>Seiten, die größer als die Ausgabegröße sind, werden auf nicht weniger als diesen Prozentwert verkleinert; braucht eine Seite mehr, bleibt sie größer.</translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="702"/>
+        <source>Reduce to at least:</source>
+        <translation>Verkleinern auf mindestens:</translation>
     </message>
     <message>
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="846"/>

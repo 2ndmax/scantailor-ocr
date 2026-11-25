@@ -60,6 +60,11 @@ class LoadFileTask : public BackgroundTask {
    */
   static bool errorMessage(const FilterResult& result, QString* message, Qt::TextFormat* format);
 
+  /**
+   * Frames an internal exception detail inside a localized message safe to display to users.
+   */
+  static QString unexpectedErrorReason(const QString& detail);
+
  private:
   class ErrorResult;
 

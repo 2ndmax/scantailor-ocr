@@ -701,7 +701,7 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
     </message>
     <message>
         <location filename="../cli/main.cpp" line="139"/>
-        <location filename="../cli/main.cpp" line="191"/>
+        <location filename="../cli/main.cpp" line="192"/>
         <source>file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -712,7 +712,7 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
     </message>
     <message>
         <location filename="../cli/main.cpp" line="145"/>
-        <location filename="../cli/main.cpp" line="168"/>
+        <location filename="../cli/main.cpp" line="169"/>
         <source>folder</source>
         <translation type="unfinished"></translation>
     </message>
@@ -748,62 +748,62 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="162"/>
+        <location filename="../cli/main.cpp" line="163"/>
         <source>method</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="166"/>
+        <location filename="../cli/main.cpp" line="167"/>
         <source>The folder for the exported files instead of the folder of the project file; it is created when it doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="172"/>
+        <location filename="../cli/main.cpp" line="173"/>
         <source>The name of the exported files, without extension, instead of the name of the project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="173"/>
+        <location filename="../cli/main.cpp" line="174"/>
         <source>name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="177"/>
+        <location filename="../cli/main.cpp" line="178"/>
         <source>The formats to export instead of those ticked in the project: pdf, txt, hocr and alto, separated by commas or plus signs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="179"/>
+        <location filename="../cli/main.cpp" line="180"/>
         <source>list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="183"/>
+        <location filename="../cli/main.cpp" line="184"/>
         <source>The number of threads of the run, instead of the setting of the program; at least 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="184"/>
+        <location filename="../cli/main.cpp" line="185"/>
         <source>n</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="199"/>
+        <location filename="../cli/main.cpp" line="200"/>
         <source>The profiles --profile takes, as JSON on the standard output; also names the profile a run without --profile uses.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="203"/>
+        <location filename="../cli/main.cpp" line="204"/>
         <source>The pages of the project file, with their file, DPI, color mode and output file, as JSON on the standard output. Needs a project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="208"/>
+        <location filename="../cli/main.cpp" line="209"/>
         <source>folder or project file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="209"/>
+        <location filename="../cli/main.cpp" line="210"/>
         <source>The input folder for a new project or an existing project file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -818,48 +818,48 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="188"/>
+        <location filename="../cli/main.cpp" line="189"/>
         <source>The JSON report of the run, written at the end: the mode, the project file, the profile and the last step, the exit code and cancelled, the pages with their DPI, color mode, output file and status, and the exports and the files passed over.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="195"/>
+        <location filename="../cli/main.cpp" line="196"/>
         <source>The progress as JSON lines on the standard output, one per event; all other text then goes to the standard error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="229"/>
+        <location filename="../cli/main.cpp" line="230"/>
         <source>--profile-list and --project-info can&apos;t be used together.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="235"/>
+        <location filename="../cli/main.cpp" line="236"/>
         <source>The option --%1 can&apos;t be used with --%2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="241"/>
+        <location filename="../cli/main.cpp" line="242"/>
         <source>--profile-list takes no argument.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="247"/>
-        <location filename="../cli/main.cpp" line="252"/>
+        <location filename="../cli/main.cpp" line="248"/>
+        <location filename="../cli/main.cpp" line="253"/>
         <source>--project-info needs a project file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="284"/>
+        <location filename="../cli/main.cpp" line="285"/>
         <source>The project file is the argument of the call; --project-file is for the folder mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="301"/>
+        <location filename="../cli/main.cpp" line="302"/>
         <source>Unknown DPI after --dpi: %1; pass a number or horizontal and vertical values like 600x300.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="313"/>
+        <location filename="../cli/main.cpp" line="314"/>
         <source>Unknown DPI after --dpi-fix: %1; pass a number or horizontal and vertical values like 600x300.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -869,12 +869,12 @@ ScanTailor OCR continues to run, but to be safe, save your project under a new n
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="330"/>
+        <location filename="../cli/main.cpp" line="331"/>
         <source>Unknown thread number after --threads: %1; it must be at least 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="342"/>
+        <location filename="../cli/main.cpp" line="343"/>
         <source>Unknown step after --last-step: %1. The steps are: fix-orientation, split-pages, deskew, select-content, margins, output and export.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1260,11 +1260,6 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
     <message>
         <location filename="../app/DefaultParamsDialog.ui" line="1865"/>
         <source>Enlarge to at most:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../app/DefaultParamsDialog.ui" line="1897"/>
-        <source>Reduce to at least:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2005,6 +2000,11 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <location filename="../app/DefaultParamsDialog.ui" line="97"/>
         <location filename="../app/DefaultParamsDialog.ui" line="107"/>
         <source>The unit of the length fields. It follows the Program Settings, on the General tab. With pixels set there, a profile keeps its own unit, as the size of a pixel depends on the page. A profile saved in pixels stays in pixels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../app/DefaultParamsDialog.ui" line="1897"/>
+        <source>Reduce to at least:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3196,42 +3196,53 @@ Do you want to replace them?</source>
 <context>
     <name>LoadFileTask</name>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="99"/>
+        <location filename="../core/LoadFileTask.cpp" line="103"/>
+        <location filename="../core/WorkerThreadPool.cpp" line="76"/>
         <source>Unknown error.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="185"/>
+        <location filename="../core/LoadFileTask.cpp" line="197"/>
         <source>This page could not be processed because of an unexpected error:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="182"/>
-        <location filename="../core/LoadFileTask.cpp" line="187"/>
-        <location filename="../core/LoadFileTask.cpp" line="197"/>
+        <location filename="../core/LoadFileTask.cpp" line="194"/>
+        <location filename="../core/LoadFileTask.cpp" line="199"/>
+        <location filename="../core/LoadFileTask.cpp" line="209"/>
         <source>Reason:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="181"/>
+        <location filename="../core/LoadFileTask.cpp" line="129"/>
+        <source>Internal processing error.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/LoadFileTask.cpp" line="131"/>
+        <source>Internal processing error (technical detail: %1).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/LoadFileTask.cpp" line="193"/>
         <source>This page cannot be processed with the current settings:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="190"/>
+        <location filename="../core/LoadFileTask.cpp" line="202"/>
         <source>Changing the settings of this page or of a previous step may help. Please report this error together with the steps that led to it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="195"/>
+        <location filename="../core/LoadFileTask.cpp" line="207"/>
         <source>The following file could not be loaded:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/LoadFileTask.cpp" line="201"/>
+        <location filename="../core/LoadFileTask.cpp" line="213"/>
         <source>The following file doesn&apos;t exist:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Use &lt;a href=&quot;#relink&quot;&gt;Relink&lt;/a&gt; to locate it.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3456,7 +3467,7 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3043"/>
+        <location filename="../app/MainWindow.cpp" line="3048"/>
         <source>Go to Page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3516,13 +3527,13 @@ Do you want to replace them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2129"/>
+        <location filename="../app/MainWindow.cpp" line="2134"/>
         <source>Output is not yet possible, as the final size of pages is not yet known.
 To determine it, run batch processing in the step &quot;Select Content&quot; or &quot;Margins&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2167"/>
+        <location filename="../app/MainWindow.cpp" line="2172"/>
         <source>%2 - ScanTailor OCR %3 [%1bit]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3659,19 +3670,19 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2182"/>
+        <location filename="../app/MainWindow.cpp" line="2187"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2182"/>
+        <location filename="../app/MainWindow.cpp" line="2187"/>
         <source>An export is running. Do you want to cancel it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../app/MainWindow.cpp" line="1966"/>
-        <location filename="../app/MainWindow.cpp" line="2242"/>
-        <location filename="../app/MainWindow.cpp" line="2267"/>
+        <location filename="../app/MainWindow.cpp" line="2247"/>
+        <location filename="../app/MainWindow.cpp" line="2272"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3691,74 +3702,74 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2162"/>
+        <location filename="../app/MainWindow.cpp" line="2167"/>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2242"/>
-        <location filename="../app/MainWindow.cpp" line="2267"/>
+        <location filename="../app/MainWindow.cpp" line="2247"/>
+        <location filename="../app/MainWindow.cpp" line="2272"/>
         <source>Error saving the project file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2313"/>
+        <location filename="../app/MainWindow.cpp" line="2318"/>
         <source>Files to Insert</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2316"/>
+        <location filename="../app/MainWindow.cpp" line="2321"/>
         <source>Images not in project (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2367"/>
+        <location filename="../app/MainWindow.cpp" line="2372"/>
         <source>Skip failed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2429"/>
+        <location filename="../app/MainWindow.cpp" line="2434"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2614"/>
-        <location filename="../app/MainWindow.cpp" line="2651"/>
+        <location filename="../app/MainWindow.cpp" line="2619"/>
+        <location filename="../app/MainWindow.cpp" line="2656"/>
         <source>Automatic Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2608"/>
+        <location filename="../app/MainWindow.cpp" line="2613"/>
         <source>The new scan %1 couldn&apos;t be renamed to %2, so it keeps its name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2628"/>
+        <location filename="../app/MainWindow.cpp" line="2633"/>
         <source>The replaced image %1 couldn&apos;t be moved to %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2652"/>
+        <location filename="../app/MainWindow.cpp" line="2657"/>
         <source>The folder %1 doesn&apos;t exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2706"/>
+        <location filename="../app/MainWindow.cpp" line="2711"/>
         <source>Folder for New Scans</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2769"/>
+        <location filename="../app/MainWindow.cpp" line="2774"/>
         <source>Only pages next to each other can be replaced together. The new scan %1 is added at the end.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="2846"/>
+        <location filename="../app/MainWindow.cpp" line="2851"/>
         <source>The new image %1 can&apos;t be opened and is not imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../app/MainWindow.cpp" line="3043"/>
+        <location filename="../app/MainWindow.cpp" line="3048"/>
         <source>Enter the page number:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3957,7 +3968,7 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="362"/>
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="363"/>
         <source>Orientation detected for %n page(s): %1 rotated, %2 already correct.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -3971,21 +3982,21 @@ To determine it, run batch processing in the step &quot;Select Content&quot; or 
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="375"/>
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="377"/>
         <source>, and %n more</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="380"/>
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="381"/>
         <source>%n page(s) left unchanged because the orientation is uncertain: %1</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="385"/>
+        <location filename="../core/filters/fix_orientation/OrientationDetection.cpp" line="387"/>
         <source>%n page(s) could not be read: %1</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -7201,11 +7212,6 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="702"/>
-        <source>Reduce to at least:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="37"/>
         <source>Resolution:</source>
         <translation type="unfinished"></translation>
@@ -7295,6 +7301,11 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="699"/>
         <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="709"/>
         <source>Pages larger than the output size are reduced to no less than this percentage; a page that would need more stays larger.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../core/filters/page_layout/ui/OptionsWidget.ui" line="702"/>
+        <source>Reduce to at least:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

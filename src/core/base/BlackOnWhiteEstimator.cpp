@@ -85,7 +85,7 @@ bool BlackOnWhiteEstimator::isBlackOnWhite(const GrayImage& img, const BinaryIma
     throw std::invalid_argument("BlackOnWhiteEstimator: image is null.");
   }
   if (img.size() != mask.size()) {
-    throw std::invalid_argument("BlackOnWhiteEstimator: img and mask have different sizes");
+    throw std::invalid_argument("BlackOnWhiteEstimator: image and mask have different sizes.");
   }
 
   BinaryImage bwImage(img, BinaryThreshold::otsuThreshold(GrayscaleHistogram(img, mask)));
