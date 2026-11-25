@@ -10,6 +10,18 @@
 #include "RasterOp.h"
 
 namespace imageproc {
+namespace {
+int clampShift(const double shift, const int limit) {
+  if (shift <= -double(limit)) {
+    return -limit;
+  }
+  if (shift >= double(limit)) {
+    return limit;
+  }
+  return static_cast<int>(shift);
+}
+}  // namespace
+
 void hShearFromTo(const BinaryImage& src,
                   BinaryImage& dst,
                   const double shear,
@@ -21,17 +33,19 @@ void hShearFromTo(const BinaryImage& src,
   if (src.size() != dst.size()) {
     throw std::invalid_argument("Can't shear when dst.size() != src.size()");
   }
+  if (!std::isfinite(shear) || !std::isfinite(yOrigin)) {
+    throw std::invalid_argument("Can't shear with non-finite shear parameters");
+  }
 
   const int width = src.width();
   const int height = src.height();
 
   // shift = std::floor(0.5 + shear * (y + 0.5 - yOrigin));
-  double shift = 0.5 + shear * (0.5 - yOrigin);
-  const double shiftEnd = 0.5 + shear * (height - 0.5 - yOrigin);
-  auto shift1 = (int) std::floor(shift);
+  const double floorStart = std::floor(0.5 + shear * (0.5 - yOrigin));
+  const double floorEnd = std::floor(0.5 + shear * (height - 0.5 - yOrigin));
+  int shift1 = clampShift(floorStart, width);
 
-  if (shift1 == std::floor(shiftEnd)) {
-    assert(shift1 == 0);
+  if ((floorStart == 0.0) && (floorEnd == 0.0)) {
     dst = src;
     return;
   }
@@ -40,8 +54,8 @@ void hShearFromTo(const BinaryImage& src,
   int y2 = 0;
   while (true) {
     ++y2;
-    shift += shear;
-    const auto shift2 = (int) std::floor(shift);
+    const double nextFloor = (y2 == height) ? floorEnd : std::floor(0.5 + shear * (y2 + 0.5 - yOrigin));
+    const int shift2 = clampShift(nextFloor, width);
     if ((shift1 != shift2) || (y2 == height)) {
       const int blockHeight = y2 - y1;
       if (std::abs(shift1) >= width) {
@@ -90,17 +104,19 @@ void vShearFromTo(const BinaryImage& src,
   if (src.size() != dst.size()) {
     throw std::invalid_argument("Can't shear when dst.size() != src.size()");
   }
+  if (!std::isfinite(shear) || !std::isfinite(xOrigin)) {
+    throw std::invalid_argument("Can't shear with non-finite shear parameters");
+  }
 
   const int width = src.width();
   const int height = src.height();
 
   // shift = std::floor(0.5 + shear * (x + 0.5 - xOrigin));
-  double shift = 0.5 + shear * (0.5 - xOrigin);
-  const double shiftEnd = 0.5 + shear * (width - 0.5 - xOrigin);
-  auto shift1 = (int) std::floor(shift);
+  const double floorStart = std::floor(0.5 + shear * (0.5 - xOrigin));
+  const double floorEnd = std::floor(0.5 + shear * (width - 0.5 - xOrigin));
+  int shift1 = clampShift(floorStart, height);
 
-  if (shift1 == std::floor(shiftEnd)) {
-    assert(shift1 == 0);
+  if ((floorStart == 0.0) && (floorEnd == 0.0)) {
     dst = src;
     return;
   }
@@ -109,8 +125,8 @@ void vShearFromTo(const BinaryImage& src,
   int x2 = 0;
   while (true) {
     ++x2;
-    shift += shear;
-    const auto shift2 = (int) std::floor(shift);
+    const double nextFloor = (x2 == width) ? floorEnd : std::floor(0.5 + shear * (x2 + 0.5 - xOrigin));
+    const int shift2 = clampShift(nextFloor, height);
     if ((shift1 != shift2) || (x2 == width)) {
       const int blockWidth = x2 - x1;
       if (std::abs(shift1) >= height) {
