@@ -52,10 +52,37 @@ def file_uri_to_path(uri: str) -> Path | None:
     parsed = urlparse(uri)
     if parsed.scheme != "file":
         return None
-    path = unquote(parsed.path)
-    if sys.platform == "win32" and path.startswith("/"):
-        path = path[1:]
-    return Path(path)
+    netloc = unquote(parsed.netloc)
+    raw_path = unquote(parsed.path)
+    if "\x00" in netloc or "\x00" in raw_path:
+        return None
+
+    if sys.platform == "win32":
+        if netloc and netloc.lower() != "localhost":
+            if any(ch in netloc for ch in ("/", "\\", ":")):
+                return None
+            if not raw_path.startswith("/") or not any(seg for seg in raw_path.split("/")):
+                return None
+            candidate = Path("\\\\" + netloc + raw_path.replace("/", "\\"))
+        else:
+            if (
+                len(raw_path) >= 3
+                and raw_path[0] == "/"
+                and raw_path[1].isalpha()
+                and raw_path[2] == ":"
+            ):
+                raw_path = raw_path[1:]
+            if not raw_path:
+                return None
+            candidate = Path(raw_path)
+    else:
+        if netloc and netloc.lower() != "localhost":
+            return None
+        if not raw_path.startswith("/"):
+            return None
+        candidate = Path(raw_path)
+
+    return candidate if candidate.is_absolute() else None
 
 
 async def client_roots(ctx) -> list[Path]:
@@ -72,11 +99,13 @@ async def client_roots(ctx) -> list[Path]:
         if uri is None:
             continue
         p = file_uri_to_path(str(uri))
-        if p is not None:
+        if p is not None and p.is_absolute():
             try:
-                result.append(p.resolve())
+                resolved = p.resolve()
             except (OSError, RuntimeError):
-                result.append(p)
+                resolved = p
+            if resolved.is_absolute():
+                result.append(resolved)
         else:
             logger.info("Root of the client that isn't a local folder, ignored: %s", uri)
     logger.info("Roots of the client: %s", ", ".join(str(p) for p in result) or "none")
