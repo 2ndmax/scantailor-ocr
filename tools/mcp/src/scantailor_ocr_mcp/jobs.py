@@ -416,15 +416,26 @@ class JobManager:
             if not is_allowed(export_folder_resolved, roots):
                 _tool_error(f"Path is outside the allowed folders: {export_folder_resolved}")
 
-        profile_value = profile
-        if isinstance(profile, str) and profile.lower().endswith(".stp"):
-            try:
-                profile_resolved = resolve_path(profile)
-            except (OSError, RuntimeError) as exc:
-                _tool_error(f"Could not resolve path: {exc}")
-            if not is_allowed(profile_resolved, roots):
-                _tool_error(f"Path is outside the allowed folders: {profile_resolved}")
-            profile_value = str(profile_resolved)
+        profile_value: str | None = None
+        if profile is not None:
+            if not isinstance(profile, str) or not profile.strip():
+                _tool_error("invalid profile name")
+            if profile.lower().endswith(".stp"):
+                try:
+                    profile_resolved = resolve_path(profile)
+                except (OSError, RuntimeError) as exc:
+                    _tool_error(f"Could not resolve path: {exc}")
+                if not is_allowed(profile_resolved, roots):
+                    _tool_error(f"Path is outside the allowed folders: {profile_resolved}")
+                profile_value = str(profile_resolved)
+            else:
+                if (
+                    profile in (".", "..")
+                    or any(ch in profile for ch in ("/", "\\", ":", "\x00"))
+                    or profile.lower().endswith(".xml")
+                ):
+                    _tool_error(f"invalid profile name: {profile}")
+                profile_value = profile
 
         # project key
         if has_project:

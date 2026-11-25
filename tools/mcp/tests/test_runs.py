@@ -704,3 +704,35 @@ def test_run_orientation_detect_progress(cli, tmp_path: Path):
             assert all(e.get("rotationDetection") == "detected" for e in ok_events)
 
     asyncio.run(main())
+
+
+def test_profile_path_traversal_rejected(cli, tmp_path: Path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    book = make_book(allowed / "book", 1)
+    outside_profile = tmp_path / "secret.stp"
+    shutil.copyfile(DATA_DIR / "no-ocr.stp", outside_profile)
+
+    async def main():
+        server, state = build_server([allowed])
+        async with Client(server) as client:
+            bad_profiles = [
+                str(tmp_path / "secret"),
+                "../../secret",
+                "sub/secret",
+                "sub\\secret",
+                "..",
+                ".",
+                "C:secret",
+                "",
+                str(outside_profile),
+            ]
+            for profile in bad_profiles:
+                r = await client.call_tool(
+                    "run_start",
+                    {"folder": str(book), "profile": profile, "last_step": "output"},
+                )
+                assert r.is_error is True, f"profile {profile!r} should have been rejected"
+            assert state["job_manager"].jobs == {}
+
+    asyncio.run(main())
