@@ -3,7 +3,7 @@
 The user manual of ScanTailor OCR, in English, built with
 [MkDocs](https://www.mkdocs.org) and [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
 The Pages workflow (`.github/workflows/pages.yml`) builds it into `website/manual`, so the
-website serves it under `/manual/`.
+website serves it under https://www.scantailorocr.eu/manual/.
 
 ## Folders
 
@@ -24,7 +24,7 @@ uvx --from mkdocs --with-requirements requirements.txt mkdocs serve
 uvx --from mkdocs --with-requirements requirements.txt mkdocs build --strict
 ```
 
-`serve` shows the manual at http://127.0.0.1:8000/scantailor-ocr/manual/ and rebuilds on
+`serve` shows the manual at http://127.0.0.1:8000/manual/ and rebuilds on
 every change. `build --strict` writes `site/` (not committed) and fails on broken links.
 
 ## Screenshots
