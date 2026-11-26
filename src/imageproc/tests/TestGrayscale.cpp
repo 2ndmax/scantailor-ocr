@@ -61,6 +61,26 @@ BOOST_AUTO_TEST_CASE(test_argb32_to_grayscale) {
   BOOST_CHECK(toGrayscale(argb32) == gray);
 }
 
+BOOST_AUTO_TEST_CASE(test_rgb888_to_grayscale) {
+  const int w = 53;
+  const int h = 41;
+  QImage rgb888(w, h, QImage::Format_RGB888);
+  QImage gray(w, h, QImage::Format_Indexed8);
+  gray.setColorTable(createGrayscalePalette());
+
+  for (int y = 0; y < h; ++y) {
+    for (int x = 0; x < w; ++x) {
+      const int r = (x * 7 + y * 13) & 0xff;
+      const int g = (x * 19 + y * 5) & 0xff;
+      const int b = (x * 11 + y * 23) & 0xff;
+      rgb888.setPixel(x, y, qRgb(r, g, b));
+      gray.setPixel(x, y, qGray(r, g, b));
+    }
+  }
+
+  BOOST_CHECK(toGrayscale(rgb888) == gray);
+}
+
 BOOST_AUTO_TEST_CASE(test_stretch_gray_range_clamps_extreme_and_nan_fractions) {
   GrayImage src(QSize(10, 10));
   for (int y = 0; y < 10; ++y) {

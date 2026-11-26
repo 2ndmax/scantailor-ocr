@@ -94,8 +94,8 @@ static QImage monoLsbToGrayscale(const QImage& src) {
   return dst;
 }  // monoLsbToGrayscale
 
-// For RGB32 and ARGB32, the stored pixel values are what pixel() returns, so they can be read
-// line by line, which is much faster. Other formats keep using pixel(), so results stay the same.
+// For RGB32 and ARGB32, the stored pixel values are what pixel() returns, and for RGB888 each pixel
+// is stored as R, G, B bytes, so they can be read line by line instead of via pixel().
 static bool hasDirectRgbAccess(const QImage& img) {
   return (img.format() == QImage::Format_RGB32) || (img.format() == QImage::Format_ARGB32);
 }
@@ -113,12 +113,19 @@ static QImage anyToGrayscale(const QImage& src) {
   uint8_t* dstLine = dst.bits();
   const int dstBpl = dst.bytesPerLine();
   const bool directAccess = hasDirectRgbAccess(src);
+  const bool directRgb888 = (src.format() == QImage::Format_RGB888);
 
   for (int y = 0; y < height; ++y) {
     if (directAccess) {
       const auto* srcLine = reinterpret_cast<const QRgb*>(src.constScanLine(y));
       for (int x = 0; x < width; ++x) {
         dstLine[x] = static_cast<uint8_t>(qGray(srcLine[x]));
+      }
+    } else if (directRgb888) {
+      const uint8_t* srcLine = src.constScanLine(y);
+      for (int x = 0; x < width; ++x) {
+        dstLine[x] = static_cast<uint8_t>(qGray(srcLine[0], srcLine[1], srcLine[2]));
+        srcLine += 3;
       }
     } else {
       for (int x = 0; x < width; ++x) {
