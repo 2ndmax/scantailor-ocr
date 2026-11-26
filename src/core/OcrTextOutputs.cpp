@@ -155,6 +155,20 @@ bool replaceDir(const QString& newDir, const QString& targetDir, QString* error)
   QDir(oldDir).removeRecursively();
   return true;
 }
+/** Cleans \p path and drops trailing separators unless it denotes a filesystem root. */
+QString normalizeDirPath(const QString& path) {
+  if (path.isEmpty()) {
+    return path;
+  }
+  QString clean = QDir::cleanPath(path);
+  while ((clean.size() > 1) && clean.endsWith(QLatin1Char('/'))) {
+    if ((clean.size() == 3) && (clean.at(1) == QLatin1Char(':'))) {
+      break;
+    }
+    clean.chop(1);
+  }
+  return clean;
+}
 }  // namespace
 
 struct OcrTextOutputs::Files {
@@ -163,7 +177,9 @@ struct OcrTextOutputs::Files {
   std::unique_ptr<QTemporaryDir> altoDir;
 };
 
-OcrTextOutputs::OcrTextOutputs(const Settings& settings) : m_settings(settings), m_files(std::make_unique<Files>()) {}
+OcrTextOutputs::OcrTextOutputs(const Settings& settings) : m_settings(settings), m_files(std::make_unique<Files>()) {
+  m_settings.altoDir = normalizeDirPath(m_settings.altoDir);
+}
 
 OcrTextOutputs::~OcrTextOutputs() = default;
 

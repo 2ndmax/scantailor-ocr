@@ -576,4 +576,19 @@ BOOST_AUTO_TEST_CASE(test_split_page_without_pdf_needs_no_background_but_matchin
   BOOST_CHECK(!errors.isEmpty());
 }
 
+BOOST_AUTO_TEST_CASE(test_alto_trailing_slash_is_normalized) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  OcrTextOutputs::Settings settings;
+  settings.altoDir = dir.filePath("book_alto") + '/';
+  settings.pageCount = 1;
+  QString error;
+  BOOST_REQUIRE(writeOutputs(settings, {"one"}, &error));
+  BOOST_REQUIRE(writeOutputs(settings, {"two"}, &error));
+
+  const QStringList topEntries = namesIn(dir.path());
+  BOOST_CHECK(topEntries == QStringList{"book_alto"});
+  BOOST_CHECK(namesIn(dir.filePath("book_alto")) == QStringList{"0001_two.xml"});
+}
+
 BOOST_AUTO_TEST_SUITE_END()
