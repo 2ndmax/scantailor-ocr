@@ -37,11 +37,25 @@ bool boolAttribute(const QDomElement& el, const QString& name, const bool fallba
   return value.isEmpty() ? fallback : (value != "0");
 }
 
-PdfCompression pdfCompressionAttribute(const QDomElement& el, const QString& name, const PdfCompression fallback) {
-  return static_cast<PdfCompression>(intAttribute(el, name, static_cast<int>(fallback),
-                                                  static_cast<int>(PdfCompression::NONE),
-                                                  static_cast<int>(PdfCompression::JBIG2)));
+template <size_t N>
+PdfCompression pdfCompressionAttribute(const QDomElement& el,
+                                       const QString& name,
+                                       const PdfCompression fallback,
+                                       const PdfCompression (&allowed)[N]) {
+  bool ok = false;
+  const int value = el.attribute(name).toInt(&ok);
+  if (!ok) {
+    return fallback;
+  }
+  const auto it = std::find_if(std::begin(allowed), std::end(allowed),
+                               [value](const PdfCompression method) { return static_cast<int>(method) == value; });
+  return (it != std::end(allowed)) ? *it : fallback;
 }
+
+constexpr PdfCompression PDF_COLOR_COMPRESSIONS[]
+    = {PdfCompression::NONE, PdfCompression::DEFLATE, PdfCompression::JPEG, PdfCompression::JPEG2000};
+constexpr PdfCompression PDF_BITONAL_COMPRESSIONS[]
+    = {PdfCompression::NONE, PdfCompression::DEFLATE, PdfCompression::CCITT_G4, PdfCompression::JBIG2};
 
 // The shares of the color mode detection are stored in percent, as they are shown.
 int toPercent(const double share) {
@@ -77,12 +91,15 @@ ProcessingOptions::ProcessingOptions(const QDomElement& el, const ProcessingOpti
 
   const QDomElement pdfEl = el.namedItem("pdf").toElement();
   const Pdf& pdfFallback = fallback.pdf;
-  pdf.colorCompression = pdfCompressionAttribute(pdfEl, "colorCompression", pdfFallback.colorCompression);
+  pdf.colorCompression
+      = pdfCompressionAttribute(pdfEl, "colorCompression", pdfFallback.colorCompression, PDF_COLOR_COMPRESSIONS);
   pdf.colorQuality = intAttribute(pdfEl, "colorQuality", pdfFallback.colorQuality, 10, 100);
   pdf.backgroundScale = intAttribute(pdfEl, "backgroundScale", pdfFallback.backgroundScale, 1, 3);
-  pdf.paletteCompression = pdfCompressionAttribute(pdfEl, "paletteCompression", pdfFallback.paletteCompression);
+  pdf.paletteCompression
+      = pdfCompressionAttribute(pdfEl, "paletteCompression", pdfFallback.paletteCompression, PDF_COLOR_COMPRESSIONS);
   pdf.paletteQuality = intAttribute(pdfEl, "paletteQuality", pdfFallback.paletteQuality, 10, 100);
-  pdf.bitonalCompression = pdfCompressionAttribute(pdfEl, "bitonalCompression", pdfFallback.bitonalCompression);
+  pdf.bitonalCompression
+      = pdfCompressionAttribute(pdfEl, "bitonalCompression", pdfFallback.bitonalCompression, PDF_BITONAL_COMPRESSIONS);
   pdf.pdfA = boolAttribute(pdfEl, "pdfA", pdfFallback.pdfA);
 
   const QDomElement ocrEl = el.namedItem("ocr").toElement();

@@ -116,6 +116,36 @@ BOOST_AUTO_TEST_CASE(test_unknown_tiff_compression_falls_back) {
   BOOST_CHECK_EQUAL(readValid.tiffCompression.palette, COMPRESSION_LZW);
 }
 
+BOOST_AUTO_TEST_CASE(test_invalid_pdf_compression_falls_back) {
+  ProcessingOptions fallback;
+  fallback.pdf.colorCompression = PdfCompression::DEFLATE;
+  fallback.pdf.paletteCompression = PdfCompression::JPEG2000;
+  fallback.pdf.bitonalCompression = PdfCompression::CCITT_G4;
+
+  // Misplaced codes across categories (JBIG2/CCITT_G4 for color/palette, JPEG for bitonal).
+  const QDomDocument misplaced = parse(
+      "<processing><pdf colorCompression=\"5\" paletteCompression=\"4\" bitonalCompression=\"2\"/></processing>");
+  const ProcessingOptions readMisplaced(misplaced.documentElement(), fallback);
+  BOOST_CHECK(readMisplaced.pdf.colorCompression == PdfCompression::DEFLATE);
+  BOOST_CHECK(readMisplaced.pdf.paletteCompression == PdfCompression::JPEG2000);
+  BOOST_CHECK(readMisplaced.pdf.bitonalCompression == PdfCompression::CCITT_G4);
+
+  // Out-of-range codes fall back rather than clamping into enum values.
+  const QDomDocument outOfRange = parse(
+      "<processing><pdf colorCompression=\"-1\" paletteCompression=\"99\" bitonalCompression=\"99\"/></processing>");
+  const ProcessingOptions readOutOfRange(outOfRange.documentElement(), fallback);
+  BOOST_CHECK(readOutOfRange.pdf.colorCompression == PdfCompression::DEFLATE);
+  BOOST_CHECK(readOutOfRange.pdf.paletteCompression == PdfCompression::JPEG2000);
+  BOOST_CHECK(readOutOfRange.pdf.bitonalCompression == PdfCompression::CCITT_G4);
+
+  const QDomDocument valid = parse(
+      "<processing><pdf colorCompression=\"3\" paletteCompression=\"1\" bitonalCompression=\"5\"/></processing>");
+  const ProcessingOptions readValid(valid.documentElement(), fallback);
+  BOOST_CHECK(readValid.pdf.colorCompression == PdfCompression::JPEG2000);
+  BOOST_CHECK(readValid.pdf.paletteCompression == PdfCompression::DEFLATE);
+  BOOST_CHECK(readValid.pdf.bitonalCompression == PdfCompression::JBIG2);
+}
+
 BOOST_AUTO_TEST_CASE(test_processing_options_are_stored_in_the_project) {
   QTemporaryDir tempDir;
   BOOST_REQUIRE(tempDir.isValid());
