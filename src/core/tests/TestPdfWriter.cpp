@@ -1151,4 +1151,17 @@ BOOST_AUTO_TEST_CASE(a_tiff_wider_than_int_is_not_read_as_a_negative_size) {
   BOOST_CHECK_MESSAGE(!read || (size.width() > 0), "size " << size.width() << " x " << size.height());
 }
 
+BOOST_AUTO_TEST_CASE(test_empty_page_writes_uncompressed_content_stream) {
+  QBuffer buffer;
+  BOOST_REQUIRE(buffer.open(QIODevice::WriteOnly));
+  PdfWriter writer(buffer);
+  BOOST_REQUIRE(writer.begin());
+  BOOST_REQUIRE(writer.addPage(PdfWriter::Page{QSizeF(200, 300), {}, {}}));
+  BOOST_REQUIRE(writer.finish());
+
+  const QByteArray pdf = buffer.data();
+  BOOST_CHECK(pdf.contains("<< /Length 0 >>\nstream\n\nendstream\n"));
+  BOOST_CHECK(!pdf.contains("/Filter /FlateDecode"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

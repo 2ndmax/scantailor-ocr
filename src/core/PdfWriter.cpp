@@ -104,8 +104,17 @@ bool PdfWriter::addPage(const Page& page) {
   }
 
   const int contentId = allocateObject();
-  // qCompress() prepends the uncompressed size as 4 bytes, the rest is a zlib stream.
-  writeStreamObject(contentId, "/Filter /FlateDecode", qCompress(content, 9).mid(4));
+  if (content.isEmpty()) {
+    writeStreamObject(contentId, QByteArray(), QByteArray());
+  } else {
+    const QByteArray compressed = qCompress(content, 9);
+    if (compressed.size() <= 4) {
+      m_ok = false;
+    } else {
+      // qCompress() prepends the uncompressed size as 4 bytes, the rest is a zlib stream.
+      writeStreamObject(contentId, "/Filter /FlateDecode", compressed.mid(4));
+    }
+  }
 
   const int pageId = allocateObject();
   beginObject(pageId);
@@ -332,7 +341,8 @@ void PdfWriter::beginObject(const int id) {
 
 void PdfWriter::writeStreamObject(const int id, const QByteArray& dictEntries, const QByteArray& data) {
   beginObject(id);
-  write("<< " + dictEntries + " /Length " + QByteArray::number(data.size()) + " >>\nstream\n");
+  write("<< " + (dictEntries.isEmpty() ? QByteArray() : dictEntries + ' ') + "/Length "
+        + QByteArray::number(data.size()) + " >>\nstream\n");
   write(data);
   write("\nendstream\nendobj\n");
 }
