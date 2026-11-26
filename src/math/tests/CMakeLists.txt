@@ -7,6 +7,7 @@ set(sources
     TestLinearSolver.cpp
     TestPolylineIntersector.cpp
     TestLinearFunction.cpp
+    TestMathComponents.cpp
     TestMatrixCalc.cpp
     TestQuadraticFunction.cpp
     TestSidesOfLine.cpp

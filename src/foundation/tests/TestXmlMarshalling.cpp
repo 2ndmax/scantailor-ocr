@@ -5,8 +5,12 @@
 #include <XmlUnmarshaller.h>
 
 #include <QDomDocument>
+#include <QLineF>
 #include <QPointF>
+#include <QPolygonF>
+#include <QRect>
 #include <QRectF>
+#include <QSize>
 #include <QSizeF>
 #include <boost/test/unit_test.hpp>
 
@@ -46,6 +50,33 @@ BOOST_AUTO_TEST_CASE(test_invalid_coordinates_are_limited) {
   el.setAttribute("x", "1e308");
   el.setAttribute("y", "-1e308");
   BOOST_CHECK(XmlUnmarshaller::pointF(el) == QPointF(1e7, -1e7));
+}
+
+BOOST_AUTO_TEST_CASE(test_geometry_round_trips) {
+  QDomDocument doc;
+  XmlMarshaller m(doc);
+
+  const QSize sz(640, 480);
+  BOOST_CHECK(XmlUnmarshaller::size(m.size(sz, QStringLiteral("size"))) == sz);
+
+  const QSizeF szf(12.5, 34.25);
+  BOOST_CHECK(XmlUnmarshaller::sizeF(m.sizeF(szf, QStringLiteral("sizef"))) == szf);
+
+  const QPointF pt(3.5, -7.25);
+  BOOST_CHECK(XmlUnmarshaller::pointF(m.pointF(pt, QStringLiteral("pt"))) == pt);
+
+  const QLineF line(QPointF(1.0, 2.0), QPointF(9.5, -4.5));
+  BOOST_CHECK(XmlUnmarshaller::lineF(m.lineF(line, QStringLiteral("line"))) == line);
+
+  const QRect rc(10, 20, 30, 40);
+  BOOST_CHECK(XmlUnmarshaller::rect(m.rect(rc, QStringLiteral("rect"))) == rc);
+
+  const QRectF rcf(1.5, 2.5, 30.0, 40.5);
+  BOOST_CHECK(XmlUnmarshaller::rectF(m.rectF(rcf, QStringLiteral("rectf"))) == rcf);
+
+  QPolygonF poly;
+  poly << QPointF(0.0, 0.0) << QPointF(10.5, 2.0) << QPointF(5.0, 8.25);
+  BOOST_CHECK(XmlUnmarshaller::polygonF(m.polygonF(poly, QStringLiteral("poly"))) == poly);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
