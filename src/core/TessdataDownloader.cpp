@@ -190,6 +190,19 @@ void TessdataDownloader::download(const std::vector<TessdataFile>& files, const 
   startNextDownload();
 }
 
+bool TessdataDownloader::isTargetWithinDir(const QString& targetFilePath, const QString& targetDir) {
+  QString cleanDir = QDir::cleanPath(QDir(targetDir).absolutePath());
+  if (!cleanDir.endsWith(QLatin1Char('/'))) {
+    cleanDir += QLatin1Char('/');
+  }
+  const QString cleanTarget = QDir::cleanPath(QFileInfo(targetFilePath).absoluteFilePath());
+#ifdef Q_OS_WIN
+  return cleanTarget.startsWith(cleanDir, Qt::CaseInsensitive);
+#else
+  return cleanTarget.startsWith(cleanDir);
+#endif
+}
+
 void TessdataDownloader::startNextDownload() {
   if (m_queue.empty()) {
     finishDownloads(QString());
@@ -198,8 +211,7 @@ void TessdataDownloader::startNextDownload() {
   const TessdataFile& file = m_queue.front();
   const QString target = OcrLanguages::filePath(m_targetDir, file.code);
   // A second guard besides the name check in listedFile(): the file must end up in the folder.
-  const QString targetDir = QDir(m_targetDir).absolutePath() + '/';
-  if (!QDir::cleanPath(QFileInfo(target).absoluteFilePath()).startsWith(targetDir)) {
+  if (!isTargetWithinDir(target, m_targetDir)) {
     finishDownloads(tr("Could not write %1: %2").arg(QDir::toNativeSeparators(target), tr("Invalid file name.")));
     return;
   }

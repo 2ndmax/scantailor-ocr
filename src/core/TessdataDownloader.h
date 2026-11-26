@@ -68,6 +68,9 @@ class TessdataDownloader : public QObject {
    */
   static bool listedFile(const QJsonObject& entry, const QString& listingPath, TessdataFile* file);
 
+  /** Returns whether \p targetFilePath resolves inside \p targetDir after cleaning relative segments. */
+  static bool isTargetWithinDir(const QString& targetFilePath, const QString& targetDir);
+
  signals:
   /** \p error is empty on success. */
   void listReady(const std::vector<TessdataFile>& files, const QString& error);

@@ -106,6 +106,12 @@ BOOST_AUTO_TEST_CASE(test_listed_file_names_stay_in_the_folder) {
   BOOST_CHECK(!TessdataDownloader::listedFile(entry("..\\..\\x.traineddata"), QString(), &file));
   BOOST_CHECK(!TessdataDownloader::listedFile(entry("a/b.traineddata"), QString(), &file));
   BOOST_CHECK(!TessdataDownloader::listedFile(entry("C:x.traineddata"), QString(), &file));
+
+  BOOST_CHECK(TessdataDownloader::isTargetWithinDir(OcrLanguages::filePath("./tessdata", "deu"), "./tessdata"));
+  BOOST_CHECK(
+      TessdataDownloader::isTargetWithinDir(OcrLanguages::filePath("./tessdata", "script/Latin"), "./tessdata"));
+  BOOST_CHECK(!TessdataDownloader::isTargetWithinDir(OcrLanguages::filePath("./tessdata", "../evil"), "./tessdata"));
+  BOOST_CHECK(!TessdataDownloader::isTargetWithinDir("./tessdata_other/deu.traineddata", "./tessdata"));
 }
 
 BOOST_AUTO_TEST_CASE(test_display_name) {
