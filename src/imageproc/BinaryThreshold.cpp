@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <array>
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <stdexcept>
@@ -126,26 +127,35 @@ BinaryThreshold BinaryThreshold::mokjiThreshold(const QImage& image,
   if (minEdgeMagnitude < 1) {
     throw std::invalid_argument("mokjiThreshold: invalid minEdgeMagnitude");
   }
+  if (image.isNull() || (minEdgeMagnitude > 255)) {
+    return BinaryThreshold(128);
+  }
+
+  const int w = image.width();
+  const int h = image.height();
+  if ((w <= 0) || (h <= 0) || (static_cast<uint64_t>(maxEdgeWidth) * 2 >= static_cast<uint64_t>(w))
+      || (static_cast<uint64_t>(maxEdgeWidth) * 2 >= static_cast<uint64_t>(h))) {
+    return BinaryThreshold(128);
+  }
 
   const GrayImage gray(image);
 
-  const int dilateSize = (maxEdgeWidth + 1) * 2 - 1;
+  const int dilateSize = static_cast<int>((maxEdgeWidth + 1) * 2 - 1);
   GrayImage dilated(dilateGray(gray, QSize(dilateSize, dilateSize)));
 
   // 256 KiB: kept off the stack of the worker thread. The elements start at zero.
   std::vector<std::array<unsigned, 256>> matrix(256);
 
-  const int w = image.width();
-  const int h = image.height();
   const unsigned char* srcLine = gray.data();
   const int srcStride = gray.stride();
   const unsigned char* dilatedLine = dilated.data();
   const int dilatedStride = dilated.stride();
 
-  srcLine += maxEdgeWidth * srcStride;
-  dilatedLine += maxEdgeWidth * dilatedStride;
-  for (int y = maxEdgeWidth; y < h - (int) maxEdgeWidth; ++y) {
-    for (int x = maxEdgeWidth; x < w - (int) maxEdgeWidth; ++x) {
+  const ptrdiff_t yOffset = static_cast<ptrdiff_t>(maxEdgeWidth);
+  srcLine += yOffset * srcStride;
+  dilatedLine += yOffset * dilatedStride;
+  for (int y = static_cast<int>(maxEdgeWidth); y < h - static_cast<int>(maxEdgeWidth); ++y) {
+    for (int x = static_cast<int>(maxEdgeWidth); x < w - static_cast<int>(maxEdgeWidth); ++x) {
       const unsigned pixel = srcLine[x];
       const unsigned darkestNeighbor = dilatedLine[x];
       assert(darkestNeighbor <= pixel);

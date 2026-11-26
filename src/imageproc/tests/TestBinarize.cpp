@@ -3,6 +3,7 @@
 
 #include <Binarize.h>
 #include <BinaryImage.h>
+#include <BinaryThreshold.h>
 #include <ExperimentalBinarization.h>
 #include <GrayImage.h>
 
@@ -221,6 +222,19 @@ BOOST_AUTO_TEST_CASE(test_results_of_window_methods_stay_the_same) {
       }
     }
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_mokji_threshold_bounds_and_large_parameters) {
+  BOOST_CHECK_EQUAL(int(BinaryThreshold::mokjiThreshold(QImage())), 128);
+
+  const GrayImage tiny = drawPage(QSize(3, 3), [](int x, int) { return (x == 0) ? 20 : 220; });
+  BOOST_CHECK_EQUAL(int(BinaryThreshold::mokjiThreshold(tiny, 10, 300)), 128);
+  BOOST_CHECK_EQUAL(int(BinaryThreshold::mokjiThreshold(tiny, 10, 20)), 128);
+
+  const GrayImage step = drawPage(QSize(20, 20), [](int x, int) { return (x < 10) ? 40 : 200; });
+  const int thr = BinaryThreshold::mokjiThreshold(step, 2, 50);
+  BOOST_CHECK_GT(thr, 40);
+  BOOST_CHECK_LE(thr, 200);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
