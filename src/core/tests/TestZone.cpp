@@ -5,6 +5,7 @@
 #include <filters/output/FillColorProperty.h>
 #include <zones/EditableSpline.h>
 #include <zones/SerializableSpline.h>
+#include <zones/SplineSegment.h>
 #include <zones/Zone.h>
 
 #include <QPolygonF>
@@ -92,6 +93,26 @@ BOOST_AUTO_TEST_CASE(test_vertex_has_at_least_zero_siblings) {
   BOOST_CHECK(vertex->hasAtLeastSiblings(1));
   BOOST_CHECK(vertex->hasAtLeastSiblings(2));
   BOOST_CHECK(!vertex->hasAtLeastSiblings(3));
+}
+
+BOOST_AUTO_TEST_CASE(test_removed_vertex_and_segment_do_not_crash) {
+  EditableSpline spline;
+  spline.appendVertex(QPointF(0, 0));
+  spline.appendVertex(QPointF(10, 0));
+  spline.appendVertex(QPointF(10, 10));
+  spline.setBridged(true);
+
+  const SplineVertex::Ptr v0 = spline.firstVertex();
+  const SplineVertex::Ptr v1 = v0->next(SplineVertex::LOOP_IF_BRIDGED);
+  const SplineSegment segment(v0, v1);
+  BOOST_REQUIRE(segment.isValid());
+
+  v0->remove();
+  BOOST_CHECK(v0->next(SplineVertex::LOOP) == nullptr);
+  BOOST_CHECK(v0->prev(SplineVertex::LOOP) == nullptr);
+  BOOST_CHECK(v0->hasAtLeastSiblings(0));
+  BOOST_CHECK(!v0->hasAtLeastSiblings(1));
+  BOOST_CHECK(!segment.isValid());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

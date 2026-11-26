@@ -33,7 +33,7 @@ bool SplineVertex::hasAtLeastSiblings(const int num) {
     return true;
   }
   int todo = num;
-  for (SplineVertex::Ptr node = shared_from_this(); (node = node->next(LOOP)).get() != this;) {
+  for (SplineVertex::Ptr node = shared_from_this(); (node = node->next(LOOP)) && (node.get() != this);) {
     if (--todo == 0) {
       return true;
     }
@@ -42,11 +42,11 @@ bool SplineVertex::hasAtLeastSiblings(const int num) {
 }
 
 SplineVertex::Ptr SplineVertex::prev(const Loop loop) {
-  return m_prev->thisOrPrevReal(loop);
+  return m_prev ? m_prev->thisOrPrevReal(loop) : nullptr;
 }
 
 SplineVertex::Ptr SplineVertex::next(const Loop loop) {
-  return m_next->thisOrNextReal(loop);
+  return m_next ? m_next->thisOrNextReal(loop) : nullptr;
 }
 
 SplineVertex::Ptr SplineVertex::insertBefore(const QPointF& pt) {
@@ -83,7 +83,7 @@ SentinelSplineVertex::~SentinelSplineVertex() {
 }
 
 SplineVertex::Ptr SentinelSplineVertex::thisOrPrevReal(const Loop loop) {
-  if ((loop == LOOP) || ((loop == LOOP_IF_BRIDGED) && m_bridged)) {
+  if (((loop == LOOP) || ((loop == LOOP_IF_BRIDGED) && m_bridged)) && m_prev) {
     return m_prev->shared_from_this();
   } else {
     return nullptr;
