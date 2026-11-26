@@ -9,13 +9,31 @@
 #include <QSize>
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <stdexcept>
-
 
 namespace imageproc {
 namespace {
-int calcNumTerms(const int horDegree, const int vertDegree) {
-  return (horDegree + 1) * (vertDegree + 1);
+int calcNumTermsChecked(const int horDegree, const int vertDegree) {
+  if ((horDegree < 0) || (vertDegree < 0)) {
+    throw std::invalid_argument("SavGolKernel: invalid polynomial degree");
+  }
+  const int64_t terms = static_cast<int64_t>(horDegree + 1) * static_cast<int64_t>(vertDegree + 1);
+  if (terms > 1000000) {
+    throw std::invalid_argument("SavGolKernel: polynomial degree overflow");
+  }
+  return static_cast<int>(terms);
+}
+
+int calcNumDataPointsChecked(const QSize& size) {
+  if (size.isEmpty()) {
+    throw std::invalid_argument("SavGolKernel: invalid size");
+  }
+  const int64_t count = static_cast<int64_t>(size.width()) * static_cast<int64_t>(size.height());
+  if (count > 10000000) {
+    throw std::invalid_argument("SavGolKernel: window size too large");
+  }
+  return static_cast<int>(count);
 }
 }  // anonymous namespace
 
@@ -24,16 +42,10 @@ SavGolKernel::SavGolKernel(const QSize& size, const QPoint& origin, const int ho
       m_vertDegree(vertDegree),
       m_width(size.width()),
       m_height(size.height()),
-      m_numTerms(calcNumTerms(horDegree, vertDegree)),
-      m_numDataPoints(size.width() * size.height()) {
-  if (size.isEmpty()) {
-    throw std::invalid_argument("SavGolKernel: invalid size");
-  }
-  if (horDegree < 0) {
-    throw std::invalid_argument("SavGolKernel: invalid horDegree");
-  }
-  if (vertDegree < 0) {
-    throw std::invalid_argument("SavGolKernel: invalid vertDegree");
+      m_numTerms(calcNumTermsChecked(horDegree, vertDegree)),
+      m_numDataPoints(calcNumDataPointsChecked(size)) {
+  if ((origin.x() < 0) || (origin.x() >= m_width) || (origin.y() < 0) || (origin.y() >= m_height)) {
+    throw std::invalid_argument("SavGolKernel: origin out of bounds");
   }
   if (m_numTerms > m_numDataPoints) {
     throw std::invalid_argument("SavGolKernel: too high degree for this amount of data");
@@ -44,7 +56,7 @@ SavGolKernel::SavGolKernel(const QSize& size, const QPoint& origin, const int ho
   m_coeffs.resize(m_numTerms);
   AlignedArray<float, 4>(m_numDataPoints).swap(m_kernel);
   // Prepare equations.
-  m_equations.reserve(m_numTerms * m_numDataPoints);
+  m_equations.reserve(static_cast<size_t>(m_numTerms) * static_cast<size_t>(m_numDataPoints));
   for (int y = 1; y <= m_height; ++y) {
     for (int x = 1; x <= m_width; ++x) {
       double pow1 = 1.0;
@@ -70,7 +82,8 @@ SavGolKernel::SavGolKernel(const QSize& size, const QPoint& origin, const int ho
  */
 void SavGolKernel::QR() {
   m_rotations.clear();
-  m_rotations.reserve(m_numTerms * (m_numTerms - 1) / 2 + (m_numDataPoints - m_numTerms) * m_numTerms);
+  m_rotations.reserve(static_cast<size_t>(m_numTerms) * (m_numTerms - 1) / 2
+                      + static_cast<size_t>(m_numDataPoints - m_numTerms) * m_numTerms);
 
   int jj = 0;  // j * m_numTerms + j
   for (int j = 0; j < m_numTerms; ++j, jj += m_numTerms + 1) {
@@ -119,8 +132,12 @@ void SavGolKernel::QR() {
 }  // SavGolKernel::QR
 
 void SavGolKernel::recalcForOrigin(const QPoint& origin) {
+  if ((origin.x() < 0) || (origin.x() >= m_width) || (origin.y() < 0) || (origin.y() >= m_height)) {
+    throw std::invalid_argument("SavGolKernel: origin out of bounds");
+  }
+
   std::fill(m_dataPoints.begin(), m_dataPoints.end(), 0.0);
-  m_dataPoints[origin.y() * m_width + origin.x()] = 1.0;
+  m_dataPoints[static_cast<size_t>(origin.y()) * m_width + origin.x()] = 1.0;
 
   // Rotate data points.
   double* const dp = &m_dataPoints[0];
@@ -141,7 +158,9 @@ void SavGolKernel::recalcForOrigin(const QPoint& origin) {
       sum -= m_equations[ik] * m_coeffs[k];
     }
 
-    assert(m_equations[ii] != 0.0);
+    if (std::fabs(m_equations[ii]) <= 1e-12) {
+      throw std::runtime_error("SavGolKernel: singular equation system");
+    }
     m_coeffs[i] = sum / m_equations[ii];
   }
 

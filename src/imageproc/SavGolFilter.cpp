@@ -3,6 +3,8 @@
 
 #include "SavGolFilter.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <stdexcept>
 
 #include "Grayscale.h"
@@ -10,8 +12,8 @@
 
 namespace imageproc {
 namespace {
-int calcNumTerms(const int horDegree, const int vertDegree) {
-  return (horDegree + 1) * (vertDegree + 1);
+int64_t calcNumTerms(const int horDegree, const int vertDegree) {
+  return static_cast<int64_t>(horDegree + 1) * static_cast<int64_t>(vertDegree + 1);
 }
 
 class Kernel : public SavGolKernel {
@@ -108,13 +110,13 @@ QImage savGolFilterGrayToGray(const QImage& src, const QSize& windowSize, const 
 
   // Top area between two corners.
   kOrigin.setX(kCenter.x());
-  srcLine = srcData - kLeft;
+  srcLine = srcData;
   dstLine = dstData;
   for (int y = 0; y < kTop; ++y, dstLine += dstBpl) {
     kOrigin.setY(y);
     kernel.recalcForOrigin(kOrigin);
     for (int x = kLeft; x < width - kRight; ++x) {
-      kernel.convolve(dstLine + x, srcLine + x, srcBpl);
+      kernel.convolve(dstLine + x, srcLine + (x - kLeft), srcBpl);
     }
   }
   // Top-right corner.
@@ -130,74 +132,59 @@ QImage savGolFilterGrayToGray(const QImage& src, const QSize& windowSize, const 
     }
     kOrigin.ry() += 1;
   }
-  // Central area.
-#if 0
-            // Simple but slow implementation.
-                    kernel.recalcForOrigin(kCenter);
-                    srcLine = srcData - kLeft;
-                    dstLine = dstData + dstBpl * kTop;
-                    for (int y = kTop; y < height - kBottom; ++y) {
-                        for (int x = kLeft; x < width - kRight; ++x) {
-                            kernel.convolve(dstLine + x, srcLine + x, srcBpl);
-                        }
-                        srcLine += srcBpl;
-                        dstLine += dstBpl;
-                    }
-#else
-  // Take advantage of Savitzky-Golay filter being separable.
-  const SavGolKernel horKernel(QSize(windowSize.width(), 1), QPoint(kCenter.x(), 0), horDegree, 0);
-  const SavGolKernel vertKernel(QSize(1, windowSize.height()), QPoint(0, kCenter.y()), 0, vertDegree);
+  // Central area (Savitzky-Golay filter is separable).
+  {
+    const SavGolKernel horKernel(QSize(windowSize.width(), 1), QPoint(kCenter.x(), 0), horDegree, 0);
+    const SavGolKernel vertKernel(QSize(1, windowSize.height()), QPoint(0, kCenter.y()), 0, vertDegree);
 
-  const int shift = kw - 1;
+    const int shift = kw - 1;
 
-  // Allocate a 16-byte aligned temporary storage.
-  // That may help the compiler to emit efficient SSE code.
-  const int tempStride = (width - shift + 3) & ~3;
-  // REVIEW-NOTE (2026-11): tempStride * height is an int product -> it would overflow for images above
-  // 2^31 pixels. Not fixed because ImageSizeLimit keeps both sides at 32767 or less.
-  AlignedArray<float, 4> tempArray(tempStride * height);
-  // Horizontal pass.
-  srcLine = srcData - shift;
-  float* tempLine = tempArray.data() - shift;
-  for (int y = 0; y < height; ++y) {
-    for (int i = shift; i < width; ++i) {
-      float sum = 0.0f;
+    // Allocate a 16-byte aligned temporary storage.
+    // That may help the compiler to emit efficient SSE code.
+    const int tempStride = (width - shift + 3) & ~3;
+    AlignedArray<float, 4> tempArray(static_cast<size_t>(tempStride) * static_cast<size_t>(height));
+    // Horizontal pass.
+    srcLine = srcData;
+    float* tempLine = tempArray.data();
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width - shift; ++x) {
+        float sum = 0.0f;
 
-      const uint8_t* srcPixels = srcLine + i;
-      for (int j = 0; j < kw; ++j) {
-        sum += srcPixels[j] * horKernel[j];
+        const uint8_t* srcPixels = srcLine + x;
+        for (int j = 0; j < kw; ++j) {
+          sum += srcPixels[j] * horKernel[j];
+        }
+        tempLine[x] = sum;
       }
-      tempLine[i] = sum;
+      tempLine += tempStride;
+      srcLine += srcBpl;
     }
-    tempLine += tempStride;
-    srcLine += srcBpl;
-  }
-  // Vertical pass.
-  dstLine = dstData + kTop * dstBpl + kLeft - shift;
-  tempLine = tempArray.data() - shift;
-  for (int y = kTop; y < height - kBottom; ++y) {
-    for (int i = shift; i < width; ++i) {
-      float sum = 0.5f;  // For rounding purposes, as in Kernel::convolve().
+    // Vertical pass.
+    dstLine = dstData + static_cast<ptrdiff_t>(kTop) * dstBpl + kLeft;
+    tempLine = tempArray.data();
+    for (int y = kTop; y < height - kBottom; ++y) {
+      for (int x = 0; x < width - shift; ++x) {
+        float sum = 0.5f;  // For rounding purposes, as in Kernel::convolve().
 
-      float* tmp = tempLine + i;
-      for (int j = 0; j < kh; ++j, tmp += tempStride) {
-        sum += *tmp * vertKernel[j];
+        float* tmp = tempLine + x;
+        for (int j = 0; j < kh; ++j, tmp += tempStride) {
+          sum += *tmp * vertKernel[j];
+        }
+        const auto val = static_cast<int>(sum);
+        dstLine[x] = static_cast<uint8_t>(qBound(0, val, 255));
       }
-      const auto val = static_cast<int>(sum);
-      dstLine[i] = static_cast<uint8_t>(qBound(0, val, 255));
-    }
 
-    tempLine += tempStride;
-    dstLine += dstBpl;
+      tempLine += tempStride;
+      dstLine += dstBpl;
+    }
   }
-#endif  // if 0
 
   // Left area between two corners.
   kOrigin.setX(0);
   kOrigin.setY(kCenter.y());
   for (int x = 0; x < kLeft; ++x) {
     srcLine = srcData;
-    dstLine = dstData + dstBpl * kTop;
+    dstLine = dstData + static_cast<ptrdiff_t>(dstBpl) * kTop;
 
     kernel.recalcForOrigin(kOrigin);
     for (int y = kTop; y < height - kBottom; ++y) {
@@ -212,7 +199,7 @@ QImage savGolFilterGrayToGray(const QImage& src, const QSize& windowSize, const 
   kOrigin.setY(kCenter.y());
   for (int x = width - kRight; x < width; ++x) {
     srcLine = srcData + width - kw;
-    dstLine = dstData + dstBpl * kTop;
+    dstLine = dstData + static_cast<ptrdiff_t>(dstBpl) * kTop;
 
     kernel.recalcForOrigin(kOrigin);
     for (int y = kTop; y < height - kBottom; ++y) {
@@ -225,8 +212,8 @@ QImage savGolFilterGrayToGray(const QImage& src, const QSize& windowSize, const 
 
   // Bottom-left corner.
   kOrigin.setY(kCenter.y() + 1);
-  srcLine = srcData + srcBpl * (height - kh);
-  dstLine = dstData + dstBpl * (height - kBottom);
+  srcLine = srcData + static_cast<ptrdiff_t>(srcBpl) * (height - kh);
+  dstLine = dstData + static_cast<ptrdiff_t>(dstBpl) * (height - kBottom);
   for (int y = height - kBottom; y < height; ++y, dstLine += dstBpl) {
     for (int x = 0; x < kLeft; ++x) {
       kOrigin.setX(x);
@@ -239,19 +226,19 @@ QImage savGolFilterGrayToGray(const QImage& src, const QSize& windowSize, const 
   // Bottom area between two corners.
   kOrigin.setX(kCenter.x());
   kOrigin.setY(kCenter.y() + 1);
-  srcLine = srcData + srcBpl * (height - kh) - kLeft;
-  dstLine = dstData + dstBpl * (height - kBottom);
+  srcLine = srcData + static_cast<ptrdiff_t>(srcBpl) * (height - kh);
+  dstLine = dstData + static_cast<ptrdiff_t>(dstBpl) * (height - kBottom);
   for (int y = height - kBottom; y < height; ++y, dstLine += dstBpl) {
     kernel.recalcForOrigin(kOrigin);
     for (int x = kLeft; x < width - kRight; ++x) {
-      kernel.convolve(dstLine + x, srcLine + x, srcBpl);
+      kernel.convolve(dstLine + x, srcLine + (x - kLeft), srcBpl);
     }
     kOrigin.ry() += 1;
   }
   // Bottom-right corner.
   kOrigin.setY(kCenter.y() + 1);
-  srcLine = srcData + srcBpl * (height - kh) + (width - kw);
-  dstLine = dstData + dstBpl * (height - kBottom);
+  srcLine = srcData + static_cast<ptrdiff_t>(srcBpl) * (height - kh) + (width - kw);
+  dstLine = dstData + static_cast<ptrdiff_t>(dstBpl) * (height - kBottom);
   for (int y = height - kBottom; y < height; ++y, dstLine += dstBpl) {
     kOrigin.setX(kCenter.x() + 1);
     for (int x = width - kRight; x < width; ++x) {
@@ -261,6 +248,8 @@ QImage savGolFilterGrayToGray(const QImage& src, const QSize& windowSize, const 
     }
     kOrigin.ry() += 1;
   }
+  dst.setDotsPerMeterX(src.dotsPerMeterX());
+  dst.setDotsPerMeterY(src.dotsPerMeterY());
   return dst;
 }  // savGolFilterGrayToGray
 }  // namespace
@@ -273,7 +262,7 @@ QImage savGolFilter(const QImage& src, const QSize& windowSize, const int horDeg
     throw std::invalid_argument("savGolFilter: invalid window size");
   }
 
-  if (calcNumTerms(horDegree, vertDegree) > windowSize.width() * windowSize.height()) {
+  if (calcNumTerms(horDegree, vertDegree) > static_cast<int64_t>(windowSize.width()) * windowSize.height()) {
     throw std::invalid_argument("savGolFilter: order is too big for that window");
   }
   return savGolFilterGrayToGray(toGrayscale(src), windowSize, horDegree, vertDegree);
