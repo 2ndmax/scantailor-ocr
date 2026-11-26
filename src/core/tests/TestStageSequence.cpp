@@ -142,6 +142,7 @@ BOOST_AUTO_TEST_CASE(test_process_all_calls_after_margins_before_output) {
       nullptr, session.outFileNameGen, session.stages->outputFilterIdx(), {}, [&] {
         ++calls;
         noOutputYet = QDir(session.outFileNameGen.outDir()).entryList({QStringLiteral("*.tif")}, QDir::Files).isEmpty();
+        return true;
       });
   BOOST_CHECK(result.failures.empty());
   BOOST_CHECK(result.output);
@@ -153,7 +154,10 @@ BOOST_AUTO_TEST_CASE(test_process_all_calls_after_margins_before_output) {
   const ProjectSession marginsOnly = createProject(marginsDir, 1);
   calls = 0;
   const StageSequence::ProcessAllResult marginsResult = marginsOnly.stages->processAll(
-      nullptr, marginsOnly.outFileNameGen, marginsOnly.stages->pageLayoutFilterIdx(), {}, [&] { ++calls; });
+      nullptr, marginsOnly.outFileNameGen, marginsOnly.stages->pageLayoutFilterIdx(), {}, [&] {
+        ++calls;
+        return true;
+      });
   BOOST_CHECK(!marginsResult.output);
   BOOST_CHECK_EQUAL(calls, 1);
 }

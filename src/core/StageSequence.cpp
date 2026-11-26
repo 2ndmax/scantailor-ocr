@@ -435,7 +435,10 @@ StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<
       return result;
     }
     if (afterMargins && (lastFilterIdx >= m_pageLayoutFilterIdx)) {
-      afterMargins();
+      if (!afterMargins()) {
+        result.cancelled = true;
+        return result;
+      }
     }
     if ((lastFilterIdx >= m_outputFilterIdx) && !m_pageLayoutFilter->checkReadyForOutput(*m_pages)) {
       return result;

@@ -95,9 +95,10 @@ class StageSequence {
   /**
    * Called by processAll() after the Margins pass, before the Output pass, when the run reaches
    * the Margins step. It can use the geometry of all pages without a second run; a caller may
-   * change the settings of the pages here, so that the Output pass sees them.
+   * change the settings of the pages here, so that the Output pass sees them. Returning false
+   * cancels processing before the Output pass.
    */
-  using AfterMarginsCallback = std::function<void()>;
+  using AfterMarginsCallback = std::function<bool()>;
 
   StageSequence(const std::shared_ptr<ProjectPages>& pages);
 

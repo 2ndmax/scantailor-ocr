@@ -1389,12 +1389,17 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
         summary += "\n\n" + tr("The detection was canceled.");
       }
       out << summary << Qt::endl;
+      return !detectionCancelled && !cancel;
     };
   }
 
   // Without thumbnails: they are pixmaps, which need a GUI.
-  const StageSequence::ProcessAllResult processed
-      = stages.processAll(nullptr, session->outFileNameGen, runLastFilterIdx, progress, afterMargins);
+  StageSequence::ProcessAllResult processed;
+  if (cancel || orientationDetectionCancelled) {
+    processed.cancelled = true;
+  } else {
+    processed = stages.processAll(nullptr, session->outFileNameGen, runLastFilterIdx, progress, afterMargins);
+  }
   for (const StageSequence::PageFailure& failure : processed.failures) {
     err << failureMessage(failure) << Qt::endl;
   }

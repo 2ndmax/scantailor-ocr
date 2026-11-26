@@ -1628,29 +1628,41 @@ BOOST_AUTO_TEST_CASE(test_report_of_a_cancelled_run) {
 }
 
 namespace {
-/** Triggers cancellation synchronously on the first streamed export progress event. */
-class CancelOnExportDevice : public QIODevice {
+/** Triggers cancellation synchronously when streamed JSON progress contains all \p markers. */
+class CancelOnProgressDevice : public QIODevice {
  public:
-  explicit CancelOnExportDevice(std::atomic<bool>& cancel) : m_cancel(cancel) {}
+  CancelOnProgressDevice(std::atomic<bool>& cancel, std::vector<QByteArray> markers)
+      : m_cancel(cancel), m_markers(std::move(markers)) {}
 
-  bool sawExportEvent() const { return m_sawExportEvent; }
+  bool triggered() const { return m_triggered; }
+
+  const QByteArray& buffer() const { return m_buffer; }
 
  protected:
   qint64 readData(char* /*data*/, qint64 /*maxSize*/) override { return 0; }
 
   qint64 writeData(const char* data, qint64 maxSize) override {
     m_buffer.append(data, maxSize);
-    if (!m_sawExportEvent && m_buffer.contains("\"event\":\"export\"")) {
-      m_sawExportEvent = true;
-      m_cancel.store(true);
+    if (!m_triggered) {
+      const qsizetype lastNewline = m_buffer.lastIndexOf('\n');
+      const QByteArray completed = (lastNewline >= 0) ? m_buffer.left(lastNewline) : m_buffer;
+      const int start = completed.lastIndexOf('\n') + 1;
+      const QByteArray lastLine = completed.mid(start);
+      const bool allMatched = std::all_of(m_markers.begin(), m_markers.end(),
+                                          [&lastLine](const QByteArray& marker) { return lastLine.contains(marker); });
+      if (allMatched) {
+        m_triggered = true;
+        m_cancel.store(true);
+      }
     }
     return maxSize;
   }
 
  private:
   std::atomic<bool>& m_cancel;
+  std::vector<QByteArray> m_markers;
   QByteArray m_buffer;
-  bool m_sawExportEvent = false;
+  bool m_triggered = false;
 };
 }  // namespace
 
@@ -1679,7 +1691,7 @@ BOOST_AUTO_TEST_CASE(test_report_cancelled_during_export) {
   const QString reportFile = dir.filePath("report.json");
 
   std::atomic<bool> cancel(false);
-  CancelOnExportDevice device(cancel);
+  CancelOnProgressDevice device(cancel, {"\"event\":\"export\""});
   BOOST_REQUIRE(device.open(QIODevice::WriteOnly));
 
   QString out;
@@ -1694,7 +1706,7 @@ BOOST_AUTO_TEST_CASE(test_report_cancelled_during_export) {
   const CommandLineRun::ExitCode code = CommandLineRun::run(runOptions, outStream, errStream, cancel, &progressStream);
 
   BOOST_CHECK_EQUAL(code, CommandLineRun::CANCELLED);
-  BOOST_CHECK(device.sawExportEvent());
+  BOOST_CHECK(device.triggered());
   BOOST_CHECK_EQUAL(QDir(outDir).entryList({QStringLiteral("*.tif")}, QDir::Files).size(), 8);
   BOOST_CHECK(QDir(outDir).entryList({QStringLiteral("*.pdf")}, QDir::Files).isEmpty());
   const QJsonObject report = readReport(reportFile);
@@ -2775,6 +2787,71 @@ BOOST_AUTO_TEST_CASE(test_orientation_detect_cancelled) {
   for (const QJsonValue& page : pages) {
     BOOST_CHECK_EQUAL(page.toObject()["rotation"].toInt(), 0);
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_cancel_during_orientation_detect_stops_before_processing) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPage(inputDir + QStringLiteral("/rot1.png"), 90, 300).imageInfo().empty());
+  BOOST_REQUIRE(!Tests::saveTextPage(inputDir + QStringLiteral("/rot2.png"), 90, 300).imageInfo().empty());
+  const QString outDir = dir.filePath("out");
+
+  std::atomic<bool> cancel(false);
+  CancelOnProgressDevice device(cancel, {"\"step\":\"orientation-detect\"", "\"event\":\"page\""});
+  BOOST_REQUIRE(device.open(QIODevice::WriteOnly));
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  QTextStream progressStream(&device);
+  CommandLineRun::Options options;
+  options.inputFolder = inputDir;
+  options.outputFolder = outDir;
+  options.projectFile = dir.filePath("p.ScanTailor");
+  options.orientationDetect = QStringLiteral("pages");
+  options.lastStep = CommandLineRun::Options::OUTPUT;
+  options.threads = 1;
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, cancel, &progressStream),
+                    CommandLineRun::CANCELLED);
+  BOOST_CHECK(device.triggered());
+  BOOST_CHECK(!device.buffer().contains("\"step\":\"split-pages\""));
+  BOOST_CHECK(!device.buffer().contains("\"step\":\"output\""));
+  BOOST_CHECK(QDir(outDir).entryList({QStringLiteral("*.tif")}, QDir::Files).isEmpty());
+}
+
+BOOST_AUTO_TEST_CASE(test_cancel_during_color_mode_detect_stops_before_output) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/p1.png"), 300).imageInfo().empty());
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/p2.png"), 300).imageInfo().empty());
+  const QString outDir = dir.filePath("out");
+
+  std::atomic<bool> cancel(false);
+  CancelOnProgressDevice device(cancel, {"\"step\":\"color-mode-detect\"", "\"event\":\"page\""});
+  BOOST_REQUIRE(device.open(QIODevice::WriteOnly));
+
+  QString out;
+  QString err;
+  QTextStream outStream(&out);
+  QTextStream errStream(&err);
+  QTextStream progressStream(&device);
+  CommandLineRun::Options options;
+  options.inputFolder = inputDir;
+  options.outputFolder = outDir;
+  options.projectFile = dir.filePath("p.ScanTailor");
+  options.colorModeDetect = true;
+  options.lastStep = CommandLineRun::Options::OUTPUT;
+  options.threads = 1;
+  BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, cancel, &progressStream),
+                    CommandLineRun::CANCELLED);
+  BOOST_CHECK(device.triggered());
+  BOOST_CHECK(!device.buffer().contains("\"step\":\"output\""));
+  BOOST_CHECK(QDir(outDir).entryList({QStringLiteral("*.tif")}, QDir::Files).isEmpty());
 }
 
 BOOST_AUTO_TEST_CASE(test_report_file_validation_rejects_empty_and_reserved) {
