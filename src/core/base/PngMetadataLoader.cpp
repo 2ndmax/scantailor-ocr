@@ -100,11 +100,14 @@ ImageMetadataLoader::Status PngMetadataLoader::loadMetadata(QIODevice& ioDevice,
   // fit in int.
   size.setWidth(png_get_image_width(png.handle(), png.info()));
   size.setHeight(png_get_image_height(png.handle(), png.info()));
-  png_uint_32 resX, res_y;
-  int unitType;
-  if (png_get_pHYs(png.handle(), png.info(), &resX, &res_y, &unitType)) {
-    if (unitType == PNG_RESOLUTION_METER) {
-      dpi = Dpm(resX, res_y);
+  png_uint_32 resX = 0;
+  png_uint_32 resY = 0;
+  int unitType = 0;
+  if (png_get_pHYs(png.handle(), png.info(), &resX, &resY, &unitType)) {
+    // 100000 dpi in dots/meter (matches TiffReader::getDpi()'s plausibility limit and fits in int).
+    constexpr png_uint_32 maxDpm = 3937008u;
+    if ((unitType == PNG_RESOLUTION_METER) && (resX > 0) && (resY > 0) && (resX < maxDpm) && (resY < maxDpm)) {
+      dpi = Dpm(static_cast<int>(resX), static_cast<int>(resY));
     }
   }
 

@@ -1637,4 +1637,48 @@ BOOST_AUTO_TEST_CASE(test_float64_extreme_range_tiff) {
   BOOST_CHECK_EQUAL(grayAt(image, 2, 0), 255);
 }
 
+BOOST_AUTO_TEST_CASE(test_png_huge_phys_resolution_is_ignored) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("huge_phys.png");
+  QImage source(8, 8, QImage::Format_RGB32);
+  source.fill(Qt::white);
+  source.setDotsPerMeterX(11811);
+  source.setDotsPerMeterY(11811);
+  BOOST_REQUIRE(source.save(path, "PNG"));
+
+  QByteArray png = Tests::readFile(path);
+  const qsizetype physPos = png.indexOf(QByteArrayLiteral("pHYs"));
+  BOOST_REQUIRE_GE(physPos, 4);
+  BOOST_REQUIRE_GE(png.size(), physPos + 17);
+
+  auto writeBe32 = [&](const qsizetype offset, const uint32_t value) {
+    png[offset] = static_cast<char>((value >> 24) & 0xFF);
+    png[offset + 1] = static_cast<char>((value >> 16) & 0xFF);
+    png[offset + 2] = static_cast<char>((value >> 8) & 0xFF);
+    png[offset + 3] = static_cast<char>(value & 0xFF);
+  };
+  writeBe32(physPos + 4, 0x80000001u);
+  writeBe32(physPos + 8, 0x80000001u);
+
+  uint32_t crc = 0xFFFFFFFFu;
+  for (qsizetype i = physPos; i < physPos + 13; ++i) {
+    crc ^= static_cast<uint8_t>(png[i]);
+    for (int bit = 0; bit < 8; ++bit) {
+      crc = (crc & 1u) ? ((crc >> 1) ^ 0xEDB88320u) : (crc >> 1);
+    }
+  }
+  writeBe32(physPos + 13, crc ^ 0xFFFFFFFFu);
+  BOOST_REQUIRE(Tests::writeFile(path, png));
+
+  std::vector<ImageMetadata> pages;
+  const auto status
+      = ImageMetadataLoader::load(path, [&](const ImageMetadata& metadata) { pages.push_back(metadata); });
+  BOOST_REQUIRE(status == ImageMetadataLoader::LOADED);
+  BOOST_REQUIRE_EQUAL(pages.size(), 1u);
+  BOOST_CHECK(pages[0].size() == QSize(8, 8));
+  BOOST_CHECK_EQUAL(pages[0].dpi().horizontal(), 0);
+  BOOST_CHECK_EQUAL(pages[0].dpi().vertical(), 0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
