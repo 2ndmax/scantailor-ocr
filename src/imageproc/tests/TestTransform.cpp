@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <stdexcept>
 
 #include "Utils.h"
 
@@ -83,6 +84,24 @@ BOOST_AUTO_TEST_CASE(test_large_downscale_does_not_overflow) {
       BOOST_REQUIRE_EQUAL(rgbDst.pixel(x, y), qRgb(255, 255, 255));
     }
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_transform_rejects_singular_and_handles_extreme_zoom) {
+  GrayImage src(QSize(16, 16));
+  src.fill(200);
+  const OutsidePixels outsidePixels(OutsidePixels::assumeColor(QColor(255, 255, 255)));
+
+  const QTransform singular(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+  BOOST_CHECK_THROW(transformToGray(src, singular, QRect(0, 0, 8, 8), outsidePixels), std::invalid_argument);
+  BOOST_CHECK_THROW(transform(src.toQImage(), singular, QRect(0, 0, 8, 8), outsidePixels), std::invalid_argument);
+
+  const GrayImage zoomedOut = transformToGray(src, QTransform::fromScale(1e-9, 1e-9), QRect(0, 0, 4, 4), outsidePixels);
+  BOOST_CHECK(zoomedOut.size() == QSize(4, 4));
+
+  const GrayImage farTranslated
+      = transformToGray(src, QTransform::fromTranslate(1e9, 1e9), QRect(0, 0, 4, 4), outsidePixels);
+  BOOST_CHECK(farTranslated.size() == QSize(4, 4));
+  BOOST_CHECK_EQUAL(int(farTranslated.data()[0]), 255);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

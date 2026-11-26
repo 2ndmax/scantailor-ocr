@@ -4,7 +4,9 @@
 #include "Transform.h"
 
 #include <QDebug>
+#include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <stdexcept>
 
@@ -61,18 +63,24 @@ static void transformGeneric(const StorageUnit* const srcData,
 
   QTransform invXform;
   invXform.translate(dstRect.x(), dstRect.y());
-  // REVIEW-NOTE (2026-11): a singular xform -> inverted() returns the identity and the image is copied
-  // untransformed. Not fixed because the callers pass the ImageTransformation of a page or its inverse,
-  // a rotation, a downscale or the image-to-widget transform of a view, all with a non-zero scale.
-  invXform *= xform.inverted();
+  bool invertible = false;
+  const QTransform inv = xform.inverted(&invertible);
+  if (!invertible) {
+    throw std::invalid_argument("transform: singular transformation matrix");
+  }
+  invXform *= inv;
   invXform *= QTransform().scale(32.0, 32.0);
 
   // sx32 = dx*invXform.m11() + dy*invXform.m21() + invXform.dx();
   // sy32 = dy*invXform.m22() + dx*invXform.m12() + invXform.dy();
 
   const QSizeF src32UnitSize(calcSrcUnitSize(invXform, minMappingArea));
-  const int src32UnitW = std::max<int>(1, qRound(src32UnitSize.width()));
-  const int src32UnitH = std::max<int>(1, qRound(src32UnitSize.height()));
+  if (!std::isfinite(src32UnitSize.width()) || !std::isfinite(src32UnitSize.height())) {
+    throw std::invalid_argument("transform: non-finite transformation matrix");
+  }
+  const double unitW = std::max(1.0, std::round(src32UnitSize.width()));
+  const double unitH = std::max(1.0, std::round(src32UnitSize.height()));
+  constexpr double kMaxSubpixelCoord = 1e7;
 
   for (int dy = 0; dy < dh; ++dy, dstLine += dstStride) {
     const double fDyCenter = dy + 0.5;
@@ -83,13 +91,33 @@ static void transformGeneric(const StorageUnit* const srcData,
       const double fDxCenter = dx + 0.5;
       const double fSx32Center = fSx32Base + fDxCenter * invXform.m11();
       const double fSy32Center = fSy32Base + fDxCenter * invXform.m12();
-      // REVIEW-NOTE (2026-11): a source position beyond the int range (32 times the coordinate) -> an
-      // undefined cast. Not fixed because the callers map onto images within ImageSizeLimit (32767 pixels
-      // a side), so the positions stay near 32 * 32767; see also the note on the singular xform above.
-      int src32Left = (int) fSx32Center - (src32UnitW >> 1);
-      int src32Top = (int) fSy32Center - (src32UnitH >> 1);
-      int src32Right = src32Left + src32UnitW;
-      int src32Bottom = src32Top + src32UnitH;
+      const double fSrc32Left = fSx32Center - 0.5 * unitW;
+      const double fSrc32Top = fSy32Center - 0.5 * unitH;
+      const double fSrc32Right = fSrc32Left + unitW;
+      const double fSrc32Bottom = fSrc32Top + unitH;
+
+      if (!std::isfinite(fSx32Center) || !std::isfinite(fSy32Center) || (fSrc32Right <= 0.0)
+          || (fSrc32Left >= static_cast<double>(sw) * 32.0) || (fSrc32Bottom <= 0.0)
+          || (fSrc32Top >= static_cast<double>(sh) * 32.0)) {
+        // Completely outside of src image.
+        if ((outsideFlags & OutsidePixels::COLOR) || !std::isfinite(fSx32Center) || !std::isfinite(fSy32Center)) {
+          dstLine[dx] = outsideColor;
+        } else {
+          const double fSrcX = std::floor(fSx32Center / 32.0);
+          const double fSrcY = std::floor(fSy32Center / 32.0);
+          const int srcX = (fSrcX <= 0.0) ? 0 : ((fSrcX >= sw - 1) ? (sw - 1) : static_cast<int>(fSrcX));
+          const int srcY = (fSrcY <= 0.0) ? 0 : ((fSrcY >= sh - 1) ? (sh - 1) : static_cast<int>(fSrcY));
+          dstLine[dx] = srcData[srcY * srcStride + srcX];
+        }
+        continue;
+      }
+
+      int src32Left = static_cast<int>(std::floor(std::clamp(fSrc32Left, -kMaxSubpixelCoord, kMaxSubpixelCoord)));
+      int src32Top = static_cast<int>(std::floor(std::clamp(fSrc32Top, -kMaxSubpixelCoord, kMaxSubpixelCoord)));
+      int src32Right = std::max(
+          src32Left + 1, static_cast<int>(std::ceil(std::clamp(fSrc32Right, -kMaxSubpixelCoord, kMaxSubpixelCoord))));
+      int src32Bottom = std::max(
+          src32Top + 1, static_cast<int>(std::ceil(std::clamp(fSrc32Bottom, -kMaxSubpixelCoord, kMaxSubpixelCoord))));
       int srcLeft = src32Left >> 5;
       int srcRight = (src32Right - 1) >> 5;  // inclusive
       int srcTop = src32Top >> 5;
