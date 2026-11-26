@@ -4,6 +4,7 @@
 #include <DeviationProvider.h>
 
 #include <boost/test/unit_test.hpp>
+#include <cmath>
 
 namespace Tests {
 
@@ -34,6 +35,33 @@ BOOST_AUTO_TEST_CASE(test_absolute_threshold) {
   // Less than one degree off the mean.
   BOOST_CHECK(!provider.isDeviant(4, 1.5, 1.0));
   BOOST_CHECK(provider.isDeviant(4, 1.5, 0.1));
+}
+
+BOOST_AUTO_TEST_CASE(test_unchanged_value_does_not_invalidate_statistics) {
+  struct ProbeDeviationProvider : DeviationProvider<int> {
+    using DeviationProvider<int>::needsUpdate;
+  };
+
+  ProbeDeviationProvider provider;
+  addAngles(provider);
+  BOOST_CHECK_GE(provider.getDeviationValue(0), 0.0);
+  BOOST_CHECK(!provider.needsUpdate());
+
+  // Re-adding an identical finite value keeps cached statistics intact.
+  provider.addOrUpdate(0, 0.1);
+  BOOST_CHECK(!provider.needsUpdate());
+
+  // Identical NaN updates likewise avoid dirtying cached statistics.
+  provider.addOrUpdate(99, NAN);
+  BOOST_CHECK(provider.needsUpdate());
+  BOOST_CHECK_GE(provider.getDeviationValue(0), 0.0);
+  BOOST_CHECK(!provider.needsUpdate());
+  provider.addOrUpdate(99, NAN);
+  BOOST_CHECK(!provider.needsUpdate());
+
+  // A real change still triggers recomputation.
+  provider.addOrUpdate(0, 0.2);
+  BOOST_CHECK(provider.needsUpdate());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

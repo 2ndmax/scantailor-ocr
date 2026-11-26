@@ -59,7 +59,13 @@ class DeviationProvider {
   /** Recomputes the cached statistics. Must be called with m_mutex held. */
   void update() const;
 
+  bool needsUpdate() const {
+    const std::lock_guard<std::mutex> locker(m_mutex);
+    return m_needUpdate;
+  }
+
  private:
+  void addOrUpdateLocked(const K& key, double value);
   /**
    * Mean and standard deviation don't say anything useful below this many known values, and
    * the standard deviation isn't even defined for less than two of them.
@@ -128,19 +134,29 @@ double DeviationProvider<K, Hash>::getDeviationValue(const K& key) const {
 }
 
 template <typename K, typename Hash>
+void DeviationProvider<K, Hash>::addOrUpdateLocked(const K& key, const double value) {
+  const auto [it, inserted] = m_keyValueMap.try_emplace(key, value);
+  if (!inserted) {
+    if ((it->second == value) || (std::isnan(it->second) && std::isnan(value))) {
+      return;
+    }
+    it->second = value;
+  }
+  m_needUpdate = true;
+}
+
+template <typename K, typename Hash>
 void DeviationProvider<K, Hash>::addOrUpdate(const K& key) {
   const std::lock_guard<std::mutex> locker(m_mutex);
 
-  m_needUpdate = true;
-  m_keyValueMap[key] = m_computeValueByKey ? m_computeValueByKey(key) : NAN;
+  addOrUpdateLocked(key, m_computeValueByKey ? m_computeValueByKey(key) : NAN);
 }
 
 template <typename K, typename Hash>
 void DeviationProvider<K, Hash>::addOrUpdate(const K& key, const double value) {
   const std::lock_guard<std::mutex> locker(m_mutex);
 
-  m_needUpdate = true;
-  m_keyValueMap[key] = value;
+  addOrUpdateLocked(key, value);
 }
 
 template <typename K, typename Hash>
