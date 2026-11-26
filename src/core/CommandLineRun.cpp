@@ -10,6 +10,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
+#include <QSaveFile>
 #include <QSet>
 #include <QTextStream>
 #include <algorithm>
@@ -956,14 +957,12 @@ bool writeReportFile(
   report["exports"] = exports;
   report["passedOver"] = passedOverFiles;
 
-  QFile file(reportFile);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+  QSaveFile file(reportFile);
+  const QByteArray payload = QJsonDocument(report).toJson(QJsonDocument::Indented);
+  if (!file.open(QIODevice::WriteOnly) || (file.write(payload) != payload.size()) || !file.commit()) {
     err << CommandLineRun::tr("The report file could not be written: %1").arg(nativePath(reportFile)) << Qt::endl;
     return false;
   }
-  QTextStream stream(&file);
-  stream << QJsonDocument(report).toJson(QJsonDocument::Indented);
-  file.close();
   return true;
 }
 
@@ -1057,6 +1056,15 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   // The folder of the report file must exist; the tool writes the report into it at the end, so
   // that it must be possible is checked now, before a long run.
   if (options.reportFile) {
+    if (options.reportFile->trimmed().isEmpty()) {
+      err << tr("The report file could not be written: %1").arg(nativePath(*options.reportFile)) << Qt::endl;
+      return USAGE_ERROR;
+    }
+    const QString reason = path_names::invalidNewPathReason(*options.reportFile);
+    if (!reason.isEmpty()) {
+      err << reason << Qt::endl;
+      return USAGE_ERROR;
+    }
     const QFileInfo report(*options.reportFile);
     if (!report.absoluteDir().exists()) {
       err << tr("The folder of the report file doesn't exist: %1").arg(nativePath(report.absolutePath())) << Qt::endl;
@@ -1451,9 +1459,12 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   }
   if (options.reportFile) {
     // cancelled follows the exit code: any cancellation, including one during the export, is exit 5.
-    writeReportFile(*options.reportFile, projectFile, usedProfile, options, *exitCode, *exitCode == CANCELLED, *session,
-                    passedOver, detectedPages, detectedOrientations, exportedFiles, processed.failures, fixedFiles,
-                    err);
+    if (!writeReportFile(*options.reportFile, projectFile, usedProfile, options, *exitCode, *exitCode == CANCELLED,
+                         *session, passedOver, detectedPages, detectedOrientations, exportedFiles, processed.failures,
+                         fixedFiles, err)
+        && (*exitCode == SUCCESS)) {
+      exitCode = EXPORT_FAILED;
+    }
   }
   // Exit codes 1 and 2 return earlier, and the late PROJECT_UNUSABLE from saving the project returns
   // before this point, so only 0, 3, 4 and 5 reach here.

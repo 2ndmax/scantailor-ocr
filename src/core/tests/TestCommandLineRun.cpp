@@ -2777,4 +2777,24 @@ BOOST_AUTO_TEST_CASE(test_orientation_detect_cancelled) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_report_file_validation_rejects_empty_and_reserved) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString projectFile = createProject(dir, 300);
+  BOOST_REQUIRE(!projectFile.isEmpty());
+
+  for (const QString& badReport : {QString(), QStringLiteral("   "), dir.filePath(QStringLiteral("CON.json"))}) {
+    CommandLineRun::Options options;
+    options.projectFile = projectFile;
+    options.lastStep = CommandLineRun::Options::FIX_ORIENTATION;
+    options.reportFile = badReport;
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
+                      CommandLineRun::USAGE_ERROR);
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
