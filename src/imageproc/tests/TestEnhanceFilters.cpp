@@ -1,6 +1,7 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <BrightnessFilter.h>
 #include <ChromaDenoiser.h>
 #include <ClampToByte.h>
 #include <GrayImage.h>
@@ -201,6 +202,30 @@ BOOST_AUTO_TEST_CASE(test_wiener_handles_indexed_color_and_rgb888) {
   BOOST_CHECK(rgb888 != originalRgb888);
   const QRgb rgbPx = rgb888.pixel(10, 20);
   BOOST_CHECK_GT(qRed(rgbPx), qGreen(rgbPx) + 100);
+}
+
+BOOST_AUTO_TEST_CASE(test_brightness_filter_preserves_indexed8_color_hue) {
+  QImage indexed(40, 20, QImage::Format_Indexed8);
+  indexed.setColorTable({qRgb(200, 40, 40), qRgb(40, 180, 40), qRgb(240, 240, 240)});
+  for (int y = 0; y < indexed.height(); ++y) {
+    for (int x = 0; x < indexed.width(); ++x) {
+      indexed.setPixel(x, y, (x < 15) ? 0 : ((x < 30) ? 1 : 2));
+    }
+  }
+
+  filterBrightnessInPlace(indexed, [](GrayImage& gray) {
+    for (int y = 0; y < gray.height(); ++y) {
+      uint8_t* line = gray.data() + y * gray.stride();
+      for (int x = 0; x < gray.width(); ++x) {
+        line[x] = clampToByte(static_cast<int>(line[x]) + 20);
+      }
+    }
+  });
+
+  const QRgb redPx = indexed.pixel(5, 10);
+  const QRgb greenPx = indexed.pixel(20, 10);
+  BOOST_CHECK_GT(qRed(redPx), qGreen(redPx) + 80);
+  BOOST_CHECK_GT(qGreen(greenPx), qRed(greenPx) + 80);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
