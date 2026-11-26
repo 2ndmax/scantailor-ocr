@@ -11,6 +11,7 @@
 #include <PageSelectionAccessor.h>
 #include <ProjectReader.h>
 #include <SmartFilenameOrdering.h>
+#include <ThumbnailPixmapCache.h>
 #include <Units.h>
 #include <WorkerThreadPool.h>
 #include <dewarping/Curve.h>
@@ -34,8 +35,10 @@
 #include <QPointer>
 #include <QSignalSpy>
 #include <QSpinBox>
+#include <QStack>
 #include <QStackedWidget>
 #include <QString>
+#include <QTemporaryDir>
 #include <QtTest/QtTest>
 #include <memory>
 #include <stdexcept>
@@ -542,4 +545,57 @@ void TestCoreQt::testRepeatedOutOfMemoryDoesNotCrash() {
     mw->deleteLater();
   }
   QCoreApplication::processEvents();
+}
+
+void TestCoreQt::testThumbnailCacheEvictsFirstLoadedItem() {
+  struct WaitHandler : ThumbnailPixmapCache::CompletionHandler {
+    bool done = false;
+    ThumbnailLoadResult::Status status = ThumbnailLoadResult::LOAD_FAILED;
+
+    void operator()(const ThumbnailLoadResult& result) override {
+      status = result.status();
+      done = true;
+    }
+  };
+
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString thumbDir = dir.filePath("thumbs");
+  QVERIFY(QDir().mkpath(thumbDir));
+
+  const auto savePage = [&](const QString& name, ImageId& outId) {
+    const QString path = dir.filePath(name);
+    QImage img(20, 20, QImage::Format_RGB32);
+    img.fill(Qt::white);
+    QVERIFY(img.save(path, "PNG"));
+    outId = ImageId(path);
+  };
+
+  ImageId idA;
+  ImageId idB;
+  ImageId idC;
+  savePage("a.png", idA);
+  savePage("b.png", idB);
+  savePage("c.png", idC);
+
+  ThumbnailPixmapCache cache(thumbDir, QSize(100, 100), 2, 10);
+  const auto loadSync = [&](const ImageId& id) {
+    auto handler = std::make_shared<WaitHandler>();
+    QPixmap pm;
+    const auto initial = cache.loadRequest(id, pm, handler);
+    QCOMPARE(initial, ThumbnailPixmapCache::QUEUED);
+    QTRY_VERIFY_WITH_TIMEOUT(handler->done, 5000);
+    QCOMPARE(handler->status, ThumbnailLoadResult::LOADED);
+  };
+
+  loadSync(idA);
+  loadSync(idB);
+  loadSync(idC);
+
+  QPixmap pm;
+  const std::weak_ptr<ThumbnailPixmapCache::CompletionHandler> noHandler;
+  QCOMPARE(cache.loadRequest(idB, pm, noHandler), ThumbnailPixmapCache::LOADED);
+  QCOMPARE(cache.loadRequest(idC, pm, noHandler), ThumbnailPixmapCache::LOADED);
+  // Capacity is 2, so loading C must have evicted A rather than pinning A forever.
+  QCOMPARE(cache.loadRequest(idA, pm, noHandler), ThumbnailPixmapCache::QUEUED);
 }

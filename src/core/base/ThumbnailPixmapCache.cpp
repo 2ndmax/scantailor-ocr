@@ -414,8 +414,6 @@ ThumbnailPixmapCache::Status ThumbnailPixmapCache::Impl::request(
   assert(lqIt->completionHandlers.empty());
 
   if (m_endOfLoadedItems == m_removeQueue.end()) {
-    // REVIEW-NOTE (2026-10): if the item at m_endOfLoadedItems gets loaded, the marker ends up on a LOADED item
-    // -> the LRU order is slightly wrong. Not fixed because it only changes which thumbnail is evicted first.
     m_endOfLoadedItems = m_items.project<RemoveQueueTag>(lqIt);
   }
   lqIt->completionHandlers.push_back(completionHandler);
@@ -771,7 +769,11 @@ void ThumbnailPixmapCache::Impl::processLoadResult(LoadResultEvent* result) {
 
       // Move this item after all other LOADED items in
       // the remove queue.
-      m_removeQueue.relocate(m_endOfLoadedItems, rqIt);
+      if (rqIt == m_endOfLoadedItems) {
+        ++m_endOfLoadedItems;
+      } else {
+        m_removeQueue.relocate(m_endOfLoadedItems, rqIt);
+      }
 
       // Move to the end of load queue.
       m_loadQueue.relocate(m_loadQueue.end(), lqIt);
