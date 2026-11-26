@@ -287,6 +287,21 @@ int main(int argc, char* argv[]) {
   sigaction(SIGTERM, &sa, nullptr);
 #endif
 
+  const auto requireNonEmptyValue = [&parser, &err](const QCommandLineOption& option, QString* value) {
+    if (!parser.isSet(option)) {
+      return true;
+    }
+    const QString parsed = parser.value(option);
+    if (parsed.trimmed().isEmpty()) {
+      err << CommandLineRun::tr("The option --%1 needs a value.").arg(option.names().first()) << Qt::endl;
+      return false;
+    }
+    if (value) {
+      *value = parsed;
+    }
+    return true;
+  };
+
   CommandLineRun::Options options;
   const QString argument = parser.positionalArguments().at(0);
   if (argument.endsWith(QStringLiteral(".ScanTailor"), Qt::CaseInsensitive)) {
@@ -304,13 +319,19 @@ int main(int argc, char* argv[]) {
           << Qt::endl;
       return CommandLineRun::USAGE_ERROR;
     }
-    options.projectFile = parser.value(projectFileOption);
+    if (!requireNonEmptyValue(projectFileOption, &options.projectFile)) {
+      return CommandLineRun::USAGE_ERROR;
+    }
   }
   if (parser.isSet(outputFolderOption)) {
-    options.outputFolder = parser.value(outputFolderOption);
+    QString outputFolder;
+    if (!requireNonEmptyValue(outputFolderOption, &outputFolder)) {
+      return CommandLineRun::USAGE_ERROR;
+    }
+    options.outputFolder = outputFolder;
   }
-  if (parser.isSet(profileOption)) {
-    options.profile = parser.value(profileOption);
+  if (!requireNonEmptyValue(profileOption, &options.profile)) {
+    return CommandLineRun::USAGE_ERROR;
   }
   if (parser.isSet(dpiOption)) {
     Dpi dpi;
@@ -337,8 +358,8 @@ int main(int argc, char* argv[]) {
     options.dpiFix = dpi;
   }
   options.colorModeDetect = parser.isSet(colorModeDetectOption);
-  if (parser.isSet(orientationDetectOption)) {
-    options.orientationDetect = parser.value(orientationDetectOption);
+  if (!requireNonEmptyValue(orientationDetectOption, &options.orientationDetect)) {
+    return CommandLineRun::USAGE_ERROR;
   }
   if (parser.isSet(threadsOption)) {
     bool ok = false;
@@ -352,7 +373,11 @@ int main(int argc, char* argv[]) {
     options.threads = threads;
   }
   if (parser.isSet(reportFileOption)) {
-    options.reportFile = parser.value(reportFileOption);
+    QString reportFile;
+    if (!requireNonEmptyValue(reportFileOption, &reportFile)) {
+      return CommandLineRun::USAGE_ERROR;
+    }
+    options.reportFile = reportFile;
   }
   const bool lastStepSet = parser.isSet(lastStepOption);
   if (lastStepSet && !CommandLineRun::Options::parseLastStep(parser.value(lastStepOption), &options.lastStep)) {
@@ -369,13 +394,25 @@ int main(int argc, char* argv[]) {
     options.lastStep = CommandLineRun::Options::EXPORT;
   }
   if (parser.isSet(folderOption)) {
-    options.exportDir = parser.value(folderOption);
+    QString exportDir;
+    if (!requireNonEmptyValue(folderOption, &exportDir)) {
+      return CommandLineRun::USAGE_ERROR;
+    }
+    options.exportDir = exportDir;
   }
   if (parser.isSet(nameOption)) {
-    options.exportName = parser.value(nameOption);
+    QString exportName;
+    if (!requireNonEmptyValue(nameOption, &exportName)) {
+      return CommandLineRun::USAGE_ERROR;
+    }
+    options.exportName = exportName;
   }
   if (parser.isSet(formatsOption)) {
-    options.formats = parser.value(formatsOption);
+    QString formats;
+    if (!requireNonEmptyValue(formatsOption, &formats)) {
+      return CommandLineRun::USAGE_ERROR;
+    }
+    options.formats = formats;
   }
   if (parser.isSet(progressJsonOption)) {
     return CommandLineRun::run(options, err, err, cancelRequested, &out);

@@ -33,6 +33,12 @@ if (BUILD_TESTS)
   # "--export-folder=" is how an empty value gets through the argument list. Without the checks, the
   # missing project would give exit code 2.
   add_cli_test(cli_empty_export_folder 1 --export-folder= "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
+  add_cli_test(cli_empty_profile 1 --profile= "${CMAKE_CURRENT_BINARY_DIR}")
+  add_cli_test(cli_empty_project_file 1 --project-file= "${CMAKE_CURRENT_BINARY_DIR}")
+  add_cli_test(cli_empty_output_folder 1 --output-folder= "${CMAKE_CURRENT_BINARY_DIR}")
+  add_cli_test(cli_empty_orientation_detect 1 --orientation-detect= "${CMAKE_CURRENT_BINARY_DIR}")
+  add_cli_test(cli_empty_report_file 1 --report-file= "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
+  add_cli_test(cli_empty_export_name 1 --export-name= "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   add_cli_test(cli_unknown_format 1 --export-formats=doc "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")
   # The switch --export is gone; the export runs with --last-step export.
   add_cli_test(cli_export_with_value 1 --export=. "${CMAKE_CURRENT_BINARY_DIR}/missing.ScanTailor")

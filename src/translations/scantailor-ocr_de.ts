@@ -317,189 +317,189 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
 <context>
     <name>CommandLineRun</name>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="106"/>
+        <location filename="../core/CommandLineRun.cpp" line="107"/>
         <source>%1, page %2 of the file</source>
         <translation>%1, Seite %2 der Datei</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="112"/>
+        <location filename="../core/CommandLineRun.cpp" line="113"/>
         <source>%1, left page</source>
         <translation>%1, linke Seite</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="115"/>
+        <location filename="../core/CommandLineRun.cpp" line="116"/>
         <source>%1, right page</source>
         <translation>%1, rechte Seite</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="125"/>
+        <location filename="../core/CommandLineRun.cpp" line="126"/>
         <source>The image could not be loaded.</source>
         <translation>Das Bild konnte nicht geladen werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="128"/>
+        <location filename="../core/CommandLineRun.cpp" line="129"/>
         <source>The page could not be processed.</source>
         <translation>Die Seite konnte nicht verarbeitet werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="131"/>
+        <location filename="../core/CommandLineRun.cpp" line="132"/>
         <source>The output page would be too large with the current settings.</source>
         <translation>Die Ausgabeseite wäre mit den aktuellen Einstellungen zu groß.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="134"/>
+        <location filename="../core/CommandLineRun.cpp" line="135"/>
         <source>The output file could not be written.</source>
         <translation>Die Ausgabedatei konnte nicht geschrieben werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="523"/>
+        <location filename="../core/CommandLineRun.cpp" line="524"/>
         <source>The folder after --export-folder is empty.</source>
         <translation>Der Ordner nach --export-folder ist leer.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="527"/>
+        <location filename="../core/CommandLineRun.cpp" line="528"/>
         <source>The list after --export-formats may only hold pdf, txt, hocr and alto: %1</source>
         <translation>Die Liste nach --export-formats darf nur pdf, txt, hocr und alto enthalten: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="667"/>
+        <location filename="../core/CommandLineRun.cpp" line="668"/>
         <source>The files of the selected languages are in different folders, and they could not be copied into one folder, which text recognition needs.</source>
         <translation>Die Dateien der gewählten Sprachen liegen in verschiedenen Ordnern und konnten nicht in einen gemeinsamen Ordner kopiert werden, den die Texterkennung braucht.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="695"/>
+        <location filename="../core/CommandLineRun.cpp" line="696"/>
         <source>%1: The output file is missing or outdated.</source>
         <translation>%1: Die Ausgabedatei fehlt oder ist veraltet.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="598"/>
+        <location filename="../core/CommandLineRun.cpp" line="599"/>
         <source>The export would replace the project file: %1</source>
         <translation>Der Export würde die Projektdatei ersetzen: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="603"/>
+        <location filename="../core/CommandLineRun.cpp" line="604"/>
         <source>The export would replace an image of the project: %1</source>
         <translation>Der Export würde ein Bild des Projekts ersetzen: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="634"/>
+        <location filename="../core/CommandLineRun.cpp" line="635"/>
         <source>The languages %1 of the project aren&apos;t installed on this computer. Download them in ScanTailor OCR, in the Export step with &quot;More languages&quot;, or turn them off there.</source>
         <translation>Die Sprachen %1 des Projekts sind auf diesem Computer nicht installiert. Laden Sie sie in ScanTailor OCR im Schritt „Exportieren“ über „Weitere Sprachen“ herunter, oder schalten Sie sie dort ab.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="617"/>
+        <location filename="../core/CommandLineRun.cpp" line="618"/>
         <source>The export needs text recognition, but the project has no language ticked. Tick one in ScanTailor OCR, in the Export step.</source>
         <translation>Der Export braucht die Texterkennung, im Projekt ist aber keine Sprache angehakt. Haken Sie in ScanTailor OCR im Schritt „Exportieren“ eine an.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="686"/>
-        <location filename="../core/CommandLineRun.cpp" line="737"/>
+        <location filename="../core/CommandLineRun.cpp" line="687"/>
+        <location filename="../core/CommandLineRun.cpp" line="734"/>
         <source>Canceled. Nothing was exported.</source>
         <translation>Abgebrochen. Es wurde nichts exportiert.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="719"/>
+        <location filename="../core/CommandLineRun.cpp" line="716"/>
         <source>Export: %1 of %2</source>
         <translation>Export: %1 von %2</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="733"/>
+        <location filename="../core/CommandLineRun.cpp" line="730"/>
         <source>Created: %1</source>
         <translation>Erstellt: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="740"/>
+        <location filename="../core/CommandLineRun.cpp" line="737"/>
         <source>The export failed.</source>
         <translation>Der Export ist fehlgeschlagen.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="476"/>
+        <location filename="../core/CommandLineRun.cpp" line="477"/>
         <source>The project was saved by ScanTailor Advanced or an older version of ScanTailor OCR. Open it once in ScanTailor OCR and save it there, then it can be processed here.</source>
         <translation>Das Projekt wurde mit ScanTailor Advanced oder einer älteren Version von ScanTailor OCR gespeichert. Öffnen Sie es einmal in ScanTailor OCR und speichern Sie es dort, dann kann es hier verarbeitet werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="212"/>
+        <location filename="../core/CommandLineRun.cpp" line="213"/>
         <source>The file is only partly readable.</source>
         <translation>Die Datei ist nur teilweise lesbar.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="232"/>
+        <location filename="../core/CommandLineRun.cpp" line="233"/>
         <source>The input folder has no images: %1</source>
         <translation>Der Eingabeordner enthält keine Bilder: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="253"/>
+        <location filename="../core/CommandLineRun.cpp" line="254"/>
         <source>The input folder doesn&apos;t exist: %1</source>
         <translation>Der Eingabeordner existiert nicht: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="266"/>
+        <location filename="../core/CommandLineRun.cpp" line="267"/>
         <source>The input and the output folders can&apos;t be the same.</source>
         <translation>Der Eingabeordner und der Ausgabeordner dürfen nicht gleich sein.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="453"/>
+        <location filename="../core/CommandLineRun.cpp" line="454"/>
         <source>Unable to create the output folder: %1</source>
         <translation>Der Ausgabeordner konnte nicht erstellt werden: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="279"/>
+        <location filename="../core/CommandLineRun.cpp" line="280"/>
         <source>The project file exists: %1. Call the tool with it to process the project.</source>
         <translation>Die Projektdatei existiert bereits: %1. Rufen Sie das Programm mit ihr auf, um das Projekt zu verarbeiten.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="166"/>
+        <location filename="../core/CommandLineRun.cpp" line="167"/>
         <source>The project file can&apos;t be saved: %1. Its folder must take new files, and the file must not be read-only.</source>
         <translation>Die Projektdatei kann nicht gespeichert werden: %1. In ihrem Ordner müssen neue Dateien angelegt werden können, und die Datei darf nicht schreibgeschützt sein.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="285"/>
+        <location filename="../core/CommandLineRun.cpp" line="286"/>
         <source>The folder of the project file doesn&apos;t exist: %1</source>
         <translation>Der Ordner der Projektdatei existiert nicht: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="307"/>
+        <location filename="../core/CommandLineRun.cpp" line="308"/>
         <source>The profile file doesn&apos;t exist or can&apos;t be read: %1</source>
         <translation>Die Profildatei existiert nicht oder kann nicht gelesen werden: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="325"/>
+        <location filename="../core/CommandLineRun.cpp" line="326"/>
         <source>The profile %1 isn&apos;t available.</source>
         <translation>Das Profil %1 ist nicht verfügbar.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="335"/>
+        <location filename="../core/CommandLineRun.cpp" line="336"/>
         <source>The profile of the program isn&apos;t readable; pass --profile with the name or the file of one.</source>
         <translation>Das Profil des Programms ist nicht lesbar; übergeben Sie --profile mit dem Namen oder der Datei eines solchen Profils.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="344"/>
+        <location filename="../core/CommandLineRun.cpp" line="345"/>
         <source>Profile: %1</source>
         <translation>Profil: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="376"/>
-        <location filename="../core/CommandLineRun.cpp" line="392"/>
+        <location filename="../core/CommandLineRun.cpp" line="377"/>
+        <location filename="../core/CommandLineRun.cpp" line="393"/>
         <source>The DPI value %1 is red for the image %2: it is missing or too small to process.</source>
         <translation>Der DPI-Wert %1 ist für das Bild %2 rot: Er fehlt oder ist zu klein zur Verarbeitung.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="404"/>
+        <location filename="../core/CommandLineRun.cpp" line="405"/>
         <source>The resolution (DPI) of these images is missing or too small to process; set it once in ScanTailor OCR, or pass --dpi:</source>
         <translation>Die Auflösung (DPI) dieser Bilder fehlt oder ist zu klein zur Verarbeitung; setzen Sie sie einmal in ScanTailor OCR oder übergeben Sie --dpi:</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="433"/>
+        <location filename="../core/CommandLineRun.cpp" line="434"/>
         <source>Warning: the resolution of these files is doubtful:</source>
         <translation>Warnung: Die Auflösung dieser Dateien ist zweifelhaft:</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="439"/>
+        <location filename="../core/CommandLineRun.cpp" line="440"/>
         <source>DPI: %1</source>
         <translation>DPI: %1</translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="442"/>
+        <location filename="../core/CommandLineRun.cpp" line="443"/>
         <source>Fixed the DPI of %n file(s) to %1:</source>
         <translation>
             <numerusform>Der DPI-Wert von %n Datei wurde auf %1 korrigiert:</numerusform>
@@ -507,7 +507,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="484"/>
+        <location filename="../core/CommandLineRun.cpp" line="485"/>
         <source>The project file is damaged: %n image(s) can&apos;t be read. Open the project in ScanTailor OCR, which offers a backup copy, and save it there, then it can be processed here.</source>
         <translation>
             <numerusform>Die Projektdatei ist beschädigt: %n Bild kann nicht gelesen werden. Öffnen Sie das Projekt in ScanTailor OCR, das eine Sicherungskopie anbietet, und speichern Sie es dort. Danach kann es hier verarbeitet werden.</numerusform>
@@ -515,94 +515,95 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         </translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="492"/>
+        <location filename="../core/CommandLineRun.cpp" line="493"/>
         <source>The project has no images.</source>
         <translation>Das Projekt enthält keine Bilder.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="497"/>
+        <location filename="../core/CommandLineRun.cpp" line="498"/>
         <source>The resolution (DPI) of these images is missing or implausible. Set it once in ScanTailor OCR, then the project can be processed here:</source>
         <translation>Bei diesen Bildern fehlt die Auflösung (DPI) oder sie ist unplausibel. Legen Sie sie einmal in ScanTailor OCR fest, dann kann das Projekt hier verarbeitet werden:</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="551"/>
+        <location filename="../core/CommandLineRun.cpp" line="552"/>
         <source>The export folder can&apos;t be written to: %1</source>
         <translation>In den Exportordner kann nicht geschrieben werden: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="553"/>
-        <location filename="../core/CommandLineRun.cpp" line="1444"/>
+        <location filename="../core/CommandLineRun.cpp" line="554"/>
+        <location filename="../core/CommandLineRun.cpp" line="1453"/>
         <source>Unable to create the export folder: %1</source>
         <translation>Der Exportordner konnte nicht erstellt werden: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="965"/>
-        <location filename="../core/CommandLineRun.cpp" line="1070"/>
+        <location filename="../core/CommandLineRun.cpp" line="963"/>
+        <location filename="../core/CommandLineRun.cpp" line="1060"/>
+        <location filename="../core/CommandLineRun.cpp" line="1074"/>
         <source>The report file could not be written: %1</source>
         <translation>Die Berichtsdatei konnte nicht geschrieben werden: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1066"/>
+        <location filename="../core/CommandLineRun.cpp" line="1070"/>
         <source>The folder of the report file doesn&apos;t exist: %1</source>
         <translation>Der Ordner der Berichtsdatei existiert nicht: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1079"/>
+        <location filename="../core/CommandLineRun.cpp" line="1083"/>
         <source>The option --output-folder is only for the folder mode, which creates the project.</source>
         <translation>Die Option --output-folder gilt nur im Ordnermodus, der das Projekt erstellt.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1083"/>
+        <location filename="../core/CommandLineRun.cpp" line="1087"/>
         <source>The option --profile is only for the folder mode; the project knows its start values.</source>
         <translation>Die Option --profile gilt nur im Ordnermodus; das Projekt kennt seine Startwerte.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1087"/>
+        <location filename="../core/CommandLineRun.cpp" line="1091"/>
         <source>The option --dpi is only for the folder mode; the project knows the DPI of its images.</source>
         <translation>Die Option --dpi gilt nur im Ordnermodus; das Projekt kennt die DPI seiner Bilder.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1091"/>
+        <location filename="../core/CommandLineRun.cpp" line="1095"/>
         <source>The option --dpi-fix is only for the folder mode; the project knows the DPI of its images.</source>
         <translation>Die Option --dpi-fix gilt nur im Ordnermodus; das Projekt kennt die DPI seiner Bilder.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1096"/>
+        <location filename="../core/CommandLineRun.cpp" line="1100"/>
         <source>The options --dpi and --dpi-fix exclude each other.</source>
         <translation>Die Optionen --dpi und --dpi-fix schließen sich gegenseitig aus.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1102"/>
+        <location filename="../core/CommandLineRun.cpp" line="1106"/>
         <source>The option --color-mode-detect is only for the folder mode.</source>
         <translation>Die Option --color-mode-detect gilt nur im Ordnermodus.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1106"/>
+        <location filename="../core/CommandLineRun.cpp" line="1110"/>
         <source>The option --color-mode-detect needs --last-step margins or later.</source>
         <translation>Die Option --color-mode-detect erfordert --last-step margins oder später.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1113"/>
+        <location filename="../core/CommandLineRun.cpp" line="1117"/>
         <source>The option --orientation-detect is only for the folder mode.</source>
         <translation>Die Option --orientation-detect gilt nur für den Ordnermodus.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1125"/>
+        <location filename="../core/CommandLineRun.cpp" line="1129"/>
         <source>The number of threads after --threads is too small; it must be at least 1.</source>
         <translation>Die Anzahl der Threads nach --threads ist zu klein; sie muss mindestens 1 sein.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1130"/>
+        <location filename="../core/CommandLineRun.cpp" line="1134"/>
         <source>The options --export-folder, --export-name and --export-formats need --last-step export.</source>
         <translation>Die Optionen --export-folder, --export-name und --export-formats erfordern --last-step export.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1184"/>
+        <location filename="../core/CommandLineRun.cpp" line="1188"/>
         <source>The output folder can&apos;t be written to: %1</source>
         <translation>In den Ausgabeordner kann nicht geschrieben werden: %1</translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1189"/>
+        <location filename="../core/CommandLineRun.cpp" line="1193"/>
         <source>%n other file(s) passed over.</source>
         <translation>
             <numerusform>%n weitere Datei übersprungen.</numerusform>
@@ -610,28 +611,28 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         </translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1202"/>
+        <location filename="../core/CommandLineRun.cpp" line="1206"/>
         <source>The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them with --export-formats.</source>
         <translation>Im Projekt ist kein Format angehakt. Haken Sie in ScanTailor OCR im Schritt „Exportieren“ eines an, oder nennen Sie die Formate mit --export-formats.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1223"/>
+        <location filename="../core/CommandLineRun.cpp" line="1227"/>
         <source>The export will create: %1</source>
         <translation>Der Export erstellt: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1230"/>
-        <location filename="../core/CommandLineRun.cpp" line="1533"/>
+        <location filename="../core/CommandLineRun.cpp" line="1234"/>
+        <location filename="../core/CommandLineRun.cpp" line="1545"/>
         <source>The output folder or some images of the project are missing, for example because the project was moved. Open it in ScanTailor OCR, relink it there and save it, then it can be processed here.</source>
         <translation>Der Ausgabeordner oder einige Bilder des Projekts fehlen, zum Beispiel weil das Projekt verschoben wurde. Öffnen Sie es in ScanTailor OCR, verknüpfen Sie es dort neu und speichern Sie es, dann kann es hier verarbeitet werden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1239"/>
+        <location filename="../core/CommandLineRun.cpp" line="1243"/>
         <source>%1: %2 of %3</source>
         <translation>%1: %2 von %3</translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1371"/>
+        <location filename="../core/CommandLineRun.cpp" line="1375"/>
         <source>Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.</source>
         <translation>
             <numerusform>Farbmodus für %n Seite erkannt: %1 Schwarz-Weiß, %2 Farbe / Graustufen, %3 Gemischt.</numerusform>
@@ -639,7 +640,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1378"/>
+        <location filename="../core/CommandLineRun.cpp" line="1382"/>
         <source>%n page(s) skipped because the steps before the detection have no result yet.</source>
         <translation>
             <numerusform>%n Seite übersprungen, weil die Schritte vor der Erkennung noch kein Ergebnis haben.</numerusform>
@@ -647,7 +648,7 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../core/CommandLineRun.cpp" line="1382"/>
+        <location filename="../core/CommandLineRun.cpp" line="1386"/>
         <source>%n page(s) could not be loaded.</source>
         <translation>
             <numerusform>%n Seite konnte nicht geladen werden.</numerusform>
@@ -655,237 +656,242 @@ ScanTailor OCR läuft weiter. Speichern Sie Ihr Projekt zur Sicherheit unter ein
         </translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1385"/>
+        <location filename="../core/CommandLineRun.cpp" line="1389"/>
         <source>The detection was canceled.</source>
         <translation>Die Erkennung wurde abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1401"/>
+        <location filename="../core/CommandLineRun.cpp" line="1410"/>
         <source>The project file could not be saved: %1</source>
         <translation>Die Projektdatei konnte nicht gespeichert werden: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1409"/>
+        <location filename="../core/CommandLineRun.cpp" line="1418"/>
         <source>Canceled. The pages output so far keep their output files.</source>
         <translation>Abgebrochen. Die bisher ausgegebenen Seiten behalten ihre Ausgabedateien.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1413"/>
+        <location filename="../core/CommandLineRun.cpp" line="1422"/>
         <source>Pages that failed: %1</source>
         <translation>Fehlgeschlagene Seiten: %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1415"/>
-        <location filename="../core/CommandLineRun.cpp" line="1427"/>
+        <location filename="../core/CommandLineRun.cpp" line="1424"/>
+        <location filename="../core/CommandLineRun.cpp" line="1436"/>
         <source>Nothing was exported, as not all pages were output.</source>
         <translation>Es wurde nichts exportiert, weil nicht alle Seiten ausgegeben wurden.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1425"/>
+        <location filename="../core/CommandLineRun.cpp" line="1434"/>
         <source>No page was output.</source>
         <translation>Es wurde keine Seite ausgegeben.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1433"/>
+        <location filename="../core/CommandLineRun.cpp" line="1442"/>
         <source>Done. The output is in %1</source>
         <translation>Fertig. Die Ausgabe liegt in %1</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1435"/>
+        <location filename="../core/CommandLineRun.cpp" line="1444"/>
         <source>Done.</source>
         <translation>Fertig.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="149"/>
+        <location filename="../cli/main.cpp" line="163"/>
         <source>The last step of the run: fix-orientation, split-pages, deskew, select-content, margins, output or export. The export runs after output. Default: output.</source>
         <translation>Der letzte Schritt des Laufs: fix-orientation, split-pages, deskew, select-content, margins, output oder export. Der Export läuft nach dem Output. Standard: output.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="151"/>
+        <location filename="../cli/main.cpp" line="165"/>
         <source>step</source>
         <translation>Schritt</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="137"/>
+        <location filename="../cli/main.cpp" line="151"/>
         <source>The file of the new project instead of the default of the input folder; its folder must exist.</source>
         <translation>Die Datei des neuen Projekts statt des Standards im Eingabeordner; ihr Ordner muss existieren.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="139"/>
-        <location filename="../cli/main.cpp" line="192"/>
+        <location filename="../cli/main.cpp" line="153"/>
+        <location filename="../cli/main.cpp" line="206"/>
         <source>file</source>
         <translation>Datei</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="143"/>
+        <location filename="../cli/main.cpp" line="157"/>
         <source>The folder the output of the new project goes to instead of &lt;input&gt;/out; it is created when it doesn&apos;t exist.</source>
         <translation>Der Ordner, in den die Ausgabe des neuen Projekts geht, statt &lt;input&gt;/out; er wird erstellt, wenn er nicht existiert.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="145"/>
-        <location filename="../cli/main.cpp" line="169"/>
+        <location filename="../cli/main.cpp" line="159"/>
+        <location filename="../cli/main.cpp" line="183"/>
         <source>folder</source>
         <translation>Ordner</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="119"/>
+        <location filename="../cli/main.cpp" line="133"/>
         <source>The profile of the new project: its name, or the file of one (a .stp file); without it, the profile of the program is used.</source>
         <translation>Das Profil des neuen Projekts: sein Name oder die Datei eines solchen (eine .stp-Datei); ohne es wird das Profil des Programms verwendet.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="112"/>
+        <location filename="../cli/main.cpp" line="126"/>
         <source>Processes the pages of a ScanTailor OCR project up to the last step --last-step names, at most Output, and saves the project. With a folder as the argument, the tool creates the project first.</source>
         <translation>Verarbeitet die Seiten eines ScanTailor OCR-Projekts bis zum von --last-step benannten Schritt, höchstens bis Output, und speichert das Projekt. Mit einem Ordner als Argument legt das Programm das Projekt zuerst an.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="121"/>
+        <location filename="../cli/main.cpp" line="135"/>
         <source>name or file</source>
         <translation>Name oder Datei</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="125"/>
+        <location filename="../cli/main.cpp" line="139"/>
         <source>The DPI of all images of the new project: a number, or horizontal and vertical values like 600x300.</source>
         <translation>DPI für alle Bilder des neuen Projekts: eine Zahl oder horizontale und vertikale Werte wie 600x300.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="127"/>
-        <location filename="../cli/main.cpp" line="133"/>
+        <location filename="../cli/main.cpp" line="141"/>
+        <location filename="../cli/main.cpp" line="147"/>
         <source>n or HxV</source>
         <translation>n oder HxV</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="131"/>
+        <location filename="../cli/main.cpp" line="145"/>
         <source>The DPI of the images that need fixing (red and yellow) in the new project: a number, or horizontal and vertical values like 600x300.</source>
         <translation>DPI der im neuen Projekt zu korrigierenden Bilder (rot und gelb): eine Zahl oder horizontale und vertikale Werte wie 600x300.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="163"/>
+        <location filename="../cli/main.cpp" line="177"/>
         <source>method</source>
         <translation>Methode</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="167"/>
+        <location filename="../cli/main.cpp" line="181"/>
         <source>The folder for the exported files instead of the folder of the project file; it is created when it doesn&apos;t exist.</source>
         <translation>Der Ordner für die exportierten Dateien statt des Ordners der Projektdatei; er wird erstellt, wenn er nicht existiert.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="173"/>
+        <location filename="../cli/main.cpp" line="187"/>
         <source>The name of the exported files, without extension, instead of the name of the project file.</source>
         <translation>Der Name der exportierten Dateien ohne Endung, statt des Namens der Projektdatei.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="174"/>
+        <location filename="../cli/main.cpp" line="188"/>
         <source>name</source>
         <translation>Name</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="178"/>
+        <location filename="../cli/main.cpp" line="192"/>
         <source>The formats to export instead of those ticked in the project: pdf, txt, hocr and alto, separated by commas or plus signs.</source>
         <translation>Die Formate, die statt der im Projekt angehakten exportiert werden: pdf, txt, hocr und alto, getrennt durch Kommas oder Pluszeichen.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="180"/>
+        <location filename="../cli/main.cpp" line="194"/>
         <source>list</source>
         <translation>Liste</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="184"/>
+        <location filename="../cli/main.cpp" line="198"/>
         <source>The number of threads of the run, instead of the setting of the program; at least 1.</source>
         <translation>Die Anzahl der Threads des Laufs statt der Einstellung des Programms; mindestens 1.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="185"/>
+        <location filename="../cli/main.cpp" line="199"/>
         <source>n</source>
         <translation>n</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="196"/>
+        <location filename="../cli/main.cpp" line="210"/>
         <source>The progress as JSON lines on the standard output, one per event; all other text then goes to the standard error.</source>
         <translation>Der Fortschritt als JSON-Zeilen auf der Standardausgabe, eine je Ereignis; alle übrigen Texte gehen dann auf die Standardfehlerausgabe.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="200"/>
+        <location filename="../cli/main.cpp" line="214"/>
         <source>The profiles --profile takes, as JSON on the standard output; also names the profile a run without --profile uses.</source>
         <translation>Die Profile, die --profile annimmt, als JSON auf der Standardausgabe; nennt auch das Profil, das ein Lauf ohne --profile verwendet.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="204"/>
+        <location filename="../cli/main.cpp" line="218"/>
         <source>The pages of the project file, with their file, DPI, color mode and output file, as JSON on the standard output. Needs a project file.</source>
         <translation>Die Seiten der Projektdatei mit Datei, DPI, Farbmodus und Ausgabedatei, als JSON auf der Standardausgabe. Benötigt eine Projektdatei.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="209"/>
+        <location filename="../cli/main.cpp" line="223"/>
         <source>folder or project file</source>
         <translation>Ordner oder Projektdatei</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="210"/>
+        <location filename="../cli/main.cpp" line="224"/>
         <source>The input folder for a new project or an existing project file.</source>
         <translation>Der Eingabeordner für ein neues Projekt oder eine vorhandene Projektdatei.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="155"/>
+        <location filename="../cli/main.cpp" line="169"/>
         <source>Detect the color mode of the pages after the Margins step, as the app&apos;s Detect Color Mode does, and report it per page.</source>
         <translation>Erkennt den Farbmodus der Seiten nach dem Schritt „Ränder“, wie das Programm mit „Farbmodus-Erkennung“, und gibt ihn je Seite aus.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="160"/>
+        <location filename="../cli/main.cpp" line="174"/>
         <source>Detect the orientation of the pages in the folder mode, before the first step: pages rotates the pages whose orientation is certain; book also rotates uncertain pages like their neighbors or the majority.</source>
         <translation>Erkennt die Orientierung der Seiten im Ordnermodus vor dem ersten Schritt: pages dreht die Seiten, deren Orientierung sicher ist; book dreht auch unsichere Seiten wie ihre Nachbarn oder die Mehrheit.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="189"/>
+        <location filename="../cli/main.cpp" line="203"/>
         <source>The JSON report of the run, written at the end: the mode, the project file, the profile and the last step, the exit code and cancelled, the pages with their DPI, color mode, output file and status, and the exports and the files passed over.</source>
         <translation>Der JSON-Bericht des Laufs, am Ende geschrieben: Modus, Projektdatei, Profil und letzter Schritt, Exit-Code und Abbruch, die Seiten mit DPI, Farbmodus, Ausgabedatei und Status, sowie die Exporte und die übergangenen Dateien.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="230"/>
+        <location filename="../cli/main.cpp" line="244"/>
         <source>--profile-list and --project-info can&apos;t be used together.</source>
         <translation>--profile-list und --project-info können nicht zusammen verwendet werden.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="236"/>
+        <location filename="../cli/main.cpp" line="250"/>
         <source>The option --%1 can&apos;t be used with --%2.</source>
         <translation>Die Option --%1 kann nicht mit --%2 verwendet werden.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="242"/>
+        <location filename="../cli/main.cpp" line="256"/>
         <source>--profile-list takes no argument.</source>
         <translation>--profile-list nimmt kein Argument.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="248"/>
-        <location filename="../cli/main.cpp" line="253"/>
+        <location filename="../cli/main.cpp" line="262"/>
+        <location filename="../cli/main.cpp" line="267"/>
         <source>--project-info needs a project file.</source>
         <translation>--project-info benötigt eine Projektdatei.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="285"/>
+        <location filename="../cli/main.cpp" line="296"/>
+        <source>The option --%1 needs a value.</source>
+        <translation>Die Option --%1 benötigt einen Wert.</translation>
+    </message>
+    <message>
+        <location filename="../cli/main.cpp" line="316"/>
         <source>The project file is the argument of the call; --project-file is for the folder mode.</source>
         <translation>Die Projektdatei ist das Argument des Aufrufs; --project-file gilt für den Ordnermodus.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="302"/>
+        <location filename="../cli/main.cpp" line="339"/>
         <source>Unknown DPI after --dpi: %1; pass a number or horizontal and vertical values like 600x300.</source>
         <translation>Unbekannter DPI-Wert nach --dpi: %1; übergeben Sie eine Zahl oder horizontale und vertikale Werte wie 600x300.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="314"/>
+        <location filename="../cli/main.cpp" line="351"/>
         <source>Unknown DPI after --dpi-fix: %1; pass a number or horizontal and vertical values like 600x300.</source>
         <translation>Unbekannter DPI-Wert nach --dpi-fix: %1; übergeben Sie eine Zahl oder horizontale und vertikale Werte wie 600x300.</translation>
     </message>
     <message>
-        <location filename="../core/CommandLineRun.cpp" line="1117"/>
+        <location filename="../core/CommandLineRun.cpp" line="1121"/>
         <source>Unknown method after --orientation-detect: %1. The methods are: pages and book.</source>
         <translation>Unbekannte Methode nach --orientation-detect: %1. Die Methoden sind: pages und book.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="331"/>
+        <location filename="../cli/main.cpp" line="368"/>
         <source>Unknown thread number after --threads: %1; it must be at least 1.</source>
         <translation>Unbekannte Threadanzahl nach --threads: %1; sie muss mindestens 1 sein.</translation>
     </message>
     <message>
-        <location filename="../cli/main.cpp" line="343"/>
+        <location filename="../cli/main.cpp" line="384"/>
         <source>Unknown step after --last-step: %1. The steps are: fix-orientation, split-pages, deskew, select-content, margins, output and export.</source>
         <translation>Unbekannter Schritt nach --last-step: %1. Die Schritte sind: fix-orientation, split-pages, deskew, select-content, margins, output und export.</translation>
     </message>
@@ -3847,13 +3853,15 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Die Texterkennung ist nicht initialisiert.</translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="120"/>
+        <location filename="../core/OcrEngine.cpp" line="132"/>
         <source>Canceled.</source>
         <translation>Abgebrochen.</translation>
     </message>
     <message>
-        <location filename="../core/OcrEngine.cpp" line="121"/>
-        <location filename="../core/OcrEngine.cpp" line="156"/>
+        <location filename="../core/OcrEngine.cpp" line="94"/>
+        <location filename="../core/OcrEngine.cpp" line="115"/>
+        <location filename="../core/OcrEngine.cpp" line="133"/>
+        <location filename="../core/OcrEngine.cpp" line="168"/>
         <source>Text recognition failed.</source>
         <translation>Die Texterkennung ist fehlgeschlagen.</translation>
     </message>
@@ -3861,52 +3869,52 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
 <context>
     <name>OcrLanguages</name>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="133"/>
+        <location filename="../core/OcrLanguages.cpp" line="155"/>
         <source>The folder %1 can&apos;t be written to.</source>
         <translation>In den Ordner %1 kann nicht geschrieben werden.</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="148"/>
+        <location filename="../core/OcrLanguages.cpp" line="170"/>
         <source>The language file of &quot;%1&quot; wasn&apos;t found.</source>
         <translation>Die Sprachdatei für „%1“ wurde nicht gefunden.</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="160"/>
+        <location filename="../core/OcrLanguages.cpp" line="182"/>
         <source>Could not copy the language file of &quot;%1&quot; to %2.</source>
         <translation>Die Sprachdatei für „%1“ konnte nicht nach %2 kopiert werden.</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="176"/>
+        <location filename="../core/OcrLanguages.cpp" line="198"/>
         <source>Neither %1 nor %2 can be written to.</source>
         <translation>Weder in %1 noch in %2 kann geschrieben werden.</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="194"/>
+        <location filename="../core/OcrLanguages.cpp" line="216"/>
         <source>%1 (script)</source>
         <translation>%1 (Schrift)</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="204"/>
+        <location filename="../core/OcrLanguages.cpp" line="226"/>
         <source>Middle English</source>
         <translation>Mittelenglisch</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="205"/>
+        <location filename="../core/OcrLanguages.cpp" line="227"/>
         <source>Middle French</source>
         <translation>Mittelfranzösisch</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="206"/>
+        <location filename="../core/OcrLanguages.cpp" line="228"/>
         <source>Ancient Greek</source>
         <translation>Altgriechisch</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="207"/>
+        <location filename="../core/OcrLanguages.cpp" line="229"/>
         <source>Kurmanji</source>
         <translation>Kurmandschi</translation>
     </message>
     <message>
-        <location filename="../core/OcrLanguages.cpp" line="208"/>
+        <location filename="../core/OcrLanguages.cpp" line="230"/>
         <source>German Fraktur (old model)</source>
         <translation>Deutsche Fraktur (altes Modell)</translation>
     </message>
@@ -3997,7 +4005,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
         <translation>Der Ordner %1 konnte nicht ersetzt werden. Möglicherweise wird er gerade verwendet.</translation>
     </message>
     <message>
-        <location filename="../core/OcrTextOutputs.cpp" line="194"/>
+        <location filename="../core/OcrTextOutputs.cpp" line="210"/>
         <source>There is a file named like the folder %1, so the folder could not be created. Move the file or choose another name.</source>
         <translation>Es gibt eine Datei mit dem Namen des Ordners %1, deshalb konnte der Ordner nicht erstellt werden. Verschieben Sie die Datei, oder wählen Sie einen anderen Namen.</translation>
     </message>
@@ -4348,7 +4356,7 @@ Um sie zu ermitteln, führen Sie die Stapelverarbeitung im Schritt „Inhalt aus
 <context>
     <name>PdfImageEncoder</name>
     <message>
-        <location filename="../core/PdfImageEncoder.cpp" line="444"/>
+        <location filename="../core/PdfImageEncoder.cpp" line="462"/>
         <source>Unexpected G4 strip layout.</source>
         <translation>Unerwarteter Aufbau der G4-Daten.</translation>
     </message>
@@ -5298,13 +5306,13 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>GitHub hat eine unerwartete Antwort geschickt.</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="208"/>
+        <location filename="../core/TessdataDownloader.cpp" line="220"/>
         <source>Could not create the folder %1.</source>
         <translation>Der Ordner %1 konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="203"/>
-        <location filename="../core/TessdataDownloader.cpp" line="216"/>
+        <location filename="../core/TessdataDownloader.cpp" line="215"/>
+        <location filename="../core/TessdataDownloader.cpp" line="228"/>
         <source>Could not write %1: %2</source>
         <translation>%1 konnte nicht geschrieben werden: %2</translation>
     </message>
@@ -5314,23 +5322,23 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
         <translation>%1 Sekunden lang kamen keine Daten an. Bitte prüfen Sie die Verbindung und versuchen Sie es erneut.</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="203"/>
+        <location filename="../core/TessdataDownloader.cpp" line="215"/>
         <source>Invalid file name.</source>
         <translation>Ungültiger Dateiname.</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="263"/>
-        <location filename="../core/TessdataDownloader.cpp" line="277"/>
+        <location filename="../core/TessdataDownloader.cpp" line="275"/>
+        <location filename="../core/TessdataDownloader.cpp" line="289"/>
         <source>Could not write the language file of &quot;%1&quot;: %2</source>
         <translation>Die Sprachdatei für „%1“ konnte nicht geschrieben werden: %2</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="268"/>
+        <location filename="../core/TessdataDownloader.cpp" line="280"/>
         <source>Downloading &quot;%1&quot; failed: %2</source>
         <translation>Das Herunterladen von „%1“ ist fehlgeschlagen: %2</translation>
     </message>
     <message>
-        <location filename="../core/TessdataDownloader.cpp" line="273"/>
+        <location filename="../core/TessdataDownloader.cpp" line="285"/>
         <source>The downloaded file of &quot;%1&quot; is incomplete or damaged. Please try again.</source>
         <translation>Die heruntergeladene Datei für „%1“ ist unvollständig oder beschädigt. Bitte versuchen Sie es noch einmal.</translation>
     </message>
