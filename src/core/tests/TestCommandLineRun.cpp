@@ -1453,6 +1453,7 @@ BOOST_AUTO_TEST_CASE(test_report_file_is_valid_json_with_the_schema) {
   BOOST_CHECK(run.contains("mode") && run.contains("projectFile") && run.contains("profile") && run.contains("lastStep")
               && run.contains("exitCode") && run.contains("cancelled"));
   BOOST_CHECK(run["mode"].toString() == QStringLiteral("project"));
+  BOOST_CHECK(run["profile"].toString().isEmpty());
   BOOST_CHECK(run["lastStep"].toString() == QStringLiteral("margins"));
   BOOST_CHECK_EQUAL(run["exitCode"].toInt(), CommandLineRun::SUCCESS);
   BOOST_REQUIRE_EQUAL(root["pages"].toArray().size(), 1);

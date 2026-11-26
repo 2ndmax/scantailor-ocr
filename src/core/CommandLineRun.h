@@ -100,7 +100,7 @@ class CommandLineRun {
      * run: object with
      *   mode: string, "project" or "folder".
      *   projectFile: string, the native path of the project.
-     *   profile: string, the name or the file of the profile actually used.
+     *   profile: string, the name or the file of the profile actually used (empty in project mode).
      *   lastStep: string, one of "fix-orientation", "split-pages", "deskew", "select-content",
      *       "margins", "output" or "export".
      *   exitCode: integer, one of the ExitCode values above; reports exist for 0, 3, 4 and 5.

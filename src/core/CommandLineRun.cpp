@@ -1151,7 +1151,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   const ProjectReader* reader = nullptr;
   QStringList passedOver;
   QStringList fixedFiles;
-  QString usedProfile = DefaultParamsProvider::getInstance().getProfileName();
+  QString usedProfile;
   std::optional<ProjectSession> session;
   if (folderMode) {
     session = createFolderProject(options, projectFile, out, err, &usedProfile, &passedOver, &fixedFiles);
