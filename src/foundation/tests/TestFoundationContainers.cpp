@@ -2,9 +2,13 @@
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
 #include <FastQueue.h>
+#include <Grid.h>
 
 #include <boost/test/unit_test.hpp>
+#include <limits>
 #include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 namespace {
 struct ThrowingCopy {
@@ -70,6 +74,42 @@ BOOST_AUTO_TEST_CASE(test_fast_queue_fifo_and_exception_safety) {
     ThrowingCopy::copiesRemainingBeforeThrow = -1;
   }
   BOOST_CHECK_EQUAL(ThrowingCopy::liveCount, 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_grid_copy_move_padding_and_bounds) {
+  static_assert(std::is_nothrow_move_constructible_v<Grid<int>>);
+  static_assert(std::is_nothrow_move_assignable_v<Grid<int>>);
+
+  BOOST_CHECK_THROW((Grid<int>(-1, 2, 0)), std::invalid_argument);
+  BOOST_CHECK_THROW((Grid<int>(2, -1, 0)), std::invalid_argument);
+  BOOST_CHECK_THROW((Grid<int>(2, 2, -1)), std::invalid_argument);
+  BOOST_CHECK_THROW((Grid<int>((std::numeric_limits<int>::max)(), 2, 1)), std::overflow_error);
+
+  Grid<int> emptyGrid;
+  Grid<int> emptyCopy(emptyGrid);
+  BOOST_CHECK(emptyCopy.isNull());
+  BOOST_CHECK(emptyCopy.data() == nullptr);
+
+  Grid<int> grid(3, 2, 1);
+  grid.initPadding(-1);
+  grid.initInterior(7);
+  BOOST_CHECK_EQUAL(grid.stride(), 5);
+  BOOST_CHECK_EQUAL(grid.data()[0], 7);
+  BOOST_CHECK_EQUAL(grid.paddedData()[0], -1);
+
+  Grid<int> assigned;
+  assigned = grid;
+  BOOST_CHECK_EQUAL(assigned.width(), 3);
+  BOOST_CHECK_EQUAL(assigned.height(), 2);
+  BOOST_CHECK_EQUAL(assigned.data()[0], 7);
+  BOOST_CHECK_EQUAL(assigned.paddedData()[0], -1);
+
+  const int* origPtr = assigned.paddedData();
+  Grid<int> moved(std::move(assigned));
+  BOOST_CHECK(assigned.isNull());
+  BOOST_CHECK(assigned.paddedData() == nullptr);
+  BOOST_CHECK(moved.paddedData() == origPtr);
+  BOOST_CHECK_EQUAL(moved.data()[0], 7);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

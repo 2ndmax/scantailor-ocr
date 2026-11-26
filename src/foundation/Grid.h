@@ -5,7 +5,10 @@
 #define SCANTAILOR_FOUNDATION_GRID_H_
 
 #include <cstddef>
+#include <limits>
 #include <memory>
+#include <stdexcept>
+#include <utility>
 
 template <typename Node>
 class Grid {
@@ -26,6 +29,12 @@ class Grid {
    * Stride is also preserved.
    */
   Grid(const Grid& other);
+
+  Grid(Grid&& other) noexcept;
+
+  Grid& operator=(const Grid& other);
+
+  Grid& operator=(Grid&& other) noexcept;
 
   bool isNull() const { return m_width <= 0 || m_height <= 0; }
 
@@ -73,15 +82,17 @@ class Grid {
    */
   int padding() const { return m_padding; }
 
-  void swap(Grid& other);
+  void swap(Grid& other) noexcept;
 
  private:
+  static size_t checkedStorageLen(int width, int height, int padding);
+  static std::unique_ptr<Node[]> allocateStorage(int width, int height, int padding);
+
   template <typename T>
-  static void basicSwap(T& o1, T& o2) {
-    // Just to avoid incoduing the heavy <algorithm> header.
-    T tmp(o1);
-    o1 = o2;
-    o2 = tmp;
+  static void basicSwap(T& o1, T& o2) noexcept {
+    T tmp(std::move(o1));
+    o1 = std::move(o2);
+    o2 = std::move(tmp);
   }
 
   std::unique_ptr<Node[]> m_storage;
@@ -92,40 +103,110 @@ class Grid {
   int m_padding;
 };
 
+template <typename Node>
+size_t Grid<Node>::checkedStorageLen(const int width, const int height, const int padding) {
+  if ((width < 0) || (height < 0) || (padding < 0)) {
+    throw std::invalid_argument("Grid: negative dimension or padding");
+  }
+  const size_t pad2 = static_cast<size_t>(padding) * 2;
+  const size_t stride = static_cast<size_t>(width) + pad2;
+  const size_t totalHeight = static_cast<size_t>(height) + pad2;
+  if ((stride > static_cast<size_t>((std::numeric_limits<int>::max)()))
+      || (totalHeight > static_cast<size_t>((std::numeric_limits<int>::max)()))) {
+    throw std::overflow_error("Grid: dimension overflows int");
+  }
+  if ((stride > 0) && (totalHeight > (std::numeric_limits<size_t>::max)() / stride)) {
+    throw std::overflow_error("Grid: storage size overflow");
+  }
+  return stride * totalHeight;
+}
 
 template <typename Node>
-Grid<Node>::Grid() : m_data(0), m_width(0), m_height(0), m_stride(0), m_padding(0) {}
+std::unique_ptr<Node[]> Grid<Node>::allocateStorage(const int width, const int height, const int padding) {
+  const size_t len = checkedStorageLen(width, height, padding);
+  return len > 0 ? std::make_unique<Node[]>(len) : nullptr;
+}
+
+template <typename Node>
+Grid<Node>::Grid() : m_data(nullptr), m_width(0), m_height(0), m_stride(0), m_padding(0) {}
 
 template <typename Node>
 Grid<Node>::Grid(int width, int height, int padding)
-    // The multiplications are done in size_t to avoid an int overflow, which
-    // would silently allocate a buffer that's too small for large grids.
-    : m_storage(new Node[static_cast<size_t>(width + padding * 2) * static_cast<size_t>(height + padding * 2)]),
-      m_data(m_storage.get() + static_cast<size_t>(width + padding * 2) * padding + padding),
+    : m_storage(allocateStorage(width, height, padding)),
+      m_data(m_storage
+                 ? (m_storage.get()
+                    + (static_cast<size_t>(width) + static_cast<size_t>(padding) * 2) * static_cast<size_t>(padding)
+                    + static_cast<size_t>(padding))
+                 : nullptr),
       m_width(width),
       m_height(height),
-      m_stride(width + padding * 2),
+      m_stride(static_cast<int>(static_cast<size_t>(width) + static_cast<size_t>(padding) * 2)),
       m_padding(padding) {}
 
 template <typename Node>
 Grid<Node>::Grid(const Grid& other)
-    : m_storage(
-          new Node[static_cast<size_t>(other.stride()) * static_cast<size_t>(other.height() + other.padding() * 2)]),
-      m_data(m_storage.get() + static_cast<size_t>(other.stride()) * other.padding() + other.padding()),
-      m_width(other.width()),
-      m_height(other.height()),
-      m_stride(other.stride()),
-      m_padding(other.padding()) {
-  const size_t len = static_cast<size_t>(m_stride) * static_cast<size_t>(m_height + m_padding * 2);
-  for (size_t i = 0; i < len; ++i) {
-    m_storage[i] = other.m_storage[i];
+    : m_storage(other.m_storage ? allocateStorage(other.m_width, other.m_height, other.m_padding) : nullptr),
+      m_data(m_storage ? (m_storage.get() + static_cast<size_t>(other.m_stride) * static_cast<size_t>(other.m_padding)
+                          + static_cast<size_t>(other.m_padding))
+                       : nullptr),
+      m_width(other.m_width),
+      m_height(other.m_height),
+      m_stride(other.m_stride),
+      m_padding(other.m_padding) {
+  if (m_storage) {
+    const size_t len
+        = static_cast<size_t>(m_stride) * (static_cast<size_t>(m_height) + static_cast<size_t>(m_padding) * 2);
+    for (size_t i = 0; i < len; ++i) {
+      m_storage[i] = other.m_storage[i];
+    }
   }
 }
 
 template <typename Node>
+Grid<Node>::Grid(Grid&& other) noexcept
+    : m_storage(std::move(other.m_storage)),
+      m_data(other.m_data),
+      m_width(other.m_width),
+      m_height(other.m_height),
+      m_stride(other.m_stride),
+      m_padding(other.m_padding) {
+  other.m_data = nullptr;
+  other.m_width = 0;
+  other.m_height = 0;
+  other.m_stride = 0;
+  other.m_padding = 0;
+}
+
+template <typename Node>
+Grid<Node>& Grid<Node>::operator=(const Grid& other) {
+  if (this != &other) {
+    Grid(other).swap(*this);
+  }
+  return *this;
+}
+
+template <typename Node>
+Grid<Node>& Grid<Node>::operator=(Grid&& other) noexcept {
+  if (this != &other) {
+    m_storage = std::move(other.m_storage);
+    m_data = other.m_data;
+    m_width = other.m_width;
+    m_height = other.m_height;
+    m_stride = other.m_stride;
+    m_padding = other.m_padding;
+    other.m_data = nullptr;
+    other.m_width = 0;
+    other.m_height = 0;
+    other.m_stride = 0;
+    other.m_padding = 0;
+  }
+  return *this;
+}
+
+template <typename Node>
 void Grid<Node>::initPadding(const Node& paddingNode) {
-  if (m_padding == 0) {
-    // No padding.
+  if (!m_storage || (m_padding == 0)) {
+    // Empty or no padding.
     return;
   }
 
@@ -157,6 +238,9 @@ void Grid<Node>::initPadding(const Node& paddingNode) {
 
 template <typename Node>
 void Grid<Node>::initInterior(const Node& interiorNode) {
+  if (!m_storage) {
+    return;
+  }
   Node* line = m_data;
   for (int y = 0; y < m_height; ++y) {
     for (int x = 0; x < m_width; ++x) {
@@ -167,7 +251,7 @@ void Grid<Node>::initInterior(const Node& interiorNode) {
 }
 
 template <typename Node>
-void Grid<Node>::swap(Grid& other) {
+void Grid<Node>::swap(Grid& other) noexcept {
   m_storage.swap(other.m_storage);
   basicSwap(m_data, other.m_data);
   basicSwap(m_width, other.m_width);
@@ -177,7 +261,7 @@ void Grid<Node>::swap(Grid& other) {
 }
 
 template <typename Node>
-void swap(Grid<Node>& o1, Grid<Node>& o2) {
+void swap(Grid<Node>& o1, Grid<Node>& o2) noexcept {
   o1.swap(o2);
 }
 
