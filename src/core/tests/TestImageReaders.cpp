@@ -1616,4 +1616,25 @@ BOOST_AUTO_TEST_CASE(test_tiff_device_seek_rejects_invalid_offsets) {
   BOOST_CHECK_EQUAL(seek(handle, 0, SEEK_SET), toff_t(0));
 }
 
+BOOST_AUTO_TEST_CASE(test_float64_extreme_range_tiff) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("float64_extreme.tif");
+  TiffSpec spec;
+  spec.width = 3;
+  spec.height = 1;
+  spec.bitsPerSample = 64;
+  spec.samplesPerPixel = 1;
+  spec.sampleFormat = SAMPLEFORMAT_IEEEFP;
+  spec.photometric = PHOTOMETRIC_MINISBLACK;
+  const double values[3] = {-1e308, 0.0, 1e308};
+  BOOST_REQUIRE(writeTiff(path, spec, [&values](int x, int, int) { return values[x]; }));
+
+  const QImage image = readTiff(path);
+  BOOST_REQUIRE(!image.isNull());
+  BOOST_CHECK_EQUAL(grayAt(image, 0, 0), 0);
+  BOOST_CHECK_EQUAL(grayAt(image, 1, 0), 128);
+  BOOST_CHECK_EQUAL(grayAt(image, 2, 0), 255);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -869,14 +869,21 @@ QImage TiffReader::extractNumericImage(const TiffHandle& tif, const TiffInfo& in
     hi = lo + 1.0;
   }
 
-  const double scale = 255.0 / (hi - lo);
+  // If hi - lo overflows double (e.g. float64 spanning [-1e308, +1e308]), work in halves
+  // to avoid +inf / NaN in (v - lo) * scale.
+  const double fullSpan = hi - lo;
+  const bool useHalf = !std::isfinite(fullSpan);
+  const double halfLo = lo * 0.5;
+  const double span = useHalf ? (hi * 0.5 - halfLo) : fullSpan;
   const bool invert = info.photometric == PHOTOMETRIC_MINISWHITE;
   auto to8Bit = [&](double v) -> int {
     if (std::isnan(v)) {
       v = lo;
     }
     v = std::min(std::max(v, lo), hi);
-    const auto level = static_cast<int>(std::lround((v - lo) * scale));
+    const double offset = useHalf ? (v * 0.5 - halfLo) : (v - lo);
+    const double t = (span > 0.0) ? (offset / span) : 0.0;
+    const int level = std::clamp(static_cast<int>(std::lround(t * 255.0)), 0, 255);
     return invert ? 255 - level : level;
   };
 
