@@ -79,102 +79,6 @@ QImage neutralizeDominantPaperCast(const QImage& image, const QColor& paperColor
   return result;
 }
 
-/**
- * Check if a region of a brightness-normalized grayscale image has high
- * midtone concentration.
- * Used to detect embedded images/illustrations in otherwise B&W pages.
- * Returns the number of interior grid cells above the configured midtone
- * concentration threshold.
- * Skips edge cells which often contain page gutters, binding shadows, or margins.
- */
-int collectInteriorCellEvidence(PIX* gray, int midtoneThreshold, LeptonicaDetector::DetectionEvidence* evidence) {
-  const int w = pixGetWidth(gray);
-  const int h = pixGetHeight(gray);
-
-  // Use 6x6 grid (36 cells) for region analysis
-  const int gridSize = 6;
-  const int cellW = w / gridSize;
-  const int cellH = h / gridSize;
-  const float cellThreshold = std::clamp(0.60f - midtoneThreshold / 100.0f, 0.35f, 0.60f);
-
-  if (evidence) {
-    evidence->cellThreshold = cellThreshold;
-    int index = 0;
-    for (int gy = 1; gy < gridSize - 1; ++gy) {
-      for (int gx = 1; gx < gridSize - 1; ++gx) {
-        auto& cell = evidence->interiorCells[index++];
-        cell.gridX = gx;
-        cell.gridY = gy;
-        cell.x = gx * cellW;
-        cell.y = gy * cellH;
-        cell.width = cellW;
-        cell.height = cellH;
-      }
-    }
-  }
-
-  // Skip if cells would be too small
-  if (cellW < 50 || cellH < 50) {
-    return 0;
-  }
-
-  l_uint32* pixData = pixGetData(gray);
-  const int wpl = pixGetWpl(gray);
-
-  // Check only interior grid cells (skip edges which often have margins/gutters)
-  // With 6x6 grid, check cells [1,1] through [4,4] (16 interior cells)
-  int highMidtoneCells = 0;
-  int cellIndex = 0;
-  for (int gy = 1; gy < gridSize - 1; gy++) {
-    for (int gx = 1; gx < gridSize - 1; gx++) {
-      // Interior cells only, so none of them reaches the right or bottom edge.
-      const int startX = gx * cellW;
-      const int startY = gy * cellH;
-      const int endX = startX + cellW;
-      const int endY = startY + cellH;
-
-      int cellMidtones = 0;
-      int cellTotal = 0;
-
-      // Sample every 4th pixel for speed
-      for (int y = startY; y < endY; y += 4) {
-        l_uint32* line = pixData + y * wpl;
-        for (int x = startX; x < endX; x += 4) {
-          // For 8-bit grayscale, get pixel value
-          l_uint32 val = GET_DATA_BYTE(line, x);
-          cellTotal++;
-          // Midtone range: 60-195
-          if (val > 60 && val < 195) {
-            cellMidtones++;
-          }
-        }
-      }
-
-      if (cellTotal > 0) {
-        float cellMidtoneRatio = (float) cellMidtones / cellTotal;
-        if (evidence) {
-          auto& cell = evidence->interiorCells[cellIndex];
-          cell.midtoneRatio = cellMidtoneRatio;
-          cell.sampled = true;
-          cell.aboveThreshold = cellMidtoneRatio > cellThreshold;
-        }
-        // The 150-DPI census of all 392 pages in the toned-paper regression
-        // book topped out at 41.8% for a dense text cell after brightness
-        // normalization. The continuous-tone fixture exceeds 50%, leaving
-        // an evidence-backed gap instead of counting a page-wide paper slope.
-        if (cellMidtoneRatio > cellThreshold) {
-          ++highMidtoneCells;
-        }
-      }
-      ++cellIndex;
-    }
-  }
-  if (evidence) {
-    evidence->highMidtoneCellCount = highMidtoneCells;
-  }
-  return highMidtoneCells;
-}
-
 float normalizedEntropy(const std::array<int, 16>& histogram, const int total) {
   if (total <= 0)
     return 0.0f;
@@ -364,10 +268,7 @@ void collectConnectedToneEvidence(PIX* gray, LeptonicaDetector::DetectionEvidenc
  * Collect normalized grayscale and spatial tone measurements. This function
  * deliberately makes no verdict.
  */
-void collectGrayscaleToneEvidence(PIX* pix,
-                                  int midtoneThreshold,
-                                  LeptonicaDetector::DetectionEvidence* evidence,
-                                  const TaskStatus* status) {
+void collectGrayscaleToneEvidence(PIX* pix, LeptonicaDetector::DetectionEvidence* evidence, const TaskStatus* status) {
   if (status)
     status->throwIfCancelled();
   // Normalize low-frequency brightness before measuring tone. This flattens
@@ -417,7 +318,6 @@ void collectGrayscaleToneEvidence(PIX* pix,
   evidence->darkRatio = darkRatio;
   evidence->midtoneRatio = midRatio;
   evidence->lightRatio = lightRatio;
-  collectInteriorCellEvidence(gray.get(), midtoneThreshold, evidence);
   collectConnectedToneEvidence(gray.get(), evidence);
   if (status)
     status->throwIfCancelled();
@@ -485,7 +385,6 @@ bool hasLocalizedTone(const LeptonicaDetector::DetectionEvidence& evidence) {
 }
 
 LeptonicaDetector::ColorType detectPrepared(const QImage& image,
-                                            int midtoneThreshold,
                                             LeptonicaDetector::DetectionEvidence* evidence,
                                             const TaskStatus* status) {
   using ColorType = LeptonicaDetector::ColorType;
@@ -515,7 +414,7 @@ LeptonicaDetector::ColorType detectPrepared(const QImage& image,
 
   // Evidence is now the primary artifact. The compatibility verdict is
   // derived only after every measurement has been recorded.
-  collectGrayscaleToneEvidence(pix.get(), midtoneThreshold, measured, status);
+  collectGrayscaleToneEvidence(pix.get(), measured, status);
   measured->documentPrior = hasDocumentPrior(*measured);
   measured->documentPriorScore
       = std::clamp((measured->darkRatio - 0.06f) * 2.5f + (measured->lightRatio - 0.30f), 0.0f, 1.0f);
@@ -594,7 +493,6 @@ QString LeptonicaDetector::classificationReason(const DetectionEvidence& evidenc
 }
 
 LeptonicaDetector::ColorType LeptonicaDetector::detect(const QImage& image,
-                                                       int midtoneThreshold,
                                                        DetectionEvidence* evidence,
                                                        const AnalysisScalePolicy& scalePolicy,
                                                        const TaskStatus* status) {
@@ -602,7 +500,7 @@ LeptonicaDetector::ColorType LeptonicaDetector::detect(const QImage& image,
   const QImage analysisImage = analysisImageForPolicy(image, scalePolicy, &scaled);
   DetectionEvidence localEvidence;
   DetectionEvidence* measured = evidence ? evidence : &localEvidence;
-  const ColorType result = detectPrepared(analysisImage, midtoneThreshold, measured, status);
+  const ColorType result = detectPrepared(analysisImage, measured, status);
   measured->sourceSize = image.size();
   measured->requestedLongEdgeCap = scalePolicy.targetLongEdge;
   measured->minimumShortEdge = scalePolicy.minimumShortEdge;
@@ -611,14 +509,13 @@ LeptonicaDetector::ColorType LeptonicaDetector::detect(const QImage& image,
 }
 
 LeptonicaDetector::ColorType LeptonicaDetector::detectWithCastCompensation(const QImage& image,
-                                                                           const int midtoneThreshold,
                                                                            DetectionEvidence* evidence,
                                                                            const AnalysisScalePolicy& scalePolicy,
                                                                            const TaskStatus* status) {
   bool scaled = false;
   const QImage analysisImage = analysisImageForPolicy(image, scalePolicy, &scaled);
   DetectionEvidence initialEvidence;
-  ColorType result = detectPrepared(analysisImage, midtoneThreshold, &initialEvidence, status);
+  ColorType result = detectPrepared(analysisImage, &initialEvidence, status);
   initialEvidence.sourceSize = image.size();
   initialEvidence.requestedLongEdgeCap = scalePolicy.targetLongEdge;
   initialEvidence.minimumShortEdge = scalePolicy.minimumShortEdge;
@@ -645,7 +542,7 @@ LeptonicaDetector::ColorType LeptonicaDetector::detectWithCastCompensation(const
   if (status)
     status->throwIfCancelled();
   DetectionEvidence finalEvidence;
-  ColorType recheck = detectPrepared(neutralized, midtoneThreshold, &finalEvidence, status);
+  ColorType recheck = detectPrepared(neutralized, &finalEvidence, status);
   DetectionEvidence::CastPath castPath = DetectionEvidence::CastPath::WhiteBalanceRecheck;
   if (recheck == ColorType::Color) {
     float residualColorFraction = 1.0f;
@@ -661,7 +558,7 @@ LeptonicaDetector::ColorType LeptonicaDetector::detectWithCastCompensation(const
       const QImage selectivelyNeutralized = neutralizeDominantPaperCast(analysisImage, background);
       if (status)
         status->throwIfCancelled();
-      recheck = detectPrepared(selectivelyNeutralized, midtoneThreshold, &finalEvidence, status);
+      recheck = detectPrepared(selectivelyNeutralized, &finalEvidence, status);
       castPath = DetectionEvidence::CastPath::SelectiveNeutralizationRecheck;
     }
   }

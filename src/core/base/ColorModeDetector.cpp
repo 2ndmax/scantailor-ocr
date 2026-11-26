@@ -181,7 +181,7 @@ ColorModeDetector::Mode ColorModeDetector::detect(const QImage& content,
   }
 
   const LeptonicaDetector::ColorType spectreVerdict = LeptonicaDetector::detectWithCastCompensation(
-      content, 10, &ev.spectre, LeptonicaDetector::AnalysisScalePolicy::productionDefault(), &status);
+      content, &ev.spectre, LeptonicaDetector::AnalysisScalePolicy::productionDefault(), &status);
   ev.spectreVerdict = spectreVerdict;
   Mode mode = toMode(spectreVerdict);
   float darkRatio = ev.spectre.darkRatio;
@@ -202,7 +202,7 @@ ColorModeDetector::Mode ColorModeDetector::detect(const QImage& content,
       } else {
         // Too little color for a color page: judge the page again without color.
         LeptonicaDetector::DetectionEvidence grayEvidence;
-        mode = toMode(LeptonicaDetector::detect(content.convertToFormat(QImage::Format_Grayscale8), 10, &grayEvidence,
+        mode = toMode(LeptonicaDetector::detect(content.convertToFormat(QImage::Format_Grayscale8), &grayEvidence,
                                                 LeptonicaDetector::AnalysisScalePolicy::productionDefault(), &status));
         darkRatio = grayEvidence.darkRatio;
         ev.reason = QStringLiteral("too_little_color");

@@ -35,18 +35,6 @@ class LeptonicaDetector {
     static AnalysisScalePolicy productionDefault();
   };
 
-  struct CellEvidence {
-    int gridX = 0;
-    int gridY = 0;
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
-    float midtoneRatio = 0.0f;
-    bool sampled = false;
-    bool aboveThreshold = false;
-  };
-
   struct ToneTileEvidence {
     int gridX = 0;
     int gridY = 0;
@@ -81,9 +69,6 @@ class LeptonicaDetector {
     float darkRatio = 0.0f;
     float midtoneRatio = 0.0f;
     float lightRatio = 0.0f;
-    float cellThreshold = 0.0f;
-    std::array<CellEvidence, 16> interiorCells;
-    int highMidtoneCellCount = 0;
     std::array<ToneTileEvidence, 81> toneTiles;
     int continuousToneTileCount = 0;
     int continuousToneRegionCount = 0;
@@ -110,12 +95,9 @@ class LeptonicaDetector {
    * Uses Leptonica's pixColorFraction() and channel analysis.
    *
    * @param image The image to analyze
-   * @param midtoneThreshold Sensitivity adjustment for localized picture
-   *        evidence (default 10)
    * @return The detected color type
    */
   static ColorType detect(const QImage& image,
-                          int midtoneThreshold = 10,
                           DetectionEvidence* evidence = nullptr,
                           const AnalysisScalePolicy& scalePolicy = AnalysisScalePolicy::productionDefault(),
                           const TaskStatus* status = nullptr);
@@ -134,12 +116,9 @@ class LeptonicaDetector {
    * has a cast, so already-neutralized or truly neutral pages pay nothing.
    *
    * @param image The image to analyze
-   * @param midtoneThreshold Sensitivity adjustment for localized picture
-   *        evidence (default 10)
    * @return The detected color type
    */
   static ColorType detectWithCastCompensation(const QImage& image,
-                                              int midtoneThreshold = 10,
                                               DetectionEvidence* evidence = nullptr,
                                               const AnalysisScalePolicy& scalePolicy
                                               = AnalysisScalePolicy::productionDefault(),
