@@ -599,3 +599,51 @@ void TestCoreQt::testThumbnailCacheEvictsFirstLoadedItem() {
   // Capacity is 2, so loading C must have evicted A rather than pinning A forever.
   QCOMPARE(cache.loadRequest(idA, pm, noHandler), ThumbnailPixmapCache::QUEUED);
 }
+
+void TestCoreQt::testThumbnailCacheClampsNonPositiveCapacity() {
+  struct WaitHandler : ThumbnailPixmapCache::CompletionHandler {
+    bool done = false;
+    ThumbnailLoadResult::Status status = ThumbnailLoadResult::LOAD_FAILED;
+
+    void operator()(const ThumbnailLoadResult& result) override {
+      status = result.status();
+      done = true;
+    }
+  };
+
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  const QString thumbDir = dir.filePath("thumbs");
+  QVERIFY(QDir().mkpath(thumbDir));
+
+  const auto savePage = [&](const QString& name, ImageId& outId) {
+    const QString path = dir.filePath(name);
+    QImage img(20, 20, QImage::Format_RGB32);
+    img.fill(Qt::white);
+    QVERIFY(img.save(path, "PNG"));
+    outId = ImageId(path);
+  };
+
+  ImageId idA;
+  ImageId idB;
+  savePage("a.png", idA);
+  savePage("b.png", idB);
+
+  // maxCachedPixmaps = 0 must clamp to >= 1 and avoid assertion/UB on removeExcessLocked().
+  ThumbnailPixmapCache cache(thumbDir, QSize(100, 100), 0, 5);
+  const auto loadSync = [&](const ImageId& id) {
+    auto handler = std::make_shared<WaitHandler>();
+    QPixmap pm;
+    QCOMPARE(cache.loadRequest(id, pm, handler), ThumbnailPixmapCache::QUEUED);
+    QTRY_VERIFY_WITH_TIMEOUT(handler->done, 5000);
+    QCOMPARE(handler->status, ThumbnailLoadResult::LOADED);
+  };
+
+  loadSync(idA);
+  loadSync(idB);
+
+  QPixmap pm;
+  const std::weak_ptr<ThumbnailPixmapCache::CompletionHandler> noHandler;
+  QCOMPARE(cache.loadRequest(idB, pm, noHandler), ThumbnailPixmapCache::LOADED);
+  QCOMPARE(cache.loadRequest(idA, pm, noHandler), ThumbnailPixmapCache::QUEUED);
+}

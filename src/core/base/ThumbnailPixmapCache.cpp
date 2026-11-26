@@ -15,6 +15,7 @@
 #include <QSaveFile>
 #include <QStringList>
 #include <QThread>
+#include <algorithm>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
@@ -314,7 +315,7 @@ ThumbnailPixmapCache::Impl::Impl(const QString& thumbDir,
       m_endOfLoadedItems(m_removeQueue.end()),
       m_thumbDir(thumbDir),
       m_maxThumbSize(maxThumbSize),
-      m_maxCachedPixmaps(maxCachedPixmaps),
+      m_maxCachedPixmaps(std::max(1, maxCachedPixmaps)),
       m_expirationThreshold(expirationThreshold),
       m_numQueuedItems(0),
       m_numLoadedItems(0),
@@ -706,12 +707,14 @@ QImage ThumbnailPixmapCache::Impl::makeThumbnail(const QImage& image, const QSiz
 
   QSize toSize(image.size());
   toSize.scale(maxThumbSize, Qt::KeepAspectRatio);
+  toSize.setWidth(std::max(1, toSize.width()));
+  toSize.setHeight(std::max(1, toSize.height()));
 
   if ((image.format() == QImage::Format_Indexed8) && image.isGrayscale()) {
     // This will be faster than QImage::scale().
     return scaleToGray(GrayImage(image), toSize);
   }
-  return image.scaled(toSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  return image.scaled(toSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 }
 
 void ThumbnailPixmapCache::Impl::queuedToInProgress(const LoadQueue::iterator& lqIt) {

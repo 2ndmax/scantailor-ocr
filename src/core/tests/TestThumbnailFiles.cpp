@@ -122,5 +122,40 @@ BOOST_AUTO_TEST_CASE(rename_to_itself_keeps_thumbnails) {
   BOOST_CHECK_EQUAL(thumbsStartingWith(thumbDir, "scan_1L_").size(), 2);
 }
 
+BOOST_AUTO_TEST_CASE(extreme_aspect_ratio_creates_valid_thumbnail) {
+  QTemporaryDir tmp;
+  BOOST_REQUIRE(tmp.isValid());
+  const QDir thumbDir(QDir(tmp.path()).filePath("thumbs"));
+  ThumbnailPixmapCache cache(thumbDir.path(), QSize(200, 200), 10, 5);
+
+  {
+    const ImageId rgbId(QDir(tmp.path()).filePath("narrow_rgb.tif"));
+    QImage narrowRgb(1, 5000, QImage::Format_RGB32);
+    narrowRgb.fill(Qt::white);
+    cache.recreateThumbnail(rgbId, narrowRgb);
+    const QStringList files = thumbsStartingWith(thumbDir, "narrow_rgb_");
+    BOOST_REQUIRE_EQUAL(files.size(), 1);
+    const QImage thumb(thumbDir.filePath(files.front()));
+    BOOST_CHECK(!thumb.isNull());
+    BOOST_CHECK(thumb.size() == QSize(1, 200));
+  }
+
+  {
+    const ImageId grayId(QDir(tmp.path()).filePath("narrow_gray.tif"));
+    QImage narrowGray(1, 5000, QImage::Format_Indexed8);
+    narrowGray.setColorCount(256);
+    for (int i = 0; i < 256; ++i) {
+      narrowGray.setColor(i, qRgb(i, i, i));
+    }
+    narrowGray.fill(255);
+    cache.recreateThumbnail(grayId, narrowGray);
+    const QStringList files = thumbsStartingWith(thumbDir, "narrow_gray_");
+    BOOST_REQUIRE_EQUAL(files.size(), 1);
+    const QImage thumb(thumbDir.filePath(files.front()));
+    BOOST_CHECK(!thumb.isNull());
+    BOOST_CHECK(thumb.size() == QSize(1, 200));
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

@@ -30,6 +30,7 @@ class TestCoreQt : public QObject {
   void testMissingImageShowsError();
   void testRepeatedOutOfMemoryDoesNotCrash();
   void testThumbnailCacheEvictsFirstLoadedItem();
+  void testThumbnailCacheClampsNonPositiveCapacity();
 };
 
 #endif
