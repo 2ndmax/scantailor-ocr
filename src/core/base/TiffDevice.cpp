@@ -5,6 +5,7 @@
 
 #include <QIODevice>
 #include <cstdio>
+#include <limits>
 
 namespace tiff_device {
 namespace {
@@ -25,21 +26,35 @@ tsize_t noTransfer(thandle_t /*context*/, tdata_t /*data*/, tsize_t /*size*/) {
 
 toff_t deviceSeek(thandle_t context, toff_t offset, int whence) {
   auto* dev = (QIODevice*) context;
+  constexpr qint64 kMaxPos = std::numeric_limits<qint64>::max();
+  constexpr auto kInvalidOffset = static_cast<toff_t>(-1);
 
+  qint64 target = 0;
   switch (whence) {
     case SEEK_SET:
-      dev->seek(offset);
+      if (offset > static_cast<toff_t>(kMaxPos)) {
+        return kInvalidOffset;
+      }
+      target = static_cast<qint64>(offset);
       break;
     case SEEK_CUR:
-      dev->seek(dev->pos() + offset);
+    case SEEK_END: {
+      const qint64 base = (whence == SEEK_CUR) ? dev->pos() : dev->size();
+      const auto delta = static_cast<qint64>(offset);
+      if ((base < 0) || ((delta > 0) && (base > kMaxPos - delta)) || ((delta < 0) && (delta < -base))) {
+        return kInvalidOffset;
+      }
+      target = base + delta;
       break;
-    case SEEK_END:
-      dev->seek(dev->size() + offset);
-      break;
+    }
     default:
-      break;
+      return kInvalidOffset;
   }
-  return dev->pos();
+
+  if (!dev->seek(target)) {
+    return kInvalidOffset;
+  }
+  return static_cast<toff_t>(dev->pos());
 }
 
 int deviceClose(thandle_t /*context*/) {

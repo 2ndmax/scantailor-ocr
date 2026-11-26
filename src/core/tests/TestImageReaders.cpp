@@ -7,11 +7,13 @@
 #include <ImageMetadataLoader.h>
 #include <ImageSizeLimit.h>
 #include <Jp2Reader.h>
+#include <TiffDevice.h>
 #include <TiffReader.h>
 #include <TiffWriter.h>
 #include <openjpeg.h>
 #include <tiffio.h>
 
+#include <QBuffer>
 #include <QFile>
 #include <QFileInfo>
 #include <QImage>
@@ -24,6 +26,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <functional>
+#include <limits>
 #include <vector>
 
 extern "C" {
@@ -1584,6 +1587,33 @@ BOOST_AUTO_TEST_CASE(test_jp2_multithreaded_damaged_tiles_report_errors) {
   BOOST_CHECK(image.isNull());
   BOOST_CHECK_MESSAGE(!messages.filter(QStringLiteral("OpenJPEG")).isEmpty(),
                       messages.join(QLatin1Char('\n')).toStdString());
+}
+
+BOOST_AUTO_TEST_CASE(test_tiff_device_seek_rejects_invalid_offsets) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("seek.tif");
+  TiffSpec spec;
+  spec.width = 4;
+  spec.height = 4;
+  BOOST_REQUIRE(writeTiff(path, spec, [](int, int, int) { return 0.0; }));
+
+  QByteArray data = Tests::readFile(path);
+  QBuffer buf(&data);
+  BOOST_REQUIRE(buf.open(QIODevice::ReadOnly));
+
+  const tiff_device::TiffHandle tif(tiff_device::open(buf, "mem", "rBm", tiff_device::Access::READ));
+  BOOST_REQUIRE(tif.handle() != nullptr);
+  TIFFSeekProc seek = TIFFGetSeekProc(tif.handle());
+  thandle_t handle = TIFFClientdata(tif.handle());
+  BOOST_REQUIRE(seek != nullptr);
+
+  constexpr auto kInvalid = static_cast<toff_t>(-1);
+  BOOST_CHECK_EQUAL(seek(handle, static_cast<toff_t>(std::numeric_limits<qint64>::max()) + 1, SEEK_SET), kInvalid);
+  BOOST_CHECK_EQUAL(seek(handle, static_cast<toff_t>(data.size()) + 100, SEEK_SET), kInvalid);
+  BOOST_CHECK_EQUAL(seek(handle, static_cast<toff_t>(-static_cast<qint64>(data.size()) - 10), SEEK_END), kInvalid);
+  BOOST_CHECK_EQUAL(seek(handle, 0, 999), kInvalid);
+  BOOST_CHECK_EQUAL(seek(handle, 0, SEEK_SET), toff_t(0));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
