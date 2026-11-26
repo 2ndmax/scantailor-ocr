@@ -3,16 +3,21 @@
 
 #include "ConstraintSet.h"
 
+#include <stdexcept>
 
 #include "FittableSpline.h"
 
 namespace spfit {
 ConstraintSet::ConstraintSet(const FittableSpline* spline) : m_spline(spline) {
-  assert(spline);
+  if (!spline) {
+    throw std::invalid_argument("ConstraintSet: spline must not be null");
+  }
 }
 
 void ConstraintSet::constrainControlPoint(int cpIdx, const QPointF& pos) {
-  assert(cpIdx >= 0 && cpIdx < m_spline->numControlPoints());
+  if ((cpIdx < 0) || (cpIdx >= m_spline->numControlPoints())) {
+    throw std::out_of_range("ConstraintSet::constrainControlPoint: control point index out of range");
+  }
   const QPointF cp(m_spline->controlPointPosition(cpIdx));
 
   // Fix x coordinate.
@@ -56,7 +61,9 @@ void ConstraintSet::constrainSplinePoint(double t, const QPointF& pos) {
 }
 
 void ConstraintSet::constrainControlPoint(int cpIdx, const QLineF& line) {
-  assert(cpIdx >= 0 && cpIdx < m_spline->numControlPoints());
+  if ((cpIdx < 0) || (cpIdx >= m_spline->numControlPoints())) {
+    throw std::out_of_range("ConstraintSet::constrainControlPoint: control point index out of range");
+  }
 
   if (line.p1() == line.p2()) {
     constrainControlPoint(cpIdx, line.p1());

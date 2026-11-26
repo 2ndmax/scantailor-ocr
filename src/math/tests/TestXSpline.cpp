@@ -6,6 +6,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <limits>
+#include <stdexcept>
 #include <vector>
 
 namespace tests {
@@ -108,6 +109,19 @@ BOOST_AUTO_TEST_CASE(test_closed_spline_is_sampled_beyond_endpoints) {
 
   const std::vector<QPointF> poly = closed.toPolyline();
   BOOST_CHECK_GT(poly.size(), 4u);
+}
+
+BOOST_AUTO_TEST_CASE(test_control_point_bounds_and_single_point_index_to_t) {
+  XSpline spline;
+  spline.appendControlPoint(QPointF(1, 2), 0);
+  BOOST_CHECK_EQUAL(spline.controlPointIndexToT(0), 0.0);
+  BOOST_CHECK_THROW(spline.controlPointIndexToT(-1), std::out_of_range);
+  BOOST_CHECK_THROW(spline.controlPointIndexToT(1), std::out_of_range);
+  BOOST_CHECK_THROW(spline.controlPointPosition(1), std::out_of_range);
+  BOOST_CHECK_THROW(spline.moveControlPoint(-1, QPointF(0, 0)), std::out_of_range);
+  BOOST_CHECK_THROW(spline.eraseControlPoint(1), std::out_of_range);
+  BOOST_CHECK_THROW(spline.insertControlPoint(2, QPointF(0, 0), 0), std::out_of_range);
+  BOOST_CHECK_THROW(spline.setControlPointTension(1, 0.5), std::out_of_range);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

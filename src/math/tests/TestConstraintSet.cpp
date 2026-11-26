@@ -3,11 +3,13 @@
 
 #include <XSpline.h>
 #include <spfit/ConstraintSet.h>
+#include <spfit/Optimizer.h>
 
 #include <QLineF>
 #include <QPointF>
 #include <boost/test/unit_test.hpp>
 #include <cmath>
+#include <stdexcept>
 
 namespace spfit {
 namespace tests {
@@ -34,6 +36,28 @@ BOOST_AUTO_TEST_CASE(test_control_point_on_line) {
   // No displacement leaves (3, 5) off the line.
   const double none[] = {0, 0, 0, 0};
   BOOST_CHECK(std::abs(f.evaluate(none)) > 1.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_constraint_set_and_optimizer_validate_bounds) {
+  BOOST_CHECK_THROW(ConstraintSet(nullptr), std::invalid_argument);
+
+  XSpline spline;
+  spline.appendControlPoint(QPointF(0, 0), 0);
+  spline.appendControlPoint(QPointF(10, 0), 0);
+  ConstraintSet constraints(&spline);
+  BOOST_CHECK_THROW(constraints.constrainControlPoint(-1, QPointF(0, 0)), std::out_of_range);
+  BOOST_CHECK_THROW(constraints.constrainControlPoint(2, QLineF(0, 0, 1, 1)), std::out_of_range);
+
+  Optimizer opt(4);
+  std::list<LinearFunction> badConstraints;
+  badConstraints.emplace_back(2);
+  BOOST_CHECK_THROW(opt.setConstraints(badConstraints), std::invalid_argument);
+
+  BOOST_CHECK_THROW(opt.addExternalForce(QuadraticFunction(2)), std::invalid_argument);
+  BOOST_CHECK_THROW(opt.addInternalForce(QuadraticFunction(2)), std::invalid_argument);
+  BOOST_CHECK_THROW(opt.addExternalForce(QuadraticFunction(2), std::vector<int>{0}), std::invalid_argument);
+  BOOST_CHECK_THROW(opt.addExternalForce(QuadraticFunction(2), std::vector<int>{0, 4}), std::out_of_range);
+  BOOST_CHECK_THROW(opt.addInternalForce(QuadraticFunction(2), std::vector<int>{-1, 0}), std::out_of_range);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

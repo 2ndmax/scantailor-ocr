@@ -3,6 +3,7 @@
 
 #include "Optimizer.h"
 
+#include <stdexcept>
 
 #include "MatrixCalc.h"
 
@@ -36,6 +37,9 @@ void Optimizer::setConstraints(const std::list<LinearFunction>& constraints) {
 
   auto ctr(constraints.begin());
   for (size_t i = m_numVars; i < numDimensions; ++i, ++ctr) {
+    if (ctr->a.size() != m_numVars) {
+      throw std::invalid_argument("Optimizer::setConstraints: constraint dimension mismatch");
+    }
     b[i] = -ctr->b;
     for (size_t j = 0; j < m_numVars; ++j) {
       A(i, j) = A(j, i) = ctr->a[j];
@@ -48,15 +52,27 @@ void Optimizer::setConstraints(const std::list<LinearFunction>& constraints) {
 }  // Optimizer::setConstraints
 
 void Optimizer::addExternalForce(const QuadraticFunction& force) {
+  if (force.numVars() != m_numVars) {
+    throw std::invalid_argument("Optimizer::addExternalForce: variable count mismatch");
+  }
   m_externalForce += force;
 }
 
 void Optimizer::addExternalForce(const QuadraticFunction& force, const std::vector<int>& sparseMap) {
   const size_t numVars = force.numVars();
+  if (sparseMap.size() != numVars) {
+    throw std::invalid_argument("Optimizer::addExternalForce: sparseMap size mismatch");
+  }
   for (size_t i = 0; i < numVars; ++i) {
     const int ii = sparseMap[i];
+    if ((ii < 0) || (static_cast<size_t>(ii) >= m_numVars)) {
+      throw std::out_of_range("Optimizer::addExternalForce: sparseMap index out of range");
+    }
     for (size_t j = 0; j < numVars; ++j) {
       const int jj = sparseMap[j];
+      if ((jj < 0) || (static_cast<size_t>(jj) >= m_numVars)) {
+        throw std::out_of_range("Optimizer::addExternalForce: sparseMap index out of range");
+      }
       m_externalForce.A(ii, jj) += force.A(i, j);
     }
     m_externalForce.b[ii] += force.b[i];
@@ -65,15 +81,27 @@ void Optimizer::addExternalForce(const QuadraticFunction& force, const std::vect
 }
 
 void Optimizer::addInternalForce(const QuadraticFunction& force) {
+  if (force.numVars() != m_numVars) {
+    throw std::invalid_argument("Optimizer::addInternalForce: variable count mismatch");
+  }
   m_internalForce += force;
 }
 
 void Optimizer::addInternalForce(const QuadraticFunction& force, const std::vector<int>& sparseMap) {
   const size_t numVars = force.numVars();
+  if (sparseMap.size() != numVars) {
+    throw std::invalid_argument("Optimizer::addInternalForce: sparseMap size mismatch");
+  }
   for (size_t i = 0; i < numVars; ++i) {
     const int ii = sparseMap[i];
+    if ((ii < 0) || (static_cast<size_t>(ii) >= m_numVars)) {
+      throw std::out_of_range("Optimizer::addInternalForce: sparseMap index out of range");
+    }
     for (size_t j = 0; j < numVars; ++j) {
       const int jj = sparseMap[j];
+      if ((jj < 0) || (static_cast<size_t>(jj) >= m_numVars)) {
+        throw std::out_of_range("Optimizer::addInternalForce: sparseMap index out of range");
+      }
       m_internalForce.A(ii, jj) += force.A(i, j);
     }
     m_internalForce.b[ii] += force.b[i];

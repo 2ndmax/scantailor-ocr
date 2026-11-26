@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <stdexcept>
 
 #include "ToLineProjector.h"
 #include "VecNT.h"
@@ -94,7 +95,12 @@ int XSpline::numSegments() const {
 }
 
 double XSpline::controlPointIndexToT(int idx) const {
-  assert(m_controlPoints.size() > 1 && idx >= 0 && idx < (int) m_controlPoints.size());
+  if ((idx < 0) || (idx >= static_cast<int>(m_controlPoints.size()))) {
+    throw std::out_of_range("XSpline::controlPointIndexToT: index out of range");
+  }
+  if (m_controlPoints.size() == 1) {
+    return 0.0;
+  }
   return double(idx) / (m_controlPoints.size() - 1);
 }
 
@@ -103,31 +109,44 @@ void XSpline::appendControlPoint(const QPointF& pos, double tension) {
 }
 
 void XSpline::insertControlPoint(int idx, const QPointF& pos, double tension) {
-  assert(idx >= 0 && idx <= (int) m_controlPoints.size());
+  if ((idx < 0) || (idx > static_cast<int>(m_controlPoints.size()))) {
+    throw std::out_of_range("XSpline::insertControlPoint: index out of range");
+  }
   m_controlPoints.insert(m_controlPoints.begin() + idx, ControlPoint(pos, tension));
 }
 
 void XSpline::eraseControlPoint(int idx) {
-  assert(idx >= 0 && idx < (int) m_controlPoints.size());
+  if ((idx < 0) || (idx >= static_cast<int>(m_controlPoints.size()))) {
+    throw std::out_of_range("XSpline::eraseControlPoint: index out of range");
+  }
   m_controlPoints.erase(m_controlPoints.begin() + idx);
 }
 
 QPointF XSpline::controlPointPosition(int idx) const {
+  if ((idx < 0) || (idx >= static_cast<int>(m_controlPoints.size()))) {
+    throw std::out_of_range("XSpline::controlPointPosition: index out of range");
+  }
   return m_controlPoints[idx].pos;
 }
 
 void XSpline::moveControlPoint(int idx, const QPointF& pos) {
-  assert(idx >= 0 && idx < (int) m_controlPoints.size());
+  if ((idx < 0) || (idx >= static_cast<int>(m_controlPoints.size()))) {
+    throw std::out_of_range("XSpline::moveControlPoint: index out of range");
+  }
   m_controlPoints[idx].pos = pos;
 }
 
 double XSpline::controlPointTension(int idx) const {
-  assert(idx >= 0 && idx < (int) m_controlPoints.size());
+  if ((idx < 0) || (idx >= static_cast<int>(m_controlPoints.size()))) {
+    throw std::out_of_range("XSpline::controlPointTension: index out of range");
+  }
   return m_controlPoints[idx].tension;
 }
 
 void XSpline::setControlPointTension(int idx, double tension) {
-  assert(idx >= 0 && idx < (int) m_controlPoints.size());
+  if ((idx < 0) || (idx >= static_cast<int>(m_controlPoints.size()))) {
+    throw std::out_of_range("XSpline::setControlPointTension: index out of range");
+  }
   m_controlPoints[idx].tension = tension;
 }
 
