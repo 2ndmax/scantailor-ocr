@@ -16,6 +16,8 @@
 #include <TaskStatus.h>
 #include <TextLineTracer.h>
 #include <TopBottomEdgeTracer.h>
+#include <WidthCorrection.h>
+#include <WidthProfile.h>
 #include <XSpline.h>
 
 #include <QColor>
@@ -799,6 +801,29 @@ BOOST_AUTO_TEST_CASE(test_bend_like_the_text_lines_skips_crossing_top_and_bottom
   for (const QPointF& pt : bottom) {
     BOOST_TEST((std::isfinite(pt.x()) && std::isfinite(pt.y())));
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_width_correction_boundary_and_duplicate_profile_samples) {
+  const WidthCorrection correction(std::vector<double>{0.0, 0.25, 0.6, 1.0});
+  BOOST_REQUIRE(!correction.isNull());
+  const double nearOne = std::nextafter(1.0, 0.0);
+  const double mapped = correction.map(nearOne);
+  BOOST_TEST(std::isfinite(mapped));
+  BOOST_TEST(mapped >= 0.0);
+  BOOST_TEST(mapped <= 1.0);
+
+  const double unmapped = correction.unmap(nearOne);
+  BOOST_TEST(std::isfinite(unmapped));
+  BOOST_TEST(unmapped >= 0.0);
+  BOOST_TEST(unmapped <= 1.0);
+
+  // Duplicate adjacent x positions give du == 0.0 in interpolation (must not divide by zero).
+  const std::vector<WidthProfile::Sample> duplicateX = {
+      {100.0, 0.7}, {300.0, 0.8}, {300.0, 0.85}, {500.0, 1.0}, {700.0, 1.2}, {900.0, 1.1},
+  };
+  const WidthCorrection fromProfile = WidthProfile::toCorrection(duplicateX, 0.0, 1000.0);
+  BOOST_TEST(!fromProfile.isNull());
+  BOOST_TEST(std::isfinite(fromProfile.map(0.3)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

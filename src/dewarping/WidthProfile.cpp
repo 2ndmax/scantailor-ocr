@@ -185,8 +185,13 @@ WidthCorrection WidthProfile::toCorrection(const std::vector<Sample>& samples,
     if (pos >= u.back()) {
       return 1.0 / scale.back();
     }
-    const size_t i = static_cast<size_t>(std::upper_bound(u.begin(), u.end(), pos) - u.begin()) - 1;
-    const double frac = (pos - u[i]) / (u[i + 1] - u[i]);
+    const size_t i = std::min(static_cast<size_t>(std::upper_bound(u.begin(), u.end(), pos) - u.begin()) - 1,
+                              u.size() - 2);
+    const double du = u[i + 1] - u[i];
+    if (du <= 0.0) {
+      return 1.0 / scale[i];
+    }
+    const double frac = (pos - u[i]) / du;
     return 1.0 / (scale[i] + (scale[i + 1] - scale[i]) * frac);
   };
 

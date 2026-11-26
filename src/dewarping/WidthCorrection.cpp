@@ -50,7 +50,7 @@ double WidthCorrection::map(const double x) const {
     return x;
   }
   const double pos = x * static_cast<double>(m_samples.size() - 1);
-  const auto idx = static_cast<size_t>(pos);
+  const size_t idx = std::min(static_cast<size_t>(pos), m_samples.size() - 2);
   const double frac = pos - static_cast<double>(idx);
   return m_samples[idx] + (m_samples[idx + 1] - m_samples[idx]) * frac;
 }
@@ -62,7 +62,7 @@ double WidthCorrection::unmap(const double x) const {
   }
   // The first sample above x; the samples rise strictly from 0 to 1.
   const auto it = std::upper_bound(m_samples.begin(), m_samples.end(), x);
-  const auto idx = static_cast<size_t>(it - m_samples.begin()) - 1;
+  const size_t idx = std::min(static_cast<size_t>(it - m_samples.begin()) - 1, m_samples.size() - 2);
   const double frac = (x - m_samples[idx]) / (m_samples[idx + 1] - m_samples[idx]);
   return (static_cast<double>(idx) + frac) / static_cast<double>(m_samples.size() - 1);
 }
