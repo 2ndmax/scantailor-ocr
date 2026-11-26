@@ -759,7 +759,6 @@ TextLineTracer::TracedPage TextLineTracer::traceTextLines(const GrayImage& input
   }
 
   Vec2f unitDownVector(calcAvgUnitVector(vertBounds));
-  unitDownVector /= std::sqrt(unitDownVector.squaredNorm());
   if (unitDownVector[1] < 0) {
     unitDownVector = -unitDownVector;
   }
@@ -1110,19 +1109,43 @@ QLineF TextLineTracer::calcMidLine(const QLineF& line1, const QLineF& line2) {
   QPointF intersection;
   auto is = line1.intersects(line2, &intersection);
   if (is == QLineF::NoIntersection) {
-    // Lines are parallel.
+    // Lines are parallel (or at least one is zero-length).
     const QPointF p1(line2.p1());
-    const QPointF p2(ToLineProjector(line1).projectionPoint(p1));
+    const QPointF p2((line1.length() > 1e-12) ? ToLineProjector(line1).projectionPoint(p1) : line1.p1());
     const QPointF origin(0.5 * (p1 + p2));
-    const QPointF vector(line2.p2() - line2.p1());
+    const QPointF vector = (line2.length() > 1e-12)
+                               ? (line2.p2() - line2.p1())
+                               : ((line1.length() > 1e-12) ? (line1.p2() - line1.p1()) : QPointF(0.0, 1.0));
     return QLineF(origin, origin + vector);
   } else {
     // Lines do intersect.
     Vec2d v1(line1.p2() - line1.p1());
+    const double len1 = std::sqrt(v1.squaredNorm());
+    const bool valid1 = len1 > 1e-12;
+    if (valid1) {
+      v1 /= len1;
+    }
+
     Vec2d v2(line2.p2() - line2.p1());
-    v1 /= std::sqrt(v1.squaredNorm());
-    v2 /= std::sqrt(v2.squaredNorm());
-    return QLineF(intersection, intersection + 0.5 * (v1 + v2));
+    const double len2 = std::sqrt(v2.squaredNorm());
+    const bool valid2 = len2 > 1e-12;
+    if (valid2) {
+      v2 /= len2;
+    }
+
+    Vec2d dir;
+    if (!valid1 && !valid2) {
+      dir = Vec2d(0.0, 1.0);
+    } else if (!valid1) {
+      dir = v2;
+    } else if (!valid2) {
+      dir = v1;
+    } else {
+      const Vec2d sum(v1 + v2);
+      const double sumLen = std::sqrt(sum.squaredNorm());
+      dir = (sumLen > 1e-12) ? (sum / sumLen) : Vec2d(-v1[1], v1[0]);
+    }
+    return QLineF(intersection, intersection + dir);
   }
 }
 

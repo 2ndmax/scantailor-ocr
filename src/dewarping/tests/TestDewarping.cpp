@@ -1,6 +1,7 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <AvgUnitVector.h>
 #include <BinaryImage.h>
 #include <Constants.h>
 #include <Curve.h>
@@ -38,6 +39,10 @@ struct TextLineTracerTestAccess {
                             const QRect& contentRect,
                             DistortionModelBuilder& output) {
     TextLineTracer::traceAsCurved(input, dpi, contentRect, output);
+  }
+
+  static QLineF calcMidLine(const QLineF& line1, const QLineF& line2) {
+    return TextLineTracer::calcMidLine(line1, line2);
   }
 };
 
@@ -664,6 +669,33 @@ BOOST_AUTO_TEST_CASE(test_distortion_model_rejects_crossing_or_touching_curves) 
     collinear.setBottomCurve(Curve(std::vector<QPointF>{{1000, 0}, {2000, 0}}));
     BOOST_TEST(!collinear.isValid());
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_avg_unit_vector_and_mid_line_handle_degenerate_vectors) {
+  const auto checkUnitFinite = [](const Vec2f& v) {
+    BOOST_TEST(std::isfinite(v[0]));
+    BOOST_TEST(std::isfinite(v[1]));
+    BOOST_TEST(std::sqrt(v.squaredNorm()) == 1.0f, boost::test_tools::tolerance(1e-5f));
+  };
+
+  // Both zero vectors.
+  checkUnitFinite(calcAvgUnitVector({QLineF(0, 0, 0, 0), QLineF(5, 5, 5, 5)}));
+  // One zero vector.
+  checkUnitFinite(calcAvgUnitVector({QLineF(0, 0, 0, 0), QLineF(0, 0, 3, 4)}));
+  checkUnitFinite(calcAvgUnitVector({QLineF(0, 0, 3, 4), QLineF(0, 0, 0, 0)}));
+  // Opposing vectors.
+  checkUnitFinite(calcAvgUnitVector({QLineF(0, 0, 1, 0), QLineF(0, 0, -1, 0)}));
+
+  // calcMidLine with opposing intersecting lines and degenerate zero-length lines.
+  const QLineF opposingMid = TextLineTracerTestAccess::calcMidLine(QLineF(0, 0, 10, 0), QLineF(10, 0, 0, 0));
+  BOOST_TEST(std::isfinite(opposingMid.p1().x()));
+  BOOST_TEST(std::isfinite(opposingMid.p2().x()));
+  BOOST_TEST(opposingMid.length() > 0.5);
+
+  const QLineF zeroMid = TextLineTracerTestAccess::calcMidLine(QLineF(0, 0, 0, 0), QLineF(1, 2, 1, 2));
+  BOOST_TEST(std::isfinite(zeroMid.p2().x()));
+  BOOST_TEST(std::isfinite(zeroMid.p2().y()));
+  BOOST_TEST(zeroMid.length() > 0.5);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

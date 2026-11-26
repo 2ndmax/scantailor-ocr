@@ -20,13 +20,35 @@ namespace dewarping {
  */
 inline Vec2f calcAvgUnitVector(const std::pair<QLineF, QLineF>& bounds) {
   Vec2f v1(bounds.first.p2() - bounds.first.p1());
-  v1 /= std::sqrt(v1.squaredNorm());
+  const float len1 = std::sqrt(v1.squaredNorm());
+  const bool valid1 = len1 > 1e-12f;
+  if (valid1) {
+    v1 /= len1;
+  }
 
   Vec2f v2(bounds.second.p2() - bounds.second.p1());
-  v2 /= std::sqrt(v2.squaredNorm());
+  const float len2 = std::sqrt(v2.squaredNorm());
+  const bool valid2 = len2 > 1e-12f;
+  if (valid2) {
+    v2 /= len2;
+  }
+
+  if (!valid1 && !valid2) {
+    return Vec2f(0.0f, 1.0f);
+  }
+  if (!valid1) {
+    return v2;
+  }
+  if (!valid2) {
+    return v1;
+  }
 
   Vec2f v3(v1 + v2);
-  v3 /= std::sqrt(v3.squaredNorm());
+  const float len3 = std::sqrt(v3.squaredNorm());
+  if (len3 <= 1e-12f) {
+    return Vec2f(-v1[1], v1[0]);
+  }
+  v3 /= len3;
   return v3;
 }
 }  // namespace dewarping
