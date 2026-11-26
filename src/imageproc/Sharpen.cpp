@@ -5,6 +5,7 @@
 
 #include <QImage>
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 
 #include "BrightnessFilter.h"
@@ -15,7 +16,7 @@
 
 namespace imageproc {
 void sharpenInPlace(GrayImage& image, const int radius, const double coef) {
-  if (image.isNull() || (radius < 1) || (coef <= 0.0)) {
+  if (image.isNull() || (radius < 1) || !std::isfinite(coef) || !(coef > 0.0)) {
     return;
   }
   const auto sigma = static_cast<float>(radius);
@@ -39,7 +40,7 @@ void sharpenInPlace(GrayImage& image, const int radius, const double coef) {
 }
 
 void sharpenColorInPlace(QImage& image, const int radius, const double coef) {
-  if ((radius < 1) || (coef <= 0.0)) {
+  if (image.isNull() || (radius < 1) || !std::isfinite(coef) || !(coef > 0.0)) {
     return;
   }
   filterBrightnessInPlace(image, [&](GrayImage& gray) { sharpenInPlace(gray, radius, coef); });

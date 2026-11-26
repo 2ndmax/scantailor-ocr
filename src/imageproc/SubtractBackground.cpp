@@ -154,6 +154,9 @@ GrayImage estimateBackground(const GrayImage& image, const int radius) {
 
 // Divides by the background, which takes it to white and keeps dark text dark.
 void whitenInPlace(GrayImage& channel, const int radius, const double coef) {
+  if (channel.isNull() || (radius < 1) || !std::isfinite(coef) || !(coef > 0.0)) {
+    return;
+  }
   const GrayImage background = estimateBackground(channel, radius);
   const float strength = static_cast<float>(std::min(coef, 1.0));
   uint8_t* line = channel.data();
@@ -172,6 +175,9 @@ void whitenInPlace(GrayImage& channel, const int radius, const double coef) {
 }
 
 void whitenColorInPlace(QImage& image, const int radius, const double coef) {
+  if (image.isNull() || (radius < 1) || !std::isfinite(coef) || !(coef > 0.0)) {
+    return;
+  }
   const int w = image.width();
   const int h = image.height();
   std::array<GrayImage, 3> channels;
@@ -209,7 +215,7 @@ void whitenColorInPlace(QImage& image, const int radius, const double coef) {
 }  // namespace
 
 void subtractBackgroundInPlace(GrayImage& image, const int radius, const double coef) {
-  if (image.isNull() || (radius < 1) || (coef <= 0.0)) {
+  if (image.isNull() || (radius < 1) || !std::isfinite(coef) || !(coef > 0.0)) {
     return;
   }
   const GrayImage background = estimateBackground(image, radius);
@@ -238,7 +244,7 @@ void subtractBackgroundInPlace(GrayImage& image, const int radius, const double 
 }
 
 void subtractBackgroundColorInPlace(QImage& image, const int radius, const double coef, const bool whitePaper) {
-  if (image.isNull() || (radius < 1) || (coef <= 0.0)) {
+  if (image.isNull() || (radius < 1) || !std::isfinite(coef) || !(coef > 0.0)) {
     return;
   }
   const int depth = image.depth();

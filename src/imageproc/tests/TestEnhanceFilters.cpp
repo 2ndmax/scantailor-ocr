@@ -256,6 +256,30 @@ BOOST_AUTO_TEST_CASE(test_wiener_and_knn_guard_nan_parameters) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_sharpen_guards_nan_and_invalid_radius) {
+  const double qnan = std::numeric_limits<double>::quiet_NaN();
+  const double inf = std::numeric_limits<double>::infinity();
+
+  GrayImage gray = makeEdge(false);
+  const GrayImage grayOrig(gray);
+  for (const double bad : {qnan, inf, 0.0, -1.0}) {
+    sharpenInPlace(gray, 2, bad);
+    BOOST_CHECK(gray == grayOrig);
+  }
+  sharpenInPlace(gray, 0, 1.0);
+  BOOST_CHECK(gray == grayOrig);
+
+  QImage color(24, 24, QImage::Format_RGB32);
+  color.fill(qRgb(180, 140, 120));
+  const QImage colorOrig = color.copy();
+  for (const double bad : {qnan, inf, 0.0, -1.0}) {
+    sharpenColorInPlace(color, 2, bad);
+    BOOST_CHECK(color == colorOrig);
+  }
+  sharpenColorInPlace(color, -2, 1.0);
+  BOOST_CHECK(color == colorOrig);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc

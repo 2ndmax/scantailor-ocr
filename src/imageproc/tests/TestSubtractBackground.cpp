@@ -6,7 +6,9 @@
 
 #include <QImage>
 #include <boost/test/unit_test.hpp>
+#include <cmath>
 #include <cstdlib>
+#include <limits>
 
 namespace imageproc {
 namespace tests {
@@ -105,6 +107,34 @@ BOOST_AUTO_TEST_CASE(test_white_paper_removes_yellowing) {
   BOOST_CHECK_GE(qBlue(paper), 253);
   const QRgb text = image.pixel(41, 30);
   BOOST_CHECK_LT(qRed(text) + qGreen(text) + qBlue(text), 3 * 80);
+}
+
+BOOST_AUTO_TEST_CASE(test_nan_coef_and_invalid_radius_leave_image_unchanged) {
+  const double qnan = std::numeric_limits<double>::quiet_NaN();
+  const double inf = std::numeric_limits<double>::infinity();
+
+  const GrayImage grayOrig = makePage(60, 40);
+  for (const double badCoef : {qnan, inf, 0.0, -1.0}) {
+    GrayImage gray(grayOrig);
+    subtractBackgroundInPlace(gray, 10, badCoef);
+    BOOST_CHECK(gray == grayOrig);
+  }
+  GrayImage grayBadRadius(grayOrig);
+  subtractBackgroundInPlace(grayBadRadius, 0, 1.0);
+  BOOST_CHECK(grayBadRadius == grayOrig);
+
+  QImage colorOrig(60, 40, QImage::Format_RGB32);
+  colorOrig.fill(qRgb(220, 210, 180));
+  for (const bool whitePaper : {false, true}) {
+    for (const double badCoef : {qnan, inf, 0.0, -1.0}) {
+      QImage color = colorOrig.copy();
+      subtractBackgroundColorInPlace(color, 10, badCoef, whitePaper);
+      BOOST_CHECK(color == colorOrig);
+    }
+    QImage colorBadRadius = colorOrig.copy();
+    subtractBackgroundColorInPlace(colorBadRadius, -5, 1.0, whitePaper);
+    BOOST_CHECK(colorBadRadius == colorOrig);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
