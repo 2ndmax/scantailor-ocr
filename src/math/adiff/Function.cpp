@@ -4,6 +4,7 @@
 #include "Function.h"
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace adiff {
 // Note:
@@ -22,6 +23,9 @@ Function<2>::Function(size_t argIdx, double val, const SparseMap<2>& sparseMap)
   // Derivatives are calculated accordingly.
 
   const size_t numVars = sparseMap.numVars();
+  if (argIdx >= numVars) {
+    throw std::out_of_range("adiff::Function<2>: argIdx out of range");
+  }
 
   // argIdx row
   for (size_t i = 0; i < numVars; ++i) {
@@ -66,8 +70,9 @@ MatT<double> Function<2>::hessian(const SparseMap<2>& sparseMap) const {
         } else {
           const size_t ii = sparseMap.nonZeroElementIdx(i, i);
           const size_t jj = sparseMap.nonZeroElementIdx(j, j);
-          assert(ii != sparseMap.ZERO_ELEMENT && jj != sparseMap.ZERO_ELEMENT);
-          Fij = 0.5 * (secondDerivs[ij] - (secondDerivs[ii] + secondDerivs[jj]));
+          if ((ii != sparseMap.ZERO_ELEMENT) && (jj != sparseMap.ZERO_ELEMENT)) {
+            Fij = 0.5 * (secondDerivs[ij] - (secondDerivs[ii] + secondDerivs[jj]));
+          }
         }
       }
       hess(i, j) = Fij;

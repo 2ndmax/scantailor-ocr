@@ -3,6 +3,8 @@
 
 #include "SparseMap.h"
 
+#include <stdexcept>
+
 namespace adiff {
 const size_t SparseMap<2>::ZERO_ELEMENT = ~size_t(0);
 
@@ -10,10 +12,17 @@ SparseMap<2>::SparseMap(size_t numVars)
     : m_numVars(numVars), m_numNonZeroElements(0), m_map(numVars, numVars, ZERO_ELEMENT) {}
 
 void SparseMap<2>::markNonZero(size_t i, size_t j) {
+  if ((i >= m_numVars) || (j >= m_numVars)) {
+    throw std::out_of_range("adiff::SparseMap<2>::markNonZero: index out of range");
+  }
   size_t& el = m_map(i, j);
   if (el == ZERO_ELEMENT) {
     el = m_numNonZeroElements;
     ++m_numNonZeroElements;
+  }
+  if (i != j) {
+    markNonZero(i, i);
+    markNonZero(j, j);
   }
 }
 

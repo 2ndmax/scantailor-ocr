@@ -7,6 +7,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdlib>
+#include <stdexcept>
 
 namespace adiff {
 namespace tests {
@@ -118,6 +119,21 @@ BOOST_AUTO_TEST_CASE(test_scaling) {
   BOOST_REQUIRE_SMALL(fHessian(1, 1), 1e-06);
   BOOST_REQUIRE_CLOSE(g.value, 16, 1e-06);
   BOOST_REQUIRE_CLOSE(gHessian(0, 0), 8, 1e-06);
+}
+
+BOOST_AUTO_TEST_CASE(test_sparse_off_diagonal_marks_diagonals) {
+  SparseMap<2> sparseMap(2);
+  sparseMap.markNonZero(0, 1);
+
+  const Function<2> x(0, 3.0, sparseMap);
+  const Function<2> y(1, 4.0, sparseMap);
+  const Function<2> f(x * y);
+  const MatT<double> hess = f.hessian(sparseMap);
+  BOOST_CHECK_SMALL(hess(0, 0), 1e-9);
+  BOOST_CHECK_CLOSE(hess(0, 1), 1.0, 1e-9);
+
+  BOOST_CHECK_THROW((Function<2>(2, 1.0, sparseMap)), std::out_of_range);
+  BOOST_CHECK_THROW(sparseMap.markNonZero(0, 2), std::out_of_range);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
