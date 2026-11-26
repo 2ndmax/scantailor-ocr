@@ -96,6 +96,15 @@ BOOST_AUTO_TEST_CASE(test_dots_that_lead_through_folders_are_not_names) {
 
 BOOST_AUTO_TEST_CASE(test_empty_path_is_rejected) {
   BOOST_CHECK(!invalidNewPathReason(QString()).isEmpty());
+  BOOST_CHECK(!canCreateOrWriteDir(QString()));
+  BOOST_CHECK(!canWriteFile(QString()));
+}
+
+BOOST_AUTO_TEST_CASE(test_reserved_names_are_rejected_by_write_checks) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  BOOST_CHECK(!canWriteFile(dir.filePath("CON.txt")));
+  BOOST_CHECK(!canCreateOrWriteDir(dir.filePath("NUL/sub")));
 }
 
 BOOST_AUTO_TEST_CASE(test_isWritableDir_reports_writable_and_missing_dirs) {

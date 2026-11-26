@@ -99,6 +99,9 @@ bool isWritableDir(const QString& dirPath) {
 }
 
 bool canCreateOrWriteDir(const QString& dirPath) {
+  if (dirPath.isEmpty() || !invalidNewPathReason(dirPath).isEmpty()) {
+    return false;
+  }
   QString current = QDir::cleanPath(QFileInfo(dirPath).absoluteFilePath());
   while (true) {
     const QFileInfo info(current);
@@ -114,6 +117,9 @@ bool canCreateOrWriteDir(const QString& dirPath) {
 }
 
 bool canWriteFile(const QString& filePath) {
+  if (filePath.isEmpty() || !invalidNewPathReason(filePath).isEmpty()) {
+    return false;
+  }
   const QFileInfo info(filePath);
   if (!info.absoluteDir().exists() || !isWritableDir(info.absolutePath())) {
     return false;
