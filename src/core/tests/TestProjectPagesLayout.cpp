@@ -115,5 +115,15 @@ BOOST_AUTO_TEST_CASE(layout_changes_keep_removed_halves_and_signal_only_real_cha
   BOOST_TEST(modifiedCount == 4);
 }
 
+BOOST_AUTO_TEST_CASE(advise_logical_pages_avoids_int_overflow) {
+  // 50000 * 60000 = 3e9 overflows signed 32-bit int and wraps negative.
+  BOOST_CHECK_EQUAL(ProjectPages::adviseNumberOfLogicalPages(ImageMetadata(QSize(50000, 30000), Dpi(60000, 60000)),
+                                                             OrthogonalRotation()),
+                    2);
+  BOOST_CHECK_EQUAL(ProjectPages::adviseNumberOfLogicalPages(ImageMetadata(QSize(30000, 50000), Dpi(60000, 60000)),
+                                                             OrthogonalRotation()),
+                    1);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

@@ -9,6 +9,7 @@
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index_container.hpp>
 #include <cassert>
+#include <cstdint>
 #include <unordered_map>
 
 #include "AbstractRelinker.h"
@@ -208,7 +209,7 @@ int ProjectPages::adviseNumberOfLogicalPages(const ImageMetadata& metadata, cons
   const QSize size(rotation.rotate(metadata.size()));
   const QSize dpi(rotation.rotate(metadata.dpi().toSize()));
 
-  if (size.width() * dpi.height() > size.height() * dpi.width()) {
+  if (static_cast<int64_t>(size.width()) * dpi.height() > static_cast<int64_t>(size.height()) * dpi.width()) {
     return 2;
   } else {
     return 1;
