@@ -712,7 +712,14 @@ TextLineTracer::TracedPage TextLineTracer::traceTextLines(const GrayImage& input
                                                           const Dpi& dpi,
                                                           const QRect& contentRect,
                                                           DebugImages* dbg) {
+  if (input.isNull() || (input.width() < 2) || (input.height() < 2)) {
+    return {};
+  }
+
   GrayImage downscaled(downscale(input, dpi));
+  if (downscaled.isNull() || (downscaled.width() < 2) || (downscaled.height() < 2)) {
+    return {};
+  }
   if (dbg) {
     dbg->add(downscaled, "downscaled");
   }

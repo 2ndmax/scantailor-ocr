@@ -161,6 +161,10 @@ void TopBottomEdgeTracer::trace(const imageproc::GrayImage& image,
                                 DistortionModelBuilder& output,
                                 const TaskStatus& status,
                                 DebugImages* dbg) {
+  if (image.isNull() || (image.width() < 2) || (image.height() < 2)) {
+    return;
+  }
+
   if ((bounds.first.p1() == bounds.first.p2()) || (bounds.second.p1() == bounds.second.p2())) {
     return;  // Bad bounds.
   }
@@ -186,6 +190,10 @@ void TopBottomEdgeTracer::trace(const imageproc::GrayImage& image,
 
     bounds.first = downscalingXform.map(bounds.first);
     bounds.second = downscalingXform.map(bounds.second);
+  }
+
+  if (downscaled.isNull() || (downscaled.width() < 2) || (downscaled.height() < 2)) {
+    return;
   }
 
   // Those -1's are to make sure the endpoints, rounded to integers,
@@ -266,6 +274,10 @@ void TopBottomEdgeTracer::calcDirectionalDerivative(Grid<GridNode>& grid,
                                                     const imageproc::GrayImage& image,
                                                     const Vec2f& direction) {
   assert(grid.padding() == 1);
+  if ((grid.padding() < 1) || (grid.width() < 1) || (grid.height() < 1) || image.isNull()
+      || (image.width() < grid.width()) || (image.height() < grid.height())) {
+    return;
+  }
 
   const int width = grid.width();
   const int height = grid.height();
@@ -307,9 +319,6 @@ void TopBottomEdgeTracer::calcDirectionalDerivative(Grid<GridNode>& grid,
   }
 
   // Bottom border line.
-  // REVIEW-NOTE (2026-10): a grid with a negative height -> the read one row above
-  // (gridLine[-gridStride]) lies before the grid's buffer. Not fixed because the only grid is built
-  // in trace() from the size of an image, which is never negative.
   gridLine = grid.paddedData() + gridStride * (height + 1) + 1;
   for (int x = 0; x < width; ++x) {
     gridLine[0].setBothGradients(gridLine[-gridStride].xGrad);
@@ -340,15 +349,15 @@ void TopBottomEdgeTracer::calcDirectionalDerivative(Grid<GridNode>& grid,
 
 void TopBottomEdgeTracer::horizontalSobelInPlace(Grid<GridNode>& grid) {
   assert(grid.padding() == 1);
+  if ((grid.padding() < 1) || (grid.width() < 1) || (grid.height() < 1)) {
+    return;
+  }
 
   const int width = grid.width();
   const int height = grid.height();
   const int gridStride = grid.stride();
 
   // Do a vertical pass.
-  // REVIEW-NOTE (2026-10): a grid with a padding below 1 -> pGrid[-gridStride] for x == -1 lies
-  // before the grid's buffer. Not fixed because the only grid is built in trace() with padding 1,
-  // as the assert above checks.
   for (int x = -1; x < width + 1; ++x) {
     GridNode* pGrid = grid.data() + x;
     float prev = pGrid[-gridStride].xGrad;
@@ -375,6 +384,9 @@ void TopBottomEdgeTracer::horizontalSobelInPlace(Grid<GridNode>& grid) {
 
 void TopBottomEdgeTracer::verticalSobelInPlace(Grid<GridNode>& grid) {
   assert(grid.padding() == 1);
+  if ((grid.padding() < 1) || (grid.width() < 1) || (grid.height() < 1)) {
+    return;
+  }
 
   const int width = grid.width();
   const int height = grid.height();

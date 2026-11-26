@@ -15,6 +15,7 @@
 #include <SEDM.h>
 #include <TaskStatus.h>
 #include <TextLineTracer.h>
+#include <TopBottomEdgeTracer.h>
 
 #include <QColor>
 #include <QImage>
@@ -696,6 +697,30 @@ BOOST_AUTO_TEST_CASE(test_avg_unit_vector_and_mid_line_handle_degenerate_vectors
   BOOST_TEST(std::isfinite(zeroMid.p2().x()));
   BOOST_TEST(std::isfinite(zeroMid.p2().y()));
   BOOST_TEST(zeroMid.length() > 0.5);
+}
+
+BOOST_AUTO_TEST_CASE(test_tracers_handle_tiny_and_null_images) {
+  const std::vector<imageproc::GrayImage> tinyImages = {
+      imageproc::GrayImage(),
+      imageproc::GrayImage(uniformGray(QSize(1, 1), 128)),
+      imageproc::GrayImage(uniformGray(QSize(2, 1), 128)),
+      imageproc::GrayImage(uniformGray(QSize(1, 2), 128)),
+      imageproc::GrayImage(uniformGray(QSize(2000, 2), 128)),
+  };
+
+  for (const imageproc::GrayImage& img : tinyImages) {
+    DistortionModelBuilder builder(Vec2d(0, 1));
+    const QRect rect = img.isNull() ? QRect() : img.rect();
+    const std::optional<DistortionModel> autoModel
+        = TextLineTracer::trace(img, Dpi(200, 200), rect, builder, NoCancelStatus());
+    BOOST_TEST((!autoModel.has_value() || !autoModel->isValid()));
+    BOOST_TEST(!TextLineTracer::traceTrapezoid(img, Dpi(200, 200), rect).isValid());
+    BOOST_TEST(TextLineTracer::tracedLines(img, Dpi(200, 200), rect).empty());
+
+    DistortionModelBuilder edgeBuilder(Vec2d(0, 1));
+    TopBottomEdgeTracer::trace(img, {QLineF(0, 0, 0, 10), QLineF(10, 0, 10, 10)}, edgeBuilder, NoCancelStatus());
+    BOOST_TEST(!edgeBuilder.tryBuildModel().isValid());
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
