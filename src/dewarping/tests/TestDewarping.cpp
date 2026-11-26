@@ -21,6 +21,7 @@
 #include <XSpline.h>
 
 #include <QColor>
+#include <QDomDocument>
 #include <QImage>
 #include <QPainter>
 #include <algorithm>
@@ -843,6 +844,125 @@ BOOST_AUTO_TEST_CASE(test_narrow_text_block_inside_wide_content_keeps_lines) {
   const std::vector<std::vector<QPointF>> lines = TextLineTracer::tracedLines(gray, Dpi(200, 200), page.rect());
   BOOST_TEST(lines.size() >= 18u);
   BOOST_TEST(TextLineTracer::traceTrapezoid(gray, Dpi(200, 200), page.rect()).isValid());
+}
+
+BOOST_AUTO_TEST_CASE(test_width_correction_xml_roundtrip_and_mapping) {
+  const WidthCorrection empty;
+  BOOST_TEST(empty.isNull());
+  BOOST_TEST(empty.map(0.4) == 0.4);
+  BOOST_TEST(empty.unmap(0.4) == 0.4);
+
+  // Invalid sample vectors construct null WidthCorrection.
+  BOOST_TEST(WidthCorrection(std::vector<double>{0.0}).isNull());
+  BOOST_TEST(WidthCorrection(std::vector<double>{0.0, 0.5, 0.5, 1.0}).isNull());
+  BOOST_TEST(WidthCorrection(std::vector<double>{0.1, 0.5, 1.0}).isNull());
+
+  const WidthCorrection valid(std::vector<double>{0.0, 0.2, 0.55, 0.85, 1.0});
+  BOOST_REQUIRE(!valid.isNull());
+
+  // map/unmap roundtrip inside (0, 1) and identity/NaN pass-through outside.
+  for (const double x : {0.1, 0.25, 0.5, 0.75, 0.9}) {
+    const double mapped = valid.map(x);
+    BOOST_TEST(mapped > 0.0);
+    BOOST_TEST(mapped < 1.0);
+    BOOST_TEST(valid.unmap(mapped) == x, boost::test_tools::tolerance(1e-9));
+  }
+  for (const double passthrough : {-0.2, 0.0, 1.0, 1.5}) {
+    BOOST_TEST(valid.map(passthrough) == passthrough);
+    BOOST_TEST(valid.unmap(passthrough) == passthrough);
+  }
+  BOOST_TEST(std::isnan(valid.map(kNaN)));
+  BOOST_TEST(std::isnan(valid.unmap(kNaN)));
+
+  QDomDocument doc;
+  const QDomElement el = valid.toXml(doc, "width-correction");
+  BOOST_REQUIRE(!el.isNull());
+  const WidthCorrection parsed(el);
+  BOOST_REQUIRE(!parsed.isNull());
+  BOOST_TEST(valid.matches(parsed));
+  BOOST_TEST(empty.toXml(doc, "width-correction").isNull());
+
+  QDomElement badEl = doc.createElement("width-correction");
+  badEl.setAttribute("samples", "0 0.5 invalid 1");
+  BOOST_TEST(WidthCorrection(badEl).isNull());
+}
+
+BOOST_AUTO_TEST_CASE(test_width_profile_measure_and_to_correction) {
+  const imageproc::GrayImage blank(uniformGray(QSize(200, 200), 255));
+  BOOST_TEST(WidthProfile::measure(blank, QRect(0, 0, 200, 200), 300).empty());
+  BOOST_TEST(WidthProfile::measure(blank, QRect(), 300).empty());
+
+  // 300-DPI synthetic page with vertical dark stems narrower on the left (3 px) than on the right (7 px).
+  QImage page(900, 600, QImage::Format_Grayscale8);
+  page.fill(Qt::white);
+  {
+    QPainter painter(&page);
+    for (int row = 0; row < 18; ++row) {
+      const int y = 40 + row * 28;
+      for (int x = 40; x < 840; x += 18) {
+        const int stemW = (x < 320) ? 3 : 7;
+        painter.fillRect(x, y, stemW, 14, Qt::black);
+        painter.fillRect(x, y + 10, 10, 4, Qt::black);
+      }
+    }
+  }
+
+  const std::vector<WidthProfile::Sample> samples
+      = WidthProfile::measure(imageproc::GrayImage(page), QRect(20, 20, 860, 560), 300);
+  BOOST_REQUIRE(samples.size() >= 5u);
+  BOOST_TEST(samples.front().scale < samples.back().scale);
+
+  const WidthCorrection corr = WidthProfile::toCorrection(samples, 20.0, 860.0);
+  BOOST_TEST(!corr.isNull());
+
+  // Flat scales and invalid modelWidth yield null corrections.
+  std::vector<WidthProfile::Sample> flat;
+  for (int i = 0; i < 6; ++i) {
+    flat.push_back({100.0 + i * 150.0, 1.0});
+  }
+  BOOST_TEST(WidthProfile::toCorrection(flat, 0.0, 1000.0).isNull());
+  BOOST_TEST(WidthProfile::toCorrection(samples, 0.0, 0.0).isNull());
+}
+
+BOOST_AUTO_TEST_CASE(test_top_bottom_edge_tracer_traces_page_borders) {
+  QImage page(400, 600, QImage::Format_Grayscale8);
+  page.fill(Qt::white);
+  {
+    QPainter painter(&page);
+    painter.fillRect(0, 0, 400, 80, Qt::black);
+    painter.fillRect(0, 520, 400, 80, Qt::black);
+  }
+
+  DistortionModelBuilder builder(Vec2d(0, 1));
+  const std::pair<QLineF, QLineF> bounds(QLineF(40, 0, 40, 600), QLineF(360, 0, 360, 600));
+  builder.setVerticalBounds(bounds.first, bounds.second);
+  TopBottomEdgeTracer::trace(imageproc::GrayImage(page), bounds, builder, NoCancelStatus());
+  const DistortionModel model = builder.tryBuildModel();
+  BOOST_REQUIRE(model.isValid());
+  BOOST_TEST(std::fabs(model.topCurve().polyline().front().y() - 80.0) < 15.0);
+  BOOST_TEST(std::fabs(model.bottomCurve().polyline().front().y() - 520.0) < 15.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_curve_and_distortion_model_xml_roundtrip) {
+  DistortionModel model;
+  model.setTopCurve(Curve(std::vector<QPointF>{{100, 120}, {500, 100}, {900, 120}}));
+  model.setBottomCurve(Curve(std::vector<QPointF>{{100, 1300}, {500, 1320}, {900, 1300}}));
+  model.setWidthCorrection(WidthCorrection(std::vector<double>{0.0, 0.22, 0.5, 0.78, 1.0}));
+  BOOST_REQUIRE(model.isValid());
+
+  QDomDocument doc;
+  const QDomElement el = model.toXml(doc, "distortion-model");
+  BOOST_REQUIRE(!el.isNull());
+
+  const DistortionModel reloaded(el);
+  BOOST_REQUIRE(reloaded.isValid());
+  BOOST_TEST(model.matches(reloaded));
+
+  const Curve topReloaded(el.namedItem("top-curve").toElement());
+  BOOST_TEST(topReloaded.isValid());
+  BOOST_TEST(model.topCurve().matches(topReloaded));
+
+  BOOST_TEST(DistortionModel().toXml(doc, "distortion-model").isNull());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
