@@ -44,6 +44,7 @@ class DewarpingPointMapper {
   double m_modelXScaleToNormalized;
   double m_modelYScaleToNormalized;
   QTransform m_postTransform;
+  QTransform m_invPostTransform;
 };
 }  // namespace dewarping
 #endif  // ifndef SCANTAILOR_DEWARPING_DEWARPINGPOINTMAPPER_H_

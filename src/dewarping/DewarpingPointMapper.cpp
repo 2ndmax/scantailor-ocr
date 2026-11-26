@@ -4,6 +4,7 @@
 #include "DewarpingPointMapper.h"
 
 #include <QTransform>
+#include <stdexcept>
 
 #include "DistortionModel.h"
 
@@ -18,6 +19,12 @@ DewarpingPointMapper::DewarpingPointMapper(const DistortionModel& distortionMode
                                             depthPerception,
                                             distortionModel.widthCorrection())),
       m_postTransform(postTransform) {
+  bool invertible = false;
+  m_invPostTransform = postTransform.inverted(&invertible);
+  if (!invertible) {
+    throw std::invalid_argument("DewarpingPointMapper: postTransform is singular");
+  }
+
   // Model domain is a rectangle in output image coordinates that
   // will be mapped to our curved quadrilateral.
   const QRect modelDomain(distortionModel.modelDomain(m_dewarper, distortionModelToOutput, outputContentRect).toRect());
@@ -43,10 +50,7 @@ QPointF DewarpingPointMapper::mapToDewarpedSpace(const QPointF& warpedPt) const 
 }
 
 QPointF DewarpingPointMapper::mapToWarpedSpace(const QPointF& dewarpedPt) const {
-  // REVIEW-NOTE (2026-11): a singular m_postTransform -> inverted() returns the identity and the point is
-  // mapped from the wrong space. Not fixed because both callers pass the post-deskew rotation about the
-  // image center (Utils::rotate()), and a rotation is always invertible.
-  QPointF dewarpedPtM = m_postTransform.inverted().map(dewarpedPt);
+  const QPointF dewarpedPtM = m_invPostTransform.map(dewarpedPt);
 
   const double crvX = (dewarpedPtM.x() - m_modelDomainLeft) * m_modelXScaleToNormalized;
   const double crvY = (dewarpedPtM.y() - m_modelDomainTop) * m_modelYScaleToNormalized;

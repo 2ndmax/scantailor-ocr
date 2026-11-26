@@ -723,6 +723,28 @@ BOOST_AUTO_TEST_CASE(test_tracers_handle_tiny_and_null_images) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_point_mapper_rejects_singular_post_transform) {
+  DistortionModel model;
+  model.setTopCurve(Curve(std::vector<QPointF>{{0, 0}, {1000, 0}}));
+  model.setBottomCurve(Curve(std::vector<QPointF>{{0, 1000}, {1000, 1000}}));
+  BOOST_REQUIRE(model.isValid());
+
+  const QTransform singular = QTransform::fromScale(0.0, 1.0);
+  BOOST_CHECK_THROW(DewarpingPointMapper(model, 2.0, QTransform(), QRect(0, 0, 1000, 1000), singular),
+                    std::invalid_argument);
+
+  QTransform rotation;
+  rotation.translate(500.0, 500.0);
+  rotation.rotate(15.0);
+  rotation.translate(-500.0, -500.0);
+  const DewarpingPointMapper mapper(model, 2.0, QTransform(), QRect(0, 0, 1000, 1000), rotation);
+  const QPointF warpedIn(250.0, 350.0);
+  const QPointF dewarped = mapper.mapToDewarpedSpace(warpedIn);
+  const QPointF roundTripped = mapper.mapToWarpedSpace(dewarped);
+  BOOST_TEST(roundTripped.x() == warpedIn.x(), boost::test_tools::tolerance(1e-6));
+  BOOST_TEST(roundTripped.y() == warpedIn.y(), boost::test_tools::tolerance(1e-6));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace dewarping
