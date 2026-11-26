@@ -191,8 +191,7 @@ std::pair<int, int> verticalRangeOfWideRows(const BinaryImage& image, const doub
   return range;
 }
 
-std::pair<QLineF, QLineF> boundsFromTextLines(const std::list<std::vector<QPointF>>& polylines,
-                                              const int imageHeight) {
+std::pair<QLineF, QLineF> boundsFromTextLines(const std::list<std::vector<QPointF>>& polylines, const int imageHeight) {
   if (polylines.empty()) {
     return {};
   }
