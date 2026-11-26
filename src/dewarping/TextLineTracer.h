@@ -115,6 +115,10 @@ class TextLineTracer {
 
   static QLineF calcMidLine(const QLineF& line1, const QLineF& line2);
 
+  static void bendLikeTheTextLinesForTest(const std::list<std::vector<QPointF>>& polylines,
+                                          std::vector<QPointF>& top,
+                                          std::vector<QPointF>& bottom);
+
   static void findMidLineSeeds(const imageproc::SEDM& sedm, QLineF midLine, std::vector<QPoint>& seeds);
 
   static bool isCurvatureConsistent(const std::vector<QPointF>& polyline);

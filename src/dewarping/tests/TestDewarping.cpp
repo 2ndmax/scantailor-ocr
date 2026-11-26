@@ -46,6 +46,12 @@ struct TextLineTracerTestAccess {
   static QLineF calcMidLine(const QLineF& line1, const QLineF& line2) {
     return TextLineTracer::calcMidLine(line1, line2);
   }
+
+  static void bendLikeTheTextLines(const std::list<std::vector<QPointF>>& polylines,
+                                   std::vector<QPointF>& top,
+                                   std::vector<QPointF>& bottom) {
+    TextLineTracer::bendLikeTheTextLinesForTest(polylines, top, bottom);
+  }
 };
 
 struct CylindricalSurfaceDewarperTestAccess {
@@ -765,6 +771,34 @@ BOOST_AUTO_TEST_CASE(test_curve_spline_has_loops_handles_short_splines) {
   looped.appendControlPoint(QPointF(40, 0), 0);
   looped.appendControlPoint(QPointF(120, 0), 0);
   BOOST_TEST(Curve::splineHasLoops(looped));
+}
+
+BOOST_AUTO_TEST_CASE(test_bend_like_the_text_lines_skips_crossing_top_and_bottom) {
+  // Top and bottom bounds satisfy top.y < bottom.y at their respective endpoints,
+  // yet cross at x = 120 inside [leftEdge=100, rightEdge=300].
+  std::vector<QPointF> top{{0, 0}, {300, 50}};
+  std::vector<QPointF> bottom{{100, 10}, {300, 110}};
+
+  std::list<std::vector<QPointF>> polylines;
+  for (int row = 0; row < 12; ++row) {
+    const double baseY = 10.0 + row * 3.0;
+    std::vector<QPointF> poly;
+    for (int x = 100; x <= 300; x += 20) {
+      const double dip = (x == 120) ? 10.0 : 0.0;
+      poly.emplace_back(x, baseY + dip);
+    }
+    polylines.push_back(std::move(poly));
+  }
+
+  TextLineTracerTestAccess::bendLikeTheTextLines(polylines, top, bottom);
+  BOOST_REQUIRE(top.size() >= 2u);
+  BOOST_REQUIRE(bottom.size() >= 2u);
+  for (const QPointF& pt : top) {
+    BOOST_TEST((std::isfinite(pt.x()) && std::isfinite(pt.y())));
+  }
+  for (const QPointF& pt : bottom) {
+    BOOST_TEST((std::isfinite(pt.x()) && std::isfinite(pt.y())));
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

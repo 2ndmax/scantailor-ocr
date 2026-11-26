@@ -537,7 +537,11 @@ void bendLikeTheTextLines(const std::list<std::vector<QPointF>>& polylines,
       const auto place = static_cast<int>(std::floor(kBendPlaces * (pt.x() - leftEdge) / (rightEdge - leftEdge)));
       if ((place >= 0) && (place < kBendPlaces)) {
         const double topY = yOn(topLine, pt.x());
-        sums[place] += QPointF((pt.y() - topY) / (yOn(bottomLine, pt.x()) - topY), pt.y() - straight.yAt(pt.x()));
+        const double span = yOn(bottomLine, pt.x()) - topY;
+        if (span <= 1e-6) {
+          continue;
+        }
+        sums[place] += QPointF((pt.y() - topY) / span, pt.y() - straight.yAt(pt.x()));
         ++counts[place];
       }
     }
@@ -1154,6 +1158,12 @@ QLineF TextLineTracer::calcMidLine(const QLineF& line1, const QLineF& line2) {
     }
     return QLineF(intersection, intersection + dir);
   }
+}
+
+void TextLineTracer::bendLikeTheTextLinesForTest(const std::list<std::vector<QPointF>>& polylines,
+                                                 std::vector<QPointF>& top,
+                                                 std::vector<QPointF>& bottom) {
+  bendLikeTheTextLines(polylines, top, bottom);
 }
 
 QImage TextLineTracer::visualizeVerticalBounds(const QImage& background, const std::pair<QLineF, QLineF>& bounds) {
