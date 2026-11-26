@@ -826,6 +826,25 @@ BOOST_AUTO_TEST_CASE(test_width_correction_boundary_and_duplicate_profile_sample
   BOOST_TEST(std::isfinite(fromProfile.map(0.3)));
 }
 
+BOOST_AUTO_TEST_CASE(test_narrow_text_block_inside_wide_content_keeps_lines) {
+  QImage page = blankPage();
+  for (int i = 0; i < 24; ++i) {
+    drawTextLine(page, 300, 700, 320 + i * kLineStep);
+  }
+  // Wide non-text blocks near the left and right margins widen detectVertContentBounds(),
+  // which used to cause filterShortCurves() to discard the narrower text lines.
+  {
+    QPainter painter(&page);
+    painter.fillRect(50, 80, 70, 200, Qt::black);
+    painter.fillRect(880, 1200, 70, 200, Qt::black);
+  }
+
+  const imageproc::GrayImage gray(page);
+  const std::vector<std::vector<QPointF>> lines = TextLineTracer::tracedLines(gray, Dpi(200, 200), page.rect());
+  BOOST_TEST(lines.size() >= 18u);
+  BOOST_TEST(TextLineTracer::traceTrapezoid(gray, Dpi(200, 200), page.rect()).isValid());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace dewarping

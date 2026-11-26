@@ -191,6 +191,23 @@ std::pair<int, int> verticalRangeOfWideRows(const BinaryImage& image, const doub
   return range;
 }
 
+std::pair<QLineF, QLineF> boundsFromTextLines(const std::list<std::vector<QPointF>>& polylines,
+                                              const int imageHeight) {
+  if (polylines.empty()) {
+    return {};
+  }
+  const LineEnds ends = lineEndsOf(polylines);
+  const EdgeDirection left = dominantEdgeDirection(ends.left);
+  const EdgeDirection right = dominantEdgeDirection(ends.right);
+  // Ragged line ends may not agree on anything. Then the other edge, or else the deskewed vertical, tells the slope.
+  const bool leftReliable = enoughEndsAgree(left, ends.left.size());
+  const bool rightReliable = enoughEndsAgree(right, ends.right.size());
+  const double fallbackSlope = leftReliable ? left.slope : (rightReliable ? right.slope : 0.0);
+
+  return {edgeThroughOutermostEnd(ends.left, leftReliable ? left.slope : fallbackSlope, -1.0, imageHeight),
+          edgeThroughOutermostEnd(ends.right, rightReliable ? right.slope : fallbackSlope, 1.0, imageHeight)};
+}
+
 /**
  * Replaces \p bounds, which come from all the content of the page, by edges through the ends of the text lines,
  * so that page numbers and indented blocks don't tilt them. Returns false, leaving \p bounds alone, if the lines
@@ -205,7 +222,6 @@ bool fitBoundsToTextLines(const std::list<std::vector<QPointF>>& polylines,
     return false;
   }
 
-  const LineEnds ends = lineEndsOf(polylines);
   double firstLineY = std::numeric_limits<double>::max();
   double lastLineY = -std::numeric_limits<double>::max();
   for (const std::vector<QPointF>& polyline : polylines) {
@@ -222,17 +238,7 @@ bool fitBoundsToTextLines(const std::list<std::vector<QPointF>>& polylines,
     return false;
   }
 
-  const EdgeDirection left = dominantEdgeDirection(ends.left);
-  const EdgeDirection right = dominantEdgeDirection(ends.right);
-  // Ragged line ends may not agree on anything. Then the other edge, or else the deskewed vertical, tells the slope.
-  const bool leftReliable = enoughEndsAgree(left, ends.left.size());
-  const bool rightReliable = enoughEndsAgree(right, ends.right.size());
-  const double fallbackSlope = leftReliable ? left.slope : (rightReliable ? right.slope : 0.0);
-
-  const QLineF leftEdge
-      = edgeThroughOutermostEnd(ends.left, leftReliable ? left.slope : fallbackSlope, -1.0, binarized.height());
-  const QLineF rightEdge
-      = edgeThroughOutermostEnd(ends.right, rightReliable ? right.slope : fallbackSlope, 1.0, binarized.height());
+  const auto [leftEdge, rightEdge] = boundsFromTextLines(polylines, binarized.height());
 
   const double textWidth = 0.5 * ((rightEdge.x1() - leftEdge.x1()) + (rightEdge.x2() - leftEdge.x2()));
   const std::pair<int, int> textRows = verticalRangeOfWideRows(binarized, kMinTextRowWidthShare * textWidth);
@@ -759,11 +765,16 @@ TextLineTracer::TracedPage TextLineTracer::traceTextLines(const GrayImage& input
     dbg->add(visualizePolylines(downscaled, polylines), "traced");
   }
 
-  // REVIEW-NOTE (2026-11): the lines are still traced, cut and filtered with the bounds of all content; a bound
-  // tilted by a page number or pulled out by a figure shortens or drops lines -> the model is extrapolated there,
-  // or the page is refused. Not fixed because tracing again with the bounds from the line ends changes every
-  // automatic model and needs measuring first.
-  filterShortCurves(polylines, vertBounds.first, vertBounds.second);
+  std::pair<QLineF, QLineF> filterBounds = vertBounds;
+  if (static_cast<int>(polylines.size()) >= kMinTextLines) {
+    const std::pair<QLineF, QLineF> textBounds = boundsFromTextLines(polylines, downscaledHeight);
+    const double textWidth
+        = 0.5 * ((textBounds.second.x1() - textBounds.first.x1()) + (textBounds.second.x2() - textBounds.first.x2()));
+    if (textWidth > 2.0 * kLineEndTolerance) {
+      filterBounds = textBounds;
+    }
+  }
+  filterShortCurves(polylines, filterBounds.first, filterBounds.second);
   filterOutOfBoundsCurves(polylines, vertBounds.first, vertBounds.second);
   if (dbg) {
     dbg->add(visualizePolylines(downscaled, polylines), "filtered1");
