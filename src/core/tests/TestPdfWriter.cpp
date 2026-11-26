@@ -1164,4 +1164,17 @@ BOOST_AUTO_TEST_CASE(test_empty_page_writes_uncompressed_content_stream) {
   BOOST_CHECK(!pdf.contains("/Filter /FlateDecode"));
 }
 
+BOOST_AUTO_TEST_CASE(test_deflate_rejects_non_positive_or_overflowing_dimensions) {
+  const QByteArray samples(16, '\x7f');
+  for (const bool predictors : {false, true}) {
+    BOOST_CHECK(PdfImageEncoder::deflate(QByteArray(), 4, 4, 1, 8, predictors).isEmpty());
+    BOOST_CHECK(PdfImageEncoder::deflate(samples, 0, 4, 1, 8, predictors).isEmpty());
+    BOOST_CHECK(PdfImageEncoder::deflate(samples, -1, 4, 1, 8, predictors).isEmpty());
+    BOOST_CHECK(PdfImageEncoder::deflate(samples, 4, 0, 1, 8, predictors).isEmpty());
+    BOOST_CHECK(PdfImageEncoder::deflate(samples, 4, 4, 0, 8, predictors).isEmpty());
+    BOOST_CHECK(PdfImageEncoder::deflate(samples, 4, 4, 1, 0, predictors).isEmpty());
+  }
+  BOOST_CHECK(PdfImageEncoder::deflate(samples, std::numeric_limits<int>::max(), 1, 1, 8, true).isEmpty());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

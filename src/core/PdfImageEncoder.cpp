@@ -312,23 +312,41 @@ QByteArray PdfImageEncoder::deflate(const QByteArray& samples,
                                     const int components,
                                     const int bitsPerComponent,
                                     const bool pngPredictors) {
+  if (samples.isEmpty() || (width <= 0) || (height <= 0) || (components <= 0) || (bitsPerComponent <= 0)) {
+    return QByteArray();
+  }
+
   // qCompress() prepends the uncompressed size as 4 bytes, the rest is a zlib stream.
   // Level 6 is zlib's usual compromise; 9 is much slower for little gain on images.
   const int level = 6;
   if (!pngPredictors) {
     QByteArray out = qCompress(samples, level);
-    return out.isEmpty() ? out : out.remove(0, 4);
+    return (out.size() <= 4) ? QByteArray() : out.remove(0, 4);
   }
 
-  const int bytesPerRow = (width * components * bitsPerComponent + 7) / 8;
-  const int bytesPerPixel = std::max(1, components * bitsPerComponent / 8);
-  if (samples.size() < static_cast<qsizetype>(bytesPerRow) * height) {
+  if (components > (std::numeric_limits<int64_t>::max() / bitsPerComponent)) {
+    return QByteArray();
+  }
+  const int64_t bitsPerPixel = static_cast<int64_t>(components) * bitsPerComponent;
+  if (width > ((std::numeric_limits<int64_t>::max() - 7) / bitsPerPixel)) {
+    return QByteArray();
+  }
+  const int64_t bytesPerRow64 = (static_cast<int64_t>(width) * bitsPerPixel + 7) / 8;
+  if ((bytesPerRow64 <= 0) || (bytesPerRow64 > std::numeric_limits<int>::max() - 1)) {
+    return QByteArray();
+  }
+  const qsizetype bytesPerRow = static_cast<qsizetype>(bytesPerRow64);
+  const int bytesPerPixel = static_cast<int>(std::max<int64_t>(1, bitsPerPixel / 8));
+  if (static_cast<qsizetype>(height) > (std::numeric_limits<qsizetype>::max() / (bytesPerRow + 1))) {
+    return QByteArray();
+  }
+  if (samples.size() < bytesPerRow * static_cast<qsizetype>(height)) {
     return QByteArray();
   }
 
   // Each row gets a leading byte with its predictor (PNG filter type), chosen by the
   // usual heuristic: the smallest sum of the absolute (signed) differences.
-  QByteArray filtered(static_cast<qsizetype>(bytesPerRow + 1) * height, Qt::Uninitialized);
+  QByteArray filtered((bytesPerRow + 1) * static_cast<qsizetype>(height), Qt::Uninitialized);
   const std::vector<uchar> zeroRow(bytesPerRow, 0);
   std::vector<uchar> candidate(bytesPerRow);
   std::vector<uchar> best(bytesPerRow);
@@ -383,7 +401,7 @@ QByteArray PdfImageEncoder::deflate(const QByteArray& samples,
   }
 
   QByteArray out = qCompress(filtered, level);
-  return out.isEmpty() ? out : out.remove(0, 4);
+  return (out.size() <= 4) ? QByteArray() : out.remove(0, 4);
 }  // PdfImageEncoder::deflate
 
 QByteArray PdfImageEncoder::encodeG4(const QImage& image) {
