@@ -5,6 +5,7 @@
 
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
+#include <stdexcept>
 
 namespace imageproc {
 namespace tests {
@@ -78,6 +79,22 @@ BOOST_AUTO_TEST_CASE(test4) {
   for (int i = 0; i < 8; ++i) {
     BOOST_REQUIRE_CLOSE(mul[i], control[i], 1e-6);
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_dimension_mismatch_throws) {
+  double a[6] = {1, 2, 3, 4, 5, 6};
+  double b[4] = {1, 2, 3, 4};
+  MatrixCalc<double> mc;
+
+  BOOST_CHECK_THROW(mc(a, 2, 3).inv(), std::invalid_argument);
+  BOOST_CHECK_THROW(mc(a, 2, 3).solve(mc(b, 3, 1)), std::invalid_argument);
+  BOOST_CHECK_THROW(mc(a, 2, 3) + mc(b, 2, 2), std::invalid_argument);
+  BOOST_CHECK_THROW(mc(a, 2, 3) - mc(b, 2, 2), std::invalid_argument);
+  BOOST_CHECK_THROW(mc(a, 2, 3) * mc(b, 2, 2), std::invalid_argument);
+
+  Vec2d small;
+  BOOST_CHECK_THROW(mc(a, 2, 3).write(small), std::invalid_argument);
+  BOOST_CHECK_THROW(mc(a, 2, 3).transWrite(small), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

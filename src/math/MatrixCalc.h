@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <stdexcept>
 
 #include "DynamicPool.h"
 #include "LinearSolver.h"
@@ -163,7 +164,9 @@ class DynamicMatrixCalc : public MatrixCalc<T, mcalc::DynamicPoolAllocator<T>> {
 namespace mcalc {
 template <typename T>
 Mat<T> Mat<T>::inv() const {
-  assert(cols == rows);
+  if ((cols != rows) || (rows <= 0)) {
+    throw std::invalid_argument("MatrixCalc::inv: matrix must be non-empty square");
+  }
 
   T* identData = alloc->allocT(rows * cols);
   Mat ident(alloc, identData, rows, cols);
@@ -179,10 +182,12 @@ Mat<T> Mat<T>::inv() const {
 
 template <typename T>
 Mat<T> Mat<T>::solve(const Mat& b) const {
-  assert(rows == b.rows);
+  if ((rows != b.rows) || (rows <= 0) || (cols <= 0) || (b.cols <= 0)) {
+    throw std::invalid_argument("MatrixCalc::solve: invalid matrix dimensions");
+  }
 
   T* xData = alloc->allocT(cols * b.cols);
-  T* tbuffer = alloc->allocT(cols * (b.rows + b.cols));
+  T* tbuffer = alloc->allocT(static_cast<size_t>(cols) * (rows + b.cols));
   size_t* pbuffer = alloc->allocP(rows);
   LinearSolver(rows, cols, b.cols).solve(data, xData, b.data, tbuffer, pbuffer);
   return Mat(alloc, xData, cols, b.cols);
@@ -216,7 +221,9 @@ Mat<T> Mat<T>::write(T* buf) const {
 template <typename T>
 template <size_t N>
 Mat<T> Mat<T>::write(VecNT<N, T>& vec) const {
-  assert(N >= size_t(rows * cols));
+  if ((rows < 0) || (cols < 0) || (N < static_cast<size_t>(rows) * static_cast<size_t>(cols))) {
+    throw std::invalid_argument("MatrixCalc::write: destination vector too small");
+  }
   return write(vec.data());
 }
 
@@ -237,7 +244,9 @@ Mat<T> Mat<T>::transWrite(T* buf) const {
 template <typename T>
 template <size_t N>
 Mat<T> Mat<T>::transWrite(VecNT<N, T>& vec) const {
-  assert(N >= rows * cols);
+  if ((rows < 0) || (cols < 0) || (N < static_cast<size_t>(rows) * static_cast<size_t>(cols))) {
+    throw std::invalid_argument("MatrixCalc::transWrite: destination vector too small");
+  }
   return transWrite(vec.data());
 }
 
@@ -256,7 +265,9 @@ Mat<T> Mat<T>::operator-() const {
 
 template <typename T>
 Mat<T> operator+(const Mat<T>& m1, const Mat<T>& m2) {
-  assert(m1.rows == m2.rows && m1.cols == m2.cols);
+  if ((m1.rows != m2.rows) || (m1.cols != m2.cols) || (m1.rows < 0) || (m1.cols < 0)) {
+    throw std::invalid_argument("MatrixCalc::operator+: dimension mismatch");
+  }
 
   T* pRes = m1.alloc->allocT(m1.rows * m1.cols);
   Mat<T> res(m1.alloc, pRes, m1.rows, m1.cols);
@@ -270,7 +281,9 @@ Mat<T> operator+(const Mat<T>& m1, const Mat<T>& m2) {
 
 template <typename T>
 Mat<T> operator-(const Mat<T>& m1, const Mat<T>& m2) {
-  assert(m1.rows == m2.rows && m1.cols == m2.cols);
+  if ((m1.rows != m2.rows) || (m1.cols != m2.cols) || (m1.rows < 0) || (m1.cols < 0)) {
+    throw std::invalid_argument("MatrixCalc::operator-: dimension mismatch");
+  }
 
   T* pRes = m1.alloc->allocT(m1.rows * m1.cols);
   Mat<T> res(m1.alloc, pRes, m1.rows, m1.cols);
@@ -284,7 +297,9 @@ Mat<T> operator-(const Mat<T>& m1, const Mat<T>& m2) {
 
 template <typename T>
 Mat<T> operator*(const Mat<T>& m1, const Mat<T>& m2) {
-  assert(m1.cols == m2.rows);
+  if ((m1.cols != m2.rows) || (m1.rows < 0) || (m1.cols < 0) || (m2.cols < 0)) {
+    throw std::invalid_argument("MatrixCalc::operator*: dimension mismatch");
+  }
 
   T* pRes = m1.alloc->allocT(m1.rows * m2.cols);
   Mat<T> res(m1.alloc, pRes, m1.rows, m2.cols);
