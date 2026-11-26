@@ -632,6 +632,40 @@ BOOST_AUTO_TEST_CASE(test_model_domain_returns_empty_for_non_positive_or_nan_arc
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_distortion_model_rejects_crossing_or_touching_curves) {
+  // Valid corners, but top and bottom curves cross each other in the middle.
+  {
+    DistortionModel crossing;
+    crossing.setTopCurve(Curve(std::vector<QPointF>{{0, 0}, {50, 90}, {100, 0}}));
+    crossing.setBottomCurve(Curve(std::vector<QPointF>{{0, 100}, {50, 10}, {100, 100}}));
+    BOOST_TEST(!crossing.isValid());
+  }
+
+  // Curves touch at a single interior point without crossing.
+  {
+    DistortionModel touching;
+    touching.setTopCurve(Curve(std::vector<QPointF>{{0, 0}, {50, 50}, {100, 0}}));
+    touching.setBottomCurve(Curve(std::vector<QPointF>{{0, 100}, {50, 50}, {100, 100}}));
+    BOOST_TEST(!touching.isValid());
+  }
+
+  // Small unit-scale model should still be accepted by scale-normalized corner checks.
+  {
+    DistortionModel unitScale;
+    unitScale.setTopCurve(Curve(std::vector<QPointF>{{0.0, 0.0}, {1.0, 0.0}}));
+    unitScale.setBottomCurve(Curve(std::vector<QPointF>{{0.0, 1.0}, {1.0, 1.0}}));
+    BOOST_TEST(unitScale.isValid());
+  }
+
+  // Collinear corners should be rejected regardless of coordinate magnitude.
+  {
+    DistortionModel collinear;
+    collinear.setTopCurve(Curve(std::vector<QPointF>{{0, 0}, {1000, 0}}));
+    collinear.setBottomCurve(Curve(std::vector<QPointF>{{1000, 0}, {2000, 0}}));
+    BOOST_TEST(!collinear.isValid());
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace dewarping
