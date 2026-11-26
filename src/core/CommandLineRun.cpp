@@ -709,11 +709,7 @@ CommandLineRun::ExitCode exportFiles(const ExportPaths& paths,
   }
 
   ExportJob job(std::move(pages), paths, options);
-  // REVIEW-NOTE (2026-11): Ctrl+C while a page is being recognized -> the tool only cancels the job after that
-  // page is written, so text recognition of the current page runs to its end. Ctrl+C after the progress signal of
-  // the last page -> the job is not told any more, the files are replaced and the exit code is 0. Not fixed because
-  // ExportJob only takes a cancel request through cancel(), the first delay is at most one page and the second gap
-  // lasts milliseconds.
+  job.setCancelFlag(&cancel);
   // run() emits it in this thread, so the lambda is called directly.
   QObject::connect(&job, &ExportJob::progress, [&](const int pagesDone, const int pagesTotal) {
     out << CommandLineRun::tr("Export: %1 of %2").arg(pagesDone).arg(pagesTotal) << Qt::endl;

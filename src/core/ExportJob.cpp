@@ -546,7 +546,7 @@ void ExportJob::run() {
       }
 
       Prepared item;
-      if (!m_cancelRequested) {
+      if (!isCancelRequested()) {
         try {
           if (m_options.runsTextRecognition() && !ocrEngine && ocrInitError.isEmpty()) {
             auto newEngine = std::make_unique<OcrEngine>();
@@ -561,7 +561,7 @@ void ExportJob::run() {
             item.errors.push_back(ocrInitError);
           } else {
             item.ok = preparePage(m_pages[index], m_options, &item.page, &item.errors, ocrEngine.get(),
-                                  &m_cancelRequested, index + 1, &item.texts);
+                                  m_externalCancel ? m_externalCancel : &m_cancelRequested, index + 1, &item.texts);
           }
         } catch (...) {
           // An exception escaping a std::thread would terminate the program.
@@ -593,10 +593,10 @@ void ExportJob::run() {
       {
         std::unique_lock<std::mutex> lock(mutex);
         // Wake up regularly to notice a cancellation request.
-        while (!m_cancelRequested && (prepared.find(nextToWrite) == prepared.end())) {
+        while (!isCancelRequested() && (prepared.find(nextToWrite) == prepared.end())) {
           condition.wait_for(lock, std::chrono::milliseconds(100));
         }
-        if (m_cancelRequested) {
+        if (isCancelRequested()) {
           m_cancelled = true;
           break;
         }
@@ -642,7 +642,7 @@ void ExportJob::run() {
   // progress signal (the command line tool passes Ctrl+C on there), or during finish(). No file has been
   // replaced yet, so it is still honored.
   const auto takeLateCancelRequest = [&]() {
-    if (ok && m_cancelRequested) {
+    if (ok && isCancelRequested()) {
       m_cancelled = true;
     }
   };

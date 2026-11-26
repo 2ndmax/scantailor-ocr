@@ -109,6 +109,9 @@ class ExportJob : public QObject {
   /** May be called from any thread. */
   void cancel() { m_cancelRequested = true; }
 
+  /** Associates an external cancellation flag checked directly alongside cancel(). */
+  void setCancelFlag(const std::atomic<bool>* cancelFlag) { m_externalCancel = cancelFlag; }
+
   bool succeeded() const { return m_succeeded; }
 
   bool wasCancelled() const { return m_cancelled; }
@@ -142,10 +145,15 @@ class ExportJob : public QObject {
   void progress(int pagesDone, int pagesTotal);
 
  private:
+  bool isCancelRequested() const {
+    return m_cancelRequested.load() || ((m_externalCancel != nullptr) && m_externalCancel->load());
+  }
+
   std::vector<ExportPage> m_pages;
   ExportPaths m_paths;
   ExportOptions m_options;
   std::atomic<bool> m_cancelRequested{false};
+  const std::atomic<bool>* m_externalCancel = nullptr;
   bool m_succeeded = false;
   bool m_cancelled = false;
   QStringList m_errors;

@@ -576,6 +576,26 @@ BOOST_AUTO_TEST_CASE(test_split_page_without_pdf_needs_no_background_but_matchin
   BOOST_CHECK(!errors.isEmpty());
 }
 
+BOOST_AUTO_TEST_CASE(test_external_cancel_flag_cancels_export) {
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const std::vector<ExportPage> pages{writeBitonalPage(dir.filePath("p1.tif"))};
+  ExportOptions options;
+  options.pdf.textLayer = false;
+  const ExportPaths paths = ExportPaths::fromBase(dir.filePath("book"));
+  std::atomic<bool> externalCancel(false);
+
+  ExportJob job(pages, paths, options);
+  job.setCancelFlag(&externalCancel);
+  QObject::connect(&job, &ExportJob::progress,
+                   [&externalCancel](int /*done*/, int /*total*/) { externalCancel.store(true); });
+  job.run();
+
+  BOOST_CHECK(!job.succeeded());
+  BOOST_CHECK(job.wasCancelled());
+  BOOST_CHECK(!QFile::exists(paths.pdf));
+}
+
 BOOST_AUTO_TEST_CASE(test_alto_trailing_slash_is_normalized) {
   const QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
