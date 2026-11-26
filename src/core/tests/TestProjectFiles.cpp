@@ -32,6 +32,23 @@ BOOST_AUTO_TEST_CASE(test_new_project_is_named_like_its_folder) {
   BOOST_CHECK(project_files::defaultOutputDir("C:/Scans/Buch/") == "C:/Scans/Buch/out");
 }
 
+BOOST_AUTO_TEST_CASE(test_relative_input_dir_resolves_folder_name) {
+  struct CurrentDirGuard {
+    CurrentDirGuard() : m_previous(QDir::currentPath()) {}
+    ~CurrentDirGuard() { QDir::setCurrent(m_previous); }
+    QString m_previous;
+  };
+  const QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString sub = dir.filePath("mybook/sub");
+  BOOST_REQUIRE(QDir().mkpath(sub));
+
+  const CurrentDirGuard guard;
+  BOOST_REQUIRE(QDir::setCurrent(sub));
+  BOOST_CHECK(project_files::defaultProjectFile(".") == "sub.ScanTailor");
+  BOOST_CHECK(project_files::defaultProjectFile("..") == "../mybook.ScanTailor");
+}
+
 BOOST_AUTO_TEST_CASE(test_export_goes_next_to_the_project_file) {
   // An absolute path on every system: "C:/Scans" would be relative on Linux and macOS.
   const QTemporaryDir dir;

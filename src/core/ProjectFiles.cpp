@@ -4,6 +4,7 @@
 #include "ProjectFiles.h"
 
 #include <QDir>
+#include <QFileInfo>
 #include <QSet>
 
 #include "PageSequence.h"
@@ -26,8 +27,9 @@ QString withProjectExtension(const QString& path) {
 }
 
 QString defaultProjectFile(const QString& inputDir) {
-  QString name(QDir(inputDir).dirName());
-  if (name.isEmpty()) {
+  const QString cleanAbsolute = QDir::cleanPath(QFileInfo(inputDir).absoluteFilePath());
+  QString name(QDir(cleanAbsolute).dirName());
+  if (name.isEmpty() || (name == QLatin1String(".")) || (name == QLatin1String(".."))) {
     name = QStringLiteral("project");
   }
   return QDir::cleanPath(QDir(inputDir).filePath(name + projectExtension));
