@@ -151,6 +151,9 @@ XSpline Curve::deserializeXSpline(const QDomElement& el) {
 
 bool Curve::splineHasLoops(const XSpline& spline) {
   const int numControlPoints = spline.numControlPoints();
+  if (numControlPoints < 2) {
+    return false;
+  }
   const Vec2d mainDirection(spline.pointAt(1) - spline.pointAt(0));
 
   for (int i = 1; i < numControlPoints; ++i) {

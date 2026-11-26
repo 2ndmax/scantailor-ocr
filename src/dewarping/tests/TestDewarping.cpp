@@ -16,6 +16,7 @@
 #include <TaskStatus.h>
 #include <TextLineTracer.h>
 #include <TopBottomEdgeTracer.h>
+#include <XSpline.h>
 
 #include <QColor>
 #include <QImage>
@@ -743,6 +744,27 @@ BOOST_AUTO_TEST_CASE(test_point_mapper_rejects_singular_post_transform) {
   const QPointF roundTripped = mapper.mapToWarpedSpace(dewarped);
   BOOST_TEST(roundTripped.x() == warpedIn.x(), boost::test_tools::tolerance(1e-6));
   BOOST_TEST(roundTripped.y() == warpedIn.y(), boost::test_tools::tolerance(1e-6));
+}
+
+BOOST_AUTO_TEST_CASE(test_curve_spline_has_loops_handles_short_splines) {
+  XSpline empty;
+  BOOST_TEST(!Curve::splineHasLoops(empty));
+
+  XSpline single;
+  single.appendControlPoint(QPointF(10, 20), 0);
+  BOOST_TEST(!Curve::splineHasLoops(single));
+
+  XSpline twoPoints;
+  twoPoints.appendControlPoint(QPointF(0, 0), 0);
+  twoPoints.appendControlPoint(QPointF(100, 0), 0);
+  BOOST_TEST(!Curve::splineHasLoops(twoPoints));
+
+  XSpline looped;
+  looped.appendControlPoint(QPointF(0, 0), 0);
+  looped.appendControlPoint(QPointF(100, 0), 0);
+  looped.appendControlPoint(QPointF(40, 0), 0);
+  looped.appendControlPoint(QPointF(120, 0), 0);
+  BOOST_TEST(Curve::splineHasLoops(looped));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
