@@ -99,5 +99,16 @@ BOOST_AUTO_TEST_CASE(test_point_closest_to_terminates_for_zero_accuracy_and_huge
   BOOST_CHECK(std::isfinite(pHuge.x()) && std::isfinite(pHuge.y()));
 }
 
+BOOST_AUTO_TEST_CASE(test_closed_spline_is_sampled_beyond_endpoints) {
+  XSpline closed;
+  closed.appendControlPoint(QPointF(0, 0), 1.0);
+  closed.appendControlPoint(QPointF(50, 0), 1.0);
+  closed.appendControlPoint(QPointF(50, 50), 1.0);
+  closed.appendControlPoint(QPointF(0, 0), 1.0);
+
+  const std::vector<QPointF> poly = closed.toPolyline();
+  BOOST_CHECK_GT(poly.size(), 4u);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests

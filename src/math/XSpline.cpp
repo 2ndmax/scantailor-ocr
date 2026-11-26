@@ -223,12 +223,7 @@ void XSpline::maybeAddMoreSamples(const VirtualFunction<void, const QPointF&, do
   }
 
   const double prevNextSqdist = Vec2d(nextPt - prevPt).squaredNorm();
-  // REVIEW-NOTE (2026-10): the "too close" check only looks at the chord ends -> a closed or
-  // looping curve (start == end) is sampled as 2 points. Not fixed because dewarping rejects such
-  // curves via Curve::isValid() and a change affects sampling of every curve.
-  // Written so that NaN and infinite distances (damaged coordinates) stop, too.
-  if (!(prevNextSqdist >= 1e-6 && std::isfinite(prevNextSqdist))) {
-    // Too close. Projecting anything on such a small line segment is dangerous.
+  if (!std::isfinite(prevNextSqdist)) {
     return;
   }
 
@@ -249,11 +244,19 @@ void XSpline::maybeAddMoreSamples(const VirtualFunction<void, const QPointF&, do
   const QPointF midPt(pointAt(midT));
 
   if (flags != JUNCTION_SAMPLE) {
-    const QPointF projection(ToLineProjector(QLineF(prevPt, nextPt)).projectionPoint(midPt));
-
-    if (prevNextSqdist <= maxSqdistBetweenSamples) {
-      if (Vec2d(midPt - projection).squaredNorm() <= maxSqdistToSpline) {
+    if (prevNextSqdist < 1e-6) {
+      // Degenerate chord: only stop if the midpoint also lies right on the endpoints
+      // (closed loops across segments still expand because junction samples subdivide first).
+      if ((prevNextSqdist <= maxSqdistBetweenSamples) && (Vec2d(midPt - prevPt).squaredNorm() <= maxSqdistToSpline)) {
         return;
+      }
+    } else {
+      const QPointF projection(ToLineProjector(QLineF(prevPt, nextPt)).projectionPoint(midPt));
+
+      if (prevNextSqdist <= maxSqdistBetweenSamples) {
+        if (Vec2d(midPt - projection).squaredNorm() <= maxSqdistToSpline) {
+          return;
+        }
       }
     }
   }
