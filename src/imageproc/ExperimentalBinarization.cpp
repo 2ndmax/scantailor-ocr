@@ -806,7 +806,8 @@ GrayImage gatosBackgroundOf(GrayImage const& gray, BinaryImage const& niblack, u
         uint32_t bg = background_line[x];
         if (niblack_sum_bg > 0) {
           GraySum const gray_sum_bg = gray_bg_ii.sum(window);
-          bg = static_cast<uint32_t>((gray_sum_bg + (niblack_sum_bg >> 1)) / niblack_sum_bg);
+          bg = static_cast<uint32_t>((static_cast<uint64_t>(gray_sum_bg) + (static_cast<uint64_t>(niblack_sum_bg) >> 1))
+                                     / static_cast<uint64_t>(niblack_sum_bg));
         }
         background_line[x] = bg;
       }

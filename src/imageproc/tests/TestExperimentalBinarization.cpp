@@ -98,6 +98,21 @@ BOOST_AUTO_TEST_CASE(test_gatos_window_too_large_for_32_bits_keeps_dark_print_bl
   BOOST_TEST(result.countBlackPixels() > printSide * printSide * 9 / 10);
 }
 
+BOOST_AUTO_TEST_CASE(test_gatos_near_max_32bit_area_keeps_dark_print_black) {
+  // 4104 * 4104 - 400 = 16,842,416 <= MAX_AREA_FOR_32_BITS, so uint32_t gray_sum_bg is used,
+  // but adding (niblack_sum_bg >> 1) in uint32_t still exceeded 2^32 and collapsed bg to 0.
+  const int side = 4104;
+  const int printSide = 20;
+  GrayImage page{QSize(side, side)};
+  page.fill(255);
+  for (int y = 0; y < printSide; ++y) {
+    std::fill_n(page.data() + y * page.stride(), printSide, uint8_t(50));
+  }
+
+  const BinaryImage result = binarizeGatos(page, 9999, 0.2, 0);
+  BOOST_TEST(result.countBlackPixels() > printSide * printSide * 9 / 10);
+}
+
 BOOST_AUTO_TEST_CASE(test_singh_window_is_centred) {
   GrayImage image(QSize(21, 5));
   for (int y = 0; y < image.height(); ++y) {
