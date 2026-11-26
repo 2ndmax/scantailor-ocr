@@ -75,15 +75,14 @@ ConnectivityMap::ConnectivityMap(const ConnectivityMap& other)
 }
 
 ConnectivityMap::ConnectivityMap(const InfluenceMap& imap)
-    : m_plainData(nullptr), m_size(imap.size()), m_stride(imap.stride()), m_maxLabel(imap.maxLabel()) {
-  // REVIEW-NOTE (2026-10): m_plainData is not set here and the fast path of operator=(InfluenceMap) keeps an
-  // old maxLabel() -> data() returns null and maxLabel() is stale. Not fixed because it is inherited and no
-  // caller uses these paths.
+    : m_plainData(nullptr), m_size(imap.size()), m_stride(0), m_maxLabel(imap.maxLabel()) {
   if (m_size.isEmpty()) {
     return;
   }
 
-  m_data.resize((m_size.width() + 2) * (m_size.height() + 2));
+  m_stride = m_size.width() + 2;
+  m_data.resize(static_cast<size_t>(m_stride) * static_cast<size_t>(m_size.height() + 2));
+  m_plainData = &m_data[0] + 1 + m_stride;
   copyFromInfluenceMap(imap);
 }
 
@@ -95,6 +94,7 @@ ConnectivityMap& ConnectivityMap::operator=(const ConnectivityMap& other) {
 ConnectivityMap& ConnectivityMap::operator=(const InfluenceMap& imap) {
   if ((m_size == imap.size()) && !m_size.isEmpty()) {
     // Common case optimization.
+    m_maxLabel = imap.maxLabel();
     copyFromInfluenceMap(imap);
   } else {
     ConnectivityMap(imap).swap(*this);
@@ -298,7 +298,7 @@ void ConnectivityMap::copyFromInfluenceMap(const InfluenceMap& imap) {
 
   uint32_t* dst = &m_data[0];
   const InfluenceMap::Cell* src = imap.paddedData();
-  for (int todo = width * height; todo > 0; --todo) {
+  for (size_t todo = static_cast<size_t>(width) * static_cast<size_t>(height); todo > 0; --todo) {
     *dst = src->label;
     ++dst;
     ++src;

@@ -3,6 +3,8 @@
 
 #include <BWColor.h>
 #include <BinaryImage.h>
+#include <ConnectivityMap.h>
+#include <InfluenceMap.h>
 
 #include <QImage>
 #include <boost/test/unit_test.hpp>
@@ -143,6 +145,29 @@ BOOST_AUTO_TEST_CASE(test_content_bounding_box4) {
 
   const BinaryImage img(makeBinaryImage(inp, 9, 8));
   BOOST_CHECK(img.contentBoundingBox() == QRect(1, 1, 6, 6));
+}
+
+BOOST_AUTO_TEST_CASE(test_connectivity_map_from_influence_map) {
+  BinaryImage seed(8, 8, WHITE);
+  seed.fill(QRect(1, 1, 2, 2), BLACK);
+  seed.fill(QRect(5, 5, 2, 2), BLACK);
+  const ConnectivityMap initial(seed, CONN4);
+  const InfluenceMap imap(initial);
+
+  const ConnectivityMap copied(imap);
+  BOOST_REQUIRE(copied.data() != nullptr);
+  BOOST_CHECK_EQUAL(copied.stride(), copied.size().width() + 2);
+  BOOST_CHECK_EQUAL(copied.maxLabel(), imap.maxLabel());
+  BOOST_CHECK_EQUAL(copied.data()[1 * copied.stride() + 1], imap.data()[1 * imap.stride() + 1].label);
+  BOOST_CHECK_EQUAL(copied.data()[5 * copied.stride() + 5], imap.data()[5 * imap.stride() + 5].label);
+
+  // Fast-path assignment on matching size must update maxLabel() and pixel labels.
+  ConnectivityMap assigned(QSize(8, 8));
+  BOOST_REQUIRE_EQUAL(assigned.maxLabel(), 0u);
+  assigned = imap;
+  BOOST_REQUIRE(assigned.data() != nullptr);
+  BOOST_CHECK_EQUAL(assigned.maxLabel(), imap.maxLabel());
+  BOOST_CHECK_EQUAL(assigned.data()[5 * assigned.stride() + 5], imap.data()[5 * imap.stride() + 5].label);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
