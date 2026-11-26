@@ -14,9 +14,10 @@ void ArcLengthMapper::addSample(double x, double fx) {
   if (!m_samples.empty()) {
     const double dx = x - m_samples.back().x;
     const double dy = fx - m_prevFX;
-    // The only caller (CylindricalSurfaceDewarper) skips samples that don't increase x.
-    assert(dx > 0);
-    arcLen = m_samples.back().arcLen + std::sqrt(dx * dx + dy * dy);
+    if (!(dx > 0.0)) {
+      return;
+    }
+    arcLen = m_samples.back().arcLen + std::hypot(dx, dy);
   }
 
   m_samples.emplace_back(x, arcLen);
@@ -149,7 +150,11 @@ double ArcLengthMapper::interpolateArcLenInSegment(double arcLen, int segment) c
   const double a0 = m_samples[segment].arcLen;
   const double x1 = m_samples[segment + 1].x;
   const double a1 = m_samples[segment + 1].arcLen;
-  const double x = x0 + (arcLen - a0) * (x1 - x0) / (a1 - a0);
+  const double da = a1 - a0;
+  if (!(da > 0.0) || !std::isfinite(da)) {
+    return (std::fabs(arcLen - a0) <= std::fabs(arcLen - a1)) ? x0 : x1;
+  }
+  const double x = x0 + (arcLen - a0) * (x1 - x0) / da;
   return x;
 }
 
@@ -164,6 +169,10 @@ double ArcLengthMapper::interpolateXInSegment(double x, int segment) const {
   const double a0 = m_samples[segment].arcLen;
   const double x1 = m_samples[segment + 1].x;
   const double a1 = m_samples[segment + 1].arcLen;
-  const double a = a0 + (a1 - a0) * (x - x0) / (x1 - x0);
+  const double dx = x1 - x0;
+  if (!(dx > 0.0) || !std::isfinite(dx)) {
+    return (std::fabs(x - x0) <= std::fabs(x - x1)) ? a0 : a1;
+  }
+  const double a = a0 + (a1 - a0) * (x - x0) / dx;
   return a;
 }
