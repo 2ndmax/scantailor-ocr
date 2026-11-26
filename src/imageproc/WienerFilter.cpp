@@ -42,8 +42,8 @@ void wienerFilterInPlace(GrayImage& image, QSize const& window_size, double cons
   if (window_size.isEmpty()) {
     throw std::invalid_argument("wienerFilter: empty window_size");
   }
-  if (noise_sigma < 0) {
-    throw std::invalid_argument("wienerFilter: negative noise_sigma");
+  if (!std::isfinite(noise_sigma) || (noise_sigma < 0.0)) {
+    throw std::invalid_argument("wienerFilter: invalid noise_sigma");
   }
   if (image.isNull()) {
     return;
@@ -53,9 +53,7 @@ void wienerFilterInPlace(GrayImage& image, QSize const& window_size, double cons
   int const h = image.height();
   double const noise_variance = noise_sigma * noise_sigma;
 
-  // The sums may overflow on large pages, which is harmless: a window's sum is the difference of four of them, and
-  // unsigned arithmetic gives it exactly as long as the window's own sum fits in 32 bits.
-  IntegralImage<uint32_t> integral_image(w, h);
+  IntegralImage<uint64_t> integral_image(w, h);
   IntegralImage<uint64_t> integral_sqimage(w, h);
 
   uint8_t* image_line = image.data();
@@ -85,14 +83,14 @@ void wienerFilterInPlace(GrayImage& image, QSize const& window_size, double cons
     for (int x = 0; x < w; ++x) {
       int const left = ((x - window_left_half) < 0) ? 0 : (x - window_left_half);
       int const right = ((x + window_right_half) < w) ? (x + window_right_half) : w;  // exclusive
-      int const area = (bottom - top) * (right - left);
+      int64_t const area = static_cast<int64_t>(bottom - top) * (right - left);
       assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
 
       QRect const rect(left, top, right - left, bottom - top);
-      double const window_sum = integral_image.sum(rect);
-      double const window_sqsum = integral_sqimage.sum(rect);
+      double const window_sum = static_cast<double>(integral_image.sum(rect));
+      double const window_sqsum = static_cast<double>(integral_sqimage.sum(rect));
 
-      double const r_area = 1.0 / area;
+      double const r_area = 1.0 / static_cast<double>(area);
       double const mean = window_sum * r_area;
       double const sqmean = window_sqsum * r_area;
       double const variance = sqmean - mean * mean;
@@ -124,7 +122,7 @@ void wienerColorFilterInPlace(QImage& image, QSize const& window_size, double co
     throw std::invalid_argument("wienerFilter: empty window_size");
   }
 
-  if (coef > 0.0) {
+  if (std::isfinite(coef) && (coef > 0.0)) {
     filterBrightnessInPlace(image, [&](GrayImage& gray) { wienerFilterInPlace(gray, window_size, 255.0 * coef); });
   }
 }

@@ -14,6 +14,8 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdlib>
+#include <limits>
+#include <stdexcept>
 
 namespace imageproc {
 namespace tests {
@@ -226,6 +228,32 @@ BOOST_AUTO_TEST_CASE(test_brightness_filter_preserves_indexed8_color_hue) {
   const QRgb greenPx = indexed.pixel(20, 10);
   BOOST_CHECK_GT(qRed(redPx), qGreen(redPx) + 80);
   BOOST_CHECK_GT(qGreen(greenPx), qRed(greenPx) + 80);
+}
+
+BOOST_AUTO_TEST_CASE(test_wiener_and_knn_guard_nan_parameters) {
+  const double qnan = std::numeric_limits<double>::quiet_NaN();
+  const double inf = std::numeric_limits<double>::infinity();
+
+  GrayImage gray = makeEdge(true);
+  const GrayImage grayOrig(gray);
+  for (const double bad : {qnan, inf, -1.0}) {
+    BOOST_CHECK_THROW(wienerFilterInPlace(gray, QSize(5, 5), bad), std::invalid_argument);
+  }
+  BOOST_CHECK(gray == grayOrig);
+
+  for (const double bad : {qnan, inf, 0.0, -0.5}) {
+    knnDenoiseInPlace(gray, 5, bad);
+    BOOST_CHECK(gray == grayOrig);
+  }
+
+  QImage color(24, 24, QImage::Format_RGB32);
+  color.fill(qRgb(180, 140, 120));
+  const QImage colorOrig = color.copy();
+  for (const double bad : {qnan, inf, 0.0}) {
+    wienerColorFilterInPlace(color, QSize(5, 5), bad);
+    knnDenoiseColorInPlace(color, 5, bad);
+    BOOST_CHECK(color == colorOrig);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

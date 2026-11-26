@@ -7,6 +7,7 @@
 #include <QRect>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 
 #include "BrightnessFilter.h"
@@ -17,7 +18,7 @@
 
 namespace imageproc {
 void knnDenoiseInPlace(GrayImage& image, const int radius, const double coef) {
-  if (image.isNull() || (radius < 1) || (coef <= 0.0)) {
+  if (image.isNull() || (radius < 1) || !std::isfinite(coef) || !(coef > 0.0)) {
     return;
   }
   // Weights below this do not count as similar neighbourhoods.
@@ -29,25 +30,24 @@ void knnDenoiseInPlace(GrayImage& image, const int radius, const double coef) {
   const int w = image.width();
   const int h = image.height();
   uint8_t* const data = image.data();
-  const int stride = image.stride();
+  const ptrdiff_t stride = image.stride();
 
-  // Sums can exceed 32 bits, but the wrap-around cancels out in the window sums as long as a window's
-  // own sum fits: 255 * (2 * radius + 1)^2 < 2^32, true for any radius below 2000.
-  IntegralImage<uint32_t> integral(w, h);
+  IntegralImage<uint64_t> integral(w, h);
   for (int y = 0; y < h; ++y) {
     integral.beginRow();
     for (int x = 0; x < w; ++x) {
-      integral.push(data[y * stride + x]);
+      integral.push(data[static_cast<ptrdiff_t>(y) * stride + x]);
     }
   }
 
-  const float areaInv = 1.0f / static_cast<float>((2 * radius + 1) * (2 * radius + 1));
+  const int64_t side = 2LL * radius + 1;
+  const float areaInv = 1.0f / static_cast<float>(side * side);
   const float noiseWeight = static_cast<float>(1.0 / (coef * coef));
   const float pixelWeight = 1.0f / 255.0f;
   // Each pixel only reads the integral image, so the rows can be computed in parallel.
   parallelFor(h, [&](const int yBegin, const int yEnd) {
     for (int y = yBegin; y < yEnd; ++y) {
-      uint8_t* const line = data + y * stride;
+      uint8_t* const line = data + static_cast<ptrdiff_t>(y) * stride;
       for (int x = 0; x < w; ++x) {
         const float origin = line[x];
         float count = areaInv;
@@ -59,9 +59,11 @@ void knnDenoiseInPlace(GrayImage& image, const int radius, const double coef) {
           const int top = std::max(y - r, 0);
           const int bottom = std::min(y + r, h - 1);
           const QRect rect(left, top, right - left + 1, bottom - top + 1);
-          const float mean = static_cast<float>(integral.sum(rect)) / static_cast<float>(rect.width() * rect.height());
+          const float mean = static_cast<float>(integral.sum(rect))
+                             / static_cast<float>(static_cast<int64_t>(rect.width()) * rect.height());
           const float delta = (origin - mean) * pixelWeight * static_cast<float>(r);
-          const float weightF = std::exp(-(static_cast<float>(r * r) * areaInv + delta * delta * noiseWeight));
+          const float weightF
+              = std::exp(-(static_cast<float>(static_cast<int64_t>(r) * r) * areaInv + delta * delta * noiseWeight));
           const auto weightR = static_cast<float>(8 * r);
           color += mean * weightF * weightR;
           sumWeights += weightF * weightR;
@@ -79,7 +81,7 @@ void knnDenoiseInPlace(GrayImage& image, const int radius, const double coef) {
 }
 
 void knnDenoiseColorInPlace(QImage& image, const int radius, const double coef) {
-  if ((radius < 1) || (coef <= 0.0)) {
+  if ((radius < 1) || !std::isfinite(coef) || !(coef > 0.0)) {
     return;
   }
   filterBrightnessInPlace(image, [&](GrayImage& gray) { knnDenoiseInPlace(gray, radius, coef); });
