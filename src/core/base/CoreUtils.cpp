@@ -40,13 +40,21 @@ std::wstring longWindowsPath(const QString& path) {
 
 bool CoreUtils::overwritingRename(const QString& from, const QString& to) {
 #ifdef Q_OS_WIN
-  // REVIEW-NOTE (2026-10): on Windows MoveFileExW fails while another handle has the target open
-  // -> the thumbnail stays stale or saving reports an error. Not fixed because a retry loop adds
-  // timing logic for a rare, visible case.
   // Write-through: the rename is on the disk when this returns, e.g. before a power failure.
-  return MoveFileExW(longWindowsPath(from).c_str(), longWindowsPath(to).c_str(),
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)
-         != 0;
+  // Retry briefly on transient sharing/access errors (e.g. virus scanner or indexer handles).
+  const std::wstring fromPath = longWindowsPath(from);
+  const std::wstring toPath = longWindowsPath(to);
+  for (unsigned attempt = 0; attempt < 5; ++attempt) {
+    if (MoveFileExW(fromPath.c_str(), toPath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0) {
+      return true;
+    }
+    const DWORD err = GetLastError();
+    if ((err != ERROR_SHARING_VIOLATION) && (err != ERROR_ACCESS_DENIED)) {
+      return false;
+    }
+    Sleep(10u * (attempt + 1));
+  }
+  return MoveFileExW(fromPath.c_str(), toPath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
 #else
   return rename(QFile::encodeName(from).data(), QFile::encodeName(to).data()) == 0;
 #endif
@@ -96,7 +104,9 @@ QString CoreUtils::dpiText(const int dpi) {
 int CoreUtils::dpiFromText(const QString& text, bool* ok) {
   const QRegularExpressionMatch match = QRegularExpression(QStringLiteral("\\d+")).match(text);
   if (!match.hasMatch()) {
-    *ok = false;
+    if (ok) {
+      *ok = false;
+    }
     return 0;
   }
   return match.captured().toInt(ok);

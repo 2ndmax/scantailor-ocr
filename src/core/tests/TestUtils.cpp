@@ -13,6 +13,11 @@
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <thread>
+#endif
+
 #include "TestHelpers.h"
 
 BOOST_AUTO_TEST_SUITE(CoreUtilsTestSuite)
@@ -68,5 +73,43 @@ BOOST_AUTO_TEST_CASE(a_safe_deleting_pointer_reset_to_its_own_object_keeps_it) {
   QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
   BOOST_CHECK(watch.isNull());
 }
+
+BOOST_AUTO_TEST_CASE(test_dpi_from_text_handles_null_ok_pointer) {
+  BOOST_CHECK_EQUAL(core::CoreUtils::dpiFromText(QStringLiteral("abc"), nullptr), 0);
+  BOOST_CHECK_EQUAL(core::CoreUtils::dpiFromText(QStringLiteral("300 dpi"), nullptr), 300);
+
+  bool ok = true;
+  BOOST_CHECK_EQUAL(core::CoreUtils::dpiFromText(QStringLiteral("no digits"), &ok), 0);
+  BOOST_CHECK(!ok);
+
+  BOOST_CHECK_EQUAL(core::CoreUtils::dpiFromText(QStringLiteral("600 dpi"), &ok), 600);
+  BOOST_CHECK(ok);
+}
+
+#ifdef Q_OS_WIN
+BOOST_AUTO_TEST_CASE(test_overwriting_rename_retries_transient_sharing_violation) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString source = dir.filePath("source.txt");
+  const QString target = dir.filePath("target.txt");
+  BOOST_REQUIRE(Tests::writeFile(source, "new"));
+  BOOST_REQUIRE(Tests::writeFile(target, "old"));
+
+  const std::wstring targetWide = QDir::toNativeSeparators(target).toStdWString();
+  HANDLE lock = CreateFileW(targetWide.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING,
+                            FILE_ATTRIBUTE_NORMAL, nullptr);
+  BOOST_REQUIRE(lock != INVALID_HANDLE_VALUE);
+
+  std::thread releaser([lock]() {
+    Sleep(25);
+    CloseHandle(lock);
+  });
+
+  const bool renamed = core::CoreUtils::overwritingRename(source, target);
+  releaser.join();
+  BOOST_CHECK(renamed);
+  BOOST_CHECK(Tests::readFile(target) == "new");
+}
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()
