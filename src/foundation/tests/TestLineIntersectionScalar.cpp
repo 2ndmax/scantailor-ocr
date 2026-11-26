@@ -6,6 +6,7 @@
 #include <QLineF>
 #include <QPointF>
 #include <boost/test/unit_test.hpp>
+#include <limits>
 
 BOOST_AUTO_TEST_SUITE(FoundationLineIntersectionScalarTestSuite)
 
@@ -49,6 +50,21 @@ BOOST_AUTO_TEST_CASE(test_single_param_overload) {
   BOOST_REQUIRE(ok);
   BOOST_CHECK_CLOSE(s1, 0.3, 0.01);
   BOOST_CHECK_CLOSE(line1.pointAt(s1).x(), 3.0, 0.01);
+}
+
+BOOST_AUTO_TEST_CASE(test_tiny_orthogonal_zero_length_and_nan_lines) {
+  const double scale = 1e-9;
+  double s1 = 0;
+  double s2 = 0;
+  BOOST_REQUIRE(lineIntersectionScalar(QLineF(0, 0, scale, 0),
+                                       QLineF(0.5 * scale, -0.5 * scale, 0.5 * scale, 0.5 * scale), s1, s2));
+  BOOST_CHECK_CLOSE(s1, 0.5, 0.01);
+  BOOST_CHECK_CLOSE(s2, 0.5, 0.01);
+
+  BOOST_CHECK(!lineIntersectionScalar(QLineF(1, 1, 1, 1), QLineF(0, 0, 10, 0), s1, s2));
+
+  const double nan = std::numeric_limits<double>::quiet_NaN();
+  BOOST_CHECK(!lineIntersectionScalar(QLineF(nan, 0, 10, 0), QLineF(5, -5, 5, 5), s1, s2));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

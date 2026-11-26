@@ -21,7 +21,9 @@ bool lineIntersectionScalar(const QLineF& line1, const QLineF& line2, double& s1
   // s1 = |b -v2|/|A|
   // s2 = |v1  b|/|A|
   const double det_A = v2.x() * v1.y() - v1.x() * v2.y();
-  if (std::fabs(det_A) < std::numeric_limits<double>::epsilon()) {
+  const double len1 = std::hypot(v1.x(), v1.y());
+  const double len2 = std::hypot(v2.x(), v2.y());
+  if (!std::isfinite(det_A) || !(std::fabs(det_A) > std::numeric_limits<double>::epsilon() * len1 * len2)) {
     return false;
   }
 
@@ -29,7 +31,7 @@ bool lineIntersectionScalar(const QLineF& line1, const QLineF& line2, double& s1
   const QPointF b(p2 - p1);
   s1 = (v2.x() * b.y() - b.x() * v2.y()) * r_det_A;
   s2 = (v1.x() * b.y() - b.x() * v1.y()) * r_det_A;
-  return true;
+  return std::isfinite(s1) && std::isfinite(s2);
 }
 
 bool lineIntersectionScalar(const QLineF& line1, const QLineF& line2, double& s1) {
