@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cstddef>
 #include <memory>
+#include <utility>
 
 /**
  * \brief A matrix of elements of type T.
@@ -46,6 +47,8 @@ class MatT {
    */
   MatT(const MatT& other);
 
+  MatT(MatT&& other) noexcept;
+
   /**
    * \brief Construction from a matrix of a different type.
    *
@@ -58,6 +61,8 @@ class MatT {
    * \brief Ordinary assignment.
    */
   MatT& operator=(const MatT& other);
+
+  MatT& operator=(MatT&& other) noexcept;
 
   /**
    * \brief Assignment from a matrix of a different type.
@@ -93,7 +98,7 @@ class MatT {
 
   void fill(const T& value);
 
-  void swap(MatT& other);
+  void swap(MatT& other) noexcept;
 
  private:
   size_t m_rows;
@@ -141,6 +146,12 @@ MatT<T>::MatT(const MatT& other) : m_rows(other.rows()), m_cols(other.cols()), m
 }
 
 template <typename T>
+MatT<T>::MatT(MatT&& other) noexcept : m_rows(other.m_rows), m_cols(other.m_cols), m_data(std::move(other.m_data)) {
+  other.m_rows = 0;
+  other.m_cols = 0;
+}
+
+template <typename T>
 template <typename OT>
 MatT<T>::MatT(const MatT<OT>& other) : m_rows(other.rows()), m_cols(other.cols()), m_data(new T[m_rows * m_cols]) {
   const size_t len = m_rows * m_cols;
@@ -153,6 +164,18 @@ MatT<T>::MatT(const MatT<OT>& other) : m_rows(other.rows()), m_cols(other.cols()
 template <typename T>
 MatT<T>& MatT<T>::operator=(const MatT& other) {
   MatT(other).swap(*this);
+  return *this;
+}
+
+template <typename T>
+MatT<T>& MatT<T>::operator=(MatT&& other) noexcept {
+  if (this != &other) {
+    m_rows = other.m_rows;
+    m_cols = other.m_cols;
+    m_data = std::move(other.m_data);
+    other.m_rows = 0;
+    other.m_cols = 0;
+  }
   return *this;
 }
 
@@ -203,7 +226,7 @@ void MatT<T>::fill(const T& value) {
 }
 
 template <typename T>
-void MatT<T>::swap(MatT& other) {
+void MatT<T>::swap(MatT& other) noexcept {
   size_t tmp = m_rows;
   m_rows = other.m_rows;
   other.m_rows = tmp;
@@ -216,7 +239,7 @@ void MatT<T>::swap(MatT& other) {
 }
 
 template <typename T>
-void swap(MatT<T>& o1, MatT<T>& o2) {
+void swap(MatT<T>& o1, MatT<T>& o2) noexcept {
   o1.swap(o2);
 }
 

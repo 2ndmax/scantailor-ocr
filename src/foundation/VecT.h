@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cstddef>
 #include <memory>
+#include <utility>
 
 /**
  * \brief A (column) vector of elements of type T.
@@ -49,6 +50,8 @@ class VecT {
    */
   VecT(const VecT& other);
 
+  VecT(VecT&& other) noexcept;
+
   /**
    * \brief Construction from a vector of a different type.
    *
@@ -61,6 +64,8 @@ class VecT {
    * \brief Ordinary assignment.
    */
   VecT& operator=(const VecT& other);
+
+  VecT& operator=(VecT&& other) noexcept;
 
   /**
    * \brief Assignment from a vector of a different type.
@@ -94,7 +99,7 @@ class VecT {
 
   void fill(const T& value);
 
-  void swap(VecT& other);
+  void swap(VecT& other) noexcept;
 
  private:
   std::unique_ptr<T[]> m_data;
@@ -135,6 +140,11 @@ VecT<T>::VecT(const VecT& other) : m_data(new T[other.m_size]), m_size(other.m_s
 }
 
 template <typename T>
+VecT<T>::VecT(VecT&& other) noexcept : m_data(std::move(other.m_data)), m_size(other.m_size) {
+  other.m_size = 0;
+}
+
+template <typename T>
 template <typename OT>
 VecT<T>::VecT(const VecT<OT>& other) : m_data(new T[other.size()]), m_size(other.size()) {
   const OT* otherData = other.data();
@@ -146,6 +156,16 @@ VecT<T>::VecT(const VecT<OT>& other) : m_data(new T[other.size()]), m_size(other
 template <typename T>
 VecT<T>& VecT<T>::operator=(const VecT& other) {
   VecT(other).swap(*this);
+  return *this;
+}
+
+template <typename T>
+VecT<T>& VecT<T>::operator=(VecT&& other) noexcept {
+  if (this != &other) {
+    m_data = std::move(other.m_data);
+    m_size = other.m_size;
+    other.m_size = 0;
+  }
   return *this;
 }
 
@@ -190,7 +210,7 @@ void VecT<T>::fill(const T& value) {
 }
 
 template <typename T>
-void VecT<T>::swap(VecT& other) {
+void VecT<T>::swap(VecT& other) noexcept {
   size_t tmp = m_size;
   m_size = other.m_size;
   other.m_size = tmp;
@@ -198,7 +218,7 @@ void VecT<T>::swap(VecT& other) {
 }
 
 template <typename T>
-void swap(VecT<T>& o1, VecT<T>& o2) {
+void swap(VecT<T>& o1, VecT<T>& o2) noexcept {
   o1.swap(o2);
 }
 
