@@ -89,6 +89,12 @@ bool OcrEngine::recognize(const QImage& image,
     }
     return false;
   }
+  if (image.isNull() || image.size().isEmpty()) {
+    if (error) {
+      *error = QCoreApplication::translate("OcrEngine", "Text recognition failed.");
+    }
+    return false;
+  }
 
   switch (layout) {
     case SINGLE_COLUMN:
@@ -104,6 +110,12 @@ bool OcrEngine::recognize(const QImage& image,
 
   // Tesseract binarizes the image itself; 1 bit images are passed as gray.
   const QImage gray = image.convertToFormat(QImage::Format_Grayscale8);
+  if (gray.isNull() || (gray.constBits() == nullptr)) {
+    if (error) {
+      *error = QCoreApplication::translate("OcrEngine", "Text recognition failed.");
+    }
+    return false;
+  }
   m_api->SetImage(gray.constBits(), gray.width(), gray.height(), 1, static_cast<int>(gray.bytesPerLine()));
   int dpi = static_cast<int>(std::lround(image.dotsPerMeterY() * 0.0254));
   if (dpi < 10) {
@@ -166,9 +178,13 @@ bool OcrEngine::recognize(const QImage& image,
     do {
       if (it->IsAtBeginningOf(tesseract::RIL_TEXTLINE)) {
         int left = 0, top = 0, right = 0, bottom = 0;
-        it->BoundingBox(tesseract::RIL_TEXTLINE, &left, &top, &right, &bottom);
-        lineBox = QRect(left, top, right - left, bottom - top);
-        haveBaseline = it->Baseline(tesseract::RIL_TEXTLINE, &bx1, &by1, &bx2, &by2);
+        if (it->BoundingBox(tesseract::RIL_TEXTLINE, &left, &top, &right, &bottom)) {
+          lineBox = QRect(left, top, right - left, bottom - top);
+          haveBaseline = it->Baseline(tesseract::RIL_TEXTLINE, &bx1, &by1, &bx2, &by2);
+        } else {
+          lineBox = QRect();
+          haveBaseline = false;
+        }
       }
       if (it->Empty(tesseract::RIL_WORD)) {
         continue;
@@ -183,7 +199,9 @@ bool OcrEngine::recognize(const QImage& image,
       }
 
       int left = 0, top = 0, right = 0, bottom = 0;
-      it->BoundingBox(tesseract::RIL_WORD, &left, &top, &right, &bottom);
+      if (!it->BoundingBox(tesseract::RIL_WORD, &left, &top, &right, &bottom)) {
+        continue;
+      }
       OcrWord word;
       word.text = text;
       word.box = QRect(left, top, right - left, bottom - top);

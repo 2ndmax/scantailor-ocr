@@ -5,6 +5,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QImage>
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 #include <vector>
@@ -37,6 +38,15 @@ BOOST_AUTO_TEST_CASE(a_missing_language_file_is_reported) {
   OcrEngine engine;
   QString error;
   BOOST_CHECK(!engine.init(tempDir.path(), "xyz", &error));
+  BOOST_CHECK(!error.isEmpty());
+}
+
+BOOST_AUTO_TEST_CASE(null_image_is_rejected_without_ocr_data) {
+  OcrEngine engine;
+  OcrPageResult result;
+  QString error;
+  BOOST_CHECK(!engine.recognize(QImage(), OcrEngine::AUTOMATIC_LAYOUT, OcrRequest{}, nullptr, &result, &error));
+  BOOST_CHECK(result.words.empty());
   BOOST_CHECK(!error.isEmpty());
 }
 
