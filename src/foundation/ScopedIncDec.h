@@ -8,8 +8,12 @@
 #include <config.h>
 #endif
 
+#include "NonCopyable.h"
+
 template <class T>
 class ScopedIncDec {
+  DECLARE_NON_COPYABLE(ScopedIncDec)
+
  public:
   explicit ScopedIncDec(T& counter) : m_counter(counter) { ++counter; }
 

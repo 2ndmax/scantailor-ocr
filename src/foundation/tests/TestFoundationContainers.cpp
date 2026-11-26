@@ -3,6 +3,7 @@
 
 #include <FastQueue.h>
 #include <Grid.h>
+#include <ScopedIncDec.h>
 
 #include <boost/test/unit_test.hpp>
 #include <limits>
@@ -110,6 +111,18 @@ BOOST_AUTO_TEST_CASE(test_grid_copy_move_padding_and_bounds) {
   BOOST_CHECK(assigned.paddedData() == nullptr);
   BOOST_CHECK(moved.paddedData() == origPtr);
   BOOST_CHECK_EQUAL(moved.data()[0], 7);
+}
+
+BOOST_AUTO_TEST_CASE(test_scoped_inc_dec_non_copyable) {
+  static_assert(!std::is_copy_constructible_v<ScopedIncDec<int>>);
+  static_assert(!std::is_copy_assignable_v<ScopedIncDec<int>>);
+
+  int counter = 0;
+  {
+    const ScopedIncDec<int> guard(counter);
+    BOOST_CHECK_EQUAL(counter, 1);
+  }
+  BOOST_CHECK_EQUAL(counter, 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
