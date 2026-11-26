@@ -1566,4 +1566,24 @@ BOOST_AUTO_TEST_CASE(test_image_at_size_limit_is_accepted) {
   BOOST_CHECK(pages.front().size() == QSize(20000, 30000));
 }
 
+BOOST_AUTO_TEST_CASE(test_jp2_multithreaded_damaged_tiles_report_errors) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString path = dir.filePath("damaged_tiles.j2k");
+  BOOST_REQUIRE(writeJp2(path, 128, 128, 1, true, 32));
+
+  // Corrupt tile payloads in the second half so header parsing passes and opj_decode fails.
+  QByteArray data = Tests::readFile(path);
+  BOOST_REQUIRE(data.size() > 64);
+  const qsizetype corruptFrom = data.size() / 2;
+  std::fill(data.begin() + corruptFrom, data.end(), '\xff');
+  BOOST_REQUIRE(Tests::writeFile(path, data));
+
+  QImage image;
+  const QStringList messages = loadMessages(path, image);
+  BOOST_CHECK(image.isNull());
+  BOOST_CHECK_MESSAGE(!messages.filter(QStringLiteral("OpenJPEG")).isEmpty(),
+                      messages.join(QLatin1Char('\n')).toStdString());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

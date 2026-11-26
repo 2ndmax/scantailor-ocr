@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <mutex>
 #include <new>
 #include <optional>
 #include <vector>
@@ -322,15 +323,52 @@ bool codestreamExceedsLimits(QIODevice& device, const Jp2Format format) {
 
 /*================================ OpenJPEG ==================================*/
 
-// REVIEW-NOTE (2026-10): with opj_codec_set_threads() OpenJPEG calls these callbacks from worker threads where no
-// thread_local ImageLoadErrorCapture is active -> their detail text is only logged.
-// Not fixed because the main thread still reports a generic error.
-void opjErrorHandler(const char* msg, void* /*client_data*/) {
-  ImageLoadErrorCapture::addError(QLatin1String("OpenJPEG: ") + QString::fromUtf8(msg));
+struct OpjMessageCollector {
+  std::mutex mutex;
+  QStringList errors;
+  QStringList warnings;
+
+  void flush() {
+    QStringList errs;
+    QStringList warns;
+    {
+      const std::lock_guard<std::mutex> lock(mutex);
+      errs.swap(errors);
+      warns.swap(warnings);
+    }
+    for (const QString& msg : errs) {
+      ImageLoadErrorCapture::addError(msg);
+    }
+    for (const QString& msg : warns) {
+      ImageLoadErrorCapture::addWarning(msg);
+    }
+  }
+};
+
+struct OpjMessageFlusher {
+  OpjMessageCollector& collector;
+
+  ~OpjMessageFlusher() { collector.flush(); }
+};
+
+void opjErrorHandler(const char* msg, void* clientData) {
+  const QString formatted = QLatin1String("OpenJPEG: ") + QString::fromUtf8(msg);
+  if (auto* collector = static_cast<OpjMessageCollector*>(clientData)) {
+    const std::lock_guard<std::mutex> lock(collector->mutex);
+    collector->errors.append(formatted);
+  } else {
+    ImageLoadErrorCapture::addError(formatted);
+  }
 }
 
-void opjWarningHandler(const char* msg, void* /*client_data*/) {
-  ImageLoadErrorCapture::addWarning(QLatin1String("OpenJPEG: ") + QString::fromUtf8(msg));
+void opjWarningHandler(const char* msg, void* clientData) {
+  const QString formatted = QLatin1String("OpenJPEG: ") + QString::fromUtf8(msg);
+  if (auto* collector = static_cast<OpjMessageCollector*>(clientData)) {
+    const std::lock_guard<std::mutex> lock(collector->mutex);
+    collector->warnings.append(formatted);
+  } else {
+    ImageLoadErrorCapture::addWarning(formatted);
+  }
 }
 
 OPJ_SIZE_T streamRead(void* buffer, OPJ_SIZE_T numBytes, void* userData) {
@@ -695,12 +733,15 @@ QImage decode(QIODevice& device,
   opj_stream_set_skip_function(stream.get(), &streamSkip);
   opj_stream_set_seek_function(stream.get(), &streamSeek);
 
+  OpjMessageCollector messages;
+  OpjMessageFlusher flusher{messages};
+
   CodecPtr codec(opj_create_decompress(format == Jp2Format::JP2 ? OPJ_CODEC_JP2 : OPJ_CODEC_J2K));
   if (!codec) {
     return QImage();
   }
-  opj_set_error_handler(codec.get(), &opjErrorHandler, nullptr);
-  opj_set_warning_handler(codec.get(), &opjWarningHandler, nullptr);
+  opj_set_error_handler(codec.get(), &opjErrorHandler, &messages);
+  opj_set_warning_handler(codec.get(), &opjWarningHandler, &messages);
 
   opj_dparameters_t parameters;
   opj_set_default_decoder_parameters(&parameters);
