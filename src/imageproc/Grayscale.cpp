@@ -100,6 +100,19 @@ static bool hasDirectRgbAccess(const QImage& img) {
   return (img.format() == QImage::Format_RGB32) || (img.format() == QImage::Format_ARGB32);
 }
 
+static bool isIdentityGrayscalePalette(const QImage& img) {
+  const QVector<QRgb> table = img.colorTable();
+  if (table.size() != 256) {
+    return false;
+  }
+  for (int i = 0; i < 256; ++i) {
+    if (table[i] != qRgb(i, i, i)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 static QImage anyToGrayscale(const QImage& src) {
   const int width = src.width();
   const int height = src.height();
@@ -114,6 +127,16 @@ static QImage anyToGrayscale(const QImage& src) {
   const int dstBpl = dst.bytesPerLine();
   const bool directAccess = hasDirectRgbAccess(src);
   const bool directRgb888 = (src.format() == QImage::Format_RGB888);
+  const bool directIndexed8 = (src.format() == QImage::Format_Indexed8);
+
+  uint8_t indexedLut[256]{};
+  if (directIndexed8) {
+    const QVector<QRgb> table = src.colorTable();
+    const int count = std::min<int>(256, table.size());
+    for (int i = 0; i < count; ++i) {
+      indexedLut[i] = static_cast<uint8_t>(qGray(table[i]));
+    }
+  }
 
   for (int y = 0; y < height; ++y) {
     if (directAccess) {
@@ -126,6 +149,11 @@ static QImage anyToGrayscale(const QImage& src) {
       for (int x = 0; x < width; ++x) {
         dstLine[x] = static_cast<uint8_t>(qGray(srcLine[0], srcLine[1], srcLine[2]));
         srcLine += 3;
+      }
+    } else if (directIndexed8) {
+      const uint8_t* srcLine = src.constScanLine(y);
+      for (int x = 0; x < width; ++x) {
+        dstLine[x] = indexedLut[srcLine[x]];
       }
     } else {
       for (int x = 0; x < width; ++x) {
@@ -159,17 +187,8 @@ QImage toGrayscale(const QImage& src) {
     case QImage::Format_MonoLSB:
       return monoLsbToGrayscale(src);
     case QImage::Format_Indexed8:
-      if (src.isGrayscale()) {
-        if (src.colorCount() == 256) {
-          return src;
-        } else {
-          QImage dst(src);
-          dst.setColorTable(createGrayscalePalette());
-          if (!src.isNull() && dst.isNull()) {
-            throw std::bad_alloc();
-          }
-          return dst;
-        }
+      if (isIdentityGrayscalePalette(src)) {
+        return src;
       }
       // fall through
     default:

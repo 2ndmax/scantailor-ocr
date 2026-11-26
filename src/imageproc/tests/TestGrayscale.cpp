@@ -81,6 +81,56 @@ BOOST_AUTO_TEST_CASE(test_rgb888_to_grayscale) {
   BOOST_CHECK(toGrayscale(rgb888) == gray);
 }
 
+BOOST_AUTO_TEST_CASE(test_indexed8_non_identity_grayscale_palettes) {
+  // Two-entry grayscale palette: index 1 means white (255), not gray level 1.
+  {
+    QImage twoTone(4, 1, QImage::Format_Indexed8);
+    twoTone.setColorTable({qRgb(0, 0, 0), qRgb(255, 255, 255)});
+    twoTone.setPixel(0, 0, 0);
+    twoTone.setPixel(1, 0, 1);
+    twoTone.setPixel(2, 0, 0);
+    twoTone.setPixel(3, 0, 1);
+
+    const QImage gray = toGrayscale(twoTone);
+    BOOST_REQUIRE_EQUAL(gray.colorCount(), 256);
+    BOOST_CHECK_EQUAL(qGray(gray.pixel(0, 0)), 0);
+    BOOST_CHECK_EQUAL(qGray(gray.pixel(1, 0)), 255);
+  }
+
+  // Inverted 256-entry grayscale palette: index i maps to 255 - i.
+  {
+    QImage inverted(4, 1, QImage::Format_Indexed8);
+    QVector<QRgb> table(256);
+    for (int i = 0; i < 256; ++i) {
+      table[i] = qRgb(255 - i, 255 - i, 255 - i);
+    }
+    inverted.setColorTable(table);
+    inverted.setPixel(0, 0, 10);
+    inverted.setPixel(1, 0, 200);
+    inverted.setPixel(2, 0, 0);
+    inverted.setPixel(3, 0, 255);
+
+    const QImage gray = toGrayscale(inverted);
+    BOOST_CHECK_EQUAL(qGray(gray.pixel(0, 0)), 245);
+    BOOST_CHECK_EQUAL(qGray(gray.pixel(1, 0)), 55);
+    BOOST_CHECK_EQUAL(qGray(gray.pixel(2, 0)), 255);
+    BOOST_CHECK_EQUAL(qGray(gray.pixel(3, 0)), 0);
+  }
+
+  // Standard 256-entry identity palette is preserved as-is.
+  {
+    QImage identity(4, 1, QImage::Format_Indexed8);
+    identity.setColorTable(createGrayscalePalette());
+    identity.setPixel(0, 0, 0);
+    identity.setPixel(1, 0, 42);
+    identity.setPixel(2, 0, 180);
+    identity.setPixel(3, 0, 255);
+
+    const QImage gray = toGrayscale(identity);
+    BOOST_CHECK(gray == identity);
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_stretch_gray_range_clamps_extreme_and_nan_fractions) {
   GrayImage src(QSize(10, 10));
   for (int y = 0; y < 10; ++y) {
