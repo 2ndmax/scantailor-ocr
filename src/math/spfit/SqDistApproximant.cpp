@@ -57,7 +57,7 @@ SqDistApproximant SqDistApproximant::weightedLineDistance(const QLineF& line, do
   if (sqlen > 1e-6) {
     u /= std::sqrt(sqlen);
   } else {
-    return pointDistance(line.p1());
+    return weightedPointDistance(line.p1(), weight);
   }
 
   // Unit normal to line.

@@ -106,6 +106,14 @@ BOOST_AUTO_TEST_CASE(test_polyline_nonfinite_and_huge_points) {
   BOOST_CHECK_EQUAL(hugeApprox.evaluate(QPointF(0, 0)), 0.0);
 }
 
+BOOST_AUTO_TEST_CASE(test_weighted_line_distance_preserves_weight_on_short_line) {
+  const SqDistApproximant zeroLen = SqDistApproximant::weightedLineDistance(QLineF(1, 2, 1, 2), 5.0);
+  BOOST_CHECK_CLOSE(zeroLen.evaluate(Vec2d(2, 2)), 5.0, 1e-9);
+
+  const SqDistApproximant tinyLen = SqDistApproximant::weightedLineDistance(QLineF(1, 2, 1 + 1e-5, 2), 3.5);
+  BOOST_CHECK_CLOSE(tinyLen.evaluate(Vec2d(1, 3)), 3.5, 1e-9);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace spfit
