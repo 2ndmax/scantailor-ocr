@@ -4,6 +4,8 @@
 #include "PropertySet.h"
 
 #include <QDomDocument>
+#include <algorithm>
+#include <utility>
 
 #include "PropertyFactory.h"
 
@@ -24,7 +26,7 @@ PropertySet::PropertySet(const QDomElement& el, const PropertyFactory& factory) 
     if (prop) {
       // typeid of a named reference, so the dereference is not evaluated inside typeid.
       const Property& propRef = *prop;
-      m_props[typeid(propRef)] = prop;
+      setProperty(typeid(propRef), std::move(prop));
     }
   }
 }
@@ -32,13 +34,23 @@ PropertySet::PropertySet(const QDomElement& el, const PropertyFactory& factory) 
 PropertySet::PropertySet(const PropertySet& other) {
   m_props.reserve(other.m_props.size());
   for (const auto& [type, prop] : other.m_props) {
-    m_props[type] = prop->clone();
+    m_props.emplace_back(type, prop->clone());
   }
 }
 
 PropertySet& PropertySet::operator=(const PropertySet& other) {
   PropertySet(other).swap(*this);
   return *this;
+}
+
+void PropertySet::setProperty(const std::type_index type, std::shared_ptr<Property> prop) {
+  const auto it
+      = std::find_if(m_props.begin(), m_props.end(), [type](const auto& entry) { return entry.first == type; });
+  if (it != m_props.end()) {
+    it->second = std::move(prop);
+  } else {
+    m_props.emplace_back(type, std::move(prop));
+  }
 }
 
 QDomElement PropertySet::toXml(QDomDocument& doc, const QString& name) const {

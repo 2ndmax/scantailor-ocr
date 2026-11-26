@@ -3,10 +3,17 @@
 
 #include <FastQueue.h>
 #include <Grid.h>
+#include <Property.h>
+#include <PropertyFactory.h>
+#include <PropertySet.h>
 #include <ScopedIncDec.h>
 
+#include <QDomDocument>
+#include <QDomElement>
+#include <QString>
 #include <boost/test/unit_test.hpp>
 #include <limits>
+#include <memory>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -123,6 +130,76 @@ BOOST_AUTO_TEST_CASE(test_scoped_inc_dec_non_copyable) {
     BOOST_CHECK_EQUAL(counter, 1);
   }
   BOOST_CHECK_EQUAL(counter, 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_property_set_nothrow_move_and_xml_roundtrip) {
+  static_assert(std::is_nothrow_move_constructible_v<PropertySet>);
+  static_assert(std::is_nothrow_move_assignable_v<PropertySet>);
+
+  struct PropAlpha : Property {
+    int val = 0;
+
+    explicit PropAlpha(const int v = 0) : val(v) {}
+
+    std::shared_ptr<Property> clone() const override { return std::make_shared<PropAlpha>(*this); }
+
+    QDomElement toXml(QDomDocument& doc, const QString& name) const override {
+      QDomElement el = doc.createElement(name);
+      el.setAttribute(QStringLiteral("type"), QStringLiteral("alpha"));
+      el.setAttribute(QStringLiteral("v"), val);
+      return el;
+    }
+
+    static std::shared_ptr<Property> fromXml(const QDomElement& el) {
+      return std::make_shared<PropAlpha>(el.attribute(QStringLiteral("v")).toInt());
+    }
+  };
+
+  struct PropBeta : Property {
+    int val = 0;
+
+    explicit PropBeta(const int v = 0) : val(v) {}
+
+    std::shared_ptr<Property> clone() const override { return std::make_shared<PropBeta>(*this); }
+
+    QDomElement toXml(QDomDocument& doc, const QString& name) const override {
+      QDomElement el = doc.createElement(name);
+      el.setAttribute(QStringLiteral("type"), QStringLiteral("beta"));
+      el.setAttribute(QStringLiteral("v"), val);
+      return el;
+    }
+
+    static std::shared_ptr<Property> fromXml(const QDomElement& el) {
+      return std::make_shared<PropBeta>(el.attribute(QStringLiteral("v")).toInt());
+    }
+  };
+
+  PropertySet set;
+  BOOST_CHECK(!set.locate<PropAlpha>());
+  BOOST_CHECK_EQUAL(set.locateOrDefault<PropAlpha>()->val, 0);
+
+  set.locateOrCreate<PropAlpha>()->val = 11;
+  set.locateOrCreate<PropBeta>()->val = 22;
+
+  PropertySet copy(set);
+  copy.locate<PropAlpha>()->val = 99;
+  BOOST_CHECK_EQUAL(set.locate<PropAlpha>()->val, 11);
+
+  PropertyFactory factory;
+  factory.registerProperty(QStringLiteral("alpha"), &PropAlpha::fromXml);
+  factory.registerProperty(QStringLiteral("beta"), &PropBeta::fromXml);
+
+  QDomDocument doc;
+  const QDomElement xml = set.toXml(doc, QStringLiteral("props"));
+  BOOST_CHECK_EQUAL(xml.firstChildElement().attribute(QStringLiteral("type")).toStdString(), "alpha");
+  BOOST_CHECK_EQUAL(xml.lastChildElement().attribute(QStringLiteral("type")).toStdString(), "beta");
+
+  PropertySet reloaded(xml, factory);
+  PropertySet moved(std::move(reloaded));
+  BOOST_REQUIRE(moved.locate<PropAlpha>() != nullptr);
+  BOOST_REQUIRE(moved.locate<PropBeta>() != nullptr);
+  BOOST_CHECK_EQUAL(moved.locate<PropAlpha>()->val, 11);
+  BOOST_CHECK_EQUAL(moved.locate<PropBeta>()->val, 22);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

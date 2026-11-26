@@ -4,10 +4,12 @@
 #ifndef SCANTAILOR_FOUNDATION_PROPERTYSET_H_
 #define SCANTAILOR_FOUNDATION_PROPERTYSET_H_
 
+#include <algorithm>
 #include <memory>
 #include <typeindex>
 #include <typeinfo>
-#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "Property.h"
 
@@ -25,10 +27,7 @@ class PropertySet {
    */
   PropertySet(const PropertySet& other);
 
-  // REVIEW-NOTE (2026-11): the defaulted move constructor is not noexcept -> std::vector<PropertySet> copies
-  // instead of moving when it grows. Not fixed because MSVC's std::unordered_map allocates in its move
-  // constructor, so a forced noexcept would call std::terminate on bad_alloc.
-  PropertySet(PropertySet&& other) = default;
+  PropertySet(PropertySet&& other) noexcept = default;
 
   PropertySet(const QDomElement& el, const PropertyFactory& factory);
 
@@ -39,9 +38,9 @@ class PropertySet {
    */
   PropertySet& operator=(const PropertySet& other);
 
-  PropertySet& operator=(PropertySet&& other) = default;
+  PropertySet& operator=(PropertySet&& other) noexcept = default;
 
-  void swap(PropertySet& other);
+  void swap(PropertySet& other) noexcept;
 
   QDomElement toXml(QDomDocument& doc, const QString& name) const;
 
@@ -77,14 +76,17 @@ class PropertySet {
   std::shared_ptr<T> locateOrCreate();
 
  private:
-  using PropertyMap = std::unordered_map<std::type_index, std::shared_ptr<Property>>;
+  void setProperty(std::type_index type, std::shared_ptr<Property> prop);
+
+  using PropertyMap = std::vector<std::pair<std::type_index, std::shared_ptr<Property>>>;
 
   PropertyMap m_props;
 };
 
 template <typename T, typename>
 std::shared_ptr<T> PropertySet::locate() {
-  auto it(m_props.find(typeid(T)));
+  const auto it
+      = std::find_if(m_props.begin(), m_props.end(), [](const auto& entry) { return entry.first == typeid(T); });
   if (it != m_props.end()) {
     return std::static_pointer_cast<T>(it->second);
   } else {
@@ -116,16 +118,16 @@ std::shared_ptr<T> PropertySet::locateOrCreate() {
   std::shared_ptr<T> prop = locate<T>();
   if (!prop) {
     prop = std::make_shared<T>();
-    m_props[typeid(T)] = prop;
+    m_props.emplace_back(typeid(T), prop);
   }
   return prop;
 }
 
-inline void PropertySet::swap(PropertySet& other) {
+inline void PropertySet::swap(PropertySet& other) noexcept {
   m_props.swap(other.m_props);
 }
 
-inline void swap(PropertySet& o1, PropertySet& o2) {
+inline void swap(PropertySet& o1, PropertySet& o2) noexcept {
   o1.swap(o2);
 }
 
