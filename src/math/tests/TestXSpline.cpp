@@ -76,5 +76,28 @@ BOOST_AUTO_TEST_CASE(test_single_control_point) {
   BOOST_TEST(near(pd.secondDeriv, QPointF(0, 0)));
 }
 
+BOOST_AUTO_TEST_CASE(test_point_closest_to_terminates_for_zero_accuracy_and_huge_coords) {
+  XSpline spline;
+  spline.appendControlPoint(QPointF(0, 0), 0);
+  spline.appendControlPoint(QPointF(10, 10), 0);
+  spline.appendControlPoint(QPointF(20, 0), 0);
+
+  double tZero = -1.0;
+  const QPointF pZero = spline.pointClosestTo(QPointF(10, 5), &tZero, 0.0);
+  BOOST_CHECK(std::isfinite(pZero.x()) && std::isfinite(pZero.y()));
+  BOOST_CHECK(tZero >= 0.0 && tZero <= 1.0);
+
+  double tNeg = -1.0;
+  const QPointF pNeg = spline.pointClosestTo(QPointF(10, 5), &tNeg, -1.0);
+  BOOST_CHECK(std::isfinite(pNeg.x()) && std::isfinite(pNeg.y()));
+  BOOST_CHECK(tNeg >= 0.0 && tNeg <= 1.0);
+
+  XSpline huge;
+  huge.appendControlPoint(QPointF(0, 0), 0);
+  huge.appendControlPoint(QPointF(1e200, 1e200), 0);
+  const QPointF pHuge = huge.pointClosestTo(QPointF(5e199, 5e199));
+  BOOST_CHECK(std::isfinite(pHuge.x()) && std::isfinite(pHuge.y()));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests

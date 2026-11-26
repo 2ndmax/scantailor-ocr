@@ -651,19 +651,29 @@ QPointF XSpline::pointClosestTo(const QPointF to, double* t, double accuracy) co
     }
   }
   // Continue with a binary search.
-  const double sqAccuracy = accuracy * accuracy;
+  const double sqAccuracy = (accuracy > 0.0) ? (accuracy * accuracy) : 0.0;
   double prevT = 0;
   double nextT = 1;
   prevPt = pointAtImpl(bestSegment, prevT);
   nextPt = pointAtImpl(bestSegment, nextT);
 
-  while (Vec2d(prevPt - nextPt).squaredNorm() > sqAccuracy) {
+  for (int iter = 0; iter < 64; ++iter) {
+    const double segSqdist = Vec2d(prevPt - nextPt).squaredNorm();
+    if (!std::isfinite(segSqdist) || (segSqdist <= sqAccuracy)) {
+      break;
+    }
     const double midT = 0.5 * (prevT + nextT);
+    if ((midT == prevT) || (midT == nextT)) {
+      break;
+    }
     const QPointF midPt(pointAtImpl(bestSegment, midT));
 
     const ToLineProjector projector(QLineF(prevPt, nextPt));
     const double pt = projector.projectionScalar(to);
     const double pm = projector.projectionScalar(midPt);
+    if (!std::isfinite(pt) || !std::isfinite(pm)) {
+      break;
+    }
     if (pt < pm) {
       nextT = midT;
       nextPt = midPt;
