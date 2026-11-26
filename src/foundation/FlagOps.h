@@ -8,42 +8,41 @@
 #include <config.h>
 #endif
 
-// REVIEW-NOTE (2026-10): operator~ yields values outside the range of enums without a fixed underlying type ->
-// undefined behavior since C++17. Not fixed because no code applies ~ to these flags today.
-// REVIEW-NOTE (2026-10): an OR of several flags is not itself an enumerator -> clang-analyzer
-// optin.core.EnumCastOutOfRange warns at every user of this macro (FittableSpline::SampleFlags,
-// PolylineModelShape::Flags, ThumbnailSequence::SelectionFlags, ...). Not fixed because the value range of an enum
-// covers all bits of its largest enumerator, so &, | and ^ of its flags always stay inside it.
-#define DEFINE_FLAG_OPS(type)                    \
-  inline type operator&(type lhs, type rhs) {    \
-    return type(unsigned(lhs) & unsigned(rhs));  \
-  }                                              \
-                                                 \
-  inline type operator|(type lhs, type rhs) {    \
-    return type(unsigned(lhs) | unsigned(rhs));  \
-  }                                              \
-                                                 \
-  inline type operator^(type lhs, type rhs) {    \
-    return type(unsigned(lhs) ^ unsigned(rhs));  \
-  }                                              \
-                                                 \
-  inline type operator~(type val) {              \
-    return type(~unsigned(val));                 \
-  }                                              \
-                                                 \
-  inline type& operator&=(type& lhs, type rhs) { \
-    lhs = lhs & rhs;                             \
-    return lhs;                                  \
-  }                                              \
-                                                 \
-  inline type& operator|=(type& lhs, type rhs) { \
-    lhs = lhs | rhs;                             \
-    return lhs;                                  \
-  }                                              \
-                                                 \
-  inline type& operator^=(type& lhs, type rhs) { \
-    lhs = lhs ^ rhs;                             \
-    return lhs;                                  \
+#include <type_traits>
+
+#define DEFINE_FLAG_OPS(type)                                                      \
+  static_assert(std::is_same_v<std::underlying_type_t<type>, unsigned>,            \
+                "DEFINE_FLAG_OPS requires an enum with unsigned underlying type"); \
+                                                                                   \
+  inline type operator&(type lhs, type rhs) {                                      \
+    return static_cast<type>(unsigned(lhs) & unsigned(rhs));                       \
+  }                                                                                \
+                                                                                   \
+  inline type operator|(type lhs, type rhs) {                                      \
+    return static_cast<type>(unsigned(lhs) | unsigned(rhs));                       \
+  }                                                                                \
+                                                                                   \
+  inline type operator^(type lhs, type rhs) {                                      \
+    return static_cast<type>(unsigned(lhs) ^ unsigned(rhs));                       \
+  }                                                                                \
+                                                                                   \
+  inline type operator~(type val) {                                                \
+    return static_cast<type>(~unsigned(val));                                      \
+  }                                                                                \
+                                                                                   \
+  inline type& operator&=(type& lhs, type rhs) {                                   \
+    lhs = lhs & rhs;                                                               \
+    return lhs;                                                                    \
+  }                                                                                \
+                                                                                   \
+  inline type& operator|=(type& lhs, type rhs) {                                   \
+    lhs = lhs | rhs;                                                               \
+    return lhs;                                                                    \
+  }                                                                                \
+                                                                                   \
+  inline type& operator^=(type& lhs, type rhs) {                                   \
+    lhs = lhs ^ rhs;                                                               \
+    return lhs;                                                                    \
   }
 
 #endif  // ifndef SCANTAILOR_FOUNDATION_FLAGOPS_H_

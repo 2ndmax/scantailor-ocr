@@ -1,6 +1,7 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <FlagOps.h>
 #include <Utils.h>
 #include <ValueConv.h>
 
@@ -9,9 +10,16 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdint>
+#include <type_traits>
 #include <vector>
 
 using namespace foundation;
+
+namespace {
+enum TestFlag : unsigned { FLAG_NONE = 0u, FLAG_A = 1u << 0, FLAG_B = 1u << 1 };
+DEFINE_FLAG_OPS(TestFlag)
+static_assert(std::is_same_v<std::underlying_type_t<TestFlag>, unsigned>);
+}  // namespace
 
 BOOST_AUTO_TEST_SUITE(FoundationUtilsTestSuite)
 
@@ -57,6 +65,16 @@ BOOST_AUTO_TEST_CASE(test_double_to_string_round_trip) {
 // NaN failed both range checks and went into the cast to an integer, which is undefined.
 BOOST_AUTO_TEST_CASE(test_round_and_clip_maps_nan_to_the_minimum) {
   BOOST_CHECK_EQUAL(int(RoundAndClipValueConv<uint8_t>(10, 200)(std::nanf(""))), 10);
+}
+
+BOOST_AUTO_TEST_CASE(test_flag_ops_unsigned_and_bitwise_not) {
+  TestFlag combined = FLAG_A | FLAG_B;
+  BOOST_CHECK_EQUAL(unsigned((combined) & ~FLAG_A), unsigned(FLAG_B));
+  combined ^= FLAG_A;
+  BOOST_CHECK_EQUAL(unsigned(combined), unsigned(FLAG_B));
+  combined |= FLAG_A;
+  combined &= FLAG_A;
+  BOOST_CHECK_EQUAL(unsigned(combined), unsigned(FLAG_A));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

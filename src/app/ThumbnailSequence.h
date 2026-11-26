@@ -33,7 +33,7 @@ class ThumbnailSequence : public QObject {
  public:
   enum SelectionAction { KEEP_SELECTION, RESET_SELECTION, FORCE_RESET_SELECTION };
 
-  enum SelectionFlags {
+  enum SelectionFlags : unsigned {
     DEFAULT_SELECTION_FLAGS = 0,
 
     /** Indicates the item was selected by a user action, rather than programmatically. */

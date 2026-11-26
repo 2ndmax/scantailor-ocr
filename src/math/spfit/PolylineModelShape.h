@@ -19,7 +19,7 @@ class PolylineModelShape : public ModelShape {
   DECLARE_NON_COPYABLE(PolylineModelShape)
 
  public:
-  enum Flags { DEFAULT_FLAGS = 0, POLYLINE_FRONT = 1 << 0, POLYLINE_BACK = 1 << 1 };
+  enum Flags : unsigned { DEFAULT_FLAGS = 0, POLYLINE_FRONT = 1 << 0, POLYLINE_BACK = 1 << 1 };
 
   explicit PolylineModelShape(const std::vector<QPointF>& polyline);
 

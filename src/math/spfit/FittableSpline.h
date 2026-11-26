@@ -17,7 +17,7 @@ namespace spfit {
  */
 class FittableSpline {
  public:
-  enum SampleFlags {
+  enum SampleFlags : unsigned {
     DEFAULT_SAMPLE = 0,
     HEAD_SAMPLE = 1 << 0,    /**< Start point of an open spline. */
     TAIL_SAMPLE = 1 << 1,    /**< End point of an open spline. */

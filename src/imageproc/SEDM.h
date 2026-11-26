@@ -48,7 +48,7 @@ class SEDM {
   /**
    * \brief Determines whether to compute the distance to borders.
    */
-  enum Borders {
+  enum Borders : unsigned {
     DIST_TO_NO_BORDERS = 0,
     DIST_TO_TOP_BORDER = 1,
     DIST_TO_LEFT_BORDER = 2,
