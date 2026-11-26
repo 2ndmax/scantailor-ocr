@@ -77,6 +77,64 @@ BOOST_AUTO_TEST_CASE(test_non_finite_resolution_ratio_is_refused) {
   BOOST_CHECK_NO_THROW(skewFinder.setResolutionRatio(0.5));
 }
 
+BOOST_AUTO_TEST_CASE(test_parameter_validation_and_search_bounds) {
+  SkewFinder finder;
+  for (const double bad : {std::nan(""), HUGE_VAL, -1.0, 46.0}) {
+    BOOST_CHECK_THROW(finder.setMaxAngle(bad), std::invalid_argument);
+  }
+  for (const double bad : {std::nan(""), HUGE_VAL, -0.1, SkewFinder::DEFAULT_MAX_ANGLE + 1.0}) {
+    BOOST_CHECK_THROW(finder.setMinAngle(bad), std::invalid_argument);
+  }
+  for (const double bad : {std::nan(""), HUGE_VAL, 0.0, -0.1}) {
+    BOOST_CHECK_THROW(finder.setDesiredAccuracy(bad), std::invalid_argument);
+  }
+
+  // Blank image with coarse accuracy >= 1.0 must produce finite non-negative confidence (no 0/0 NaN).
+  SkewFinder coarseFinder;
+  coarseFinder.setDesiredAccuracy(2.0);
+  const BinaryImage blank(200, 200, WHITE);
+  const Skew blankSkew = coarseFinder.findSkew(blank);
+  BOOST_CHECK(std::isfinite(blankSkew.angle()));
+  BOOST_CHECK(std::isfinite(blankSkew.confidence()));
+  BOOST_CHECK_GE(blankSkew.confidence(), 0.0);
+
+  // Fine search must remain clamped within [-maxAngle, maxAngle].
+  BinaryImage skewed(400, 300, WHITE);
+  for (int x = 0; x < 400; ++x) {
+    for (int offset = 40; offset <= 220; offset += 20) {
+      const int lineY = offset + static_cast<int>(std::lround(0.08 * x));  // ~4.6 deg
+      for (int dy = -1; dy <= 1; ++dy) {
+        const int y = lineY + dy;
+        if ((y >= 0) && (y < 300)) {
+          skewed.setPixel(x, y, BLACK);
+        }
+      }
+    }
+  }
+  SkewFinder clampedFinder;
+  clampedFinder.setMaxAngle(2.0);
+  clampedFinder.setCoarseReduction(0);
+  clampedFinder.setFineReduction(0);
+  const Skew clampedSkew = clampedFinder.findSkew(skewed);
+  BOOST_CHECK_LE(std::fabs(clampedSkew.angle()), 2.0 + 1e-6);
+
+  // findSkewFromTopEdge must apply resolutionRatio consistently.
+  BinaryImage topEdge(300, 300, WHITE);
+  for (int x = 0; x < 300; ++x) {
+    const int edgeY = 30 + static_cast<int>(std::lround(0.05 * x));
+    for (int y = 0; y < edgeY; ++y) {
+      topEdge.setPixel(x, y, BLACK);
+    }
+  }
+  SkewFinder edgeFinder;
+  const Skew s1 = edgeFinder.findSkewFromTopEdge(topEdge);
+  edgeFinder.setResolutionRatio(2.0);
+  const Skew s2 = edgeFinder.findSkewFromTopEdge(topEdge);
+  BOOST_CHECK(s1.confidence() >= Skew::GOOD_CONFIDENCE);
+  BOOST_CHECK(s2.confidence() >= Skew::GOOD_CONFIDENCE);
+  BOOST_CHECK_CLOSE(s2.angle() / s1.angle(), 2.0, 5.0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc

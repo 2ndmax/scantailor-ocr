@@ -39,20 +39,23 @@ SkewFinder::SkewFinder()
       m_fineReduction(DEFAULT_FINE_REDUCTION) {}
 
 void SkewFinder::setMaxAngle(const double maxAngle) {
-  if ((maxAngle < 0.0) || (maxAngle > 45.0)) {
+  if (!std::isfinite(maxAngle) || (maxAngle < 0.0) || (maxAngle > 45.0)) {
     throw std::invalid_argument("SkewFinder: max skew angle is invalid");
   }
   m_maxAngle = maxAngle;
 }
 
 void SkewFinder::setMinAngle(double minAngle) {
-  if ((minAngle < 0.0) || (minAngle > m_maxAngle)) {
+  if (!std::isfinite(minAngle) || (minAngle < 0.0) || (minAngle > m_maxAngle)) {
     throw std::invalid_argument("SkewFinder: min skew angle is invalid");
   }
   m_minAngle = minAngle;
 }
 
 void SkewFinder::setDesiredAccuracy(const double accuracy) {
+  if (!std::isfinite(accuracy) || (accuracy <= 0.0)) {
+    throw std::invalid_argument("SkewFinder: accuracy is invalid");
+  }
   m_accuracy = accuracy;
 }
 
@@ -116,11 +119,17 @@ Skew SkewFinder::findSkew(const BinaryImage& image) const {
   }
 
   if (m_accuracy >= coarseStep) {
-    double confidence = 0.0;
-    if (numCoarseScores > 1) {
-      confidence = bestCoarseScore / sumCoarseScores * numCoarseScores;
+    if (std::abs(bestCoarseAngle) < m_minAngle) {
+      return Skew(0.0, Skew::GOOD_CONFIDENCE);
     }
-    return Skew(-bestCoarseAngle, confidence - 1.0);
+    if (bestCoarseScore <= LOW_SCORE) {
+      return Skew(-bestCoarseAngle, 0.0);
+    }
+    double confidence = 0.0;
+    if ((numCoarseScores > 1) && (sumCoarseScores > 0.0)) {
+      confidence = std::max(0.0, bestCoarseScore / sumCoarseScores * numCoarseScores - 1.0);
+    }
+    return Skew(-bestCoarseAngle, confidence);
   }
 
   for (int i = minReduction; i < m_fineReduction; ++i) {
@@ -131,8 +140,8 @@ Skew SkewFinder::findSkew(const BinaryImage& image) const {
     skewed = BinaryImage(fineReduced.image().size());
   }
   // Fine binary search.
-  double anglePlus = bestCoarseAngle + 0.5 * coarseStep;
-  double angleMinus = bestCoarseAngle - 0.5 * coarseStep;
+  double anglePlus = std::min(m_maxAngle, bestCoarseAngle + 0.5 * coarseStep);
+  double angleMinus = std::max(-m_maxAngle, bestCoarseAngle - 0.5 * coarseStep);
   double scorePlus = process(fineReduced, skewed, anglePlus);
   double scoreMinus = process(fineReduced, skewed, angleMinus);
   const double fineScore1 = scorePlus;
@@ -167,18 +176,19 @@ Skew SkewFinder::findSkew(const BinaryImage& image) const {
     return Skew(-bestAngle, 0.0);  // Zero confidence.
   }
 
-  double confidence;
+  double confidence = 0.0;
   if (numCoarseScores > 1) {
-    confidence = bestScore / sumCoarseScores * numCoarseScores;
+    if (sumCoarseScores > 0.0) {
+      confidence = std::max(0.0, bestScore / sumCoarseScores * numCoarseScores - 1.0);
+    }
   } else {
-    int numScores = numCoarseScores;
-    double sumScores = sumCoarseScores;
-    numScores += 2;
-    sumScores += fineScore1;
-    sumScores += fineScore2;
-    confidence = bestScore / sumScores * numScores;
+    const int numScores = numCoarseScores + 2;
+    const double sumScores = sumCoarseScores + fineScore1 + fineScore2;
+    if (sumScores > 0.0) {
+      confidence = std::max(0.0, bestScore / sumScores * numScores - 1.0);
+    }
   }
-  return Skew(-bestAngle, confidence - 1.0);
+  return Skew(-bestAngle, confidence);
 }  // SkewFinder::findSkew
 
 double SkewFinder::process(const BinaryImage& src, BinaryImage& dst, const double angle) const {
@@ -272,7 +282,7 @@ Skew SkewFinder::findSkewFromTopEdge(const BinaryImage& image) const {
     return Skew(0.0, 0.0);
   }
   const double slope = (n * sumXY - sumX * sumY) / denom;
-  double angleDeg = std::atan(slope) * (180.0 / constants::PI);
+  double angleDeg = std::atan(slope * m_resolutionRatio) * (180.0 / constants::PI);
   angleDeg = std::max(-m_maxAngle, std::min(m_maxAngle, angleDeg));
   if (std::fabs(angleDeg) < m_minAngle) {
     return Skew(0.0, Skew::GOOD_CONFIDENCE);
