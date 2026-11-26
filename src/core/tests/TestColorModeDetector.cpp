@@ -177,5 +177,20 @@ BOOST_AUTO_TEST_CASE(nearly_empty_page_stays_black_and_white) {
   BOOST_CHECK(detect(page, true) == ColorModeDetector::Mode::BlackWhite);
 }
 
+BOOST_AUTO_TEST_CASE(empty_image_returns_black_and_white_with_finite_evidence) {
+  for (const bool useZones : {false, true}) {
+    ColorModeDetector::Options options;
+    options.usePictureZones = useZones;
+    ColorModeDetector::Evidence ev;
+    const auto mode = ColorModeDetector::detect(QImage(), options, NullTaskStatus(), &ev);
+    BOOST_CHECK(mode == ColorModeDetector::Mode::BlackWhite);
+    BOOST_CHECK(std::isfinite(ev.pictureShare));
+    BOOST_CHECK(std::isfinite(ev.largestPicture));
+    BOOST_CHECK(std::isfinite(ev.textOutside));
+    BOOST_CHECK(std::isfinite(ev.colorOutside));
+    BOOST_CHECK(std::isfinite(ev.colorInPictures));
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

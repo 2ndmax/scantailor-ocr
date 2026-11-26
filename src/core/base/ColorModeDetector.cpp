@@ -43,6 +43,9 @@ bool isColored(const QRgb rgb) {
 
 // Sets the values of ev that belong to the picture areas.
 void measurePictures(const QImage& content, const TaskStatus& status, ColorModeDetector::Evidence& ev) {
+  if (content.isNull() || content.size().isEmpty()) {
+    return;
+  }
   // detectPictures() and the thresholds above expect 300 dpi, so lower resolutions are scaled up
   // as well (otherwise its morphology spans twice the distance at 150 dpi and dense text merges
   // into "pictures"). Each axis on its own, for scans with unequal resolutions. The upscaling is
@@ -63,6 +66,9 @@ void measurePictures(const QImage& content, const TaskStatus& status, ColorModeD
   status.throwIfCancelled();
 
   const double total = double(pictureMask.width()) * pictureMask.height();
+  if (total <= 0.0) {
+    return;
+  }
   ev.pictureShare = pictureMask.countBlackPixels() / total;
 
   const ConnectivityMap cmap(pictureMask, CONN8);
@@ -169,6 +175,10 @@ ColorModeDetector::Mode ColorModeDetector::detect(const QImage& content,
   Evidence localEvidence;
   Evidence& ev = evidence ? *evidence : localEvidence;
   ev = Evidence();
+  if (content.isNull() || content.size().isEmpty()) {
+    ev.reason = QStringLiteral("empty_image");
+    return Mode::BlackWhite;
+  }
 
   const LeptonicaDetector::ColorType spectreVerdict = LeptonicaDetector::detectWithCastCompensation(
       content, 10, &ev.spectre, LeptonicaDetector::AnalysisScalePolicy::productionDefault(), &status);
