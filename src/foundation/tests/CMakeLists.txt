@@ -2,6 +2,7 @@ set(sources
     main.cpp
     TestAutoRemovingFile.cpp
     TestConstants.cpp
+    TestFoundationContainers.cpp
     TestGridLineTraverser.cpp
     TestLineIntersectionScalar.cpp
     TestProximity.cpp

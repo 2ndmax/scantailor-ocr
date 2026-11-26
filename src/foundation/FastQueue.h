@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 
 #include "NonCopyable.h"
 
@@ -81,10 +82,15 @@ class FastQueue {
 
 template <typename T>
 FastQueue<T>::FastQueue(const FastQueue& other) : m_chunkCapacity(other.m_chunkCapacity) {
-  for (const Chunk& chunk : other.m_chunkList) {
-    for (const T* obj = chunk.pBegin; obj != chunk.pEnd; ++obj) {
-      push(*obj);
+  try {
+    for (const Chunk& chunk : other.m_chunkList) {
+      for (const T* obj = chunk.pBegin; obj != chunk.pEnd; ++obj) {
+        push(*obj);
+      }
     }
+  } catch (...) {
+    m_chunkList.clear_and_dispose(ChunkDisposer());
+    throw;
   }
 }
 
@@ -96,25 +102,32 @@ FastQueue<T>& FastQueue<T>::operator=(const FastQueue& other) {
 
 template <typename T>
 void FastQueue<T>::push(const T& t) {
-  Chunk* chunk = 0;
+  Chunk* chunk = nullptr;
 
   if (!m_chunkList.empty()) {
     chunk = &m_chunkList.back();
     if (chunk->pEnd == chunk->pBufferEnd) {
-      chunk = 0;
+      chunk = nullptr;
     }
   }
 
   if (!chunk) {
-    // Create a new chunk.
-    // REVIEW-NOTE (2026-10): a buffer smaller than sizeof(Chunk) -> placement new writes past its end
-    // (MSVC C6386). Not fixed because storageRequirement() is sizeof(Chunk) plus alignment padding plus the
-    // elements, so the buffer always holds the Chunk header.
-    char* buf = new char[Chunk::storageRequirement(m_chunkCapacity)];
-    chunk = new (buf) Chunk(m_chunkCapacity);
+    // Construct the first element before publishing the chunk into m_chunkList so a throwing
+    // T(t) never leaves an empty chunk behind (which would break empty() / front() / ~Chunk()).
+    std::unique_ptr<char[]> buf(new char[Chunk::storageRequirement(m_chunkCapacity)]);
+    chunk = new (buf.get()) Chunk(m_chunkCapacity);
+    try {
+      new (chunk->pEnd) T(t);
+    } catch (...) {
+      chunk->~Chunk();
+      throw;
+    }
+    ++chunk->pEnd;
+    buf.release();
     m_chunkList.push_back(*chunk);
+    return;
   }
-  // Push to chunk.
+
   new (chunk->pEnd) T(t);
   ++chunk->pEnd;
 }
