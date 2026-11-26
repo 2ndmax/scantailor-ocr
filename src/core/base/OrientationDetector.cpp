@@ -5,6 +5,7 @@
 
 #include <QSize>
 
+#include <algorithm>
 #include <cmath>
 
 #include <leptonica/allheaders.h>
@@ -25,16 +26,14 @@ OrientationDetector::Result OrientationDetector::decide(double up, double left) 
   const double absleft = std::fabs(left);
 
   int orient = L_TEXT_ORIENT_UNKNOWN;
-  if (up != 0.0 && left != 0.0) {
-    if (up > minupconf && absup > minratio * absleft) {
-      orient = L_TEXT_ORIENT_UP;
-    } else if (left > minupconf && absleft > minratio * absup) {
-      orient = L_TEXT_ORIENT_LEFT;
-    } else if (up < -minupconf && absup > minratio * absleft) {
-      orient = L_TEXT_ORIENT_DOWN;
-    } else if (left < -minupconf && absleft > minratio * absup) {
-      orient = L_TEXT_ORIENT_RIGHT;
-    }
+  if (up > minupconf && absup > minratio * absleft) {
+    orient = L_TEXT_ORIENT_UP;
+  } else if (left > minupconf && absleft > minratio * absup) {
+    orient = L_TEXT_ORIENT_LEFT;
+  } else if (up < -minupconf && absup > minratio * absleft) {
+    orient = L_TEXT_ORIENT_DOWN;
+  } else if (left < -minupconf && absleft > minratio * absup) {
+    orient = L_TEXT_ORIENT_RIGHT;
   }
 
   switch (orient) {
@@ -69,7 +68,11 @@ OrientationDetector::Result OrientationDetector::detect(const QImage& image, int
   imageproc::GrayImage gray(image);
   if (dpi > 330) {
     const double f = 300.0 / dpi;
-    gray = imageproc::scaleToGray(gray, QSize(qRound(image.width() * f), qRound(image.height() * f)));
+    gray = imageproc::scaleToGray(
+        gray, QSize(std::max(1, qRound(image.width() * f)), std::max(1, qRound(image.height() * f))));
+  }
+  if (gray.isNull()) {
+    return result;
   }
 
   const int threshold = imageproc::BinaryThreshold::otsuThreshold(gray.toQImage());

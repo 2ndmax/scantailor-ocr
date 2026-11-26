@@ -118,10 +118,10 @@ BOOST_AUTO_TEST_CASE(leptonica_decision_agrees) {
     float up;
     float left;
   };
+  // Keep only cases where Leptonica and our decide() intentionally agree; exact zero
+  // counter-confidence ({10, 0}, {0, 10}) is covered separately below because we accept it.
   const Row rows[] = {
       {0.0f, 0.0f},   // both zero -> undecided
-      {10.0f, 0.0f},  // one zero -> undecided
-      {0.0f, 10.0f},  // one zero -> undecided
       {7.9f, 1.0f},   // just below minupconf -> undecided
       {8.1f, 1.0f},   // just above minupconf -> up
       {-7.9f, 1.0f},  // just below (negative) -> undecided
@@ -167,6 +167,34 @@ BOOST_AUTO_TEST_CASE(leptonica_decision_agrees) {
       BOOST_CHECK(!result.decided);
     }
   }
+}
+
+BOOST_AUTO_TEST_CASE(zero_counter_confidence_still_decides) {
+  const auto rUp = OrientationDetector::decide(12.0, 0.0);
+  BOOST_CHECK(rUp.decided);
+  BOOST_CHECK_EQUAL(rUp.angle, 0);
+
+  const auto rDown = OrientationDetector::decide(-12.0, 0.0);
+  BOOST_CHECK(rDown.decided);
+  BOOST_CHECK_EQUAL(rDown.angle, 180);
+
+  const auto rLeft = OrientationDetector::decide(0.0, 12.0);
+  BOOST_CHECK(rLeft.decided);
+  BOOST_CHECK_EQUAL(rLeft.angle, 90);
+
+  const auto rRight = OrientationDetector::decide(0.0, -12.0);
+  BOOST_CHECK(rRight.decided);
+  BOOST_CHECK_EQUAL(rRight.angle, 270);
+
+  const auto rZero = OrientationDetector::decide(0.0, 0.0);
+  BOOST_CHECK(!rZero.decided);
+}
+
+BOOST_AUTO_TEST_CASE(narrow_high_dpi_image_does_not_crash) {
+  QImage narrow(1, 10, QImage::Format_RGB32);
+  narrow.fill(Qt::white);
+  const auto result = OrientationDetector::detect(narrow, 6000);
+  BOOST_CHECK(!result.decided);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
