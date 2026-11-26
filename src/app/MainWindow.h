@@ -50,7 +50,7 @@ class PageOrderProvider;
 class PageSelectionAccessor;
 class FilterOptionsWidget;
 class ProcessingIndicationWidget;
-class ImageInfo;
+struct ImageInfo;
 class ImageViewBase;
 class PageInfo;
 class QStackedLayout;
