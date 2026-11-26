@@ -24,17 +24,31 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <signal.h>
 #endif
 
 namespace {
 std::atomic<bool> cancelRequested(false);
+static_assert(std::atomic<bool>::is_always_lock_free);
 
-void requestCancel(const int signalNumber) {
-  cancelRequested = true;
-  // Windows (and other systems) reset the handler before calling it. Without this, a second Ctrl+C
-  // would end the tool at once, leaving temporary files and the changed code page behind.
-  std::signal(signalNumber, requestCancel);
+#ifdef _WIN32
+BOOL WINAPI consoleCtrlHandler(const DWORD ctrlType) {
+  switch (ctrlType) {
+    case CTRL_C_EVENT:
+    case CTRL_BREAK_EVENT:
+    case CTRL_CLOSE_EVENT:
+      cancelRequested.store(true);
+      return TRUE;
+    default:
+      return FALSE;
+  }
 }
+#else
+void requestCancel(const int /*signalNumber*/) {
+  cancelRequested.store(true);
+}
+#endif
 
 #ifdef _WIN32
 /**
@@ -262,13 +276,15 @@ int main(int argc, char* argv[]) {
   }
 
   // Ctrl+C stops before the next page, so no output file is left half-written.
-  std::signal(SIGINT, requestCancel);
-  std::signal(SIGTERM, requestCancel);
-#ifdef SIGBREAK
-  // Ctrl+Break, which is how another program stops the tool on Windows: Ctrl+C can't be sent to a tool
-  // started in a process group of its own. Without this, the system ends the tool at once, before the project
-  // is saved.
-  std::signal(SIGBREAK, requestCancel);
+#ifdef _WIN32
+  SetConsoleCtrlHandler(consoleCtrlHandler, TRUE);
+#else
+  struct sigaction sa{};
+  sa.sa_handler = requestCancel;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  sigaction(SIGINT, &sa, nullptr);
+  sigaction(SIGTERM, &sa, nullptr);
 #endif
 
   CommandLineRun::Options options;

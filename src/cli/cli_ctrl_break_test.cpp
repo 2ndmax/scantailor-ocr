@@ -101,6 +101,9 @@ int main(int argc, char* argv[]) {
   if (!GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, static_cast<DWORD>(tool.processId()))) {
     return fail(QStringLiteral("Unable to send Ctrl+Break: error %1").arg(GetLastError()));
   }
+  // A second immediate break must also set the flag rather than killing the process via SIG_DFL.
+  QThread::msleep(10);
+  (void) GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, static_cast<DWORD>(tool.processId()));
   if (!tool.waitForFinished(120000)) {
     return fail(QStringLiteral("The tool didn't stop after Ctrl+Break."));
   }
