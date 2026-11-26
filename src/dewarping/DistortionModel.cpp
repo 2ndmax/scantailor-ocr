@@ -6,6 +6,7 @@
 #include <QDomDocument>
 #include <QRectF>
 #include <QTransform>
+#include <cmath>
 #include <limits>
 
 #include "CylindricalSurfaceDewarper.h"
@@ -103,7 +104,11 @@ QRectF DistortionModel::modelDomain(const CylindricalSurfaceDewarper& dewarper,
   // We not only uncurl the lines, but also stretch them in curved areas.
   // Because we don't want to reach out of the content box, we shrink
   // the model domain vertically, rather than stretching it horizontally.
-  const double vertScale = 1.0 / dewarper.directrixArcLength();
+  const double arcLen = dewarper.directrixArcLength();
+  if (!(arcLen > 0.0) || !std::isfinite(arcLen)) {
+    return QRectF();
+  }
+  const double vertScale = 1.0 / arcLen;
   // When scaling modelDomain, we want the following point to remain where it is.
   const QPointF scaleOrigin(outputContentRect.center());
 

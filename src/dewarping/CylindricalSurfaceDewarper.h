@@ -84,6 +84,8 @@ class CylindricalSurfaceDewarper {
   QPointF mapToWarpedSpace(const QPointF& crvPt) const;
 
  private:
+  friend struct CylindricalSurfaceDewarperTestAccess;
+
   class CoupledPolylinesIterator;
 
   static HomographicTransform<2, double> calcPlnToImgHomography(const std::vector<QPointF>& imgDirectrix1,

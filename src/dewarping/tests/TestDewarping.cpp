@@ -41,6 +41,12 @@ struct TextLineTracerTestAccess {
   }
 };
 
+struct CylindricalSurfaceDewarperTestAccess {
+  static void setDirectrixArcLength(CylindricalSurfaceDewarper& dewarper, double arcLen) {
+    dewarper.m_directrixArcLength = arcLen;
+  }
+};
+
 namespace tests {
 namespace {
 const double kNaN = std::numeric_limits<double>::quiet_NaN();
@@ -607,6 +613,23 @@ BOOST_AUTO_TEST_CASE(test_raster_dewarper_handles_collapsed_quad) {
   const QSize dstSize(4, 4);
   const QImage result = RasterDewarper::dewarp(src, dstSize, dewarper, QRectF(-5e8, -5e8, 1e9, 1e9), Qt::white);
   BOOST_CHECK(result.size() == dstSize);
+}
+
+BOOST_AUTO_TEST_CASE(test_model_domain_returns_empty_for_non_positive_or_nan_arc_length) {
+  DistortionModel model;
+  model.setTopCurve(Curve(std::vector<QPointF>{{0, 0}, {1500, 0}}));
+  model.setBottomCurve(Curve(std::vector<QPointF>{{0, 1500}, {1500, 1500}}));
+  BOOST_REQUIRE(model.isValid());
+
+  const std::vector<QPointF> top{{0, 0}, {1500, 0}};
+  const std::vector<QPointF> bottom{{0, 1500}, {1500, 1500}};
+  CylindricalSurfaceDewarper dewarper(top, bottom, 2.0);
+  BOOST_REQUIRE(!model.modelDomain(dewarper, QTransform(), QRectF(0, 0, 1500, 1500)).isEmpty());
+
+  for (const double badArcLen : {0.0, -1.0, kNaN, std::numeric_limits<double>::infinity()}) {
+    CylindricalSurfaceDewarperTestAccess::setDirectrixArcLength(dewarper, badArcLen);
+    BOOST_TEST(model.modelDomain(dewarper, QTransform(), QRectF(0, 0, 1500, 1500)).isEmpty());
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
