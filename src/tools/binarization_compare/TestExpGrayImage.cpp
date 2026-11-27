@@ -1,8 +1,11 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <QDir>
+#include <QFile>
 #include <QImage>
 #include <QSize>
+#include <QTemporaryDir>
 #include <algorithm>
 #include <cmath>
 #include <exception>
@@ -14,6 +17,7 @@
 #include "ExpColorFilter.h"
 #include "ExpGrayImage.h"
 #include "GrayImage.h"
+#include "Viewer.h"
 
 namespace {
 namespace stexp = imageproc::stexp;
@@ -197,6 +201,43 @@ void testHsvKMeansEmptyMaskAndZones() {
     require(dst.size() == img.size(), "single-pixel foreground mask changed dst size");
   }
 }
+
+void testWriteViewerPreservesDataOnReadOnlyIndex() {
+  QTemporaryDir tmp;
+  require(tmp.isValid(), "failed to create temporary directory");
+
+  const QString dataPath = QDir(tmp.path()).filePath("data.js");
+  const QString indexPath = QDir(tmp.path()).filePath("index.html");
+  {
+    QFile data(dataPath);
+    require(data.open(QIODevice::WriteOnly | QIODevice::Truncate), "failed to seed data.js");
+    require(data.write("ORIGINAL_DATA") == 13, "failed to write seed data.js");
+  }
+  {
+    QFile index(indexPath);
+    require(index.open(QIODevice::WriteOnly | QIODevice::Truncate), "failed to seed index.html");
+    require(index.write("ORIGINAL_INDEX") == 14, "failed to write seed index.html");
+  }
+
+  require(QFile::setPermissions(indexPath, QFileDevice::ReadOwner | QFileDevice::ReadUser | QFileDevice::ReadGroup
+                                               | QFileDevice::ReadOther),
+          "failed to mark index.html read-only");
+
+  require(!binarization_compare::writeViewer(QDir(tmp.path()), false),
+          "writeViewer unexpectedly succeeded with read-only index.html");
+
+  {
+    QFile data(dataPath);
+    require(data.open(QIODevice::ReadOnly), "failed to reopen data.js");
+    require(data.readAll() == "ORIGINAL_DATA", "writeViewer truncated data.js despite index.html failure");
+  }
+
+  require(QFile::setPermissions(indexPath, QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ReadUser
+                                               | QFileDevice::WriteUser),
+          "failed to restore index.html write permissions");
+  require(binarization_compare::writeViewer(QDir(tmp.path()), false),
+          "writeViewer failed after restoring index.html permissions");
+}
 }  // namespace
 
 int main() {
@@ -207,6 +248,7 @@ int main() {
     testGatosBgAllBlackNiblack();
     testHsvKMeansBoundsAndCoefBg();
     testHsvKMeansEmptyMaskAndZones();
+    testWriteViewerPreservesDataOnReadOnlyIndex();
   } catch (const std::exception& e) {
     std::cerr << "Test failed: " << e.what() << '\n';
     return 1;

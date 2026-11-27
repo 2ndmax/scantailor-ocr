@@ -5,9 +5,11 @@
 
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSaveFile>
 
 namespace binarization_compare {
 namespace {
@@ -193,15 +195,17 @@ bool writeViewer(const QDir& outDir, const bool colors) {
       }
     }
   }
-  QFile data(outDir.filePath("data.js"));
-  QFile index(outDir.filePath("index.html"));
-  if (!data.open(QIODevice::WriteOnly | QIODevice::Truncate)
-      || !index.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+  const QString dataPath = outDir.filePath("data.js");
+  const QString indexPath = outDir.filePath("index.html");
+  if ((QFileInfo::exists(dataPath) && !QFileInfo(dataPath).isWritable())
+      || (QFileInfo::exists(indexPath) && !QFileInfo(indexPath).isWritable())) {
     return false;
   }
-  data.write("const DATA = ");
-  data.write(QJsonDocument(QJsonObject{{"pages", pages}}).toJson(QJsonDocument::Compact));
-  data.write(";\n");
+
+  QByteArray dataBytes("const DATA = ");
+  dataBytes.append(QJsonDocument(QJsonObject{{"pages", pages}}).toJson(QJsonDocument::Compact));
+  dataBytes.append(";\n");
+
   QString html = QString::fromUtf8(kIndexHtml);
   if (colors) {
     html.replace(QStringLiteral("Binarization Comparison"), QStringLiteral("Colored Text Comparison"));
@@ -211,7 +215,16 @@ bool writeViewer(const QDir& outDir, const bool colors) {
     html.replace(QStringLiteral("Filter (grayscale)"),
                  QStringLiteral("K-Means (original code of ScanTailor Experimental)"));
   }
-  index.write(html.toUtf8());
-  return true;
+  const QByteArray htmlBytes = html.toUtf8();
+
+  QSaveFile data(dataPath);
+  QSaveFile index(indexPath);
+  if (!data.open(QIODevice::WriteOnly) || !index.open(QIODevice::WriteOnly)) {
+    return false;
+  }
+  if ((data.write(dataBytes) != dataBytes.size()) || (index.write(htmlBytes) != htmlBytes.size())) {
+    return false;
+  }
+  return index.commit() && data.commit();
 }
 }  // namespace binarization_compare

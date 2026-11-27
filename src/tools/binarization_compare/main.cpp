@@ -21,6 +21,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
+#include <QSaveFile>
 #include <iostream>
 
 #include "ColorMethods.h"
@@ -175,11 +176,11 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
                          {"dpi", dpi},
                          {"stamp", stamp},
                          {"results", results}};
-  QFile infoFile(pageDir.filePath("info.json"));
-  if (!infoFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+  QSaveFile infoFile(pageDir.filePath("info.json"));
+  const QByteArray infoBytes = QJsonDocument(info).toJson();
+  if (!infoFile.open(QIODevice::WriteOnly) || (infoFile.write(infoBytes) != infoBytes.size()) || !infoFile.commit()) {
     return false;
   }
-  infoFile.write(QJsonDocument(info).toJson());
   return true;
 }
 }  // namespace

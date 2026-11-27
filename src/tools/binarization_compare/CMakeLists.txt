@@ -20,6 +20,7 @@ target_link_libraries(binarization_compare PRIVATE core ${EXTRA_LIBS})
 if (BUILD_TESTS)
   add_executable(exp_gray_image_tests
       TestExpGrayImage.cpp
+      Viewer.cpp Viewer.h
       experimental/ExpGrayImage.cpp experimental/ExpGrayImage.h
       experimental/ExpBinarize.cpp experimental/ExpBinarize.h
       experimental/ExpColorFilter.cpp experimental/ExpColorFilter.h)
