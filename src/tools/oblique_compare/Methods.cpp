@@ -218,12 +218,12 @@ Finding edgesThenStrokes(const BinaryImage& image, const QImage& gray, const dou
     // The edges disagree: no shear.
     return edges;
   }
+  if (edges.angle && (edges.confidence.value_or(0.0) >= 2)) {
+    return edges;
+  }
   const Finding strokes(strokeDirection(gray, deskewAngleDeg, dpi));
   if (!edges.angle) {
     return strokes;
-  }
-  if (*edges.confidence >= 2) {
-    return edges;
   }
   // A single edge cannot tell a shear from a keystone, which leans the edges and the strokes
   // differently. The strokes have to confirm it.
