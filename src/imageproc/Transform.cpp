@@ -81,6 +81,8 @@ static void transformGeneric(const StorageUnit* const srcData,
   const double unitW = std::max(1.0, std::round(src32UnitSize.width()));
   const double unitH = std::max(1.0, std::round(src32UnitSize.height()));
   constexpr double kMaxSubpixelCoord = 1e7;
+  const int src32UnitW = static_cast<int>(std::clamp(unitW, 1.0, kMaxSubpixelCoord));
+  const int src32UnitH = static_cast<int>(std::clamp(unitH, 1.0, kMaxSubpixelCoord));
 
   for (int dy = 0; dy < dh; ++dy, dstLine += dstStride) {
     const double fDyCenter = dy + 0.5;
@@ -112,12 +114,12 @@ static void transformGeneric(const StorageUnit* const srcData,
         continue;
       }
 
-      int src32Left = static_cast<int>(std::floor(std::clamp(fSrc32Left, -kMaxSubpixelCoord, kMaxSubpixelCoord)));
-      int src32Top = static_cast<int>(std::floor(std::clamp(fSrc32Top, -kMaxSubpixelCoord, kMaxSubpixelCoord)));
-      int src32Right = std::max(
-          src32Left + 1, static_cast<int>(std::ceil(std::clamp(fSrc32Right, -kMaxSubpixelCoord, kMaxSubpixelCoord))));
-      int src32Bottom = std::max(
-          src32Top + 1, static_cast<int>(std::ceil(std::clamp(fSrc32Bottom, -kMaxSubpixelCoord, kMaxSubpixelCoord))));
+      const double clampedCenterX = std::clamp(fSx32Center, -kMaxSubpixelCoord, kMaxSubpixelCoord);
+      const double clampedCenterY = std::clamp(fSy32Center, -kMaxSubpixelCoord, kMaxSubpixelCoord);
+      int src32Left = static_cast<int>(clampedCenterX) - (src32UnitW >> 1);
+      int src32Top = static_cast<int>(clampedCenterY) - (src32UnitH >> 1);
+      int src32Right = src32Left + src32UnitW;
+      int src32Bottom = src32Top + src32UnitH;
       int srcLeft = src32Left >> 5;
       int srcRight = (src32Right - 1) >> 5;  // inclusive
       int srcTop = src32Top >> 5;
