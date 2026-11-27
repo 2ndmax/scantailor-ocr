@@ -6,6 +6,9 @@
 #include <FilterUiInterface.h>
 #include <IncompleteThumbnail.h>
 #include <PageSequence.h>
+#include <core/gui/IconProvider.h>
+#include <core/gui/OverlayStyle.h>
+#include <core/gui/StyledIconPack.h>
 #include <filters/page_split/Dependencies.h>
 #include <filters/page_split/PageLayout.h>
 #include <filters/page_split/Params.h>
@@ -18,9 +21,11 @@
 #include <QDomDocument>
 #include <QFrame>
 #include <QImage>
+#include <QMouseEvent>
 #include <QSignalSpy>
 #include <QToolButton>
 #include <QtTest/QtTest>
+#include <cmath>
 #include <memory>
 #include <typeinfo>
 
@@ -182,4 +187,105 @@ void TestPageSplitQt::testReloadsWhenSwitchingFromUncutWithMissingCutter() {
   QDomDocument depsDoc;
   const QDomElement depsEl = localRecord.params()->dependencies().toXml(depsDoc, "deps");
   QCOMPARE(depsEl.namedItem("layoutType").toElement().text(), layoutTypeToString(SINGLE_PAGE_UNCUT));
+}
+
+void TestPageSplitQt::testCutterHandleDragWhileZoomedDoesNotInvertLimits() {
+  QImage page(200, 400, QImage::Format_RGB32);
+  page.fill(Qt::white);
+  const Dpm dpm(Dpi(300, 300));
+  page.setDotsPerMeterX(dpm.horizontal());
+  page.setDotsPerMeterY(dpm.vertical());
+  const ImageTransformation xform(QRectF(0, 0, 200, 400), Dpi(300, 300));
+  const PageLayout layout(QRectF(0, 0, 200, 400), QLineF(10, 0, 160, 400), QLineF(40, 0, 180, 400));
+
+  ImageView view(page, page, xform, layout, nullptr, ImageId("page.png"), false, false);
+  view.setFrameShape(QFrame::NoFrame);
+  view.resize(400, 400);
+  view.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&view));
+  view.setZoomLevel(4.0);
+  view.setWidgetFocalPoint(view.getWidgetFocalPoint() + QPointF(250.0, 0.0));
+  QCoreApplication::processEvents();
+
+  const QRectF occ = view.getOccupiedWidgetRect();
+  const qreal delta = 0.5 * OverlayStyle::handlePixmap(view.devicePixelRatioF()).deviceIndependentSize().height();
+  const QLineF wCutter1 = view.virtualToWidget().map(layout.cutterLine(1));
+  QPointF topHandle;
+  QVERIFY(wCutter1.intersects(QLineF(occ.left(), occ.top() + delta, occ.right(), occ.top() + delta), &topHandle)
+          != QLineF::NoIntersection);
+
+  int layoutSignals = 0;
+  PageLayout committed;
+  QObject::connect(&view, &ImageView::pageLayoutSetLocally, [&](const PageLayout& layoutResult) {
+    ++layoutSignals;
+    committed = layoutResult;
+  });
+  InteractionState state;
+  view.rootInteractionHandler().proximityUpdate(topHandle, state);
+  QMouseEvent press(QEvent::MouseButtonPress, topHandle, topHandle, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+  press.ignore();
+  view.rootInteractionHandler().mousePressEvent(&press, state);
+  QVERIFY(state.captured());
+
+  const QPointF dragged = topHandle + QPointF(8.0, 0.0);
+  QMouseEvent move(QEvent::MouseMove, dragged, dragged, Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+  move.ignore();
+  view.rootInteractionHandler().mouseMoveEvent(&move, state);
+  QMouseEvent release(QEvent::MouseButtonRelease, dragged, dragged, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+  release.ignore();
+  view.rootInteractionHandler().mouseReleaseEvent(&release, state);
+
+  QCOMPARE(layoutSignals, 1);
+  const QLineF cutter1 = committed.cutterLine(1);
+  QVERIFY(std::isfinite(cutter1.x1()) && std::isfinite(cutter1.x2()));
+}
+
+void TestPageSplitQt::testUnremoveButtonDisabledOutsideTwoPages() {
+  struct ScopedIconPack {
+    ScopedIconPack() { IconProvider::getInstance().setIconPack(StyledIconPack::createDefault()); }
+    ~ScopedIconPack() { IconProvider::getInstance().setIconPack(nullptr); }
+  } scopedIconPack;
+
+  filter_ui_checks::OnePageProject one;
+  QVERIFY(one.isValid());
+  const PageInfo page = one.page(IMAGE_VIEW);
+
+  QImage img(200, 200, QImage::Format_RGB32);
+  img.fill(Qt::white);
+  const ImageTransformation xform(QRectF(0, 0, 200, 200), Dpi(300, 300));
+  const PageLayout twoPagesLayout(QRectF(0, 0, 200, 200), QLineF(100, 0, 100, 200));
+
+  one.project.pages->setLayoutTypeFor(page.imageId(), ProjectPages::TWO_PAGE_LAYOUT);
+  one.project.pages->removePages({PageId(page.imageId(), PageId::LEFT_PAGE)});
+  ImageView view(img, img, xform, twoPagesLayout, one.project.pages, page.imageId(), true, false);
+  view.resize(400, 400);
+  view.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&view));
+
+  int thumbCount = 0;
+  QObject::connect(&view, &ImageView::invalidateThumbnail, [&](const PageInfo&) { ++thumbCount; });
+
+  PageLayout uncutLayout(twoPagesLayout);
+  uncutLayout.setType(PageLayout::SINGLE_PAGE_UNCUT);
+  view.pageLayoutSetExternally(uncutLayout);
+
+  InteractionState state;
+  view.rootInteractionHandler().proximityUpdate(QPointF(0.0, 0.0), state);
+  QMouseEvent pressAtOrigin(QEvent::MouseButtonPress, QPointF(0.0, 0.0), QPointF(0.0, 0.0), Qt::LeftButton,
+                            Qt::LeftButton, Qt::NoModifier);
+  pressAtOrigin.ignore();
+  view.rootInteractionHandler().mousePressEvent(&pressAtOrigin, state);
+  QCOMPARE(thumbCount, 0);
+  QVERIFY(!pressAtOrigin.isAccepted());
+
+  // Returning to TWO_PAGES restores the unremove button at the removed left page center.
+  view.pageLayoutSetExternally(twoPagesLayout);
+  const QPointF leftCenter = view.virtualToWidget().map(QPointF(50.0, 100.0));
+  InteractionState twoPageState;
+  view.rootInteractionHandler().proximityUpdate(leftCenter, twoPageState);
+  QMouseEvent pressOnButton(QEvent::MouseButtonPress, leftCenter, leftCenter, Qt::LeftButton, Qt::LeftButton,
+                            Qt::NoModifier);
+  pressOnButton.ignore();
+  view.rootInteractionHandler().mousePressEvent(&pressOnButton, twoPageState);
+  QCOMPARE(thumbCount, 1);
 }

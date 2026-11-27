@@ -53,6 +53,8 @@ class ImageView : public ImageViewBase, private InteractionHandler {
   void onPaint(QPainter& painter, const InteractionState& interaction) override;
 
  private:
+  void updateUnremoveButtons();
+
   void setupCuttersInteraction();
 
   QPointF handlePosition(int lineIdx, int handleIdx) const;

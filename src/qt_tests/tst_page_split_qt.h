@@ -13,6 +13,8 @@ class TestPageSplitQt : public QObject {
   void testThumbnailOfPage();
   void testHandlesStayCenteredAtHiDpi();
   void testReloadsWhenSwitchingFromUncutWithMissingCutter();
+  void testCutterHandleDragWhileZoomedDoesNotInvertLimits();
+  void testUnremoveButtonDisabledOutsideTwoPages();
 };
 
 #endif  // TST_PAGE_SPLIT_QT_H

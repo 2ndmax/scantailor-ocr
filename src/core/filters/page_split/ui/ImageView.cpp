@@ -40,12 +40,7 @@ ImageView::ImageView(const QImage& image,
   m_leftUnremoveButton.setClickCallback(std::bind(&ImageView::unremoveLeftPage, this));
   m_rightUnremoveButton.setClickCallback(std::bind(&ImageView::unremoveRightPage, this));
 
-  if (m_leftPageRemoved) {
-    makeLastFollower(m_leftUnremoveButton);
-  }
-  if (m_rightPageRemoved) {
-    makeLastFollower(m_rightUnremoveButton);
-  }
+  updateUnremoveButtons();
 
   setupCuttersInteraction();
 
@@ -55,6 +50,20 @@ ImageView::ImageView(const QImage& image,
 }
 
 ImageView::~ImageView() = default;
+
+void ImageView::updateUnremoveButtons() {
+  m_leftUnremoveButton.unlink();
+  m_rightUnremoveButton.unlink();
+
+  if (m_virtLayout.type() == PageLayout::TWO_PAGES) {
+    if (m_leftPageRemoved) {
+      makeLastFollower(m_leftUnremoveButton);
+    }
+    if (m_rightPageRemoved) {
+      makeLastFollower(m_rightUnremoveButton);
+    }
+  }
+}
 
 void ImageView::setupCuttersInteraction() {
   const QString tip(tr("Drag the line or the handles."));
@@ -96,6 +105,7 @@ void ImageView::setupCuttersInteraction() {
 
 void ImageView::pageLayoutSetExternally(const PageLayout& layout) {
   m_virtLayout = layout;
+  updateUnremoveButtons();
   setupCuttersInteraction();
   updateViewport();
 }
@@ -223,19 +233,23 @@ QPointF ImageView::handlePosition(int lineIdx, int handleIdx) const {
 }
 
 ImageView::CutterLimits ImageView::cutterLimits(const int lineIdx, const QRectF& validArea) const {
-  CutterLimits limits{validArea.left(), validArea.right(), validArea.left(), validArea.right()};
+  const double areaLeft = std::min(validArea.left(), validArea.right());
+  const double areaRight = std::max(validArea.left(), validArea.right());
+  CutterLimits limits{areaLeft, areaRight, areaLeft, areaRight};
 
   const QLineF topEdge(validArea.topLeft(), validArea.topRight());
   const QLineF bottomEdge(validArea.bottomLeft(), validArea.bottomRight());
   // Where a cutter crosses the top and the bottom edge, in widget coordinates.
   const auto crossings = [&](const int idx, QPointF& top, QPointF& bottom) {
     const QLineF line(virtualToWidget().map(m_virtLayout.cutterLine(idx)));
-    line.intersects(topEdge, &top);
-    line.intersects(bottomEdge, &bottom);
+    return (line.intersects(topEdge, &top) != QLineF::NoIntersection)
+           && (line.intersects(bottomEdge, &bottom) != QLineF::NoIntersection);
   };
   QPointF ownTop;
   QPointF ownBottom;
-  crossings(lineIdx, ownTop, ownBottom);
+  if (!crossings(lineIdx, ownTop, ownBottom)) {
+    return limits;
+  }
   const double ownX = 0.5 * (ownTop.x() + ownBottom.x());
   // The whole image, not only its visible part: a cutter scrolled out of view when zoomed in
   // must not be crossed either.
@@ -246,24 +260,40 @@ ImageView::CutterLimits ImageView::cutterLimits(const int lineIdx, const QRectF&
     if (i != lineIdx) {
       QPointF pTopI;
       QPointF pBottomI;
-      crossings(i, pTopI, pBottomI);
+      if (!crossings(i, pTopI, pBottomI)) {
+        continue;
+      }
 
       if ((pTopI.x() < displayArea.left()) || (pTopI.x() > displayArea.right()) || (pBottomI.x() < displayArea.left())
           || (pBottomI.x() > displayArea.right())) {
         continue;
       }
 
+      const double clampedTop = std::clamp(pTopI.x(), areaLeft, areaRight);
+      const double clampedBottom = std::clamp(pBottomI.x(), areaLeft, areaRight);
+
       // The cutters have no fixed roles (see PageLayout), so left and right follow their positions.
       const double otherX = 0.5 * (pTopI.x() + pBottomI.x());
       const bool otherIsLeft = (otherX < ownX) || ((otherX == ownX) && (i < lineIdx));
       if (otherIsLeft) {
-        limits.minXTop = std::max(limits.minXTop, pTopI.x());
-        limits.minXBottom = std::max(limits.minXBottom, pBottomI.x());
+        limits.minXTop = std::max(limits.minXTop, clampedTop);
+        limits.minXBottom = std::max(limits.minXBottom, clampedBottom);
       } else {
-        limits.maxXTop = std::min(limits.maxXTop, pTopI.x());
-        limits.maxXBottom = std::min(limits.maxXBottom, pBottomI.x());
+        limits.maxXTop = std::min(limits.maxXTop, clampedTop);
+        limits.maxXBottom = std::min(limits.maxXBottom, clampedBottom);
       }
     }
+  }
+
+  if (limits.minXTop > limits.maxXTop) {
+    const double mid = 0.5 * (limits.minXTop + limits.maxXTop);
+    limits.minXTop = mid;
+    limits.maxXTop = mid;
+  }
+  if (limits.minXBottom > limits.maxXBottom) {
+    const double mid = 0.5 * (limits.minXBottom + limits.maxXBottom);
+    limits.minXBottom = mid;
+    limits.maxXBottom = mid;
   }
   return limits;
 }
