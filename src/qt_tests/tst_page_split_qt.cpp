@@ -6,12 +6,20 @@
 #include <FilterUiInterface.h>
 #include <IncompleteThumbnail.h>
 #include <PageSequence.h>
+#include <filters/page_split/Dependencies.h>
+#include <filters/page_split/PageLayout.h>
+#include <filters/page_split/Params.h>
+#include <filters/page_split/Settings.h>
+#include <filters/page_split/UiData.h>
 #include <filters/page_split/ui/ImageView.h>
 #include <filters/page_split/ui/OptionsWidget.h>
 #include <filters/page_split/ui/Thumbnail.h>
 
+#include <QDomDocument>
 #include <QFrame>
 #include <QImage>
+#include <QSignalSpy>
+#include <QToolButton>
 #include <QtTest/QtTest>
 #include <memory>
 #include <typeinfo>
@@ -115,4 +123,63 @@ void TestPageSplitQt::testHandlesStayCenteredAtHiDpi() {
   const qreal handleAvgX = handleSumX / handleCount;
   QVERIFY2(qAbs(handleAvgX - lineAvgX) <= 1.5,
            qPrintable(QString("handleAvgX=%1, lineAvgX=%2, dpr=%3").arg(handleAvgX).arg(lineAvgX).arg(dpr)));
+}
+
+void TestPageSplitQt::testReloadsWhenSwitchingFromUncutWithMissingCutter() {
+  filter_ui_checks::OnePageProject one;
+  QVERIFY(one.isValid());
+  const PageInfo page = one.page(IMAGE_VIEW);
+
+  auto settings = std::make_shared<Settings>();
+  OptionsWidget panel(settings, one.project.pages, PageSelectionAccessor(nullptr));
+
+  const QRectF outline(0, 0, 200, 300);
+  PageLayout uncutAfterXml;
+  {
+    PageLayout layout(outline, QLineF(100, 0, 100, 300));
+    layout.setType(PageLayout::SINGLE_PAGE_UNCUT);
+    const Dependencies deps(QSize(200, 300), OrthogonalRotation(), QPolygonF(outline), SINGLE_PAGE_UNCUT);
+    const Params params(layout, deps, MODE_MANUAL);
+    QDomDocument doc;
+    const Params reloaded(params.toXml(doc, "params"));
+    uncutAfterXml = reloaded.pageLayout();
+  }
+  QVERIFY(uncutAfterXml.cutterLine(0).isNull());
+
+  UiData uiData;
+  uiData.setPageLayout(uncutAfterXml);
+  uiData.setDependencies(Dependencies(QSize(200, 300), OrthogonalRotation(), QPolygonF(outline), SINGLE_PAGE_UNCUT));
+  uiData.setSplitLineMode(MODE_MANUAL);
+  uiData.setLayoutTypeAutoDetected(false);
+
+  panel.preUpdateUI(page.id());
+  panel.postUpdateUI(uiData);
+
+  QSignalSpy reloadSpy(&panel, &OptionsWidget::reloadRequested);
+  auto* const twoPagesBtn = panel.findChild<QToolButton*>("twoPagesBtn");
+  QVERIFY(twoPagesBtn != nullptr);
+  twoPagesBtn->click();
+  QCOMPARE(reloadSpy.count(), 1);
+  const Settings::Record reloadedRecord = settings->getPageRecord(page.id().imageId());
+  QVERIFY(!reloadedRecord.params());
+
+  // Local toggle from TWO_PAGES -> SINGLE_PAGE_UNCUT with valid cutter updates stored dependencies too.
+  UiData twoPagesUiData;
+  twoPagesUiData.setPageLayout(PageLayout(outline, QLineF(100, 0, 100, 300)));
+  twoPagesUiData.setDependencies(Dependencies(QSize(200, 300), OrthogonalRotation(), QPolygonF(outline), TWO_PAGES));
+  twoPagesUiData.setSplitLineMode(MODE_MANUAL);
+  twoPagesUiData.setLayoutTypeAutoDetected(false);
+  panel.preUpdateUI(page.id());
+  panel.postUpdateUI(twoPagesUiData);
+
+  reloadSpy.clear();
+  auto* const uncutBtn = panel.findChild<QToolButton*>("singlePageUncutBtn");
+  QVERIFY(uncutBtn != nullptr);
+  uncutBtn->click();
+  QCOMPARE(reloadSpy.count(), 0);
+  const Settings::Record localRecord = settings->getPageRecord(page.id().imageId());
+  QVERIFY(localRecord.params());
+  QDomDocument depsDoc;
+  const QDomElement depsEl = localRecord.params()->dependencies().toXml(depsDoc, "deps");
+  QCOMPARE(depsEl.namedItem("layoutType").toElement().text(), layoutTypeToString(SINGLE_PAGE_UNCUT));
 }

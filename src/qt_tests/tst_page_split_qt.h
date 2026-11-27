@@ -12,6 +12,7 @@ class TestPageSplitQt : public QObject {
   void testShowsPanelAndConnectedView();
   void testThumbnailOfPage();
   void testHandlesStayCenteredAtHiDpi();
+  void testReloadsWhenSwitchingFromUncutWithMissingCutter();
 };
 
 #endif  // TST_PAGE_SPLIT_QT_H

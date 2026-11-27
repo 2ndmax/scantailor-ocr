@@ -204,7 +204,9 @@ void OptionsWidget::layoutTypeButtonToggled(const bool checked) {
   // The same from "page plus offcut" to "two pages": neither cut of that layout is a
   // split line (one may be the image edge), so the split line is detected anew.
   const bool fromPagePlusOffcut = m_uiDataValid && (m_uiData.pageLayout().type() == PageLayout::SINGLE_PAGE_CUT);
-  if (!m_uiDataValid || (lt == PAGE_PLUS_OFFCUT) || ((lt == TWO_PAGES) && fromPagePlusOffcut)
+  const bool missingCutterLine = !m_uiDataValid || m_uiData.pageLayout().cutterLine(0).isNull()
+                                 || (m_uiData.pageLayout().cutterLine(0).length() <= 1e-9);
+  if (!m_uiDataValid || (lt == PAGE_PLUS_OFFCUT) || ((lt == TWO_PAGES) && (fromPagePlusOffcut || missingCutterLine))
       || ((lt != SINGLE_PAGE_UNCUT) && (m_uiData.splitLineMode() == MODE_AUTO))) {
     m_settings->updatePage(m_pageId.imageId(), update);
     emit reloadRequested();
@@ -219,12 +221,15 @@ void OptionsWidget::layoutTypeButtonToggled(const bool checked) {
 
     PageLayout newLayout(m_uiData.pageLayout());
     newLayout.setType(newLayoutType);
-    const Params newParams(newLayout, m_uiData.dependencies(), m_uiData.splitLineMode());
+    Dependencies newDeps(m_uiData.dependencies());
+    newDeps.setLayoutType(lt);
+    const Params newParams(newLayout, newDeps, m_uiData.splitLineMode());
 
     update.setParams(newParams);
     m_settings->updatePage(m_pageId.imageId(), update);
 
     m_uiData.setPageLayout(newLayout);
+    m_uiData.setDependencies(newDeps);
 
     emit pageLayoutSetLocally(newLayout);
     emit invalidateThumbnail(m_pageId);
