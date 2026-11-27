@@ -42,6 +42,7 @@
 #include <Dpi.h>
 #include <GrayImage.h>
 #include <ImageLoader.h>
+#include <ImageSizeLimit.h>
 #include <NullTaskStatus.h>
 #include <RasterDewarper.h>
 #include <TextLineTracer.h>
@@ -315,7 +316,10 @@ struct Errors {
 };
 
 /** Slope of the least squares line through (from, to), i.e. how many units of \p to one pixel of the page is. */
-double scaleOf(const std::vector<double>& from, const std::vector<double>& to, double& offset) {
+std::optional<double> scaleOf(const std::vector<double>& from, const std::vector<double>& to, double& offset) {
+  if ((from.size() < 2) || (from.size() != to.size())) {
+    return std::nullopt;
+  }
   double meanFrom = 0;
   double meanTo = 0;
   for (size_t i = 0; i < from.size(); ++i) {
@@ -330,18 +334,31 @@ double scaleOf(const std::vector<double>& from, const std::vector<double>& to, d
     sumXX += (from[i] - meanFrom) * (from[i] - meanFrom);
     sumXY += (from[i] - meanFrom) * (to[i] - meanTo);
   }
+  if (!std::isfinite(sumXX) || (sumXX <= 1e-12) || !std::isfinite(sumXY)) {
+    return std::nullopt;
+  }
   const double scale = sumXY / sumXX;
   offset = meanTo - scale * meanFrom;
+  if (!std::isfinite(scale) || !std::isfinite(offset)) {
+    return std::nullopt;
+  }
   return scale;
 }
 
 /** Both measures of the header comment, for the points of the flat page and where a method puts them. */
-Errors errorsOf(const std::vector<std::vector<QPointF>>& flatLines, const std::vector<std::vector<QPointF>>& result) {
+std::optional<Errors> errorsOf(const std::vector<std::vector<QPointF>>& flatLines,
+                               const std::vector<std::vector<QPointF>>& result) {
+  if (flatLines.size() != result.size()) {
+    return std::nullopt;
+  }
   std::vector<double> flatX;
   std::vector<double> flatY;
   std::vector<double> resultX;
   std::vector<double> resultY;
   for (size_t line = 0; line < flatLines.size(); ++line) {
+    if (flatLines[line].size() != result[line].size()) {
+      return std::nullopt;
+    }
     for (size_t i = 0; i < flatLines[line].size(); ++i) {
       flatX.push_back(flatLines[line][i].x());
       flatY.push_back(flatLines[line][i].y());
@@ -351,22 +368,31 @@ Errors errorsOf(const std::vector<std::vector<QPointF>>& flatLines, const std::v
   }
   double xOffset = 0;
   double yOffset = 0;
-  const double xScale = scaleOf(flatX, resultX, xOffset);
-  const double yScale = scaleOf(flatY, resultY, yOffset);
+  const std::optional<double> xScale = scaleOf(flatX, resultX, xOffset);
+  const std::optional<double> yScale = scaleOf(flatY, resultY, yOffset);
+  if (!xScale || !yScale || (std::fabs(*xScale) <= 1e-12) || (std::fabs(*yScale) <= 1e-12)) {
+    return std::nullopt;
+  }
 
   Errors errors;
   for (size_t i = 0; i < flatX.size(); ++i) {
-    errors.columns = std::max(errors.columns, std::fabs((resultX[i] - (xOffset + xScale * flatX[i])) / xScale));
+    errors.columns = std::max(errors.columns, std::fabs((resultX[i] - (xOffset + *xScale * flatX[i])) / *xScale));
   }
   for (const std::vector<QPointF>& line : result) {
+    if (line.empty()) {
+      continue;
+    }
     double level = 0;
     for (const QPointF& pt : line) {
       level += pt.y();
     }
     level /= static_cast<double>(line.size());
     for (const QPointF& pt : line) {
-      errors.lines = std::max(errors.lines, std::fabs((pt.y() - level) / yScale));
+      errors.lines = std::max(errors.lines, std::fabs((pt.y() - level) / *yScale));
     }
+  }
+  if (!std::isfinite(errors.lines) || !std::isfinite(errors.columns)) {
+    return std::nullopt;
   }
   return errors;
 }
@@ -380,8 +406,12 @@ struct Measured {
 
 Measured measure(const Page& page, const Method method) {
   Measured measured;
-  measured.before = errorsOf(page.flatLines, page.warpedLines);
-  measured.after = measured.before;
+  const std::optional<Errors> before = errorsOf(page.flatLines, page.warpedLines);
+  if (!before) {
+    return measured;
+  }
+  measured.before = *before;
+  measured.after = *before;
   try {
     measured.model = modelOf(method, page.image);
     if (!measured.model.isValid()) {
@@ -397,7 +427,11 @@ Measured measure(const Page& page, const Method method) {
         dewarped.back().push_back(dewarper.mapToDewarpedSpace(pt));
       }
     }
-    measured.after = errorsOf(page.flatLines, dewarped);
+    const std::optional<Errors> after = errorsOf(page.flatLines, dewarped);
+    if (!after) {
+      return measured;
+    }
+    measured.after = *after;
     measured.hasModel = true;
   } catch (const std::runtime_error&) {
     // The dewarper could not use the model; the page counts as one without a model.
@@ -509,15 +543,22 @@ std::array<double, 3> fitParabola(const std::vector<QPointF>& points) {
 
 /** \p lines in any coordinates with x along the lines; \p toPixels makes pixels of their y. */
 LineShape shapeOfLines(const std::vector<std::vector<QPointF>>& lines, const double toPixels) {
+  LineShape shape;
+  if (!std::isfinite(toPixels)) {
+    return shape;
+  }
   std::vector<double> bows;
   std::vector<double> leftEnds;
   std::vector<double> rightEnds;
   std::vector<double> worsts;
   for (const std::vector<QPointF>& line : lines) {
+    if (line.size() < 8) {
+      continue;
+    }
     const auto [minIt, maxIt] = std::minmax_element(line.begin(), line.end(),
                                                     [](const QPointF& a, const QPointF& b) { return a.x() < b.x(); });
     const double length = maxIt->x() - minIt->x();
-    if ((line.size() < 8) || (length <= 0)) {
+    if (length <= 0) {
       continue;
     }
     // t runs from -1 at the left end to 1 at the right end.
@@ -535,7 +576,10 @@ LineShape shapeOfLines(const std::vector<std::vector<QPointF>>& lines, const dou
       continue;
     }
     double offset = 0;
-    const double slope = scaleOf(middleT, middleY, offset);
+    const std::optional<double> slope = scaleOf(middleT, middleY, offset);
+    if (!slope) {
+      continue;
+    }
 
     double left = 0;
     double right = 0;
@@ -543,7 +587,7 @@ LineShape shapeOfLines(const std::vector<std::vector<QPointF>>& lines, const dou
     int numRight = 0;
     double worst = 0;
     for (const QPointF& pt : whole) {
-      const double off = pt.y() - (offset + slope * pt.x());
+      const double off = pt.y() - (offset + *slope * pt.x());
       worst = std::max(worst, std::fabs(off));
       if (pt.x() <= -0.9) {
         left += off;
@@ -553,13 +597,15 @@ LineShape shapeOfLines(const std::vector<std::vector<QPointF>>& lines, const dou
         ++numRight;
       }
     }
+    if (!std::isfinite(worst)) {
+      continue;
+    }
     bows.push_back(fitParabola(whole)[2]);
     leftEnds.push_back(std::fabs(left) / std::max(numLeft, 1));
     rightEnds.push_back(std::fabs(right) / std::max(numRight, 1));
     worsts.push_back(worst);
   }
 
-  LineShape shape;
   shape.numLines = static_cast<int>(bows.size());
   if (shape.numLines > 0) {
     shape.bow = medianOf(bows);
@@ -591,8 +637,11 @@ LineShape shapeAfter(const std::vector<std::vector<QPointF>>& lines,
     return LineShape();
   }
   double offset = 0;
-  const double unitsPerPixel = scaleOf(yBefore, yAfter, offset);
-  return shapeOfLines(dewarped, to200Dpi / unitsPerPixel);
+  const std::optional<double> unitsPerPixel = scaleOf(yBefore, yAfter, offset);
+  if (!unitsPerPixel || !std::isfinite(*unitsPerPixel) || (std::fabs(*unitsPerPixel) <= 1e-12)) {
+    return LineShape();
+  }
+  return shapeOfLines(dewarped, to200Dpi / *unitsPerPixel);
 }
 
 QString shapeText(const LineShape& shape) {
@@ -608,6 +657,9 @@ QImage dewarpedPage(const QImage& page,
                     const CylindricalSurfaceDewarper& dewarper,
                     const double scale) {
   const QRect outRect(QPoint(0, 0), (QSizeF(page.size()) * scale).toSize());
+  if (outRect.isEmpty()) {
+    return QImage();
+  }
   const QRect modelDomain(model.modelDomain(dewarper, QTransform::fromScale(scale, scale), outRect).toRect());
   if (modelDomain.isEmpty()) {
     return QImage();
@@ -688,7 +740,11 @@ int showModelsOfRealPages(const Options& options) {
           watch.restartMs();
           const QImage dewarped = dewarpedPage(image, model, dewarper, kOutputDpi / dpi.vertical());
           rasterMs = watch.restartMs();
-          tools::saveImage(dewarped, prefix + QLatin1String("_dewarped.png"));
+          if (!dewarped.isNull()) {
+            tools::saveImage(dewarped, prefix + QLatin1String("_dewarped.png"));
+          } else {
+            result += QStringLiteral(" (empty domain)");
+          }
         } catch (const std::runtime_error&) {
           result = QStringLiteral("unusable model");
         }
@@ -763,6 +819,7 @@ struct Case {
 
 int main(int argc, char** argv) {
   QGuiApplication app(argc, argv);
+  ImageSizeLimit::applyQtAllocationLimit();
   Options options;
   if (!parseArgs(app.arguments(), options)) {
     std::cerr << "Usage: dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]\n"
@@ -826,6 +883,7 @@ int main(int argc, char** argv) {
     int madeWorse = 0;
     size_t worstSeed = 0;
     double worstError = -1;
+    bool hasWorst = false;
     for (size_t s = 0; s < numSeeds; ++s) {
       const Measured& measured = results[c * numSeeds + s];
       if (!measured.hasModel) {
@@ -839,9 +897,10 @@ int main(int argc, char** argv) {
                          || (measured.after.columns > measured.before.columns + kWorseBy);
       madeWorse += worse ? 1 : 0;
       const double error = std::max(measured.after.lines, measured.after.columns);
-      if (error > worstError) {
+      if (!hasWorst || (std::isfinite(error) && (error > worstError))) {
         worstError = error;
         worstSeed = s;
+        hasWorst = true;
       }
     }
 
