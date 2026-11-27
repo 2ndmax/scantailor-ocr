@@ -42,8 +42,8 @@ void chromaDenoiseInPlace(QImage& image, const int radius, const int grayLimit) 
   parallelFor(h, [&](const int yBegin, const int yEnd) {
     for (int y = yBegin; y < yEnd; ++y) {
       const auto* pixels = reinterpret_cast<const QRgb*>(src + y * srcStride);
-      uint8_t* cbLine = cbData + y * cb.stride();
-      uint8_t* crLine = crData + y * cr.stride();
+      uint8_t* cbLine = cbData + static_cast<qsizetype>(y) * cb.stride();
+      uint8_t* crLine = crData + static_cast<qsizetype>(y) * cr.stride();
       for (int x = 0; x < w; ++x) {
         const float r = qRed(pixels[x]);
         const float g = qGreen(pixels[x]);
@@ -80,8 +80,8 @@ void chromaDenoiseInPlace(QImage& image, const int radius, const int grayLimit) 
   parallelFor(h, [&](const int yBegin, const int yEnd) {
     for (int y = yBegin; y < yEnd; ++y) {
       auto* pixels = reinterpret_cast<QRgb*>(dst + y * dstStride);
-      const uint8_t* cbLine = cbBlurredData + y * cbBlurred.stride();
-      const uint8_t* crLine = crBlurredData + y * crBlurred.stride();
+      const uint8_t* cbLine = cbBlurredData + static_cast<qsizetype>(y) * cbBlurred.stride();
+      const uint8_t* crLine = crBlurredData + static_cast<qsizetype>(y) * crBlurred.stride();
       for (int x = 0; x < w; ++x) {
         const QRgb px = pixels[x];
         const float luma = kR * qRed(px) + kG * qGreen(px) + kB * qBlue(px);

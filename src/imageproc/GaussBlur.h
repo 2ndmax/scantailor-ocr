@@ -7,6 +7,7 @@
 
 #include <QSize>
 #include <algorithm>
+#include <cstddef>
 #include <cstring>
 #include <iterator>
 #include <memory>
@@ -146,7 +147,7 @@ void gaussBlurGeneric(const QSize size,
   if (!gauss_blur_impl::blursWith(vSigma)) {
     parallelFor(height, [&](const int yBegin, const int yEnd) {
       for (int y = yBegin; y < yEnd; ++y) {
-        const SrcIt line(input + y * inputStride);
+        const SrcIt line(input + static_cast<ptrdiff_t>(y) * inputStride);
         float* const intermediateLine = &intermediateImage[0] + static_cast<size_t>(y) * intermediateStride;
         for (int x = 0; x < width; ++x) {
           intermediateLine[x] = floatReader(line[x]);
@@ -163,7 +164,7 @@ void gaussBlurGeneric(const QSize size,
         memset(&valM[0], 0, height * sizeof(valM[0]));
 
         SrcIt spP(input + x);
-        SrcIt spM(spP + (height - 1) * inputStride);
+        SrcIt spM(spP + static_cast<ptrdiff_t>(height - 1) * inputStride);
         double* vp = &valP[0];
         double* vm = &valM[0] + height - 1;
         const double initialP = floatReader(spP[0]);
@@ -172,7 +173,7 @@ void gaussBlurGeneric(const QSize size,
         for (int y = 0; y < height; ++y) {
           const int terms = y < 4 ? y : 4;
           int i = 0;
-          int spOff = 0;
+          ptrdiff_t spOff = 0;
           for (; i <= terms; ++i, spOff += inputStride) {
             *vp += nP[i] * floatReader(spP[-spOff]) - dP[i] * vp[-i];
             *vm += nM[i] * floatReader(spM[spOff]) - dM[i] * vm[i];
@@ -197,7 +198,7 @@ void gaussBlurGeneric(const QSize size,
     parallelFor(height, [&](const int yBegin, const int yEnd) {
       for (int y = yBegin; y < yEnd; ++y) {
         const float* intermediateLine = &intermediateImage[0] + static_cast<size_t>(y) * intermediateStride;
-        const DstIt line(output + y * outputStride);
+        const DstIt line(output + static_cast<ptrdiff_t>(y) * outputStride);
         for (int x = 0; x < width; ++x) {
           floatWriter(line[x], intermediateLine[x]);
         }
@@ -238,7 +239,8 @@ void gaussBlurGeneric(const QSize size,
         --vm;
       }
 
-      gauss_blur_impl::save(width, &valP[0], &valM[0], DstIt(output + y * outputStride), 1, floatWriter);
+      gauss_blur_impl::save(width, &valP[0], &valM[0], DstIt(output + static_cast<ptrdiff_t>(y) * outputStride), 1,
+                            floatWriter);
     }
   });
 }  // gaussBlurGeneric

@@ -26,7 +26,7 @@ ConnectivityMap::ConnectivityMap(const QSize& size) : m_plainData(nullptr), m_si
   const int width = m_size.width();
   const int height = m_size.height();
 
-  m_data.resize((width + 2) * (height + 2), 0);
+  m_data.resize(static_cast<size_t>(width + 2) * static_cast<size_t>(height + 2), 0);
   m_stride = width + 2;
   m_plainData = &m_data[0] + 1 + m_stride;
 }
@@ -40,7 +40,7 @@ ConnectivityMap::ConnectivityMap(const BinaryImage& image, const Connectivity co
   const int width = m_size.width();
   const int height = m_size.height();
 
-  m_data.resize((width + 2) * (height + 2), BACKGROUND);
+  m_data.resize(static_cast<size_t>(width + 2) * static_cast<size_t>(height + 2), BACKGROUND);
   m_stride = width + 2;
   m_plainData = &m_data[0] + 1 + m_stride;
 

@@ -230,7 +230,7 @@ void grayBGtoMap(GrayImage const& src, GrayImage& background, float const q, flo
   // sum(background) for background pixels (background <= original).
   uint64_t sum_bg = 0;
   uint64_t sum_contour = 0;
-  uint64_t src_size = w * h;
+  uint64_t src_size = static_cast<uint64_t>(w) * static_cast<uint64_t>(h);
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
       int const im = src_line[x];
@@ -447,13 +447,11 @@ GrayImage grayMScaleMap(GrayImage const& src, int const radius, float const coef
         int x1 = x0 + maskover;
         x1 = (x1 < w) ? x1 : w;
 
-        idx = y0 * src_stride + x0;
-        immin = src_line[idx];
+        immin = src_line[static_cast<size_t>(y0) * src_stride + x0];
         immax = immin;
         for (int y = y0; y < y1; y++) {
           for (int x = x0; x < x1; x++) {
-            idx = y * src_stride + x;
-            pim = src_line[idx];
+            pim = src_line[static_cast<size_t>(y) * src_stride + x];
             if (pim < immin) {
               immin = pim;
             }
@@ -467,13 +465,13 @@ GrayImage grayMScaleMap(GrayImage const& src, int const radius, float const coef
         immean *= sensinv;
         for (int y = y0; y < y1; y++) {
           for (int x = x0; x < x1; x++) {
-            idx = y * gray_stride + x;
-            imt = gray_line[idx];
+            const size_t grayIdx = static_cast<size_t>(y) * gray_stride + x;
+            imt = gray_line[grayIdx];
             imt *= senspos;
             imt += immean;
             imt += 0.5f;
             imt = (imt < 0.0f) ? 0.0f : ((imt < 255.0f) ? imt : 255.0f);
-            gray_line[idx] = (unsigned char) imt;
+            gray_line[grayIdx] = (unsigned char) imt;
           }
         }
       }

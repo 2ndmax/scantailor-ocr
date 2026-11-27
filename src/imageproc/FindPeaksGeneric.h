@@ -46,7 +46,7 @@ void raiseAllButPeaks(MostSignificantSelector mostSignificant,
   localMinMaxGeneric(mostSignificant, neighborhood, outsideValues, input, inputStride, size, toBeRaised,
                      toBeRaisedStride);
 
-  std::vector<T> mask(toBeRaised, toBeRaised + toBeRaisedStride * size.height());
+  std::vector<T> mask(toBeRaised, toBeRaised + static_cast<size_t>(toBeRaisedStride) * size.height());
   const int maskStride = toBeRaisedStride;
 
   // Slightly raise the mask relative to toBeRaised.
@@ -108,7 +108,7 @@ void findPeaksInPlaceGeneric(MostSignificantSelector mostSignificant,
     return;
   }
 
-  std::vector<T> raised(size.width() * size.height());
+  std::vector<T> raised(static_cast<size_t>(size.width()) * size.height());
   const int raisedStride = size.width();
 
   detail::find_peaks::raiseAllButPeaks(mostSignificant, leastSignificant, increaseSignificance, peakNeighborhood,
@@ -152,7 +152,7 @@ BinaryImage findPeaksGeneric(MostSignificantSelector mostSignificant,
     return BinaryImage();
   }
 
-  std::vector<T> raised(size.width() * size.height());
+  std::vector<T> raised(static_cast<size_t>(size.width()) * size.height());
   const int raisedStride = size.width();
 
   detail::find_peaks::raiseAllButPeaks(mostSignificant, leastSignificant, increaseSignificance, peakNeighborhood,

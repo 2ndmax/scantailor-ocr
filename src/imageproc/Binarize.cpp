@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <stdexcept>
 #include <vector>
 
@@ -284,11 +285,11 @@ BinaryImage binarizeWindow(const QImage& src,
     grayLine += grayBpl;
   }
 
-  const int areaFull = w * h;
+  const int64_t areaFull = static_cast<int64_t>(w) * h;
   if (areaFull <= 0) {
     return BinaryImage();  // no pixels to average, same result as for a null image
   }
-  const uint64_t meanFull = sumFull / areaFull;
+  const uint64_t meanFull = sumFull / static_cast<uint64_t>(areaFull);
   double deviationMax = 0.0;
   double deviationMin = 256.0;
   const double coefw = k * 3.0;  // translate from Wolf to Window coef.

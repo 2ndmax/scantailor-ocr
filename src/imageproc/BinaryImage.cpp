@@ -290,7 +290,7 @@ void BinaryImage::fillExcept(const QRect& rect, const BWColor color) {
   const int pattern = (color == BLACK) ? ~0 : 0;
   uint32_t* const data = this->data();  // this will call copyIfShared()
   if (boundedRect.top() > 0) {
-    memset(data, pattern, boundedRect.top() * m_wpl * 4);
+    memset(data, pattern, static_cast<size_t>(boundedRect.top()) * m_wpl * 4);
   }
 
   int yTop = boundedRect.top();
@@ -307,7 +307,7 @@ void BinaryImage::fillExcept(const QRect& rect, const BWColor color) {
 
   yTop = boundedRect.top() + boundedRect.height();
   if (yTop < m_height) {
-    memset(data + yTop * m_wpl, pattern, (m_height - yTop) * m_wpl * 4);
+    memset(data + static_cast<ptrdiff_t>(yTop) * m_wpl, pattern, static_cast<size_t>(m_height - yTop) * m_wpl * 4);
   }
 }  // BinaryImage::fillExcept
 
@@ -592,7 +592,7 @@ void BinaryImage::fillRectImpl(uint32_t* const data, const QRect& rect, const BW
   const uint32_t pattern = (color == BLACK) ? ~uint32_t(0) : 0;
 
   if ((rect.x() == 0) && (rect.width() == m_width)) {
-    memset(data + rect.y() * m_wpl, pattern, rect.height() * m_wpl * 4);
+    memset(data + static_cast<ptrdiff_t>(rect.y()) * m_wpl, pattern, static_cast<size_t>(rect.height()) * m_wpl * 4);
     return;
   }
 
@@ -601,7 +601,7 @@ void BinaryImage::fillRectImpl(uint32_t* const data, const QRect& rect, const BW
   const uint32_t lastWordIdx = rect.right() >> 5;
   const uint32_t firstWordMask = ~uint32_t(0) >> (rect.left() & 31);
   const uint32_t lastWordMask = ~uint32_t(0) << (31 - (rect.right() & 31));
-  uint32_t* line = data + rect.top() * m_wpl;
+  uint32_t* line = data + static_cast<ptrdiff_t>(rect.top()) * m_wpl;
 
   if (firstWordIdx == lastWordIdx) {
     line += firstWordIdx;
