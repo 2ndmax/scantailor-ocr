@@ -14,12 +14,13 @@ jobs:
   analyze-linux:
     name: Analyze (C++, Ubuntu)
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     permissions:
       contents: read
       # Needed to upload the results to Security > Code scanning.
       security-events: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # The packages of the Linux build in ci.yml, without poppler-utils (the analysis runs no
       # tests). Kept by hand, see the REVIEW-NOTE in scripts/setup/support/ubuntu-packages.txt.
@@ -37,7 +38,7 @@ jobs:
             libtesseract-dev libleptonica-dev
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5
         with:
           languages: c-cpp
           build-mode: manual
@@ -52,14 +53,14 @@ jobs:
           make -j$(nproc)
 
       - name: Analyze
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5
         with:
           category: /language:c-cpp/os:linux
           output: sarif-results
 
       # The results as a file, to download from the run's page.
       - name: Upload SARIF file
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f4646cd9 # v7.0.2
         with:
           name: codeql-sarif-linux
           path: sarif-results
@@ -67,6 +68,7 @@ jobs:
   analyze-windows:
     name: Analyze (C++, Windows)
     runs-on: windows-latest
+    timeout-minutes: 180
     permissions:
       contents: read
       # Needed to upload the results to Security > Code scanning.
@@ -75,16 +77,18 @@ jobs:
       VCPKG_DEFAULT_TRIPLET: x64-windows
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg-binary-cache
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # The package cache is created by the CI workflow (ci.yml) on master; this workflow
       # only reads it. Without it vcpkg builds Qt, which takes about two hours.
       - name: Restore vcpkg binary cache
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ github.workspace }}\vcpkg-binary-cache
-          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: vcpkg-${{ runner.os }}-
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-${{ github.run_id }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-
+            vcpkg-${{ runner.os }}-
 
       # The package list is shared with ci.yml (scripts/setup/support/vcpkg-packages.txt), so the
       # cached packages are used.
@@ -119,7 +123,7 @@ jobs:
           }
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5
         with:
           languages: c-cpp
           build-mode: manual
@@ -136,14 +140,14 @@ jobs:
           cmake --build build --parallel
 
       - name: Analyze
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5
         with:
           category: /language:c-cpp/os:windows
           output: sarif-results
 
       # The results as a file, to download from the run's page.
       - name: Upload SARIF file
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f4646cd9 # v7.0.2
         with:
           name: codeql-sarif-windows
           path: sarif-results

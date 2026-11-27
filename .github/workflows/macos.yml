@@ -15,6 +15,7 @@ jobs:
   build:
     name: Analysis build (${{ matrix.name }})
     runs-on: macos-26
+    timeout-minutes: 60
     strategy:
       # Both runs report their findings, even if the other one fails.
       fail-fast: false
@@ -33,7 +34,7 @@ jobs:
               "-DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=address,undefined"
             sanitizers: true
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Ends a hanging download early instead of at GitHub's six-hour limit (as in
       # codeql.yml). Homebrew normally needs about four minutes; Qt and Boost are large,
@@ -85,7 +86,7 @@ jobs:
 
       - name: Upload logs
         if: ${{ always() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f4646cd9 # v7.0.2
         with:
           name: macos-logs-${{ matrix.build_type }}
           path: |

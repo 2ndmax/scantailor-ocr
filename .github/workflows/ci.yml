@@ -24,14 +24,15 @@ permissions:
 # A new push stops the run still going for the same branch or pull request.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-linux:
     name: Build (Ubuntu, Qt 6)
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Ends a hanging package mirror early instead of at GitHub's six-hour limit
       # (same as in codeql.yml).
@@ -78,20 +79,23 @@ jobs:
   build-windows:
     name: Build (Windows, MSVC + vcpkg)
     runs-on: windows-latest
+    timeout-minutes: 180
     env:
       VCPKG_DEFAULT_TRIPLET: x64-windows
       # Built packages are cached between runs. The first run builds Qt and
       # takes about two hours, later runs only a few minutes.
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg-binary-cache
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Restore vcpkg binary cache
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ github.workspace }}\vcpkg-binary-cache
-          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: vcpkg-${{ runner.os }}-
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-${{ github.run_id }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-
+            vcpkg-${{ runner.os }}-
 
       - name: Count cached vcpkg packages
         id: cache-before
@@ -132,10 +136,10 @@ jobs:
 
       - name: Save vcpkg binary cache
         if: always() && steps.cache-after.outputs.changed == 'True'
-        uses: actions/cache/save@v6
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ github.workspace }}\vcpkg-binary-cache
-          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-${{ github.run_id }}
 
       # Same as running vcvars64.bat: finds Visual Studio and passes the variables
       # it sets on to the following steps.

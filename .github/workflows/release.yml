@@ -16,6 +16,7 @@ jobs:
   build-windows:
     name: Build Windows ZIP
     runs-on: windows-latest
+    timeout-minutes: 180
     env:
       VCPKG_DEFAULT_TRIPLET: x64-windows
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\vcpkg-binary-cache
@@ -23,7 +24,7 @@ jobs:
       # fixed to one commit and checked, so every release contains the same files.
       TESSDATA_COMMIT: e12c65a915945e4c28e237a9b52bc4a8f39a0cec
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set version
         id: version
@@ -49,17 +50,20 @@ jobs:
       # The package cache is created by the CI workflow (ci.yml) on master; this workflow
       # only reads it. Without it, building the dependencies takes about two hours.
       - name: Restore vcpkg binary cache
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ github.workspace }}\vcpkg-binary-cache
-          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: vcpkg-${{ runner.os }}-
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-${{ github.run_id }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-
+            vcpkg-${{ runner.os }}-
 
       # The package list is shared with ci.yml (scripts/setup/support/vcpkg-packages.txt), so the
       # cached packages are used.
       - name: Install dependencies (vcpkg)
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Force "$env:VCPKG_DEFAULT_BINARY_CACHE" | Out-Null
           $packages = Get-Content scripts/setup/support/vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' }
           & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install `
             --clean-after-build `
@@ -128,7 +132,7 @@ jobs:
           "| File | Size | SHA256 |`n|---|---|---|`n| $($zip.Name) | $([Math]::Round($zip.Length / 1MB, 1)) MB | ``$hash`` |" >> $env:GITHUB_STEP_SUMMARY
 
       - name: Upload Windows ZIP artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f4646cd9 # v7.0.2
         with:
           name: windows-zip
           path: build/package/*.zip
@@ -136,8 +140,9 @@ jobs:
   build-deb:
     name: Build .deb
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set version from tag
         if: startsWith(github.ref, 'refs/tags/v')
@@ -164,7 +169,7 @@ jobs:
         run: ./build-deb.sh build
 
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f4646cd9 # v7.0.2
         with:
           name: deb-package
           path: scantailor-ocr_*_amd64.deb
@@ -172,8 +177,9 @@ jobs:
   build-appimage:
     name: Build AppImage
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set version from tag
         if: startsWith(github.ref, 'refs/tags/v')
@@ -199,7 +205,7 @@ jobs:
       - name: Build and install to AppDir
         run: |
           mkdir build-appimage && cd build-appimage
-          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTS=OFF ..
           make -j$(nproc)
           make install DESTDIR=AppDir
           # appimagetool makes .DirIcon only from a PNG or XPM icon, not from the SVG one.
@@ -262,7 +268,7 @@ jobs:
           mv "$OUT" "../scantailor-ocr-${VERSION}-x86_64.AppImage"
 
       - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f4646cd9 # v7.0.2
         with:
           name: appimage
           path: scantailor-ocr-*-x86_64.AppImage
@@ -270,6 +276,7 @@ jobs:
   release:
     name: Create GitHub Release
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     needs: [build-windows, build-deb, build-appimage]
     # Only for a version tag, not for a test build started by hand.
     if: startsWith(github.ref, 'refs/tags/v')
@@ -277,13 +284,13 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: windows-zip
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: deb-package
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: appimage
 
@@ -295,6 +302,7 @@ jobs:
             ScanTailor-OCR-*-win64.zip
             scantailor-ocr_*_amd64.deb
             scantailor-ocr-*-x86_64.AppImage
+          fail_on_unmatched_files: true
           generate_release_notes: true
           draft: false
         env:

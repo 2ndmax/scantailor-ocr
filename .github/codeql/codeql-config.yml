@@ -5,6 +5,10 @@
 # Rules left out: style hints, findings in the code Qt generates (moc/uic in
 # build/), and unused-static-function, which takes the test cases registered by
 # Boost.Test for unused on Windows.
+paths-ignore:
+  - build/**
+  - "**/*_autogen/**"
+
 query-filters:
   - exclude:
       id:

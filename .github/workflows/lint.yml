@@ -30,12 +30,13 @@ jobs:
   clang-format:
     name: clang-format
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
 
@@ -48,11 +49,15 @@ jobs:
 
       - name: Get changed source files
         id: changed
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE="${{ github.event.pull_request.base.sha }}"
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            BASE="$PR_BASE_SHA"
           else
-            BASE="${{ github.event.before }}"
+            BASE="$PUSH_BEFORE"
           fi
           # Empty when started by hand (workflow_dispatch): check the last commit.
           if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
@@ -77,14 +82,15 @@ jobs:
       - name: Check formatting
         if: steps.changed.outputs.count != '0'
         run: |
-          cat changed_files.txt | xargs clang-format --dry-run -Werror
+          xargs -r -d '\n' clang-format --dry-run -Werror < changed_files.txt
           echo "All changed files are formatted."
 
   ruff:
     name: ruff (MCP server)
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
