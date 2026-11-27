@@ -32,7 +32,7 @@ ImageView::ImageView(const QImage& image,
       m_zoomHandler(*this),
       m_noContentMenu(new QMenu(this)),
       m_haveContentMenu(new QMenu(this)),
-      m_contentRect(contentRect),
+      m_contentRect(contentRect.isEmpty() ? QRectF() : contentRect),
       m_pageRect(pageRect),
       m_pageRectEnabled(pageRectEnabled),
       m_pageRectReloadRequested(false),
@@ -98,7 +98,7 @@ ImageView::ImageView(const QImage& image,
     m_pageRectEdgeHandlers[i].setProximityCursor(edgeCursor);
     m_pageRectEdgeHandlers[i].setInteractionCursor(edgeCursor);
 
-    if (m_contentRect.isValid()) {
+    if (hasContentRect()) {
       makeLastFollower(m_contentRectCornerHandlers[i]);
       makeLastFollower(m_contentRectEdgeHandlers[i]);
     }
@@ -136,7 +136,7 @@ ImageView::ImageView(const QImage& image,
     m_pageRectAreaHandler.setProximityCursor(cursor);
     m_pageRectAreaHandler.setInteractionCursor(cursor);
 
-    if (m_contentRect.isValid()) {
+    if (hasContentRect()) {
       makeLastFollower(m_contentRectAreaHandler);
     }
     if (m_pageRectEnabled) {
@@ -163,7 +163,7 @@ ImageView::ImageView(const QImage& image,
 ImageView::~ImageView() = default;
 
 void ImageView::createContentBox() {
-  if (!m_contentRect.isEmpty()) {
+  if (hasContentRect()) {
     return;
   }
   if (interactionState().captured()) {
@@ -184,7 +184,7 @@ void ImageView::createContentBox() {
 }
 
 void ImageView::removeContentBox() {
-  if (m_contentRect.isEmpty()) {
+  if (!hasContentRect()) {
     return;
   }
   if (interactionState().captured()) {
@@ -199,7 +199,7 @@ void ImageView::removeContentBox() {
 }
 
 void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
-  if (m_contentRect.isNull() && !m_pageRectEnabled) {
+  if (!hasContentRect() && !m_pageRectEnabled) {
     return;
   }
 
@@ -214,7 +214,7 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction
     painter.drawRect(m_pageRect);
   }
 
-  if (m_contentRect.isNull()) {
+  if (!hasContentRect()) {
     return;
   }
 
@@ -233,7 +233,7 @@ void ImageView::onContextMenuEvent(QContextMenuEvent* event, InteractionState& i
     return;
   }
 
-  if (m_contentRect.isEmpty()) {
+  if (!hasContentRect()) {
     m_noContentMenu->popup(event->globalPos());
   } else {
     m_haveContentMenu->popup(event->globalPos());
@@ -276,8 +276,9 @@ QPointF ImageView::pageRectCornerPosition(int edgeMask) const {
 }
 
 void ImageView::pageRectCornerMoveRequest(int edgeMask, const QPointF& pos) {
-  m_pageRect = widgetToVirtual().mapRect(
-      resizeRectByEdges(virtualToWidget().mapRect(m_pageRect), edgeMask, pos, m_minBoxSize));
+  QRectF r(resizeRectByEdges(virtualToWidget().mapRect(m_pageRect), edgeMask, pos, m_minBoxSize));
+  forceInsideImage(r, edgeMask);
+  m_pageRect = widgetToVirtual().mapRect(r);
   forcePageRectDescribeContent();
 
   updateViewport();
@@ -295,6 +296,30 @@ void ImageView::pageRectEdgeMoveRequest(int edge, const QLineF& line) {
 void ImageView::pageRectDragFinished() {
   emit manualPageRectSet(m_pageRect);
   m_pageRectReloadRequested = false;
+}
+
+QRectF ImageView::clampPageRectToImage(const QRectF& pageRect) const {
+  const QRectF imageRect(virtualDisplayRect());
+  if (imageRect.isEmpty()) {
+    return pageRect;
+  }
+
+  QRectF bounded(pageRect);
+  if (bounded.left() < imageRect.left()) {
+    bounded.translate(imageRect.left() - bounded.left(), 0.0);
+  }
+  if (bounded.right() > imageRect.right()) {
+    bounded.translate(imageRect.right() - bounded.right(), 0.0);
+  }
+  if (bounded.top() < imageRect.top()) {
+    bounded.translate(0.0, imageRect.top() - bounded.top());
+  }
+  if (bounded.bottom() > imageRect.bottom()) {
+    bounded.translate(0.0, imageRect.bottom() - bounded.bottom());
+  }
+
+  bounded = bounded.intersected(imageRect);
+  return bounded.isEmpty() ? imageRect : bounded;
 }
 
 void ImageView::forceInsideImage(QRectF& widgetRect, const int edgeMask) const {
@@ -321,7 +346,7 @@ void ImageView::forceInsideImage(QRectF& widgetRect, const int edgeMask) const {
 }
 
 void ImageView::forcePageRectDescribeContent() {
-  if (!m_contentRect.isValid()) {
+  if (!hasContentRect()) {
     return;
   }
 
@@ -368,7 +393,22 @@ QRectF ImageView::pageRectPosition() const {
 void ImageView::pageRectMoveRequest(const QPolygonF& polyMoved) {
   QRectF pageRectInWidget(polyMoved.boundingRect());
 
-  if (m_contentRect.isValid()) {
+  const QRectF imageRect(virtualToWidget().mapRect(virtualDisplayRect()));
+  if (pageRectInWidget.left() < imageRect.left()) {
+    pageRectInWidget.translate(imageRect.left() - pageRectInWidget.left(), 0);
+  }
+  if (pageRectInWidget.right() > imageRect.right()) {
+    pageRectInWidget.translate(imageRect.right() - pageRectInWidget.right(), 0);
+  }
+  if (pageRectInWidget.top() < imageRect.top()) {
+    pageRectInWidget.translate(0, imageRect.top() - pageRectInWidget.top());
+  }
+  if (pageRectInWidget.bottom() > imageRect.bottom()) {
+    pageRectInWidget.translate(0, imageRect.bottom() - pageRectInWidget.bottom());
+  }
+  pageRectInWidget = pageRectInWidget.intersected(imageRect);
+
+  if (hasContentRect()) {
     const QRectF contentRect(virtualToWidget().mapRect(m_contentRect));
     if (pageRectInWidget.left() > contentRect.left()) {
       pageRectInWidget.translate(contentRect.left() - pageRectInWidget.left(), 0);
@@ -393,9 +433,12 @@ void ImageView::pageRectSetExternally(const QRectF& pageRect) {
   if (!m_pageRectEnabled) {
     return;
   }
-  m_pageRect = pageRect;
+  m_pageRect = clampPageRectToImage(pageRect);
 
   forcePageRectDescribeContent();
+  if (m_pageRect != pageRect) {
+    emit pageRectSizeChanged(m_pageRect.size());
+  }
   // A size typed in the options is a manual page box too, even if the content didn't make it grow.
   emit manualPageRectSet(m_pageRect);
   m_pageRectReloadRequested = false;
@@ -405,7 +448,7 @@ void ImageView::pageRectSetExternally(const QRectF& pageRect) {
 
 void ImageView::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   if (event->button() == Qt::LeftButton) {
-    if (!m_contentRect.isEmpty() && !m_contentMask.isNull()) {
+    if (hasContentRect() && !m_contentMask.isNull()) {
       correctContentBox(QPointF(0.5, 0.5) + event->pos(), event->modifiers());
     }
   }

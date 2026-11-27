@@ -88,6 +88,10 @@ class ImageView : public ImageViewBase, private InteractionHandler {
 
   void pageRectDragFinished();
 
+  bool hasContentRect() const { return !m_contentRect.isEmpty(); }
+
+  QRectF clampPageRectToImage(const QRectF& pageRect) const;
+
   void forceInsideImage(QRectF& widgetRect, int edgeMask) const;
 
   void forcePageRectDescribeContent();

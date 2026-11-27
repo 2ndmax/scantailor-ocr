@@ -32,7 +32,9 @@
 #include <filters/select_content/ui/Thumbnail.h>
 
 #include <QMetaObject>
+#include <QMouseEvent>
 #include <QPolygonF>
+#include <QSignalSpy>
 #include <QSpinBox>
 #include <QtTest/QtTest>
 #include <memory>
@@ -242,5 +244,76 @@ void TestSelectContentQt::testApplySelectionPreservesManualBoxes() {
     const std::unique_ptr<Params> updated = panel.settings->getPageParams(pageB);
     QVERIFY(updated != nullptr);
     QCOMPARE(updated->contentRect(), QRectF(100, 120, 300, 400));
+  }
+}
+
+void TestSelectContentQt::testEmptyContentRectAndPageBoxBounds() {
+  QImage img(200, 300, QImage::Format_RGB32);
+  img.fill(Qt::white);
+  const Dpm dpm(Dpi(300, 300));
+  img.setDotsPerMeterX(dpm.horizontal());
+  img.setDotsPerMeterY(dpm.vertical());
+  const ImageTransformation xform(QRectF(0, 0, 200, 300), Dpi(300, 300));
+
+  // P7-07: Non-null empty contentRect (QRectF(100, 150, 0, 0)) does not attach active content box handlers.
+  {
+    ImageView view(img, img, ContentMask(), xform, QRectF(100, 150, 0, 0), QRectF(0, 0, 200, 300), true);
+    view.resize(400, 400);
+
+    QSignalSpy contentSpy(&view, &ImageView::manualContentRectSet);
+    const QPointF emptyBoxPt = view.virtualToWidget().map(QPointF(100, 150));
+    const QPointF movedPt = emptyBoxPt + QPointF(20.0, 20.0);
+    InteractionState state;
+    view.rootInteractionHandler().proximityUpdate(emptyBoxPt, state);
+    QMouseEvent press(QEvent::MouseButtonPress, emptyBoxPt, emptyBoxPt, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    press.ignore();
+    view.rootInteractionHandler().mousePressEvent(&press, state);
+    QMouseEvent move(QEvent::MouseMove, movedPt, movedPt, Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+    move.ignore();
+    view.rootInteractionHandler().mouseMoveEvent(&move, state);
+    QMouseEvent rel(QEvent::MouseButtonRelease, movedPt, movedPt, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    rel.ignore();
+    view.rootInteractionHandler().mouseReleaseEvent(&rel, state);
+    QCOMPARE(contentSpy.count(), 0);
+
+    QVERIFY(QMetaObject::invokeMethod(&view, "createContentBox", Qt::DirectConnection));
+    QCOMPARE(contentSpy.count(), 1);
+    const QRectF created = contentSpy.at(0).at(0).toRectF();
+    QVERIFY(!created.isEmpty());
+    QVERIFY(QRectF(0, 0, 200, 300).contains(created));
+  }
+
+  // P7-07: pageRectSetExternally and dragging page edge stay within virtualDisplayRect().
+  {
+    ImageView view(img, img, ContentMask(), xform, QRectF(), QRectF(20, 20, 150, 200), true);
+    view.resize(400, 400);
+
+    QSignalSpy pageSpy(&view, &ImageView::manualPageRectSet);
+    view.pageRectSetExternally(QRectF(50, 50, 500, 600));
+    QCOMPARE(pageSpy.count(), 1);
+    const QRectF clampedExternal = pageSpy.at(0).at(0).toRectF();
+    QVERIFY(QRectF(0, 0, 200, 300).contains(clampedExternal));
+
+    pageSpy.clear();
+    const QPointF rightEdge
+        = view.virtualToWidget().map(QPointF(clampedExternal.right(), clampedExternal.center().y()));
+    InteractionState state;
+    view.rootInteractionHandler().proximityUpdate(rightEdge, state);
+    QMouseEvent press(QEvent::MouseButtonPress, rightEdge, rightEdge, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    press.ignore();
+    view.rootInteractionHandler().mousePressEvent(&press, state);
+    QVERIFY(state.captured());
+
+    const QPointF farRight = view.virtualToWidget().map(QPointF(350.0, clampedExternal.center().y()));
+    QMouseEvent move(QEvent::MouseMove, farRight, farRight, Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+    move.ignore();
+    view.rootInteractionHandler().mouseMoveEvent(&move, state);
+    QMouseEvent release(QEvent::MouseButtonRelease, farRight, farRight, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    release.ignore();
+    view.rootInteractionHandler().mouseReleaseEvent(&release, state);
+
+    QCOMPARE(pageSpy.count(), 1);
+    const QRectF clampedDragged = pageSpy.at(0).at(0).toRectF();
+    QVERIFY(QRectF(0, 0, 200, 300).contains(clampedDragged));
   }
 }
