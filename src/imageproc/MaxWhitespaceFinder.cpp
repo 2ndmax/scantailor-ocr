@@ -4,7 +4,10 @@
 #include "MaxWhitespaceFinder.h"
 
 #include <QDebug>
+#include <algorithm>
 #include <cassert>
+#include <cstdint>
+#include <limits>
 
 namespace imageproc {
 using namespace max_whitespace_finder;
@@ -13,8 +16,8 @@ namespace {
 class AreaCompare {
  public:
   bool operator()(const QRect lhs, const QRect rhs) const {
-    const int lhsArea = lhs.width() * lhs.height();
-    const int rhsArea = rhs.width() * rhs.height();
+    const int64_t lhsArea = static_cast<int64_t>(lhs.width()) * lhs.height();
+    const int64_t rhsArea = static_cast<int64_t>(rhs.width()) * rhs.height();
     return lhsArea < rhsArea;
   }
 };
@@ -23,11 +26,15 @@ class AreaCompare {
 MaxWhitespaceFinder::MaxWhitespaceFinder(const BinaryImage& img, QSize minSize)
     : m_integralImg(img.size()),
       m_queuedRegions(std::make_unique<PriorityStorageImpl<AreaCompare>>(AreaCompare())),
-      m_minSize(minSize) {
+      m_minSize(std::max(1, minSize.width()), std::max(1, minSize.height())) {
   init(img);
 }
 
 void MaxWhitespaceFinder::init(const BinaryImage& img) {
+  if (img.isNull() || (img.width() < m_minSize.width()) || (img.height() < m_minSize.height())) {
+    return;
+  }
+
   const int width = img.width();
   const int height = img.height();
   const uint32_t* line = img.data();
@@ -138,10 +145,12 @@ QRect MaxWhitespaceFinder::findPivotObstacle(const Region& region) const {
   const QPoint center(region.bounds().center());
 
   QRect bestObstacle;
-  int bestDistance = std::numeric_limits<int>::max();
+  int64_t bestDistance = std::numeric_limits<int64_t>::max();
   for (const QRect& obstacle : region.obstacles()) {
     const QPoint vec(center - obstacle.center());
-    const int distance = vec.x() * vec.x() + vec.y() * vec.y();
+    const int64_t dx = vec.x();
+    const int64_t dy = vec.y();
+    const int64_t distance = dx * dx + dy * dy;
     if (distance <= bestDistance) {
       bestObstacle = obstacle;
       bestDistance = distance;
@@ -268,7 +277,7 @@ QRect MaxWhitespaceFinder::extendBlackPixelToBlackBox(const QPoint pixel, const 
   QRect outerRect(bounds);
   QRect innerRect(pixel.x(), pixel.y(), 1, 1);
 
-  if (m_integralImg.sum(outerRect) == unsigned(outerRect.width() * outerRect.height())) {
+  if (m_integralImg.sum(outerRect) == static_cast<uint64_t>(outerRect.width()) * outerRect.height()) {
     return outerRect;
   }
 
@@ -299,7 +308,7 @@ QRect MaxWhitespaceFinder::extendBlackPixelToBlackBox(const QPoint pixel, const 
     assert(outerRect.contains(middleRect));
     assert(middleRect.contains(innerRect));
 
-    const unsigned area = middleRect.width() * middleRect.height();
+    const uint64_t area = static_cast<uint64_t>(middleRect.width()) * middleRect.height();
     if (m_integralImg.sum(middleRect) == area) {
       innerRect = middleRect;
     } else {

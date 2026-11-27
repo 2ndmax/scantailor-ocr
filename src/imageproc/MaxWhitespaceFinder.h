@@ -239,7 +239,7 @@ void PriorityStorageImpl<QualityCompare>::pop() {
 template <typename QualityCompare>
 void PriorityStorageImpl<QualityCompare>::pushHeap(const std::deque<Region>::iterator begin,
                                                    const std::deque<Region>::iterator end) {
-  using Distance = std::vector<Region>::iterator::difference_type;
+  using Distance = std::deque<Region>::iterator::difference_type;
 
   Distance valueIdx = end - begin - 1;
   Distance parentIdx = (valueIdx - 1) / 2;
@@ -262,7 +262,7 @@ void PriorityStorageImpl<QualityCompare>::popHeap(const std::deque<Region>::iter
   // Swap the first (top) and the last elements.
   begin->swap(*(end - 1));
 
-  using Distance = std::vector<Region>::iterator::difference_type;
+  using Distance = std::deque<Region>::iterator::difference_type;
   const Distance newLength = end - begin - 1;
   Distance nodeIdx = 0;
   Distance secondChildIdx = 2 * (nodeIdx + 1);
@@ -300,7 +300,7 @@ template <typename QualityCompare>
 MaxWhitespaceFinder::MaxWhitespaceFinder(const QualityCompare comp, const BinaryImage& img, const QSize minSize)
     : m_integralImg(img.size()),
       m_queuedRegions(std::make_unique<max_whitespace_finder::PriorityStorageImpl<QualityCompare>>(comp)),
-      m_minSize(minSize) {
+      m_minSize(std::max(1, minSize.width()), std::max(1, minSize.height())) {
   init(img);
 }
 }  // namespace imageproc
