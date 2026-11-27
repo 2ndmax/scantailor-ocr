@@ -23,6 +23,7 @@ class TestFixOrientationQt : public QObject {
   void testOrientationDetectionButtonRequestsDetection();
   void testOrientationDetectionDialogHasBookRuleOptionOff();
   void testOrientationDetectionDialogDeliversBookRuleInSignal();
+  void testOrientationDetectionDialogHidesBeforeSignal();
   void testShowsPanelAndConnectedView();
   void testThumbnailOfPage();
 };

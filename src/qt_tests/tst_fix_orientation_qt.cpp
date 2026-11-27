@@ -415,3 +415,44 @@ void TestFixOrientationQt::testOrientationDetectionDialogDeliversBookRuleInSigna
   QVERIFY(accepted[0].first == std::set<PageId>{PageId(ImageId("page.png"))});
   QCOMPARE(accepted[0].second, true);
 }
+
+void TestFixOrientationQt::testOrientationDetectionDialogHidesBeforeSignal() {
+  const PageSelectionAccessor accessor(std::make_shared<filter_ui_checks::EmptyPageSelectionProvider>());
+  OrientationDetectionDialog dialog(nullptr, PageId(ImageId("page.png")), accessor);
+  dialog.show();
+  QVERIFY(dialog.isVisible());
+
+  bool visibleDuringSignal = true;
+  QObject::connect(&dialog, &OrientationDetectionDialog::accepted,
+                   [&](const std::set<PageId>&, bool) { visibleDuringSignal = dialog.isVisible(); });
+  auto* const buttonBox = dialog.findChild<QDialogButtonBox*>("buttonBox");
+  QVERIFY(buttonBox != nullptr);
+  buttonBox->button(QDialogButtonBox::Ok)->click();
+
+  QVERIFY(!visibleDuringSignal);
+  QCOMPARE(dialog.result(), static_cast<int>(QDialog::Accepted));
+
+  // Verify WA_DeleteOnClose path through OptionsWidget does not crash when events process during emission.
+  filter_ui_checks::OnePageProject one;
+  QVERIFY(one.isValid());
+  const PageInfo page = one.page(IMAGE_VIEW);
+  OptionsWidget widget(std::make_shared<Settings>(),
+                       PageSelectionAccessor(std::make_shared<filter_ui_checks::EmptyPageSelectionProvider>()));
+  widget.preUpdateUI(page, OrthogonalRotation());
+
+  bool panelDialogHidden = false;
+  QObject::connect(&widget, &FilterOptionsWidget::orientationDetectionRequested, [&](const std::set<PageId>&, bool) {
+    auto* const dlg = widget.findChild<OrientationDetectionDialog*>();
+    panelDialogHidden = dlg && !dlg->isVisible();
+    QCoreApplication::processEvents();
+  });
+  auto* const detBtn = widget.findChild<QPushButton*>("orientationDetectionBtn");
+  QVERIFY(detBtn != nullptr);
+  detBtn->click();
+  auto* const dlg = widget.findChild<OrientationDetectionDialog*>();
+  QVERIFY(dlg != nullptr);
+  auto* const box = dlg->findChild<QDialogButtonBox*>("buttonBox");
+  QVERIFY(box != nullptr);
+  box->button(QDialogButtonBox::Ok)->click();
+  QVERIFY(panelDialogHidden);
+}

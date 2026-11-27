@@ -3,6 +3,8 @@
 
 #include "OrientationDetectionDialog.h"
 
+#include <QPointer>
+
 #include "PageSelectionAccessor.h"
 
 namespace fix_orientation {
@@ -24,13 +26,18 @@ void OrientationDetectionDialog::setThisPageIncluded(const bool included) {
 
 void OrientationDetectionDialog::onSubmit() {
   const bool bookRule = bookRuleCheckBox->isChecked();
-  if (scopeGroupBox->isThisPageOnly()) {
-    emit accepted(m_thisPageIncluded ? std::set<PageId>{m_curPage} : std::set<PageId>(), bookRule);
-  } else {
-    emit accepted(scopeGroupBox->pages(), bookRule);
-  }
+  const std::set<PageId> pages = scopeGroupBox->isThisPageOnly()
+                                     ? (m_thisPageIncluded ? std::set<PageId>{m_curPage} : std::set<PageId>())
+                                     : scopeGroupBox->pages();
+
+  // Hide before emitting so synchronous progress/summary dialogs do not leave this modal dialog visible underneath.
+  QPointer<OrientationDetectionDialog> self(this);
+  hide();
+  emit accepted(pages, bookRule);
 
   // We assume the default connection from accepted() to accept() was removed.
-  accept();
+  if (self) {
+    accept();
+  }
 }
 }  // namespace fix_orientation
