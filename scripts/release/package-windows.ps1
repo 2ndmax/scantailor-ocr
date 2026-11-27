@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Builds the portable Windows ZIP of ScanTailor OCR from a finished build.
 
@@ -338,7 +338,7 @@ $qtVersionInfo = ((Get-Content $qtSpdx -Raw | ConvertFrom-Json).packages | Where
 if ($qtVersionInfo -notmatch '^((\d+\.\d+)\.\d+)(#\d+)?$') { Fail "No Qt version found in $qtSpdx." }
 $qtVersion = $Matches[1]
 $qtMinor = $Matches[2]
-$vcpkgCommit = (& git -C $VcpkgRoot rev-parse HEAD 2>$null)
+$vcpkgCommit = ((cmd /c "git -C `"$VcpkgRoot`" rev-parse HEAD 2>nul") -join '').Trim()
 if ($LASTEXITCODE -ne 0 -or $vcpkgCommit -notmatch '^[0-9a-f]{40}$') { Fail "$VcpkgRoot is not a git checkout of vcpkg." }
 
 $componentsHeader = @(
@@ -398,34 +398,41 @@ if (-not $SkipStartTest) {
   $testDir = Join-Path ([System.IO.Path]::GetTempPath()) ("stocr-starttest-" + [Guid]::NewGuid().ToString("N"))
   Copy-Item -Recurse $packageDir $testDir
   $savedPath = $env:PATH
+  $process = $null
   try {
-    $env:PATH = Join-Path $env:SystemRoot "System32"
-    $process = Start-Process -FilePath (Join-Path $testDir $exeName) -PassThru
+    try {
+      $env:PATH = Join-Path $env:SystemRoot "System32"
+      $process = Start-Process -FilePath (Join-Path $testDir $exeName) -PassThru
+      if ($process) { $null = $process.Handle }
+    } finally {
+      $env:PATH = $savedPath
+    }
+    Start-Sleep -Seconds 6
+    if ($process.HasExited) { Fail "The program exited right after starting (exit code $($process.ExitCode))." }
+
+    $process.Refresh()
+    $foreign = @()
+    foreach ($module in $process.Modules) {
+      $path = $module.FileName
+      $fromPackage = $path.StartsWith($testDir, [StringComparison]::OrdinalIgnoreCase)
+      $fromWindows = $path.StartsWith($env:SystemRoot, [StringComparison]::OrdinalIgnoreCase)
+      if (-not $fromPackage -and -not $fromWindows) { $foreign += $path }
+    }
+    $moduleCount = @($process.Modules).Count
+
+    if ($foreign.Count -gt 0) {
+      Write-Host "Modules loaded from outside the package and Windows:" -ForegroundColor Yellow
+      $foreign | ForEach-Object { Write-Host "  $_" -ForegroundColor Yellow }
+      Fail "The program uses files that aren't in the package."
+    }
+    Write-Host "Started fine; $moduleCount modules, all from the package or from Windows."
   } finally {
-    $env:PATH = $savedPath
+    if ($process -and -not $process.HasExited) {
+      Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+      Start-Sleep -Seconds 1
+    }
+    Remove-Item -Recurse -Force $testDir -ErrorAction SilentlyContinue
   }
-  Start-Sleep -Seconds 6
-  if ($process.HasExited) { Fail "The program exited right after starting (exit code $($process.ExitCode))." }
-
-  $process.Refresh()
-  $foreign = @()
-  foreach ($module in $process.Modules) {
-    $path = $module.FileName
-    $fromPackage = $path.StartsWith($testDir, [StringComparison]::OrdinalIgnoreCase)
-    $fromWindows = $path.StartsWith($env:SystemRoot, [StringComparison]::OrdinalIgnoreCase)
-    if (-not $fromPackage -and -not $fromWindows) { $foreign += $path }
-  }
-  $moduleCount = @($process.Modules).Count
-  Stop-Process -Id $process.Id -Force
-  Start-Sleep -Seconds 1
-  Remove-Item -Recurse -Force $testDir -ErrorAction SilentlyContinue
-
-  if ($foreign.Count -gt 0) {
-    Write-Host "Modules loaded from outside the package and Windows:" -ForegroundColor Yellow
-    $foreign | ForEach-Object { Write-Host "  $_" -ForegroundColor Yellow }
-    Fail "The program uses files that aren't in the package."
-  }
-  Write-Host "Started fine; $moduleCount modules, all from the package or from Windows."
 }
 
 # ---------------------------------------------------------------------------
