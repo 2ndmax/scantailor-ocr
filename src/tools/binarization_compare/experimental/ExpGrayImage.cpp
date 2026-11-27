@@ -20,7 +20,8 @@
 // Fixes: the windows of grayMapMean (as in imageproc/ExperimentalBinarization.cpp) and
 // grayEMDenoiserInPlace were one row or column too small, grayBiModalTiledMap
 // extrapolated at the top and left edges, grayEqualizeInPlace avoids division by zero
-// on images smaller than 256 pixels, and grayRetinexInPlace clamps before casting.
+// on images smaller than 256 pixels, grayRetinexInPlace clamps before casting,
+// grayMapOverlay fixes the inverted exit branch, and grayScaleByLine uses floorf.
 // Speed: grayMapMax and grayMapContrast use imageproc's erodeGray and dilateGray, which give the
 // same result in O(1) instead of O(radius) per pixel.
 
@@ -1561,7 +1562,7 @@ void grayMapOverlay(GrayImage& src, GrayImage& gover, float const coef) {
         retval *= overlay;
         retval += retval;
         retval /= 255.0f;
-        if (base < 127.5f) {
+        if (base > 127.5f) {
           retval = 255.0f - retval;
           overlay = 255.0f - overlay;
         }
@@ -1827,7 +1828,7 @@ GrayImage grayScaleByLine(GrayImage& src, int const wnew, int const hnew) {
     /* biline scale */
     for (int y = 0; y < hnew; y++) {
       float const yd = (0.5f + y) * scaleh - 0.5f;
-      int y1 = yd;
+      int y1 = static_cast<int>(floorf(yd));
       int y2 = y1 + 1;
       float const dy1 = yd - y1;
       float const dy2 = 1.0f - dy1;
@@ -1835,17 +1836,17 @@ GrayImage grayScaleByLine(GrayImage& src, int const wnew, int const hnew) {
       y2 = (y2 < 0) ? 0 : ((y2 < h) ? y2 : (h - 1));
       for (int x = 0; x < wnew; x++) {
         float const xd = (0.5f + x) * scalew - 0.5f;
-        int x1 = xd;
+        int x1 = static_cast<int>(floorf(xd));
         int x2 = x1 + 1;
         float const dx1 = xd - x1;
         float const dx2 = 1.0f - dx1;
         x1 = (x1 < 0) ? 0 : ((x1 < w) ? x1 : (w - 1));
         x2 = (x2 < 0) ? 0 : ((x2 < w) ? x2 : (w - 1));
 
-        float const t11 = src_line[y1 * src_stride + x1];
-        float const t12 = src_line[y1 * src_stride + x2];
-        float const t21 = src_line[y2 * src_stride + x1];
-        float const t22 = src_line[y2 * src_stride + x2];
+        float const t11 = src_line[static_cast<size_t>(y1) * src_stride + x1];
+        float const t12 = src_line[static_cast<size_t>(y1) * src_stride + x2];
+        float const t21 = src_line[static_cast<size_t>(y2) * src_stride + x1];
+        float const t22 = src_line[static_cast<size_t>(y2) * src_stride + x2];
 
         float t = dy2 * (dx2 * t11 + dx1 * t12) + dy1 * (dx2 * t21 + dx1 * t22);
         t = (t < 0.0f) ? 0.0f : ((t < 255.0f) ? t : 255.0f);

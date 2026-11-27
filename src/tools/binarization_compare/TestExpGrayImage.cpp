@@ -238,6 +238,37 @@ void testWriteViewerPreservesDataOnReadOnlyIndex() {
   require(binarization_compare::writeViewer(QDir(tmp.path()), false),
           "writeViewer failed after restoring index.html permissions");
 }
+
+void testMapOverlayContinuity() {
+  imageproc::GrayImage src(QSize(2, 1));
+  src.data()[0] = 127;
+  src.data()[1] = 128;
+
+  imageproc::GrayImage gover(QSize(2, 1));
+  gover.fill(128);
+
+  stexp::grayMapOverlay(src, gover, 1.0f);
+  require(std::abs(int(src.data()[0]) - int(src.data()[1])) <= 2,
+          "grayMapOverlay showed discontinuity across 127/128 threshold");
+}
+
+void testScaleByLineEdgeClamping() {
+  imageproc::GrayImage src(QSize(2, 2));
+  src.data()[0] = 100;
+  src.data()[1] = 200;
+  src.data()[src.stride() + 0] = 200;
+  src.data()[src.stride() + 1] = 100;
+
+  const imageproc::GrayImage out = stexp::grayScaleByLine(src, 8, 8);
+  require(out.size() == QSize(8, 8), "grayScaleByLine produced wrong dimensions");
+  require(out.data()[0] == 100, "grayScaleByLine extrapolated top-left edge instead of clamping");
+  for (int y = 0; y < out.height(); ++y) {
+    const unsigned char* line = out.data() + y * out.stride();
+    for (int x = 0; x < out.width(); ++x) {
+      require((line[x] >= 100) && (line[x] <= 200), "grayScaleByLine overshot input intensity bounds");
+    }
+  }
+}
 }  // namespace
 
 int main() {
@@ -249,6 +280,8 @@ int main() {
     testHsvKMeansBoundsAndCoefBg();
     testHsvKMeansEmptyMaskAndZones();
     testWriteViewerPreservesDataOnReadOnlyIndex();
+    testMapOverlayContinuity();
+    testScaleByLineEdgeClamping();
   } catch (const std::exception& e) {
     std::cerr << "Test failed: " << e.what() << '\n';
     return 1;
