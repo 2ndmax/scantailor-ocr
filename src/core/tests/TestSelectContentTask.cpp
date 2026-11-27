@@ -8,13 +8,16 @@
 #include <FilterData.h>
 #include <NullTaskStatus.h>
 #include <PageId.h>
+#include <TaskStatus.h>
 #include <filters/select_content/ContentBoxFinder.h>
 #include <filters/select_content/DetectionOptions.h>
+#include <filters/select_content/PageFinder.h>
 #include <filters/select_content/Params.h>
 #include <filters/select_content/Settings.h>
 #include <filters/select_content/Task.h>
 
 #include <QImage>
+#include <QPainter>
 #include <QPolygonF>
 #include <boost/test/unit_test.hpp>
 #include <memory>
@@ -95,6 +98,55 @@ BOOST_AUTO_TEST_CASE(narrow_crop_does_not_underflow_border_removal) {
   image.setDotsPerMeterY(dpm.vertical());
   const FilterData data(image);
   ContentBoxFinder::findContentBox(NullTaskStatus(), data, QRectF(0, 0, 3, 120), DetectionOptions());
+}
+
+BOOST_AUTO_TEST_CASE(page_finder_accepts_small_expected_box_and_stops_on_cancel) {
+  QImage image(600, 800, QImage::Format_RGB32);
+  image.fill(Qt::black);
+  {
+    QPainter painter(&image);
+    painter.fillRect(QRect(60, 80, 480, 640), Qt::white);
+  }
+  const Dpm dpm(Dpi(150, 150));
+  image.setDotsPerMeterX(dpm.horizontal());
+  image.setDotsPerMeterY(dpm.vertical());
+  const FilterData data(image);
+
+  // Small expected box (< 50% of detected page) has relative error > 1.0 but must still select the page box.
+  const QRectF detected = PageFinder::findPageBox(NullTaskStatus(), data, false, QSizeF(20.0, 20.0), 0.2);
+  BOOST_CHECK_GT(detected.width(), 400.0);
+  BOOST_CHECK_GT(detected.height(), 500.0);
+  BOOST_CHECK(data.xform().resultingRect().contains(detected));
+
+  struct Cancelled {};
+  class CancelledStatus : public TaskStatus {
+   public:
+    void cancel() override {}
+    bool isCancelled() const override { return true; }
+    void throwIfCancelled() const override { throw Cancelled(); }
+  };
+  BOOST_CHECK_THROW(PageFinder::findPageBox(CancelledStatus(), data, false, QSizeF(), 0.2), Cancelled);
+}
+
+BOOST_AUTO_TEST_CASE(page_finder_handles_all_black_and_narrow_images) {
+  const Dpm dpm(Dpi(150, 150));
+
+  QImage black(200, 200, QImage::Format_RGB32);
+  black.fill(Qt::black);
+  black.setDotsPerMeterX(dpm.horizontal());
+  black.setDotsPerMeterY(dpm.vertical());
+  const QRectF blackRect = PageFinder::findPageBox(NullTaskStatus(), FilterData(black), false, QSizeF(), 0.2);
+  BOOST_CHECK_GE(blackRect.width(), 0.0);
+  BOOST_CHECK_GE(blackRect.height(), 0.0);
+  BOOST_CHECK(blackRect.isValid());
+
+  QImage narrow(2, 100, QImage::Format_RGB32);
+  narrow.fill(Qt::white);
+  narrow.setDotsPerMeterX(dpm.horizontal());
+  narrow.setDotsPerMeterY(dpm.vertical());
+  const QRectF narrowRect = PageFinder::findPageBox(NullTaskStatus(), FilterData(narrow), false, QSizeF(), 0.2);
+  BOOST_CHECK_CLOSE(narrowRect.width(), 2.0, 1e-6);
+  BOOST_CHECK_CLOSE(narrowRect.height(), 100.0, 1e-6);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
