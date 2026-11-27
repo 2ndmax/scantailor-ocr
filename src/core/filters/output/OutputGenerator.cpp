@@ -4,6 +4,7 @@
 #include "OutputGenerator.h"
 
 #include <AdjustBrightness.h>
+#include <ColoredDimming.h>
 #include <ConnectivityMap.h>
 #include <DistortionModel.h>
 #include <GrayRasterOp.h>
@@ -19,6 +20,7 @@
 #include <imageproc/ChromaDenoiser.h>
 #include <imageproc/ColorKMeans.h>
 #include <imageproc/ColorSegmenter.h>
+#include <imageproc/ImageCombination.h>
 #include <imageproc/KnnDenoiser.h>
 #include <imageproc/PolygonUtils.h>
 #include <imageproc/Posterizer.h>
@@ -797,6 +799,129 @@ QImage detail::Processor::transformToWorkingCs(bool normalize) const {
   }
   m_inputs.status.throwIfCancelled();
   return dst;
+}
+
+QImage detail::Processor::prepareForBinarization(const QImage& image) const {
+  QImage prepared = dimColoredPixels(image, m_colorParams.blackWhiteOptions().getColoredDimming());
+  if (!m_renderParams.needSavitzkyGolaySmoothing()) {
+    return prepared;
+  }
+  prepared = detail::smoothToGrayscale(prepared, m_dpi);
+  if (m_inputs.dbg) {
+    m_inputs.dbg->add(prepared, "smoothed");
+  }
+  m_inputs.status.throwIfCancelled();
+  return prepared;
+}
+
+std::unique_ptr<OutputImage> detail::Processor::produceBinaryOutput(
+    BinaryImage bwContent,
+    const QImage& colorImage,
+    const ZoneSet& fillZones,
+    const std::function<QPointF(const QPointF&)>& origToOutput) const {
+  OutputImageBuilder imageBuilder;
+  if (!m_renderParams.needColorSegmentation()) {
+    if (!m_images.blackOnWhite) {
+      bwContent.invert();
+    }
+
+    detail::applyFillZonesInPlace(bwContent, fillZones, origToOutput);
+
+    imageBuilder.setImage(bwContent.toQImage());
+  } else {
+    QImage segmentedImage = colorText(bwContent, colorImage);
+    bwContent.release();
+
+    if (!m_images.blackOnWhite) {
+      segmentedImage.invertPixels();
+    }
+
+    detail::applyFillZonesInPlace(segmentedImage, fillZones, origToOutput, false);
+    if (m_inputs.dbg) {
+      m_inputs.dbg->add(segmentedImage, "segmented_with_fill_zones");
+    }
+    m_inputs.status.throwIfCancelled();
+
+    imageBuilder.setImage(segmentedImage);
+  }
+  return imageBuilder.build();
+}
+
+void detail::Processor::combineMixedOutput(QImage& image,
+                                           const BinaryImage& bwContent,
+                                           const BinaryImage& bwMask) const {
+  if (!m_renderParams.needColorSegmentation()) {
+    if (m_renderParams.originalBackground()) {
+      combineImages(image, bwContent);
+    } else {
+      combineImages(image, bwContent, bwMask);
+    }
+  } else {
+    QImage segmentedImage = colorText(bwContent, image);
+
+    if (m_renderParams.originalBackground()) {
+      combineImages(image, segmentedImage);
+    } else {
+      combineImages(image, segmentedImage, bwMask);
+    }
+  }
+
+  if (m_inputs.dbg) {
+    m_inputs.dbg->add(image, "combined");
+  }
+
+  if (m_renderParams.originalBackground()) {
+    detail::reserveBlackAndWhite(image, bwContent.inverted());
+  } else {
+    detail::reserveBlackAndWhite(image, bwMask.inverted());
+  }
+  m_inputs.status.throwIfCancelled();
+}
+
+std::unique_ptr<OutputImage> detail::Processor::finalizeNonBinaryOutput(
+    QImage& image,
+    BinaryImage* bwContentOutput,
+    const BinaryImage& bwContentMaskOutput,
+    const ZoneSet& fillZones,
+    const std::function<QPointF(const QPointF&)>& origToOutput) const {
+  if (!m_images.blackOnWhite) {
+    image.invertPixels();
+  }
+
+  // applyFillZonesToMixedInPlace() re-binarizes the non-picture areas, which would
+  // wipe out the original background, so paint fill zones directly in that mode.
+  if (m_renderParams.mixedOutput() && m_renderParams.needBinarization() && !m_renderParams.originalBackground()) {
+    detail::applyFillZonesToMixedInPlace(image, fillZones, origToOutput, bwContentMaskOutput,
+                                         !m_renderParams.needColorSegmentation());
+  } else {
+    detail::applyFillZonesInPlace(image, fillZones, origToOutput);
+  }
+  if (m_renderParams.originalBackground()) {
+    assert(bwContentOutput != nullptr);
+    detail::applyFillZonesToMask(*bwContentOutput, fillZones, origToOutput);
+    rasterOp<RopAnd<RopSrc, RopDst>>(*bwContentOutput, bwContentMaskOutput);
+  }
+  if (m_inputs.dbg) {
+    m_inputs.dbg->add(image, "fillZones");
+  }
+  m_inputs.status.throwIfCancelled();
+
+  if (m_renderParams.posterize() && !m_renderParams.needBinarization()) {
+    image = posterizeImage(image);
+  }
+
+  OutputImageBuilder imageBuilder;
+  if (m_renderParams.splitOutput()) {
+    imageBuilder.setForegroundType(getForegroundType());
+    if (!m_renderParams.originalBackground()) {
+      imageBuilder.setForegroundMask(bwContentMaskOutput);
+    } else {
+      assert(bwContentOutput != nullptr);
+      imageBuilder.setForegroundMask(*bwContentOutput);
+      imageBuilder.setBackgroundMask(bwContentMaskOutput.inverted());
+    }
+  }
+  return imageBuilder.setImage(image).build();
 }
 
 }  // namespace output

@@ -11,10 +11,12 @@
 
 #include <QColor>
 #include <QImage>
+#include <QPointF>
 #include <QPolygonF>
 #include <QRect>
 #include <QSize>
 #include <QTransform>
+#include <functional>
 #include <memory>
 
 #include "ColorParams.h"
@@ -208,6 +210,22 @@ class Processor {
   // The photo adjustments, applied before the margins are filled. With a picture mask (mixed
   // output), only the pictures are changed.
   void applyPhotoAdjustments(QImage& image, const BinaryImage* pictureMask) const;
+
+  QImage prepareForBinarization(const QImage& image) const;
+
+  std::unique_ptr<OutputImage> produceBinaryOutput(BinaryImage bwContent,
+                                                   const QImage& colorImage,
+                                                   const ZoneSet& fillZones,
+                                                   const std::function<QPointF(const QPointF&)>& origToOutput) const;
+
+  void combineMixedOutput(QImage& image, const BinaryImage& bwContent, const BinaryImage& bwMask) const;
+
+  std::unique_ptr<OutputImage> finalizeNonBinaryOutput(
+      QImage& image,
+      BinaryImage* bwContentOutput,
+      const BinaryImage& bwContentMaskOutput,
+      const ZoneSet& fillZones,
+      const std::function<QPointF(const QPointF&)>& origToOutput) const;
 
   void decideOutsideBackgroundColor();
 

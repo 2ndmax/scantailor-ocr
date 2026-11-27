@@ -36,7 +36,6 @@
 #include "DebugImages.h"
 #include "DepthPerception.h"
 #include "OutputGeneratorProcessor.h"
-#include "OutputImageBuilder.h"
 #include "OutputImageOps.h"
 #include "OutputZoneOps.h"
 #include "Settings.h"
@@ -53,8 +52,6 @@ std::unique_ptr<OutputImage> detail::Processor::processWithDewarping(ZoneSet& pi
                                                                      const DepthPerception& depthPerception,
                                                                      BinaryImage* autoPictureMask,
                                                                      BinaryImage* specklesImage) {
-  OutputImageBuilder imageBuilder;
-
   // The output we would get if dewarping was turned off, except always grayscale.
   // Used for automatic picture detection and binarization threshold calculation.
   // This image corresponds to the area of workingBoundingRect.
@@ -229,18 +226,7 @@ std::unique_ptr<OutputImage> detail::Processor::processWithDewarping(ZoneSet& pi
   detail::applyAffineTransform(dewarpingContentAreaMask, rotateXform, WHITE);
 
   if (m_renderParams.binaryOutput()) {
-    QImage dewarpedAndMaybeSmoothed;
-    // We only do smoothing if we are going to do binarization later.
-    if (!m_renderParams.needSavitzkyGolaySmoothing()) {
-      dewarpedAndMaybeSmoothed = dimColoredPixels(dewarped, m_colorParams.blackWhiteOptions().getColoredDimming());
-    } else {
-      dewarpedAndMaybeSmoothed = detail::smoothToGrayscale(
-          dimColoredPixels(dewarped, m_colorParams.blackWhiteOptions().getColoredDimming()), m_dpi);
-      if (m_inputs.dbg) {
-        m_inputs.dbg->add(dewarpedAndMaybeSmoothed, "smoothed");
-      }
-      m_inputs.status.throwIfCancelled();
-    }
+    QImage dewarpedAndMaybeSmoothed = prepareForBinarization(dewarped);
 
     // don't destroy as it's needed for color segmentation
     if (!m_renderParams.needColorSegmentation()) {
@@ -266,33 +252,7 @@ std::unique_ptr<OutputImage> detail::Processor::processWithDewarping(ZoneSet& pi
     maybeDespeckleInPlace(dewarpedBwContent, m_inputs.outRect, m_inputs.outRect, m_despeckleLevel, specklesImage,
                           m_dpi);
 
-    if (!m_renderParams.needColorSegmentation()) {
-      if (!m_images.blackOnWhite) {
-        dewarpedBwContent.invert();
-      }
-
-      detail::applyFillZonesInPlace(dewarpedBwContent, fillZones, origToOutput);
-
-      imageBuilder.setImage(dewarpedBwContent.toQImage());
-    } else {
-      QImage segmentedImage = colorText(dewarpedBwContent, dewarped);
-      dewarped = QImage();
-      dewarpedBwContent.release();
-
-
-      if (!m_images.blackOnWhite) {
-        segmentedImage.invertPixels();
-      }
-
-      detail::applyFillZonesInPlace(segmentedImage, fillZones, origToOutput, false);
-      if (m_inputs.dbg) {
-        m_inputs.dbg->add(segmentedImage, "segmented_with_fill_zones");
-      }
-      m_inputs.status.throwIfCancelled();
-
-      imageBuilder.setImage(segmentedImage);
-    }
-    return imageBuilder.build();
+    return produceBinaryOutput(std::move(dewarpedBwContent), dewarped, fillZones, origToOutput);
   }
 
   BinaryImage dewarpedBwMask;
@@ -314,17 +274,7 @@ std::unique_ptr<OutputImage> detail::Processor::processWithDewarping(ZoneSet& pi
     m_inputs.status.throwIfCancelled();
 
     if (m_renderParams.needBinarization()) {
-      QImage dewarpedAndMaybeSmoothed;
-      if (!m_renderParams.needSavitzkyGolaySmoothing()) {
-        dewarpedAndMaybeSmoothed = dimColoredPixels(dewarped, m_colorParams.blackWhiteOptions().getColoredDimming());
-      } else {
-        dewarpedAndMaybeSmoothed = detail::smoothToGrayscale(
-            dimColoredPixels(dewarped, m_colorParams.blackWhiteOptions().getColoredDimming()), m_dpi);
-        if (m_inputs.dbg) {
-          m_inputs.dbg->add(dewarpedAndMaybeSmoothed, "smoothed");
-        }
-        m_inputs.status.throwIfCancelled();
-      }
+      QImage dewarpedAndMaybeSmoothed = prepareForBinarization(dewarped);
 
       BinaryImage dewarpedBwMaskFilled(dewarpedBwMask);
       detail::fillMarginsInPlace(dewarpedBwMaskFilled, dewarpingContentAreaMask, WHITE);
@@ -372,32 +322,7 @@ std::unique_ptr<OutputImage> detail::Processor::processWithDewarping(ZoneSet& pi
         m_inputs.status.throwIfCancelled();
       }
 
-      if (!m_renderParams.needColorSegmentation()) {
-        if (m_renderParams.originalBackground()) {
-          combineImages(dewarped, dewarpedBwContent);
-        } else {
-          combineImages(dewarped, dewarpedBwContent, dewarpedBwMask);
-        }
-      } else {
-        QImage segmentedImage = colorText(dewarpedBwContent, dewarped);
-
-        if (m_renderParams.originalBackground()) {
-          combineImages(dewarped, segmentedImage);
-        } else {
-          combineImages(dewarped, segmentedImage, dewarpedBwMask);
-        }
-      }
-
-      if (m_inputs.dbg) {
-        m_inputs.dbg->add(dewarped, "combined");
-      }
-
-      if (m_renderParams.originalBackground()) {
-        detail::reserveBlackAndWhite(dewarped, dewarpedBwContent.inverted());
-      } else {
-        detail::reserveBlackAndWhite(dewarped, dewarpedBwMask.inverted());
-      }
-      m_inputs.status.throwIfCancelled();
+      combineMixedOutput(dewarped, dewarpedBwContent, dewarpedBwMask);
     }
   }
 
@@ -406,41 +331,8 @@ std::unique_ptr<OutputImage> detail::Processor::processWithDewarping(ZoneSet& pi
   decideOutsideBackgroundColor();
   detail::fillMarginsInPlace(dewarped, dewarpingContentAreaMask, m_outsideBackgroundColor);
 
-  if (!m_images.blackOnWhite) {
-    dewarped.invertPixels();
-  }
-
-  // applyFillZonesToMixedInPlace() re-binarizes the non-picture areas, which would
-  // wipe out the original background, so paint fill zones directly in that mode.
-  if (m_renderParams.mixedOutput() && m_renderParams.needBinarization() && !m_renderParams.originalBackground()) {
-    detail::applyFillZonesToMixedInPlace(dewarped, fillZones, origToOutput, dewarpedBwMask,
-                                         !m_renderParams.needColorSegmentation());
-  } else {
-    detail::applyFillZonesInPlace(dewarped, fillZones, origToOutput);
-  }
-  if (m_renderParams.originalBackground()) {
-    detail::applyFillZonesToMask(dewarpedBwContent, fillZones, origToOutput);
-    rasterOp<RopAnd<RopSrc, RopDst>>(dewarpedBwContent, dewarpedBwMask);
-  }
-  if (m_inputs.dbg) {
-    m_inputs.dbg->add(dewarped, "fillZones");
-  }
-  m_inputs.status.throwIfCancelled();
-
-  if (m_renderParams.posterize() && !m_renderParams.needBinarization()) {
-    dewarped = posterizeImage(dewarped);
-  }
-
-  if (m_renderParams.splitOutput()) {
-    imageBuilder.setForegroundType(getForegroundType());
-    if (!m_renderParams.originalBackground()) {
-      imageBuilder.setForegroundMask(dewarpedBwMask);
-    } else {
-      imageBuilder.setForegroundMask(dewarpedBwContent);
-      imageBuilder.setBackgroundMask(dewarpedBwMask.inverted());
-    }
-  }
-  return imageBuilder.setImage(dewarped).build();
+  return finalizeNonBinaryOutput(dewarped, m_renderParams.originalBackground() ? &dewarpedBwContent : nullptr,
+                                 dewarpedBwMask, fillZones, origToOutput);
 }
 
 /**
