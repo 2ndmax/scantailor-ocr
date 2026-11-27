@@ -85,18 +85,11 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo, const Margins& margins
   m_marginsMM = marginsMm;
   m_alignment = alignment;
 
+  const Alignment::Vertical targetVertical = alignment.isAutoVertical() ? Alignment::VCENTER : alignment.vertical();
+  const Alignment::Horizontal targetHorizontal
+      = alignment.isAutoHorizontal() ? Alignment::HCENTER : alignment.horizontal();
   for (const auto& [button, btnAlignment] : m_alignmentByButton) {
-    if (alignment.isAutoVertical()) {
-      if ((btnAlignment.vertical() == Alignment::VCENTER) && (btnAlignment.horizontal() == alignment.horizontal())) {
-        button->setChecked(true);
-        break;
-      }
-    } else if (alignment.isAutoHorizontal()) {
-      if ((btnAlignment.horizontal() == Alignment::HCENTER) && (btnAlignment.vertical() == alignment.vertical())) {
-        button->setChecked(true);
-        break;
-      }
-    } else if (btnAlignment == alignment) {
+    if ((btnAlignment.vertical() == targetVertical) && (btnAlignment.horizontal() == targetHorizontal)) {
       button->setChecked(true);
       break;
     }
@@ -135,6 +128,7 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo, const Margins& margins
   // The source resolution stays editable while the page is reloaded.
   marginsGroup->setEnabled(false);
   alignmentGroup->setEnabled(false);
+  commonSizeGroup->setEnabled(false);
 
   onUnitsChanged(UnitsProvider::getInstance().getUnits());
 }  // OptionsWidget::preUpdateUI
@@ -144,6 +138,7 @@ void OptionsWidget::postUpdateUI() {
 
   marginsGroup->setEnabled(true);
   alignmentGroup->setEnabled(true);
+  commonSizeGroup->setEnabled(true);
 
   m_marginsMM = m_settings->getHardMarginsMM(m_pageId);
   updateMarginsDisplay();
@@ -425,6 +420,10 @@ void OptionsWidget::applyMargins(const std::set<PageId>& pages,
 
   const bool autoMarginsEnabled = m_settings->isPageAutoMarginsEnabled(m_pageId);
   for (const PageId& pageId : pages) {
+    if (pageId == m_pageId) {
+      continue;
+    }
+
     m_settings->setPageAutoMarginsEnabled(pageId, autoMarginsEnabled);
     if (autoMarginsEnabled) {
       m_settings->invalidateContentSize(pageId);
@@ -632,7 +631,9 @@ const Alignment& OptionsWidget::alignment() const {
 void OptionsWidget::updateAutoModeButtons() {
   auto block = m_connectionManager.getScopedBlock();
 
-  if (m_alignment.isAutoVertical() && !m_alignment.isAutoHorizontal()) {
+  if (m_alignment.isAutoVertical() && m_alignment.isAutoHorizontal()) {
+    alignCenterBtn->setChecked(true);
+  } else if (m_alignment.isAutoVertical() && !m_alignment.isAutoHorizontal()) {
     switch (m_alignmentByButton.at(getCheckedAlignmentButton()).horizontal()) {
       case Alignment::LEFT:
         alignLeftBtn->setChecked(true);
