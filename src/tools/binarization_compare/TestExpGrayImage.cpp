@@ -269,6 +269,91 @@ void testScaleByLineEdgeClamping() {
     }
   }
 }
+
+void testLargeWindowAndRadiusNoOverflow() {
+  // > 16.8 MP image: 32-bit IntegralImage would overflow when summing white pixels.
+  {
+    imageproc::GrayImage img(QSize(4200, 4200));
+    require(!img.isNull(), "large gray image allocation failed");
+    img.fill(250);
+
+    const imageproc::GrayImage mean = stexp::grayMapMean(img, 2100);
+    require(mean.size() == img.size(), "grayMapMean changed large image size");
+    require(mean.data()[2100 * mean.stride() + 2100] == 250, "grayMapMean overflowed 32-bit sum on >16.8 MP window");
+  }
+
+  // Huge radius: (2 * radius + 1)^2 overflows signed 32-bit int.
+  {
+    imageproc::GrayImage small(QSize(1, 1));
+    small.fill(120);
+    const imageproc::GrayImage out = stexp::grayKnnDenoiser(small, 25000, 0.5f);
+    require(out.size() == QSize(1, 1), "grayKnnDenoiser changed 1x1 size");
+    require(out.data()[0] == 120, "grayKnnDenoiser failed with large radius");
+  }
+}
+
+void testEdgeParameterSafety() {
+  imageproc::GrayImage gradient(QSize(16, 16));
+  for (int y = 0; y < gradient.height(); ++y) {
+    unsigned char* line = gradient.data() + y * gradient.stride();
+    for (int x = 0; x < gradient.width(); ++x) {
+      line[x] = static_cast<unsigned char>((x * 16 + y) & 255);
+    }
+  }
+
+  require(stexp::grayBiModalTiledValue(gradient, 10, 10, 5, 5) == 128,
+          "grayBiModalTiledValue should return midpoint on inverted bounds");
+
+  imageproc::GrayImage uniform128(QSize(8, 8));
+  uniform128.fill(128);
+  const imageproc::GrayImage nickOut = stexp::grayNickMap(uniform128, 3, 0.1f, 100);
+  require(nickOut.size() == QSize(8, 8), "grayNickMap changed size");
+  const unsigned char nickPixel = nickOut.data()[4 * nickOut.stride() + 4];
+  require((nickPixel >= 127) && (nickPixel <= 128), "grayNickMap produced wrong value when delta > 50");
+
+  imageproc::GrayImage darkOnWhite(QSize(9, 9));
+  darkOnWhite.fill(255);
+  darkOnWhite.data()[4 * darkOnWhite.stride() + 4] = 10;
+  const imageproc::GrayImage edgeDivOut = stexp::grayEdgeDiv(darkOnWhite, 3, 2.0, 0.5);
+  require(edgeDivOut.size() == QSize(9, 9), "grayEdgeDiv changed size");
+
+  const float nanVal = std::numeric_limits<float>::quiet_NaN();
+  {
+    const imageproc::GrayImage curveNan = stexp::grayCurveFilter(gradient, nanVal);
+    const imageproc::GrayImage sqrNan = stexp::graySqrFilter(gradient, nanVal);
+    const imageproc::GrayImage curveNeg = stexp::grayCurveFilter(gradient, -0.5f);
+    const imageproc::GrayImage sqrNeg = stexp::graySqrFilter(gradient, -0.5f);
+    for (int y = 0; y < gradient.height(); ++y) {
+      const unsigned char* refLine = gradient.data() + y * gradient.stride();
+      const unsigned char* cNanLine = curveNan.data() + y * curveNan.stride();
+      const unsigned char* sNanLine = sqrNan.data() + y * sqrNan.stride();
+      const unsigned char* cNegLine = curveNeg.data() + y * curveNeg.stride();
+      const unsigned char* sNegLine = sqrNeg.data() + y * sqrNeg.stride();
+      for (int x = 0; x < gradient.width(); ++x) {
+        require(cNanLine[x] == refLine[x], "grayCurveFilter should be no-op for NaN coef");
+        require(sNanLine[x] == refLine[x], "graySqrFilter should be no-op for NaN coef");
+        require(cNegLine[x] <= 255 && sNegLine[x] <= 255, "filter produced out-of-range byte");
+      }
+    }
+  }
+
+  {
+    imageproc::GrayImage uniform120(QSize(8, 8));
+    uniform120.fill(120);
+    const imageproc::GrayImage tinyCoef = stexp::grayKnnDenoiser(uniform120, 2, 1e-30f);
+    const imageproc::GrayImage nanCoef = stexp::grayKnnDenoiser(uniform120, 2, nanVal);
+    require(tinyCoef.data()[4 * tinyCoef.stride() + 4] == 120,
+            "grayKnnDenoiser produced 0 * inf = NaN wraparound on tiny coef");
+    require(nanCoef.data()[4 * nanCoef.stride() + 4] == 120, "grayKnnDenoiser should be no-op for NaN coef");
+  }
+
+  {
+    const imageproc::GrayImage risTiny = stexp::grayRISundefect(gradient, 1e-12f, 0.5f);
+    const imageproc::GrayImage risNan = stexp::grayRISundefect(gradient, nanVal, 0.5f);
+    require(risTiny.size() == gradient.size(), "grayRISundefect failed on tiny radius");
+    require(risNan.size() == gradient.size(), "grayRISundefect failed on NaN radius");
+  }
+}
 }  // namespace
 
 int main() {
@@ -282,6 +367,8 @@ int main() {
     testWriteViewerPreservesDataOnReadOnlyIndex();
     testMapOverlayContinuity();
     testScaleByLineEdgeClamping();
+    testLargeWindowAndRadiusNoOverflow();
+    testEdgeParameterSafety();
   } catch (const std::exception& e) {
     std::cerr << "Test failed: " << e.what() << '\n';
     return 1;

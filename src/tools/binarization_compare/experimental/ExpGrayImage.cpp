@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <limits>
 #include <stdexcept>
 #include <vector>
 #include "ExpBinarize.h"
@@ -38,6 +39,12 @@
 
 namespace imageproc {
 namespace stexp {
+namespace {
+bool isNonZeroFinite(double const value) {
+  return std::isfinite(value) && (value != 0.0);
+}
+}  // namespace
+
 /*
  * mean, w = 200
  */
@@ -58,7 +65,7 @@ GrayImage grayMapMean(GrayImage const& src, int const radius) {
     unsigned char* gray_line = gray.data();
     int const gray_stride = gray.stride();
 
-    IntegralImage<uint32_t> integral_image(w, h);
+    IntegralImage<uint64_t> integral_image(w, h);
 
     for (int y = 0; y < h; y++) {
       integral_image.beginRow();
@@ -70,19 +77,19 @@ GrayImage grayMapMean(GrayImage const& src, int const radius) {
     }
 
     for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
+      int const top = static_cast<int>(std::max<int64_t>(0, int64_t(y) - radius));
+      int const bottom = static_cast<int>(std::min<int64_t>(h, int64_t(y) + radius + 1));
 
       for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
+        int const left = static_cast<int>(std::max<int64_t>(0, int64_t(x) - radius));
+        int const right = static_cast<int>(std::min<int64_t>(w, int64_t(x) + radius + 1));
+        int64_t const area = static_cast<int64_t>(bottom - top) * static_cast<int64_t>(right - left);
         assert(area > 0);  // because windowSize > 0 and w > 0 and h > 0
 
         QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
+        double const window_sum = static_cast<double>(integral_image.sum(rect));
 
-        double const r_area = 1.0 / area;
+        double const r_area = 1.0 / static_cast<double>(area);
         double mean = window_sum * r_area;
 
         mean += 0.5;
@@ -116,7 +123,7 @@ GrayImage grayMapDeviation(GrayImage const& src, int const radius) {
     unsigned char* gray_line = gray.data();
     int const gray_stride = gray.stride();
 
-    IntegralImage<uint32_t> integral_image(w, h);
+    IntegralImage<uint64_t> integral_image(w, h);
     IntegralImage<uint64_t> integral_sqimage(w, h);
 
     uint32_t gray_min = 255;
@@ -134,20 +141,20 @@ GrayImage grayMapDeviation(GrayImage const& src, int const radius) {
     }
 
     for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
+      int const top = static_cast<int>(std::max<int64_t>(0, int64_t(y) - radius));
+      int const bottom = static_cast<int>(std::min<int64_t>(h, int64_t(y) + radius + 1));
 
       for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
+        int const left = static_cast<int>(std::max<int64_t>(0, int64_t(x) - radius));
+        int const right = static_cast<int>(std::min<int64_t>(w, int64_t(x) + radius + 1));
+        int64_t const area = static_cast<int64_t>(bottom - top) * static_cast<int64_t>(right - left);
         assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
 
         QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
+        double const window_sum = static_cast<double>(integral_image.sum(rect));
+        double const window_sqsum = static_cast<double>(integral_sqimage.sum(rect));
 
-        double const r_area = 1.0 / area;
+        double const r_area = 1.0 / static_cast<double>(area);
         double const mean = window_sum * r_area;
         double const sqmean = window_sqsum * r_area;
 
@@ -244,10 +251,11 @@ unsigned int grayBiModalTiledValue(GrayImage const& src,
   unsigned int const y1w = (y1 < h) ? y1 : h;
   unsigned int const x2w = (x2 < w) ? x2 : w;
   unsigned int const y2w = (y2 < h) ? y2 : h;
-  uint64_t const wsize = (y2w - y1w) * (x2w - x1w);
+  uint64_t const wsize
+      = ((x2w > x1w) && (y2w > y1w)) ? (static_cast<uint64_t>(y2w - y1w) * static_cast<uint64_t>(x2w - x1w)) : 0;
 
   if (wsize > 0) {
-    src_line += y1w * src_stride;
+    src_line += static_cast<size_t>(y1w) * static_cast<size_t>(src_stride);
     for (unsigned int y = y1w; y < y2w; y++) {
       for (unsigned int x = x1w; x < x2w; x++) {
         unsigned char pixel = src_line[x];
@@ -322,7 +330,11 @@ GrayImage grayBiModalTiledMap(GrayImage const& src,
   unsigned int const bmg = grayBiModalTiledValue(src, 0, 0, w, h, delta, bound_lower, bound_upper);
 
   if (radius > 0) {
-    int const wsize = 2 * radius + 1;
+    if (!std::isfinite(coef)) {
+      return gray;
+    }
+    int const safe_radius = std::min(radius, std::max(w, h));
+    int const wsize = 2 * safe_radius + 1;
     int const ww = (w + wsize - 1) / wsize;
     int const wh = (h + wsize - 1) / wsize;
 
@@ -367,10 +379,10 @@ GrayImage grayBiModalTiledMap(GrayImage const& src,
         x1 = (x1 < 0) ? 0 : ((x1 < ww) ? x1 : (ww - 1));
         x2 = (x2 < 0) ? 0 : ((x2 < ww) ? x2 : (ww - 1));
 
-        float const t11 = tlocal_line[y1 * tlocal_stride + x1];
-        float const t12 = tlocal_line[y1 * tlocal_stride + x2];
-        float const t21 = tlocal_line[y2 * tlocal_stride + x1];
-        float const t22 = tlocal_line[y2 * tlocal_stride + x2];
+        float const t11 = tlocal_line[static_cast<size_t>(y1) * tlocal_stride + x1];
+        float const t12 = tlocal_line[static_cast<size_t>(y1) * tlocal_stride + x2];
+        float const t21 = tlocal_line[static_cast<size_t>(y2) * tlocal_stride + x1];
+        float const t22 = tlocal_line[static_cast<size_t>(y2) * tlocal_stride + x2];
 
         float const bml = dy2 * (dx2 * t11 + dx1 * t12) + dy1 * (dx2 * t21 + dx1 * t22);
         float t = coef * bml + (1.0f - coef) * bmg + 0.5f;
@@ -407,7 +419,7 @@ GrayImage grayNiblackMap(GrayImage const& src, int const radius, float const k, 
     return gmean;
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     int const w = src.width();
     int const h = src.height();
 
@@ -416,7 +428,7 @@ GrayImage grayNiblackMap(GrayImage const& src, int const radius, float const k, 
     unsigned char* gmean_line = gmean.data();
     int const gmean_stride = gmean.stride();
 
-    IntegralImage<uint32_t> integral_image(w, h);
+    IntegralImage<uint64_t> integral_image(w, h);
     IntegralImage<uint64_t> integral_sqimage(w, h);
 
     for (int y = 0; y < h; y++) {
@@ -431,20 +443,20 @@ GrayImage grayNiblackMap(GrayImage const& src, int const radius, float const k, 
     }
 
     for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
+      int const top = static_cast<int>(std::max<int64_t>(0, int64_t(y) - radius));
+      int const bottom = static_cast<int>(std::min<int64_t>(h, int64_t(y) + radius + 1));
 
       for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
+        int const left = static_cast<int>(std::max<int64_t>(0, int64_t(x) - radius));
+        int const right = static_cast<int>(std::min<int64_t>(w, int64_t(x) + radius + 1));
+        int64_t const area = static_cast<int64_t>(bottom - top) * static_cast<int64_t>(right - left);
         assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
 
         QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
+        double const window_sum = static_cast<double>(integral_image.sum(rect));
+        double const window_sqsum = static_cast<double>(integral_sqimage.sum(rect));
 
-        double const r_area = 1.0 / area;
+        double const r_area = 1.0 / static_cast<double>(area);
         double const mean = window_sum * r_area;
         double const sqmean = window_sqsum * r_area;
 
@@ -468,7 +480,7 @@ GrayImage grayNiblackMap(GrayImage const& src, int const radius, float const k, 
  * gatos = bg - f(i, bg, q, p), q = 0.6, p = 0.2
  */
 void grayBGtoMap(GrayImage const& src, GrayImage& background, float const q, float const p) {
-  if (src.isNull() || background.isNull()) {
+  if (src.isNull() || background.isNull() || !std::isfinite(q) || !std::isfinite(p)) {
     return;
   }
 
@@ -490,7 +502,7 @@ void grayBGtoMap(GrayImage const& src, GrayImage& background, float const q, flo
   // sum(background) for background pixels (background <= original).
   uint64_t sum_bg = 0;
   uint64_t sum_contour = 0;
-  uint64_t src_size = w * h;
+  uint64_t const src_size = static_cast<uint64_t>(w) * static_cast<uint64_t>(h);
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
       int const im = src_line[x];
@@ -558,7 +570,7 @@ GrayImage graySauvolaMap(GrayImage const& src, int const radius, float const k, 
     return gmean;
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     int const w = src.width();
     int const h = src.height();
 
@@ -567,7 +579,7 @@ GrayImage graySauvolaMap(GrayImage const& src, int const radius, float const k, 
     unsigned char* gmean_line = gmean.data();
     int const gmean_stride = gmean.stride();
 
-    IntegralImage<uint32_t> integral_image(w, h);
+    IntegralImage<uint64_t> integral_image(w, h);
     IntegralImage<uint64_t> integral_sqimage(w, h);
 
     for (int y = 0; y < h; y++) {
@@ -582,20 +594,20 @@ GrayImage graySauvolaMap(GrayImage const& src, int const radius, float const k, 
     }
 
     for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
+      int const top = static_cast<int>(std::max<int64_t>(0, int64_t(y) - radius));
+      int const bottom = static_cast<int>(std::min<int64_t>(h, int64_t(y) + radius + 1));
 
       for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
+        int const left = static_cast<int>(std::max<int64_t>(0, int64_t(x) - radius));
+        int const right = static_cast<int>(std::min<int64_t>(w, int64_t(x) + radius + 1));
+        int64_t const area = static_cast<int64_t>(bottom - top) * static_cast<int64_t>(right - left);
         assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
 
         QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
+        double const window_sum = static_cast<double>(integral_image.sum(rect));
+        double const window_sqsum = static_cast<double>(integral_sqimage.sum(rect));
 
-        double const r_area = 1.0 / area;
+        double const r_area = 1.0 / static_cast<double>(area);
         double const mean = window_sum * r_area;
         double const sqmean = window_sqsum * r_area;
 
@@ -633,7 +645,7 @@ GrayImage grayWolfMap(GrayImage const& src, int const radius, float const k, int
     return gmean;
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     int const w = src.width();
     int const h = src.height();
 
@@ -645,7 +657,7 @@ GrayImage grayWolfMap(GrayImage const& src, int const radius, float const k, int
     double gray_min = 255.0;
     double deviation_max = 0.0;
 
-    IntegralImage<uint32_t> integral_image(w, h);
+    IntegralImage<uint64_t> integral_image(w, h);
     IntegralImage<uint64_t> integral_sqimage(w, h);
 
     for (int y = 0; y < h; y++) {
@@ -661,20 +673,20 @@ GrayImage grayWolfMap(GrayImage const& src, int const radius, float const k, int
     }
 
     for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
+      int const top = static_cast<int>(std::max<int64_t>(0, int64_t(y) - radius));
+      int const bottom = static_cast<int>(std::min<int64_t>(h, int64_t(y) + radius + 1));
 
       for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
+        int const left = static_cast<int>(std::max<int64_t>(0, int64_t(x) - radius));
+        int const right = static_cast<int>(std::min<int64_t>(w, int64_t(x) + radius + 1));
+        int64_t const area = static_cast<int64_t>(bottom - top) * static_cast<int64_t>(right - left);
         assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
 
         QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
+        double const window_sum = static_cast<double>(integral_image.sum(rect));
+        double const window_sqsum = static_cast<double>(integral_sqimage.sum(rect));
 
-        double const r_area = 1.0 / area;
+        double const r_area = 1.0 / static_cast<double>(area);
         double const mean = window_sum * r_area;
         double const sqmean = window_sqsum * r_area;
 
@@ -686,20 +698,20 @@ GrayImage grayWolfMap(GrayImage const& src, int const radius, float const k, int
     }
 
     for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
+      int const top = static_cast<int>(std::max<int64_t>(0, int64_t(y) - radius));
+      int const bottom = static_cast<int>(std::min<int64_t>(h, int64_t(y) + radius + 1));
 
       for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
+        int const left = static_cast<int>(std::max<int64_t>(0, int64_t(x) - radius));
+        int const right = static_cast<int>(std::min<int64_t>(w, int64_t(x) + radius + 1));
+        int64_t const area = static_cast<int64_t>(bottom - top) * static_cast<int64_t>(right - left);
         assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
 
         QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
+        double const window_sum = static_cast<double>(integral_image.sum(rect));
+        double const window_sqsum = static_cast<double>(integral_sqimage.sum(rect));
 
-        double const r_area = 1.0 / area;
+        double const r_area = 1.0 / static_cast<double>(area);
         double const mean = window_sum * r_area;
         double const sqmean = window_sqsum * r_area;
 
@@ -744,7 +756,7 @@ GrayImage grayWindowMap(GrayImage const& src, int const radius, float const k, i
     return GrayImage(src);
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     int const w = src.width();
     int const h = src.height();
 
@@ -756,7 +768,7 @@ GrayImage grayWindowMap(GrayImage const& src, int const radius, float const k, i
     uint64_t mean_full = 0;
     double deviation_min = 256.0, deviation_max = 0.0, deviation_delta;
 
-    IntegralImage<uint32_t> integral_image(w, h);
+    IntegralImage<uint64_t> integral_image(w, h);
     IntegralImage<uint64_t> integral_sqimage(w, h);
 
     for (int y = 0; y < h; y++) {
@@ -776,20 +788,20 @@ GrayImage grayWindowMap(GrayImage const& src, int const radius, float const k, i
     mean_full /= w;
 
     for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
+      int const top = static_cast<int>(std::max<int64_t>(0, int64_t(y) - radius));
+      int const bottom = static_cast<int>(std::min<int64_t>(h, int64_t(y) + radius + 1));
 
       for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
+        int const left = static_cast<int>(std::max<int64_t>(0, int64_t(x) - radius));
+        int const right = static_cast<int>(std::min<int64_t>(w, int64_t(x) + radius + 1));
+        int64_t const area = static_cast<int64_t>(bottom - top) * static_cast<int64_t>(right - left);
         assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
 
         QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
+        double const window_sum = static_cast<double>(integral_image.sum(rect));
+        double const window_sqsum = static_cast<double>(integral_sqimage.sum(rect));
 
-        double const r_area = 1.0 / area;
+        double const r_area = 1.0 / static_cast<double>(area);
         double const mean = window_sum * r_area;
         double const sqmean = window_sqsum * r_area;
 
@@ -804,20 +816,20 @@ GrayImage grayWindowMap(GrayImage const& src, int const radius, float const k, i
     deviation_delta = deviation_max - deviation_min;
 
     for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
+      int const top = static_cast<int>(std::max<int64_t>(0, int64_t(y) - radius));
+      int const bottom = static_cast<int>(std::min<int64_t>(h, int64_t(y) + radius + 1));
 
       for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
+        int const left = static_cast<int>(std::max<int64_t>(0, int64_t(x) - radius));
+        int const right = static_cast<int>(std::min<int64_t>(w, int64_t(x) + radius + 1));
+        int64_t const area = static_cast<int64_t>(bottom - top) * static_cast<int64_t>(right - left);
         assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
 
         QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
+        double const window_sum = static_cast<double>(integral_image.sum(rect));
+        double const window_sqsum = static_cast<double>(integral_sqimage.sum(rect));
 
-        double const r_area = 1.0 / area;
+        double const r_area = 1.0 / static_cast<double>(area);
         double const mean = window_sum * r_area;
         double const sqmean = window_sqsum * r_area;
 
@@ -854,7 +866,7 @@ GrayImage grayLCaMMap(GrayImage const& src, int const radius, float const k, int
     return GrayImage(src);
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     GrayImage gcontrast = grayMapContrast(src, radius);
     if (gcontrast.isNull()) {
       return gmean;
@@ -902,7 +914,7 @@ GrayImage grayBradleyMap(GrayImage const& src, int const radius, float const k) 
     return GrayImage(src);
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* gmean_line = gmean.data();
@@ -940,7 +952,7 @@ GrayImage grayNickMap(GrayImage const& src, int const radius, float const k, int
     return gmean;
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     double cnick = (50.0 - delta) * 0.01;
 
     int const w = src.width();
@@ -951,7 +963,7 @@ GrayImage grayNickMap(GrayImage const& src, int const radius, float const k, int
     unsigned char* gmean_line = gmean.data();
     int const gmean_stride = gmean.stride();
 
-    IntegralImage<uint32_t> integral_image(w, h);
+    IntegralImage<uint64_t> integral_image(w, h);
     IntegralImage<uint64_t> integral_sqimage(w, h);
 
     for (int y = 0; y < h; y++) {
@@ -966,27 +978,27 @@ GrayImage grayNickMap(GrayImage const& src, int const radius, float const k, int
     }
 
     for (int y = 0; y < h; y++) {
-      int const top = ((y - radius) < 0) ? 0 : (y - radius);
-      int const bottom = ((y + radius + 1) < h) ? (y + radius + 1) : h;
+      int const top = static_cast<int>(std::max<int64_t>(0, int64_t(y) - radius));
+      int const bottom = static_cast<int>(std::min<int64_t>(h, int64_t(y) + radius + 1));
 
       for (int x = 0; x < w; x++) {
-        int const left = ((x - radius) < 0) ? 0 : (x - radius);
-        int const right = ((x + radius + 1) < w) ? (x + radius + 1) : w;
-        int const area = (bottom - top) * (right - left);
+        int const left = static_cast<int>(std::max<int64_t>(0, int64_t(x) - radius));
+        int const right = static_cast<int>(std::min<int64_t>(w, int64_t(x) + radius + 1));
+        int64_t const area = static_cast<int64_t>(bottom - top) * static_cast<int64_t>(right - left);
         assert(area > 0);  // because window_size > 0 and w > 0 and h > 0
 
         QRect const rect(left, top, right - left, bottom - top);
-        double const window_sum = integral_image.sum(rect);
-        double const window_sqsum = integral_sqimage.sum(rect);
+        double const window_sum = static_cast<double>(integral_image.sum(rect));
+        double const window_sqsum = static_cast<double>(integral_sqimage.sum(rect));
 
-        double const r_area = 1.0 / area;
+        double const r_area = 1.0 / static_cast<double>(area);
         double const mean = window_sum * r_area;
         double const sqmean = window_sqsum * r_area;
 
         double const variance = sqmean - mean * mean;
         double const deviation = sqrt(fabs(variance));
 
-        double const circle = sqrt(deviation * deviation + cnick * mean * mean);
+        double const circle = sqrt(std::max(0.0, deviation * deviation + cnick * mean * mean));
         double threshold = mean - k * circle;
 
         threshold = (threshold < 0.0) ? 0.0 : ((threshold < 255.0) ? threshold : 255.0);
@@ -1014,7 +1026,7 @@ GrayImage grayGradMap(GrayImage const& src, int const radius, float const coef, 
     return GrayImage(src);
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* gmean_line = gmean.data();
@@ -1067,7 +1079,7 @@ GrayImage graySinghMap(GrayImage const& src, int const radius, float const k, in
     return GrayImage(src);
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char const* src_line = src.data();
@@ -1112,7 +1124,7 @@ GrayImage grayFoxMap(GrayImage const& src, int const radius, float const k, int 
     return GrayImage(src);
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char const* src_line = src.data();
@@ -1180,7 +1192,7 @@ GrayImage grayWANMap(GrayImage const& src, int const radius, float const k, int 
     return GrayImage(src);
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     GrayImage gdeviation = grayMapDeviation(src, radius);
     if (gdeviation.isNull()) {
       return gmean;
@@ -1240,7 +1252,7 @@ GrayImage grayOBBPMMap(GrayImage const& src, int const radius, float const k, in
     return GrayImage(src);
   }
 
-  if (radius > 0) {
+  if ((radius > 0) && std::isfinite(k)) {
     float const R = 128.0f;
     float const Rf = (R + R - 1.0f);
     float const Rinv = 1.0f / R;
@@ -1282,7 +1294,7 @@ GrayImage grayMScaleMap(GrayImage const& src, int const radius, float const coef
   if (gray.isNull()) {
     return GrayImage();
   }
-  if (radius < 1) {
+  if ((radius < 1) || !std::isfinite(coef)) {
     return gray;
   }
 
@@ -1297,7 +1309,7 @@ GrayImage grayMScaleMap(GrayImage const& src, int const radius, float const coef
   float immean, imt, kover, sensitivity, sensdiv, senspos, sensinv;
   unsigned int pim, immin, immax, cnth, cntw, level = 0;
   unsigned int maskbl, maskover, tim;
-  unsigned long int idx;
+  size_t idx;
 
   whcp = (h + w) >> 1;
   blsz = 1;
@@ -1358,7 +1370,7 @@ GrayImage grayMScaleMap(GrayImage const& src, int const radius, float const coef
 
   src_line = src.data();
   gray_line = gray.data();
-  for (l = 0; l < level; l++) {
+  for (l = 0; (l < level) && (blsz > 0); l++) {
     cnth = (h + blsz - 1) / blsz;
     cntw = (w + blsz - 1) / blsz;
     maskbl = blsz;
@@ -1372,12 +1384,12 @@ GrayImage grayMScaleMap(GrayImage const& src, int const radius, float const coef
         int x1 = x0 + maskover;
         x1 = (x1 < w) ? x1 : w;
 
-        idx = y0 * src_stride + x0;
+        idx = static_cast<size_t>(y0) * static_cast<size_t>(src_stride) + static_cast<size_t>(x0);
         immin = src_line[idx];
         immax = immin;
         for (int y = y0; y < y1; y++) {
           for (int x = x0; x < x1; x++) {
-            idx = y * src_stride + x;
+            idx = static_cast<size_t>(y) * static_cast<size_t>(src_stride) + static_cast<size_t>(x);
             pim = src_line[idx];
             if (pim < immin) {
               immin = pim;
@@ -1392,7 +1404,7 @@ GrayImage grayMScaleMap(GrayImage const& src, int const radius, float const coef
         immean *= sensinv;
         for (int y = y0; y < y1; y++) {
           for (int x = x0; x < x1; x++) {
-            idx = y * gray_stride + x;
+            idx = static_cast<size_t>(y) * static_cast<size_t>(gray_stride) + static_cast<size_t>(x);
             imt = gray_line[idx];
             imt *= senspos;
             imt += immean;
@@ -1418,7 +1430,7 @@ GrayImage grayEngravingMap(GrayImage const& src, int const radius, float const c
     return GrayImage(src);
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char const* src_line = src.data();
@@ -1448,9 +1460,8 @@ GrayImage grayEngravingMap(GrayImage const& src, int const radius, float const c
         for (int x = 0; x < w; x++) {
           float const mean = gmean_line[x];
 
-          float const tline = mean / mean_delta;
-          int threshold = (int) tline;
-          float delta = tline - threshold;
+          double const tline = static_cast<double>(mean) / mean_delta;
+          float delta = static_cast<float>(tline - std::floor(tline));
           delta = (delta < 0.5f) ? (0.5f - delta) : (delta - 0.5f);
           delta *= delta;
           delta += delta;
@@ -1536,7 +1547,7 @@ void grayMapOverlay(GrayImage& src, GrayImage& gover, float const coef) {
     return;
   }
 
-  if (coef != 0.0f) {
+  if (isNonZeroFinite(coef)) {
     int const ws = src.width();
     int const hs = src.height();
     int const wo = gover.width();
@@ -1595,7 +1606,7 @@ void grayMix(GrayImage& src, GrayImage& gover, float const coef) {
     return;
   }
 
-  if (coef != 0.0f) {
+  if (isNonZeroFinite(coef)) {
     int const ws = src.width();
     int const hs = src.height();
     int const wo = gover.width();
@@ -1626,7 +1637,7 @@ void grayGrainExtract(GrayImage& src, GrayImage& gover, float const coef) {
     return;
   }
 
-  if (coef != 0.0f) {
+  if (isNonZeroFinite(coef)) {
     int const ws = src.width();
     int const hs = src.height();
     int const wo = gover.width();
@@ -1664,8 +1675,8 @@ void grayCurveFilterInPlace(GrayImage& src, float const coef) {
     return;
   }
 
-  if (coef != 0.0f) {
-    int icoef = (int) (coef * 256.0f + 0.5f);
+  if (isNonZeroFinite(coef)) {
+    int64_t const icoef = static_cast<int64_t>(std::floor(std::clamp(coef, -100.0f, 100.0f) * 256.0f + 0.5f));
     unsigned int const w = src.width();
     unsigned int const h = src.height();
     unsigned char* src_line = src.data();
@@ -1686,10 +1697,10 @@ void grayCurveFilterInPlace(GrayImage& src, float const coef) {
     thres /= w;
 
     for (unsigned int j = 0; j < 256; j++) {
-      int64_t val = (j << 8);
-      int64_t delta = (val - thres);
+      int64_t val = static_cast<int64_t>(j) << 8;
+      int64_t delta = val - static_cast<int64_t>(thres);
       int64_t dsqr = delta * delta;
-      int64_t ddiv = (delta < 0) ? -thres : (65280 - thres);
+      int64_t const ddiv = (delta < 0) ? -static_cast<int64_t>(thres) : (65280 - static_cast<int64_t>(thres));
       dsqr = (ddiv == 0) ? 0 : dsqr / ddiv;
       delta -= dsqr;
       delta *= icoef;
@@ -1698,7 +1709,8 @@ void grayCurveFilterInPlace(GrayImage& src, float const coef) {
       val += delta;
       val += 128;
       val >>= 8;
-      pix_replace[j] = (unsigned char) val;
+      val = std::clamp<int64_t>(val, 0, 255);
+      pix_replace[j] = static_cast<unsigned char>(val);
     }
 
     src_line = src.data();
@@ -1723,8 +1735,8 @@ void graySqrFilterInPlace(GrayImage& src, float const coef) {
     return;
   }
 
-  if (coef != 0.0f) {
-    int icoef = (int) (coef * 256.0f + 0.5f);
+  if (isNonZeroFinite(coef)) {
+    int64_t const icoef = static_cast<int64_t>(std::floor(std::clamp(coef, -100.0f, 100.0f) * 256.0f + 0.5f));
     unsigned int const w = src.width();
     unsigned int const h = src.height();
     unsigned char* src_line = src.data();
@@ -1732,16 +1744,17 @@ void graySqrFilterInPlace(GrayImage& src, float const coef) {
     unsigned char pix_replace[256];
 
     for (unsigned int j = 0; j < 256; j++) {
-      unsigned int val = j;
+      int64_t val = static_cast<int64_t>(j);
       val++;
       val *= val;
       val += 255;
       val >>= 8;
       val--;
-      val = icoef * val + (256 - icoef) * j;
+      val = icoef * val + (256 - icoef) * static_cast<int64_t>(j);
       val += 128;
       val >>= 8;
-      pix_replace[j] = (unsigned char) val;
+      val = std::clamp<int64_t>(val, 0, 255);
+      pix_replace[j] = static_cast<unsigned char>(val);
     }
 
     for (unsigned int y = 0; y < h; y++) {
@@ -1765,7 +1778,7 @@ void grayGravureInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     GrayImage gover = grayEngravingMap(src, radius, 1.0f);
     if (gover.isNull()) {
       return;
@@ -1788,7 +1801,7 @@ void grayDots8InPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     GrayImage gmean = gaussBlur(src, radius, radius);
     if (gmean.isNull()) {
       return;
@@ -1874,15 +1887,22 @@ void grayRISundefectInPlace(GrayImage& src, float const radius, float const coef
     return;
   }
 
-  if ((radius > 0.0f) && (coef != 0.0f)) {
+  if (std::isfinite(radius) && (radius > 0.0f) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
     int const src_stride = src.stride();
-    float const radius_inv = 1.0f / radius;
+    double const radius_inv = 1.0 / static_cast<double>(radius);
 
-    int const wr = (int) (1.0f + radius_inv * (w - 1));
-    int const hr = (int) (1.0f + radius_inv * (h - 1));
+    double const dwr = 1.0 + radius_inv * (w - 1);
+    double const dhr = 1.0 + radius_inv * (h - 1);
+    if (!std::isfinite(dwr) || !std::isfinite(dhr) || (dwr > 65536.0) || (dhr > 65536.0)
+        || (dwr * dhr > 256.0 * 1024.0 * 1024.0)) {
+      return;
+    }
+
+    int const wr = static_cast<int>(dwr);
+    int const hr = static_cast<int>(dhr);
 
     if ((wr == w) && (hr == h)) {
       return;
@@ -1929,7 +1949,7 @@ void grayWienerInPlace(GrayImage& src, int const radius, float const noise_sigma
     return;
   }
 
-  if ((radius > 0) && (noise_sigma > 0.0f)) {
+  if ((radius > 0) && std::isfinite(noise_sigma) && (noise_sigma > 0.0f)) {
     int const w = src.width();
     int const h = src.height();
     float const noise_variance = noise_sigma * noise_sigma;
@@ -1988,7 +2008,7 @@ void grayKnnDenoiserInPlace(GrayImage& src, int const radius, float const coef) 
     return;
   }
 
-  if ((radius > 0) && (coef > 0.0)) {
+  if ((radius > 0) && std::isfinite(coef) && (coef > 0.0f)) {
     float const threshold_weight = 0.02f;
     float const threshold_lerp = 0.66f;
     float const noise_lerpc = 0.16f;
@@ -1998,7 +2018,7 @@ void grayKnnDenoiserInPlace(GrayImage& src, int const radius, float const coef) 
     unsigned char* src_line = src.data();
     int const src_stride = src.stride();
 
-    IntegralImage<uint32_t> integral_image(w, h);
+    IntegralImage<uint64_t> integral_image(w, h);
 
     for (int y = 0; y < h; y++) {
       integral_image.beginRow();
@@ -2009,9 +2029,10 @@ void grayKnnDenoiserInPlace(GrayImage& src, int const radius, float const coef) 
       src_line += src_stride;
     }
 
-    int const noise_area = ((2 * radius + 1) * (2 * radius + 1));
-    float const noise_area_inv = (1.0f / (float) noise_area);
-    float const noise_weight = (1.0f / (coef * coef));
+    double const side = 2.0 * static_cast<double>(radius) + 1.0;
+    double const noise_area = side * side;
+    float const noise_area_inv = static_cast<float>(1.0 / noise_area);
+    double const noise_weight = 1.0 / (static_cast<double>(coef) * static_cast<double>(coef));
     float const pixel_weight = (1.0f / 255.0f);
 
     src_line = src.data();
@@ -2023,22 +2044,26 @@ void grayKnnDenoiserInPlace(GrayImage& src, int const radius, float const coef) 
         float color = origin;
 
         for (int r = 1; r <= radius; r++) {
-          int const top = ((y - r) < 0) ? 0 : (y - r);
-          int const bottom = ((y + r + 1) < h) ? (y + r + 1) : h;
-          int const left = ((x - r) < 0) ? 0 : (x - r);
-          int const right = ((x + r + 1) < w) ? (x + r + 1) : w;
-          int const area = (bottom - top) * (right - left);
+          int const top = static_cast<int>(std::max<int64_t>(0, int64_t(y) - r));
+          int const bottom = static_cast<int>(std::min<int64_t>(h, int64_t(y) + r + 1));
+          int const left = static_cast<int>(std::max<int64_t>(0, int64_t(x) - r));
+          int const right = static_cast<int>(std::min<int64_t>(w, int64_t(x) + r + 1));
+          int64_t const area = static_cast<int64_t>(bottom - top) * static_cast<int64_t>(right - left);
           QRect const rect(left, top, right - left, bottom - top);
-          float const window_sum = integral_image.sum(rect);
-          float const r_area = 1.0f / area;
+          float const window_sum = static_cast<float>(integral_image.sum(rect));
+          float const r_area = 1.0f / static_cast<float>(area);
           float const mean = window_sum * r_area;
-          float const delta = (origin - mean) * pixel_weight * r;
+          float const delta = (origin - mean) * pixel_weight * static_cast<float>(r);
           float const deltasq = delta * delta;
 
           // Denoising
-          float r2 = r * r;
-          float weight_f = expf(-(r2 * noise_area_inv + deltasq * noise_weight));
-          float weight_r = (r << 3);
+          float const r2 = static_cast<float>(r) * static_cast<float>(r);
+          double const delta_term = (deltasq > 0.0f)
+                                        ? (std::isfinite(noise_weight) ? (static_cast<double>(deltasq) * noise_weight)
+                                                                       : std::numeric_limits<double>::infinity())
+                                        : 0.0;
+          float const weight_f = static_cast<float>(std::exp(-(static_cast<double>(r2) * noise_area_inv + delta_term)));
+          float const weight_r = static_cast<float>(r) * 8.0f;
           float weight_fr = weight_f * weight_r;
           color += mean * weight_fr;
           sum_weights += weight_fr;
@@ -2073,7 +2098,7 @@ void grayEMDenoiserInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -2146,13 +2171,13 @@ void grayMedianInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     unsigned int const histsize = 256;
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
     unsigned int const src_stride = src.stride();
-    uint64_t const rsize = radius + 1 + radius;
+    uint64_t const rsize = static_cast<uint64_t>(radius) * 2 + 1;
     uint64_t const fsize = rsize * rsize;
     uint64_t sum = 0, histogram[histsize] = {0};
     uint64_t const fsizemed = (fsize + 1) / 2;
@@ -2171,24 +2196,24 @@ void grayMedianInPlace(GrayImage& src, int const radius, float const coef) {
           for (unsigned int k = 0; k < histsize; k++) {
             histogram[k] = 0;
           }
-          for (int yf = (y - radius); yf < (y + radius + 1); yf++) {
-            int const yfs = (yf < 0) ? 0 : ((yf < h) ? yf : (h - 1));
+          for (int64_t yf = int64_t(y) - radius; yf < int64_t(y) + radius + 1; yf++) {
+            int const yfs = static_cast<int>((yf < 0) ? 0 : ((yf < h) ? yf : (h - 1)));
             unsigned char* f_line = src.data();
-            f_line += (yfs * src_stride);
-            for (int xf = (x - radius); xf < (x + radius + 1); xf++) {
-              int const xfs = (xf < 0) ? 0 : ((xf < w) ? xf : (w - 1));
+            f_line += static_cast<size_t>(yfs) * static_cast<size_t>(src_stride);
+            for (int64_t xf = int64_t(x) - radius; xf < int64_t(x) + radius + 1; xf++) {
+              int const xfs = static_cast<int>((xf < 0) ? 0 : ((xf < w) ? xf : (w - 1)));
               histogram[f_line[xfs]]++;
             }
           }
         } else {
-          int const L = x - radius - 1;
-          int const xl = (L < 0) ? 0 : ((L < w) ? L : (w - 1));
-          int const R = x + radius;
-          int const xr = (R < 0) ? 0 : ((R < w) ? R : (w - 1));
-          for (int yf = (y - radius); yf < (y + radius + 1); yf++) {
-            int const yfs = (yf < 0) ? 0 : ((yf < h) ? yf : (h - 1));
+          int64_t const L = int64_t(x) - radius - 1;
+          int const xl = static_cast<int>((L < 0) ? 0 : ((L < w) ? L : (w - 1)));
+          int64_t const R = int64_t(x) + radius;
+          int const xr = static_cast<int>((R < 0) ? 0 : ((R < w) ? R : (w - 1)));
+          for (int64_t yf = int64_t(y) - radius; yf < int64_t(y) + radius + 1; yf++) {
+            int const yfs = static_cast<int>((yf < 0) ? 0 : ((yf < h) ? yf : (h - 1)));
             unsigned char* f_line = src.data();
-            f_line += (yfs * src_stride);
+            f_line += static_cast<size_t>(yfs) * static_cast<size_t>(src_stride);
             histogram[f_line[xl]]--;
             histogram[f_line[xr]]++;
           }
@@ -2225,7 +2250,7 @@ void graySubtractBGInPlace(GrayImage& src, int const radius, float const coef) {
   unsigned char* src_line = src.data();
   int const src_stride = src.stride();
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     GrayImage gmean = grayMedian(src, radius, 1.0f);
     if (gmean.isNull()) {
       return;
@@ -2234,7 +2259,7 @@ void graySubtractBGInPlace(GrayImage& src, int const radius, float const coef) {
     unsigned int const h = src.height();
     unsigned char* gmean_line = gmean.data();
     unsigned int const gmean_stride = gmean.stride();
-    int const coef512 = (int) (coef * 512.0f + 0.5f);
+    int64_t const coef512 = static_cast<int64_t>(std::floor(std::clamp(coef, -100.0f, 100.0f) * 512.0f + 0.5f));
 
     unsigned char gmin = gmean_line[0];
     unsigned char gmax = gmean_line[0];
@@ -2251,12 +2276,12 @@ void graySubtractBGInPlace(GrayImage& src, int const radius, float const coef) {
     gmean_line = gmean.data();
     for (unsigned int y = 0; y < h; y++) {
       for (unsigned int x = 0; x < w; x++) {
-        int const origin = src_line[x];
-        int const mean = gmean_line[x];
-        int diff = gm + origin - mean;
-        int ret = ((coef512 * diff + (512 - coef512) * origin + 256) >> 9);
-        ret = (ret < 0) ? 0 : (ret < 255) ? ret : 255;
-        src_line[x] = (unsigned char) ret;
+        int64_t const origin = src_line[x];
+        int64_t const mean = gmean_line[x];
+        int64_t const diff = gm + origin - mean;
+        int64_t ret = ((coef512 * diff + (512 - coef512) * origin + 256) >> 9);
+        ret = std::clamp<int64_t>(ret, 0, 255);
+        src_line[x] = static_cast<unsigned char>(ret);
       }
       src_line += src_stride;
       gmean_line += gmean_stride;
@@ -2276,7 +2301,7 @@ void grayDespeckleInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -2322,8 +2347,8 @@ void grayDespeckleInPlace(GrayImage& src, int const radius, float const coef) {
             float gxy = pG + pC - pI - pA;
             float gd2 = (gy * dIx + gx * dIy - 0.5f * gxy * dIxy);
             if ((pM > 128 && gd2 > 0.0f) || (pM <= 128 && gd2 < 0.0f)) {
-              pR += (int) (coef * gd2 / dI + 0.5f);
-              pR = (pR < 0) ? 0 : (pR < 255) ? pR : 255;
+              float const next = static_cast<float>(pR) + coef * gd2 / static_cast<float>(dI) + 0.5f;
+              pR = static_cast<int>(std::clamp(next, 0.0f, 255.0f));
             }
           } else {
             pR = pM;
@@ -2361,7 +2386,7 @@ void grayAutoLevelInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if (coef != 0.0f) {
+  if (isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -2417,7 +2442,7 @@ void grayBalanceInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -2541,7 +2566,7 @@ void grayDeBlur5InPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -2645,7 +2670,7 @@ void grayOverBlurInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -2715,7 +2740,7 @@ void grayRetinexInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -2782,7 +2807,7 @@ void grayEqualizeInPlace(GrayImage& src, int const radius, float const coef, boo
     return;
   }
 
-  if (coef != 0.0f) {
+  if (isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -2866,7 +2891,7 @@ void grayBlurInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -2906,7 +2931,7 @@ void grayComixInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -2979,7 +3004,7 @@ void graySigmaInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -3023,7 +3048,7 @@ void grayScreenInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -3075,7 +3100,7 @@ void grayEdgeDivInPlace(GrayImage& src, int const radius, double const kep, doub
     return;
   }
 
-  if ((radius > 0) && ((kep != 0.0f) || (kbd != 0.0f))) {
+  if ((radius > 0) && std::isfinite(kep) && std::isfinite(kbd) && ((kep != 0.0) || (kbd != 0.0))) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -3124,16 +3149,16 @@ void grayEdgeDivInPlace(GrayImage& src, int const radius, double const kep, doub
         float const mean = gmean_line[x];
         float const origin = src_line[x];
         float retval = origin;
-        if (kepw != 0.0f) {
+        if (kepw != 0.0) {
           // EdgePlus
           // edge = I / blur (shift = -0.5) {0.0 .. >1.0}, mean value = 0.5
           float const edge = (retval + 1) / (mean + 1) - 0.5;
           // edgeplus = I * edge, mean value = 0.5 * mean(I)
           float const edgeplus = origin * edge;
           // return k * edgeplus + (1 - k) * I
-          retval = kepw * edgeplus + (1.0 - kepw) * origin;
+          retval = std::max(0.0f, static_cast<float>(kepw * edgeplus + (1.0 - kepw) * origin));
         }
-        if (kbd != 0.0f) {
+        if (kbd != 0.0) {
           // BlurDiv
           // edge = blur / I (shift = -0.5) {0.0 .. >1.0}, mean value = 0.5
           float const edgeinv = (mean + 1) / (retval + 1) - 0.5;
@@ -3168,7 +3193,7 @@ void grayRobustInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
@@ -3223,7 +3248,7 @@ void grayGrainInPlace(GrayImage& src, int const radius, float const coef) {
     return;
   }
 
-  if ((radius > 0) && (coef != 0.0f)) {
+  if ((radius > 0) && isNonZeroFinite(coef)) {
     int const w = src.width();
     int const h = src.height();
     unsigned char* src_line = src.data();
