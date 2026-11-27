@@ -820,9 +820,7 @@ struct Case {
   Method method;
   QString name;
 };
-}  // namespace
-
-int main(int argc, char** argv) {
+int runMain(int argc, char** argv) {
   QGuiApplication app(argc, argv);
   ImageSizeLimit::applyQtAllocationLimit();
   Options options;
@@ -969,4 +967,17 @@ int main(int argc, char** argv) {
     return 1;
   }
   return tools::exitCodeOfSaves();
+}
+}  // namespace
+
+int main(int argc, char** argv) {
+  try {
+    return runMain(argc, argv);
+  } catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << "\n";
+    return 1;
+  } catch (...) {
+    std::cerr << "Error: unknown exception\n";
+    return 1;
+  }
 }

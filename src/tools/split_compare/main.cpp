@@ -37,6 +37,7 @@
 #include <QPainter>
 #include <algorithm>
 #include <cmath>
+#include <exception>
 #include <iostream>
 #include <map>
 #include <optional>
@@ -137,9 +138,7 @@ bool toOrthogonalRotation(const int degrees, OrthogonalRotation* rotation) {
   }
   return true;
 }
-}  // namespace
-
-int main(int argc, char** argv) {
+int runMain(int argc, char** argv) {
   QGuiApplication app(argc, argv);
   ImageSizeLimit::applyQtAllocationLimit();
   const QStringList args = app.arguments();
@@ -298,4 +297,17 @@ int main(int argc, char** argv) {
     tools::saveImage(visual, outDir.filePath(outName + ".png"));
   }
   return tools::exitCodeOfSaves();
+}
+}  // namespace
+
+int main(int argc, char** argv) {
+  try {
+    return runMain(argc, argv);
+  } catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << "\n";
+    return 1;
+  } catch (...) {
+    std::cerr << "Error: unknown exception\n";
+    return 1;
+  }
 }

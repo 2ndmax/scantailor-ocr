@@ -32,6 +32,7 @@
 #include <QDir>
 #include <QGuiApplication>
 #include <QImage>
+#include <exception>
 #include <iostream>
 #include <vector>
 
@@ -155,9 +156,7 @@ bool readDpiArgument(const QStringList& args, int* dpi) {
   }
   return true;
 }
-}  // namespace
-
-int main(int argc, char** argv) {
+int runMain(int argc, char** argv) {
   // The benchmark renders text, which needs fonts and thus a GUI application, but no window.
   // Elsewhere there may be no display; on Windows the offscreen platform finds no fonts.
 #ifndef Q_OS_WIN
@@ -187,4 +186,17 @@ int main(int argc, char** argv) {
                "       despeckle_compare bench <output folder> [--images]\n"
                "       despeckle_compare content <input folder> [--dpi=200]\n";
   return 1;
+}
+}  // namespace
+
+int main(int argc, char** argv) {
+  try {
+    return runMain(argc, argv);
+  } catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << "\n";
+    return 1;
+  } catch (...) {
+    std::cerr << "Error: unknown exception\n";
+    return 1;
+  }
 }

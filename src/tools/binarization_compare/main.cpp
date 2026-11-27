@@ -22,6 +22,7 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 #include <QSaveFile>
+#include <exception>
 #include <iostream>
 
 #include "ColorMethods.h"
@@ -183,9 +184,7 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
   }
   return true;
 }
-}  // namespace
-
-int main(int argc, char** argv) {
+int runMain(int argc, char** argv) {
   QCoreApplication app(argc, argv);
   ImageSizeLimit::applyQtAllocationLimit();
   QStringList args = app.arguments();
@@ -219,4 +218,17 @@ int main(int argc, char** argv) {
   }
   std::cout << "Done: " << qPrintable(QDir::toNativeSeparators(outDir.filePath("index.html"))) << std::endl;
   return (failed == 0) ? 0 : 1;
+}
+}  // namespace
+
+int main(int argc, char** argv) {
+  try {
+    return runMain(argc, argv);
+  } catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << "\n";
+    return 1;
+  } catch (...) {
+    std::cerr << "Error: unknown exception\n";
+    return 1;
+  }
 }

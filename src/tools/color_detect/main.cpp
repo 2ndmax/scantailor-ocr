@@ -27,6 +27,7 @@
 #include <QPainter>
 #include <QTextStream>
 #include <algorithm>
+#include <exception>
 #include <iostream>
 #include <vector>
 
@@ -132,9 +133,7 @@ bool readPercent(const QString& value, double& fraction) {
   fraction = percent / 100;
   return true;
 }
-}  // namespace
-
-int main(int argc, char** argv) {
+int runMain(int argc, char** argv) {
   QGuiApplication app(argc, argv);  // QPainter needs fonts.
   ImageSizeLimit::applyQtAllocationLimit();
   const QStringList args = app.arguments();
@@ -263,4 +262,17 @@ int main(int argc, char** argv) {
     writeSheet(results, ++sheetNo, outDir);
   }
   return tools::exitCodeOfSaves();
+}
+}  // namespace
+
+int main(int argc, char** argv) {
+  try {
+    return runMain(argc, argv);
+  } catch (const std::exception& e) {
+    std::cerr << "Error: " << e.what() << "\n";
+    return 1;
+  } catch (...) {
+    std::cerr << "Error: unknown exception\n";
+    return 1;
+  }
 }
