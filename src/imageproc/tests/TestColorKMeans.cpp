@@ -174,6 +174,18 @@ BOOST_AUTO_TEST_CASE(large_areas_keep_their_shading_whatever_the_segments) {
   BOOST_CHECK_NE(result.pixel(70, 50), result.pixel(180, 50));
 }
 
+BOOST_AUTO_TEST_CASE(invalid_inputs_return_null_image_cleanly) {
+  const TextPage page = textPage();
+  BOOST_CHECK(reduceColorsKMeans(QImage(), 3, true).isNull());
+  BOOST_CHECK(reduceColorsKMeans(page.color, 0, true).isNull());
+
+  const ConnectivityMap validMap(page.text, CONN8);
+  BOOST_CHECK(reduceTextColorsKMeans(QImage(), page.text, validMap, 3, true, 100).isNull());
+  BOOST_CHECK(reduceTextColorsKMeans(page.color, BinaryImage(10, 10, WHITE), validMap, 3, true, 100).isNull());
+  BOOST_CHECK(reduceTextColorsKMeans(page.color, page.text, ConnectivityMap(QSize(10, 10)), 3, true, 100).isNull());
+  BOOST_CHECK(reduceTextColorsKMeans(page.color, page.text, validMap, 0, true, 100).isNull());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc

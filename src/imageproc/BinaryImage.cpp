@@ -16,6 +16,7 @@
 #include <new>
 #include <stdexcept>
 
+#include "BadAllocIfNull.h"
 #include "BitOps.h"
 #include "ByteOrder.h"
 
@@ -517,6 +518,7 @@ QImage BinaryImage::toQImage() const {
   }
 
   QImage dst(m_width, m_height, QImage::Format_Mono);
+  badAllocIfNull(dst);
   assert(dst.bytesPerLine() % 4 == 0);
   dst.setColorCount(2);
   dst.setColor(0, 0xffffffff);
@@ -554,6 +556,7 @@ QImage BinaryImage::toAlphaMask(const QColor& color) const {
   const int height = m_height;
 
   QImage dst(width, height, QImage::Format_ARGB32_Premultiplied);
+  badAllocIfNull(dst);
   assert(dst.bytesPerLine() % 4 == 0);
 
   const int dstStride = dst.bytesPerLine() / 4;
@@ -717,11 +720,21 @@ BinaryImage BinaryImage::fromMono(const QImage& image, const QRect& rect) {
 }  // BinaryImage::fromMono
 
 BinaryImage BinaryImage::fromMonoLSB(const QImage& image) {
-  return fromMono(image.convertToFormat(QImage::Format_Mono));
+  if (image.isNull()) {
+    return BinaryImage();
+  }
+  const QImage mono(image.convertToFormat(QImage::Format_Mono));
+  badAllocIfNull(mono);
+  return fromMono(mono);
 }
 
 BinaryImage BinaryImage::fromMonoLSB(const QImage& image, const QRect& rect) {
-  return fromMono(image.convertToFormat(QImage::Format_Mono), rect);
+  if (image.isNull()) {
+    return fromMono(image, rect);
+  }
+  const QImage mono(image.convertToFormat(QImage::Format_Mono));
+  badAllocIfNull(mono);
+  return fromMono(mono, rect);
 }
 
 BinaryImage BinaryImage::fromIndexed8(const QImage& image, const QRect& rect, const int threshold) {

@@ -7,6 +7,7 @@
 #include <QImage>
 #include <stdexcept>
 
+#include "BadAllocIfNull.h"
 #include "BinaryImage.h"
 #include "BitOps.h"
 #include "InfluenceMap.h"
@@ -256,6 +257,7 @@ QImage ConnectivityMap::visualized(QColor bgColor) const {
   bgColor.setBlueF(bgColor.blueF() * bgColor.alphaF());
 
   QImage dst(m_size, QImage::Format_ARGB32);
+  badAllocIfNull(dst);
   dst.fill(bgColor.rgba());
 
   const uint32_t* srcLine = m_plainData;

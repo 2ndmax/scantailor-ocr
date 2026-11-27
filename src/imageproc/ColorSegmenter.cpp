@@ -7,6 +7,7 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "BadAllocIfNull.h"
 #include "BinaryImage.h"
 #include "BinaryThreshold.h"
 #include "ConnectivityMap.h"
@@ -297,7 +298,11 @@ QImage buildRgbImage(const ConnectivityMap& segmentsMap, const QImage& colorImag
     }
   }
 
+  if (colorImage.isNull()) {
+    return QImage();
+  }
   QImage dst(colorImage.size(), QImage::Format_RGB32);
+  badAllocIfNull(dst);
   dst.fill(Qt::white);
 
   auto* dstLine = reinterpret_cast<uint32_t*>(dst.bits());

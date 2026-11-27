@@ -10,6 +10,7 @@
 #include <cmath>
 #include <vector>
 
+#include "BadAllocIfNull.h"
 #include "BinaryImage.h"
 #include "ConnectivityMap.h"
 
@@ -151,10 +152,11 @@ Palette findPalette(const QHash<QRgb, int>& counts, const int colors, const bool
 }  // namespace
 
 QImage reduceColorsKMeans(const QImage& image, const int colors, const bool fixBlack) {
-  QImage result = image.convertToFormat(QImage::Format_RGB32);
-  if (result.isNull() || (colors < 1)) {
-    return result;
+  if (image.isNull() || (colors < 1)) {
+    return QImage();
   }
+  QImage result = (image.format() == QImage::Format_RGB32) ? image.copy() : image.convertToFormat(QImage::Format_RGB32);
+  badAllocIfNull(result);
 
   QHash<QRgb, int> counts;
   for (int y = 0; y < result.height(); ++y) {
@@ -196,12 +198,15 @@ QImage reduceTextColors(const QImage& color,
                         const int colors,
                         const bool fixBlack,
                         const int maxLetterPixels) {
-  const QImage source = color.convertToFormat(QImage::Format_RGB32);
-  QImage result(source.size(), QImage::Format_RGB32);
-  result.fill(Qt::white);
-  if (source.isNull() || (text.size() != source.size()) || (segments.size() != source.size()) || (colors < 1)) {
-    return result;
+  if (color.isNull() || (text.size() != color.size()) || (components.size() != color.size())
+      || (segments.size() != color.size()) || (colors < 1)) {
+    return QImage();
   }
+  const QImage source = (color.format() == QImage::Format_RGB32) ? color : color.convertToFormat(QImage::Format_RGB32);
+  badAllocIfNull(source);
+  QImage result(source.size(), QImage::Format_RGB32);
+  badAllocIfNull(result);
+  result.fill(Qt::white);
   const int width = source.width();
   const int height = source.height();
 
