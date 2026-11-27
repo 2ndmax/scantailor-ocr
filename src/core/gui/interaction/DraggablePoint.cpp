@@ -3,7 +3,11 @@
 
 #include "DraggablePoint.h"
 
-DraggablePoint::DraggablePoint() : m_hitAreaRadius(), m_proximityPriority(1) {}
+DraggablePoint::DraggablePoint()
+    : m_positionCallback([]() { return QPointF(); }),
+      m_moveRequestCallback([](const QPointF&, Qt::KeyboardModifiers) {}),
+      m_hitAreaRadius(),
+      m_proximityPriority(1) {}
 
 Proximity DraggablePoint::proximityThreshold(const InteractionState& state) const {
   if (m_hitAreaRadius == 0.0) {

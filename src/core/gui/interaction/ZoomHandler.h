@@ -33,6 +33,8 @@ class ZoomHandler : public InteractionHandler {
   /** Whether a double click shows the whole page again; off where the view uses double clicks itself. */
   void setZoomAllOnDoubleClick(bool enabled) { m_zoomAllOnDoubleClick = enabled; }
 
+  void setShortcutsEnabled(bool enabled);
+
  protected:
   void onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& interaction) override;
 
@@ -43,7 +45,6 @@ class ZoomHandler : public InteractionHandler {
 
   ImageViewBase& m_imageView;
   std::function<bool(const InteractionState&)> m_interactionPermitter;
-  InteractionState::Captor m_interaction;
   Focus m_focus;
   bool m_zoomAllOnDoubleClick = true;
   std::unique_ptr<QShortcut> m_magnifyShortcut;

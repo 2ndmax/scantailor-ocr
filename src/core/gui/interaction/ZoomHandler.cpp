@@ -23,9 +23,21 @@ ZoomHandler::ZoomHandler(ImageViewBase& imageView,
                    std::bind(&ZoomHandler::zoom, this, std::pow(2, 1.0 / 6)));
   QObject::connect(m_diminishShortcut.get(), &QShortcut::activated, &m_imageView,
                    std::bind(&ZoomHandler::zoom, this, std::pow(2, -1.0 / 6)));
+  m_imageView.registerZoomHandler(this);
 }
 
-ZoomHandler::~ZoomHandler() = default;
+ZoomHandler::~ZoomHandler() {
+  m_imageView.unregisterZoomHandler(this);
+}
+
+void ZoomHandler::setShortcutsEnabled(const bool enabled) {
+  if (m_magnifyShortcut) {
+    m_magnifyShortcut->setEnabled(enabled);
+  }
+  if (m_diminishShortcut) {
+    m_diminishShortcut->setEnabled(enabled);
+  }
+}
 
 void ZoomHandler::onWheelEvent(QWheelEvent* event, InteractionState& interaction) {
   if (!m_interactionPermitter(interaction)) {

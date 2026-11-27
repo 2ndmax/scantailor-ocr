@@ -23,6 +23,7 @@
 #include <QScrollBar>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QStatusBar>
+#include <algorithm>
 
 #include "ApplicationSettings.h"
 #include "BackgroundExecutor.h"
@@ -34,6 +35,7 @@
 #include "ScopedIncDec.h"
 #include "UnitsProvider.h"
 #include "WidgetUtils.h"
+#include "ZoomHandler.h"
 
 using namespace core;
 using namespace imageproc;
@@ -373,6 +375,31 @@ void ImageViewBase::ensureStatusTip(const QString& statusTip) {
     // Also note that we use postEvent() rather than sendEvent(),
     // because sendEvent() may immediately process other events.
     QApplication::postEvent(viewport(), new QStatusTipEvent(statusTip));
+  }
+}
+
+void ImageViewBase::registerZoomHandler(ZoomHandler* const handler) {
+  if (!handler) {
+    return;
+  }
+  auto it = std::find(m_zoomHandlers.begin(), m_zoomHandlers.end(), handler);
+  if (it != m_zoomHandlers.end()) {
+    m_zoomHandlers.erase(it);
+  }
+  m_zoomHandlers.push_back(handler);
+  for (size_t i = 0; i < m_zoomHandlers.size(); ++i) {
+    m_zoomHandlers[i]->setShortcutsEnabled(i + 1 == m_zoomHandlers.size());
+  }
+}
+
+void ImageViewBase::unregisterZoomHandler(ZoomHandler* const handler) {
+  auto it = std::find(m_zoomHandlers.begin(), m_zoomHandlers.end(), handler);
+  if (it == m_zoomHandlers.end()) {
+    return;
+  }
+  m_zoomHandlers.erase(it);
+  for (size_t i = 0; i < m_zoomHandlers.size(); ++i) {
+    m_zoomHandlers[i]->setShortcutsEnabled(i + 1 == m_zoomHandlers.size());
   }
 }
 

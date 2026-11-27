@@ -35,10 +35,12 @@ class DraggableLineSegment : public DraggableObject {
   void setMoveRequestCallback(const MoveRequestCallback& callback) { m_moveRequestCallback = callback; }
 
  protected:
-  virtual QLineF lineSegmentPosition() const { return m_positionCallback(); }
+  virtual QLineF lineSegmentPosition() const { return m_positionCallback ? m_positionCallback() : QLineF(); }
 
   virtual void lineSegmentMoveRequest(const QLineF& line, Qt::KeyboardModifiers mask) {
-    m_moveRequestCallback(line, mask);
+    if (m_moveRequestCallback) {
+      m_moveRequestCallback(line, mask);
+    }
   }
 
  private:

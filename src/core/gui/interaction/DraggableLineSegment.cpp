@@ -5,7 +5,10 @@
 
 #include <QPainter>
 
-DraggableLineSegment::DraggableLineSegment() : m_proximityPriority(0) {}
+DraggableLineSegment::DraggableLineSegment()
+    : m_positionCallback([]() { return QLineF(); }),
+      m_moveRequestCallback([](const QLineF&, Qt::KeyboardModifiers) {}),
+      m_proximityPriority(0) {}
 
 int DraggableLineSegment::proximityPriority() const {
   return m_proximityPriority;

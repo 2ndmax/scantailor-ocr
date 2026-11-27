@@ -35,9 +35,13 @@ class DraggablePolygon : public DraggableObject {
   void setMoveRequestCallback(const MoveRequestCallback& callback) { m_moveRequestCallback = callback; }
 
  protected:
-  virtual QPolygonF polygonPosition() const { return m_positionCallback(); }
+  virtual QPolygonF polygonPosition() const { return m_positionCallback ? m_positionCallback() : QPolygonF(); }
 
-  virtual void polygonMoveRequest(const QPolygonF& polygon) { m_moveRequestCallback(polygon); }
+  virtual void polygonMoveRequest(const QPolygonF& polygon) {
+    if (m_moveRequestCallback) {
+      m_moveRequestCallback(polygon);
+    }
+  }
 
  private:
   PositionCallback m_positionCallback;

@@ -6,7 +6,13 @@
 #include <QGuiApplication>
 #include <QMouseEvent>
 
-ObjectDragHandler::ObjectDragHandler(DraggableObject* obj) : m_obj(obj), m_keyboardModifiersSet({Qt::NoModifier}) {
+DraggableObject& ObjectDragHandler::defaultObject() {
+  static DraggableObject dummy;
+  return dummy;
+}
+
+ObjectDragHandler::ObjectDragHandler(DraggableObject* obj)
+    : m_obj(obj ? obj : &defaultObject()), m_keyboardModifiersSet({Qt::NoModifier}) {
   setProximityCursor(Qt::OpenHandCursor);
   setInteractionCursor(Qt::ClosedHandCursor);
 }

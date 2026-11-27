@@ -42,10 +42,12 @@ class DraggablePoint : public DraggableObject {
   void setMoveRequestCallback(const MoveRequestCallback& callback) { m_moveRequestCallback = callback; }
 
  protected:
-  virtual QPointF pointPosition() const { return m_positionCallback(); }
+  virtual QPointF pointPosition() const { return m_positionCallback ? m_positionCallback() : QPointF(); }
 
   virtual void pointMoveRequest(const QPointF& widgetPos, Qt::KeyboardModifiers mask) {
-    m_moveRequestCallback(widgetPos, mask);
+    if (m_moveRequestCallback) {
+      m_moveRequestCallback(widgetPos, mask);
+    }
   }
 
  private:

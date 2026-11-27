@@ -17,6 +17,7 @@
 #include <QWidget>
 #include <Qt>
 #include <memory>
+#include <vector>
 
 #include "ImagePixmapUnion.h"
 #include "ImageViewInfoProvider.h"
@@ -27,6 +28,7 @@
 class QPainter;
 class BackgroundExecutor;
 class ImagePresentation;
+class ZoomHandler;
 
 /**
  * \brief The base class for widgets that display and manipulate images.
@@ -123,6 +125,10 @@ class ImageViewBase : public QAbstractScrollArea {
    * immediately, not when the mouse enters the widget next time.
    */
   void ensureStatusTip(const QString& statusTip);
+
+  void registerZoomHandler(ZoomHandler* handler);
+
+  void unregisterZoomHandler(ZoomHandler* handler);
 
   /**
    * \brief Get the focal point in widget coordinates.
@@ -456,6 +462,8 @@ class ImageViewBase : public QAbstractScrollArea {
   int m_ignoreResizeEvents;
 
   ImageViewInfoProvider m_infoProvider;
+
+  std::vector<ZoomHandler*> m_zoomHandlers;
 };
 
 

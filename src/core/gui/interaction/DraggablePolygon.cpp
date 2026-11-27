@@ -6,7 +6,10 @@
 #include <QPainter>
 #include <limits>
 
-DraggablePolygon::DraggablePolygon() : m_proximityPriority(0) {}
+DraggablePolygon::DraggablePolygon()
+    : m_positionCallback([]() { return QPolygonF(); }),
+      m_moveRequestCallback([](const QPolygonF&) {}),
+      m_proximityPriority(0) {}
 
 int DraggablePolygon::proximityPriority() const {
   return m_proximityPriority;
