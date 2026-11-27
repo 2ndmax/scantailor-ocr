@@ -4,6 +4,7 @@
 #include "Task.h"
 #include "TaskResult.h"
 
+#include <optional>
 #include <utility>
 
 #include "BatchProcessingResult.h"
@@ -46,15 +47,16 @@ FilterResultPtr Task::process(const TaskStatus& status,
 
   const QSizeF contentSizeMm(Utils::calcRectSizeMM(data.xform(), contentRect));
 
-  if (m_settings->isPageAutoMarginsEnabled(m_pageId)) {
-    const Margins& marginsMm = Utils::calcMarginsMM(data.xform(), pageRect, contentRect);
-    m_settings->setHardMarginsMM(m_pageId, marginsMm);
-  }
+  const std::optional<Margins> autoMargins
+      = m_settings->isPageAutoMarginsEnabled(m_pageId)
+            ? std::optional<Margins>(Utils::calcMarginsMM(data.xform(), pageRect, contentRect))
+            : std::nullopt;
 
   QSizeF aggHardSizeBefore;
   QSizeF aggHardSizeAfter;
   const Params params(m_settings->updateContentSizeAndGetParams(m_pageId, pageRect, contentRect, contentSizeMm,
-                                                                &aggHardSizeBefore, &aggHardSizeAfter));
+                                                                &aggHardSizeBefore, &aggHardSizeAfter,
+                                                                autoMargins ? &*autoMargins : nullptr));
 
   const QRectF adaptedContentRect(Utils::adaptContentRect(data.xform(), contentRect));
 

@@ -1,13 +1,22 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <Dpi.h>
+#include <Dpm.h>
+#include <FilterData.h>
 #include <ImageId.h>
+#include <ImageTransformation.h>
 #include <Margins.h>
+#include <NullTaskStatus.h>
 #include <PageId.h>
 #include <filters/page_layout/Alignment.h>
 #include <filters/page_layout/Params.h>
 #include <filters/page_layout/Settings.h>
+#include <filters/page_layout/Task.h>
+#include <filters/page_layout/TaskResult.h>
+#include <filters/page_layout/Utils.h>
 
+#include <QImage>
 #include <QRectF>
 #include <QSizeF>
 #include <boost/test/unit_test.hpp>
@@ -133,6 +142,39 @@ BOOST_AUTO_TEST_CASE(test_unprocessed_page_does_not_skew_aggregate_size) {
   // Small positive processed page is also not masked by unprocessed page's nominal margins.
   settings.updateContentSizeAndGetParams(processed, QRectF(0, 0, 100, 100), QRectF(0, 0, 10, 10), QSizeF(5, 5));
   BOOST_TEST((settings.getAggregateHardSizeMM() == QSizeF(5, 5)));
+}
+
+BOOST_AUTO_TEST_CASE(test_empty_content_rect_calc_margins_mm_returns_zero) {
+  const QRectF pageRect(0, 0, 1000, 2000);
+  const ImageTransformation xform(pageRect, Dpi(300, 300));
+  const Margins margins = Utils::calcMarginsMM(xform, pageRect, QRectF());
+  BOOST_CHECK_EQUAL(margins.left(), 0.0);
+  BOOST_CHECK_EQUAL(margins.top(), 0.0);
+  BOOST_CHECK_EQUAL(margins.right(), 0.0);
+  BOOST_CHECK_EQUAL(margins.bottom(), 0.0);
+}
+
+BOOST_AUTO_TEST_CASE(test_auto_margins_aggregate_change_detected_with_same_content_size) {
+  QImage image(600, 800, QImage::Format_RGB32);
+  image.fill(Qt::white);
+  const Dpm dpm(Dpi(300, 300));
+  image.setDotsPerMeterX(dpm.horizontal());
+  image.setDotsPerMeterY(dpm.vertical());
+  const FilterData data(image);
+  const QRectF contentRect(100, 100, 400, 600);
+  const QSizeF contentSizeMm = Utils::calcRectSizeMM(data.xform(), contentRect);
+
+  auto settings = std::make_shared<Settings>();
+  // Pre-seed page with 0 margins and matching contentSizeMM, then enable auto margins and run Task on larger pageRect.
+  settings->setHardMarginsMM(kPage, Margins(0, 0, 0, 0));
+  settings->updateContentSizeAndGetParams(kPage, QRectF(100, 100, 400, 600), contentRect, contentSizeMm);
+  settings->setPageAutoMarginsEnabled(kPage, true);
+
+  Task task(nullptr, nullptr, settings, kPage, false, false);
+  const FilterResultPtr res = task.process(NullTaskStatus(), data, QRectF(0, 0, 600, 800), contentRect);
+  const auto* taskResult = dynamic_cast<const TaskResult*>(res.get());
+  BOOST_REQUIRE(taskResult != nullptr);
+  BOOST_CHECK(taskResult->aggSizeChanged());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -70,6 +70,10 @@ void Utils::extendPolyRectWithMargins(QPolygonF& polyRect, const Margins& margin
 }
 
 Margins Utils::calcMarginsMM(const ImageTransformation& xform, const QRectF& pageRect, const QRectF& contentRect) {
+  if (contentRect.isEmpty()) {
+    return Margins();
+  }
+
   const QSizeF contentSizeMm(Utils::calcRectSizeMM(xform, contentRect));
 
   const QSizeF pageSizeMm(Utils::calcRectSizeMM(xform, pageRect));

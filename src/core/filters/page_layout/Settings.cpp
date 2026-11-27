@@ -85,7 +85,8 @@ class Settings::Impl {
                                        const QRectF& contentRect,
                                        const QSizeF& contentSizeMm,
                                        QSizeF* aggHardSizeBefore,
-                                       QSizeF* aggHardSizeAfter);
+                                       QSizeF* aggHardSizeAfter,
+                                       const Margins* hardMarginsMm);
 
   Margins getHardMarginsMM(const PageId& pageId) const;
 
@@ -208,9 +209,10 @@ Params Settings::updateContentSizeAndGetParams(const PageId& pageId,
                                                const QRectF& contentRect,
                                                const QSizeF& contentSizeMm,
                                                QSizeF* aggHardSizeBefore,
-                                               QSizeF* aggHardSizeAfter) {
+                                               QSizeF* aggHardSizeAfter,
+                                               const Margins* hardMarginsMm) {
   return m_impl->updateContentSizeAndGetParams(pageId, pageRect, contentRect, contentSizeMm, aggHardSizeBefore,
-                                               aggHardSizeAfter);
+                                               aggHardSizeAfter, hardMarginsMm);
 }
 
 Margins Settings::getHardMarginsMM(const PageId& pageId) const {
@@ -456,7 +458,8 @@ Params Settings::Impl::updateContentSizeAndGetParams(const PageId& pageId,
                                                      const QRectF& contentRect,
                                                      const QSizeF& contentSizeMm,
                                                      QSizeF* aggHardSizeBefore,
-                                                     QSizeF* aggHardSizeAfter) {
+                                                     QSizeF* aggHardSizeAfter,
+                                                     const Margins* hardMarginsMm) {
   const QMutexLocker locker(&m_mutex);
 
   if (aggHardSizeBefore) {
@@ -464,6 +467,9 @@ Params Settings::Impl::updateContentSizeAndGetParams(const PageId& pageId,
   }
 
   const Container::iterator itemIt = modifyOrInsertLocked(pageId, [&](Item& item) {
+    if (hardMarginsMm) {
+      item.hardMarginsMM = *hardMarginsMm;
+    }
     item.contentSizeMM = contentSizeMm;
     item.contentRect = contentRect;
     item.pageRect = pageRect;

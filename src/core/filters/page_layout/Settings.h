@@ -85,7 +85,8 @@ class Settings {
                                        const QRectF& contentRect,
                                        const QSizeF& contentSizeMm,
                                        QSizeF* aggHardSizeBefore = nullptr,
-                                       QSizeF* aggHardSizeAfter = nullptr);
+                                       QSizeF* aggHardSizeAfter = nullptr,
+                                       const Margins* hardMarginsMm = nullptr);
 
   /**
    * \brief Returns the hard margins for the specified page.
