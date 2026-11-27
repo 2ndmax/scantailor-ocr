@@ -110,10 +110,10 @@ def main():
 
     data = load(options.file)
     if options.action == "get":
-        print(json.dumps(get_entry(data, options.keys), ensure_ascii=False))
+        print(json.dumps(get_entry(data, options.keys), ensure_ascii=True))
         return 0
     if options.action == "find":
-        print(json.dumps(find_entries(data, options.keys[0]), ensure_ascii=False))
+        print(json.dumps(find_entries(data, options.keys[0]), ensure_ascii=True))
         return 0
 
     if not options.command:

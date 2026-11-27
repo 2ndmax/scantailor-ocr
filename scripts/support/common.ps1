@@ -251,8 +251,10 @@ function Invoke-VsLogged([string]$CommandLine, [string]$Log, [string]$Activity =
 
 # The value of an environment variable inside the developer environment (e.g. INCLUDE).
 function Get-VsEnv([string]$Name) {
-    $line = cmd /c "`"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && set $Name" |
+    if (-not $Vs -or -not (Test-Path -LiteralPath "$Vs\VC\Auxiliary\Build\vcvars64.bat")) { return '' }
+    $line = cmd /c "`"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul 2>nul && set $Name" |
         Where-Object { $_ -like "$Name=*" } | Select-Object -First 1
+    if (-not $line) { return '' }
     return "$line".Substring($Name.Length + 1)
 }
 

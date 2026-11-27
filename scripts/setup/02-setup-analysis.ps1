@@ -220,7 +220,11 @@ $stepDebugger = {
     Write-Host "  $setup"
     Write-Host 'There tick "Debugging Tools for Windows", leave the other ticks as they are, and click'
     Write-Host '"Change". The setup downloads them; Windows asks for administrator rights.'
-    if (-not (Read-YesNo 'Open the setup now?' $true)) { return $false }
+    if ($Unattended) {
+        Write-Host 'Debugging Tools for Windows require manual selection in Windows SDK setup; aborted in unattended mode.' -ForegroundColor Yellow
+        return $false
+    }
+    if (-not (Read-YesNo 'Open the setup now?' $false)) { return $false }
     Add-LogLine $log "# $(Get-Stamp) $setup /modify"
     # REVIEW-NOTE (2026-11): step 5 started with -Steps (unattended) opens the SDK setup and waits until it is
     # closed -> the script hangs without a person at the desktop. Not fixed because the step needs ticks set by

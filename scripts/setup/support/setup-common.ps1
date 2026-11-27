@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Helpers for the setup scripts in this folder: questions, the step menu and running commands
   visibly. Dot-sourced after ..\..\support\common.ps1.
@@ -91,10 +91,10 @@ function Add-VsComponents([string]$Instance, [string[]]$Components, [string]$Log
 }
 
 # Downloads a file; curl.exe (Windows 10 1803 and later) is much faster than Invoke-WebRequest in Windows PowerShell 5.1.
-# Logs to the $log of the calling setup script.
-function Save-Download([string]$Url, [string]$OutFile) {
+# Downloads a file and optionally logs to $Log.
+function Save-Download([string]$Url, [string]$OutFile, [string]$Log = '') {
     Write-Host "Downloading $Url"
-    Add-LogLine $log "# $(Get-Stamp) Download $Url"
+    if ($Log) { Add-LogLine $Log "# $(Get-Stamp) Download $Url" }
     if (Get-Command curl.exe -ErrorAction SilentlyContinue) {
         # --progress-bar: one bar with the percentage instead of curl's table of numbers.
         & curl.exe --location --fail --retry 3 --progress-bar --output $OutFile $Url

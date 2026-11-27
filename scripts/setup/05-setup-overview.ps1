@@ -166,7 +166,7 @@ $stepClangUml = {
     $downloadDir = "$env:TEMP\scantailor-ocr-setup"
     New-Item -ItemType Directory -Force $downloadDir | Out-Null
     $installer = "$downloadDir\$(Split-Path $release.Url -Leaf)"
-    if (-not (Save-Download $release.Url $installer)) { return $false }
+    if (-not (Save-Download $release.Url $installer $log)) { return $false }
     $hash = (Get-FileHash -Algorithm SHA256 $installer).Hash.ToLowerInvariant()
     Add-LogLine $log "# SHA-256: $hash (expected $($release.Sha256))"
     if ($hash -ne $release.Sha256) {

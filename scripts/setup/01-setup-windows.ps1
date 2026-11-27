@@ -253,7 +253,7 @@ function Get-Vcpkg {
     # unpacked by hand).
     $zip = "$env:TEMP\vcpkg-master.zip"
     $parent = Split-Path $VcpkgDir
-    if (-not (Save-Download 'https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip' $zip)) { return $false }
+    if (-not (Save-Download 'https://github.com/microsoft/vcpkg/archive/refs/heads/master.zip' $zip $log)) { return $false }
     # A drive root such as D:\ always exists and cannot be created.
     if (-not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
     $staging = Join-Path $parent ('vcpkg-unpack-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
@@ -290,13 +290,13 @@ $stepVcpkg = {
     if (-not (Test-Path "$VcpkgDir\vcpkg.exe")) {
         if ((Invoke-Shown "cd /d `"$VcpkgDir`" && bootstrap-vcpkg.bat -disableMetrics" $log) -ne 0) { return $false }
     }
-    $packages = @(Get-Content "$PSScriptRoot\support\vcpkg-packages.txt" | Where-Object { $_ -and $_ -notmatch '^#' })
+    $packages = @(Get-Content "$PSScriptRoot\support\vcpkg-packages.txt" | ForEach-Object { $_.Trim() } | Where-Object { $_ -and $_ -notmatch '^#' })
     Write-Host "Installs $($packages.Count) packages (list: scripts\setup\support\vcpkg-packages.txt). The first time,"
     Write-Host "vcpkg compiles Qt and everything else from source: an hour or more and at least $VcpkgSizeGb GB."
     Write-Host 'Packages that are already installed are skipped.'
     if (-not (Read-YesNo 'Install the packages now?' $true)) { return $false }
     $quoted = ($packages | ForEach-Object { "`"$_`"" }) -join ' '
-    return ((Invoke-Shown "`"$VcpkgDir\vcpkg.exe`" install --recurse $quoted" $log) -eq 0)
+    return ((Invoke-Shown "`"$VcpkgDir\vcpkg.exe`" install --triplet x64-windows --recurse $quoted" $log) -eq 0)
 }
 
 # --- Step 4: VCPKG_ROOT -----------------------------------------------------------------------
@@ -323,7 +323,7 @@ $stepBuild = {
     }
     $toolchain = "$VcpkgDir\scripts\buildsystems\vcpkg.cmake"
     $configure = "cmake -S `"$Root`" -B `"$BuildDir`" -G Ninja -DCMAKE_BUILD_TYPE=Release " +
-                 "-DCMAKE_TOOLCHAIN_FILE=`"$toolchain`""
+                 "-DCMAKE_TOOLCHAIN_FILE=`"$toolchain`" -DVCPKG_TARGET_TRIPLET=x64-windows"
     if ((Invoke-Shown $configure $log -InVsEnv) -ne 0) { return $false }
     if ((Invoke-Shown "cmake --build `"$BuildDir`"" $log -InVsEnv) -ne 0) { return $false }
     Write-Host "Built: $BuildDir\scantailor-ocr.exe"
@@ -335,7 +335,7 @@ $stepBuild = {
         foreach ($language in $languages) {
             # Unpinned, see the REVIEW-NOTE at Get-Vcpkg.
             $url = "https://github.com/tesseract-ocr/tessdata_best/raw/main/$language.traineddata"
-            if (-not (Save-Download $url "$tessdata\$language.traineddata")) { return $false }
+            if (-not (Save-Download $url "$tessdata\$language.traineddata" $log)) { return $false }
         }
     }
     if (Read-YesNo 'Run the tests (a few minutes)?' $false) {

@@ -78,10 +78,19 @@ Write-Intro 'ScanTailor OCR - set up the MCP server' @(
 
 # --- Helpers ----------------------------------------------------------------------------------
 
+function Format-FolderPath([string]$Path) {
+    $full = [IO.Path]::GetFullPath($Path)
+    if ($full.Length -gt 3) { return $full.TrimEnd('\') }
+    return $full
+}
+
 # Quotes an argument for a cmd command line when it needs it.
 function ConvertTo-CmdArg([string]$Text) {
-    if ($Text -match '[\s&|<>^()]') { return "`"$Text`"" }
-    return $Text
+    if ($Text -eq '') { return '""' }
+    if ($Text -notmatch '[\s"&|<>^()]') { return $Text }
+    $escaped = [regex]::Replace($Text, '(\\*)"', '$1$1\"')
+    $escaped = [regex]::Replace($escaped, '(\\+)$', '$1$1')
+    return "`"$escaped`""
 }
 
 # The CLI: -Cli, SCANTAILOR_OCR_CLI (window or user account), the build of this repository, PATH.
@@ -103,10 +112,20 @@ function Test-McpCli([string]$Exe) {
 }
 
 # Runs mcp-config.py through uv; returns its output lines. Throws when it fails.
-function Invoke-McpConfig([string[]]$Arguments) {
+function Invoke-McpConfig([string[]]$Arguments, [switch]$ReadOnly) {
     $uv = Find-Uv
     if (-not $uv) { throw 'uv is missing; run step 2 first.' }
-    $output = & $uv run --no-project --quiet python $ConfigHelper @Arguments
+    $uvArgs = @('run', '--no-project', '--quiet')
+    if ($ReadOnly) { $uvArgs += '--no-python-downloads' }
+    $uvArgs += @('python', $ConfigHelper) + $Arguments
+    $hasPrevUtf8 = Test-Path Env:PYTHONUTF8
+    $prevUtf8 = $env:PYTHONUTF8
+    try {
+        $env:PYTHONUTF8 = '1'
+        $output = & $uv @uvArgs
+    } finally {
+        if ($hasPrevUtf8) { $env:PYTHONUTF8 = $prevUtf8 } else { Remove-Item Env:PYTHONUTF8 -ErrorAction SilentlyContinue }
+    }
     if ($LASTEXITCODE -ne 0) { throw "mcp-config.py ended with exit code $LASTEXITCODE." }
     return $output
 }
@@ -116,7 +135,7 @@ function Invoke-McpConfig([string[]]$Arguments) {
 function Get-McpEntry([string]$File, [string[]]$Keys) {
     if (-not $File -or -not (Test-Path -LiteralPath $File) -or -not (Find-Uv)) { return $null }
     try {
-        $json = (Invoke-McpConfig (@('get', $File) + $Keys)) -join "`n"
+        $json = (Invoke-McpConfig (@('get', $File) + $Keys) -ReadOnly) -join "`n"
         return ($json | ConvertFrom-Json)
     } catch {
         return $null
@@ -175,7 +194,7 @@ function Get-AllowRoots {
             Write-Host "Not a folder: $($missing -join ', ')" -ForegroundColor Yellow
         }
     }
-    $script:Roots = @($chosen | ForEach-Object { [IO.Path]::GetFullPath($_).TrimEnd('\') })
+    $script:Roots = @($chosen | ForEach-Object { Format-FolderPath $_ })
     Add-LogLine $log "# Allowed folders: $($script:Roots -join '; ')"
     return $script:Roots
 }
@@ -314,7 +333,7 @@ function Get-ClaudeCodeEntries {
     $file = Get-ClaudeCodeConfig
     if (-not (Test-Path -LiteralPath $file) -or -not (Find-Uv)) { return @() }
     try {
-        $list = (Invoke-McpConfig @('find', $file, $ServerName)) -join "`n" | ConvertFrom-Json
+        $list = (Invoke-McpConfig @('find', $file, $ServerName) -ReadOnly) -join "`n" | ConvertFrom-Json
     } catch {
         return @()
     }
@@ -346,7 +365,7 @@ $stepClaudeCode = {
     if ($scope -eq 'local' -and -not $Unattended) {
         while ($true) {
             $typed = (Read-Host "Folder [$Root]").Trim().Trim('"')
-            $folder = if ($typed) { [IO.Path]::GetFullPath($typed).TrimEnd('\') } else { $Root }
+            $folder = if ($typed) { Format-FolderPath $typed } else { $Root }
             if (Test-Path -LiteralPath $folder -PathType Container) { break }
             Write-Host "Not a folder: $folder" -ForegroundColor Yellow
         }
