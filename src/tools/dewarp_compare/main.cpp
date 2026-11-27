@@ -60,9 +60,11 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <limits>
+#include <mutex>
 #include <optional>
 #include <random>
 #include <stdexcept>
@@ -852,18 +854,46 @@ int main(int argc, char** argv) {
   const auto numSeeds = static_cast<size_t>(options.seeds);
   std::vector<Measured> results(cases.size() * numSeeds);
   std::atomic<size_t> next{0};
-  std::vector<std::thread> workers;
-  for (int j = 0; j < options.jobs; ++j) {
-    workers.emplace_back([&]() {
-      for (size_t i = next++; i < results.size(); i = next++) {
-        const Case& oneCase = cases[i / numSeeds];
-        const auto seed = static_cast<unsigned>(i % numSeeds) + 1;
-        results[i] = measure(drawPage(oneCase.layout, *oneCase.distortion, seed), oneCase.method);
+  std::atomic<bool> failed{false};
+  std::mutex exceptionMutex;
+  std::exception_ptr workerException;
+  struct ThreadJoiner {
+    std::vector<std::thread>& workers;
+    ~ThreadJoiner() {
+      for (std::thread& worker : workers) {
+        if (worker.joinable()) {
+          worker.join();
+        }
       }
-    });
+    }
+  };
+  std::vector<std::thread> workers;
+  workers.reserve(static_cast<size_t>(options.jobs));
+  {
+    ThreadJoiner joiner{workers};
+    for (int j = 0; j < options.jobs; ++j) {
+      workers.emplace_back([&]() {
+        try {
+          for (size_t i = next++; i < results.size(); i = next++) {
+            if (failed.load(std::memory_order_relaxed)) {
+              break;
+            }
+            const Case& oneCase = cases[i / numSeeds];
+            const auto seed = static_cast<unsigned>(i % numSeeds) + 1;
+            results[i] = measure(drawPage(oneCase.layout, *oneCase.distortion, seed), oneCase.method);
+          }
+        } catch (...) {
+          failed.store(true, std::memory_order_relaxed);
+          const std::lock_guard<std::mutex> lock(exceptionMutex);
+          if (!workerException) {
+            workerException = std::current_exception();
+          }
+        }
+      });
+    }
   }
-  for (std::thread& worker : workers) {
-    worker.join();
+  if (workerException) {
+    std::rethrow_exception(workerException);
   }
 
   QString summary

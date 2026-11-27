@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cmath>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <mutex>
@@ -472,6 +473,17 @@ bool writeRealReport(const Options& options,
   return true;
 }
 
+struct ThreadJoiner {
+  std::vector<std::thread>& workers;
+  ~ThreadJoiner() {
+    for (std::thread& worker : workers) {
+      if (worker.joinable()) {
+        worker.join();
+      }
+    }
+  }
+};
+
 int runRealImages(const Options& options) {
   const QDir dir(options.imagesDir);
   std::vector<QString> paths;
@@ -486,17 +498,34 @@ int runRealImages(const Options& options) {
   }
   std::vector<RealPage> pages(paths.size());
   std::atomic<int> next(0);
+  std::atomic<bool> failed(false);
+  std::mutex exceptionMutex;
+  std::exception_ptr workerException;
   std::vector<std::thread> workers;
   workers.reserve(static_cast<size_t>(options.jobs));
-  for (int j = 0; j < options.jobs; ++j) {
-    workers.emplace_back([&]() {
-      for (int i = next++; i < static_cast<int>(paths.size()); i = next++) {
-        pages[i] = measureRealPage(paths[i]);
-      }
-    });
+  {
+    ThreadJoiner joiner{workers};
+    for (int j = 0; j < options.jobs; ++j) {
+      workers.emplace_back([&]() {
+        try {
+          for (int i = next++; i < static_cast<int>(paths.size()); i = next++) {
+            if (failed.load(std::memory_order_relaxed)) {
+              break;
+            }
+            pages[i] = measureRealPage(paths[i]);
+          }
+        } catch (...) {
+          failed.store(true, std::memory_order_relaxed);
+          const std::lock_guard<std::mutex> lock(exceptionMutex);
+          if (!workerException) {
+            workerException = std::current_exception();
+          }
+        }
+      });
+    }
   }
-  for (std::thread& worker : workers) {
-    worker.join();
+  if (workerException) {
+    std::rethrow_exception(workerException);
   }
   for (size_t i = 0; i < pages.size(); ++i) {
     if (pages[i].asIs.findings.empty()) {
@@ -574,22 +603,39 @@ int main(int argc, char** argv) {
 
   std::vector<PageResult> results(options.pages);
   std::atomic<int> nextPage(0);
+  std::atomic<bool> failed(false);
   std::mutex outputMutex;
+  std::mutex exceptionMutex;
+  std::exception_ptr workerException;
   int done = 0;
   std::vector<std::thread> workers;
   workers.reserve(static_cast<size_t>(options.jobs));
-  for (int j = 0; j < options.jobs; ++j) {
-    workers.emplace_back([&]() {
-      for (int i = nextPage++; i < options.pages; i = nextPage++) {
-        results[i] = measure(pageSpec(i, options.seed), options);
-        const std::lock_guard<std::mutex> lock(outputMutex);
-        ++done;
-        std::cerr << "\rpage " << done << "/" << options.pages << std::flush;
-      }
-    });
+  {
+    ThreadJoiner joiner{workers};
+    for (int j = 0; j < options.jobs; ++j) {
+      workers.emplace_back([&]() {
+        try {
+          for (int i = nextPage++; i < options.pages; i = nextPage++) {
+            if (failed.load(std::memory_order_relaxed)) {
+              break;
+            }
+            results[i] = measure(pageSpec(i, options.seed), options);
+            const std::lock_guard<std::mutex> lock(outputMutex);
+            ++done;
+            std::cerr << "\rpage " << done << "/" << options.pages << std::flush;
+          }
+        } catch (...) {
+          failed.store(true, std::memory_order_relaxed);
+          const std::lock_guard<std::mutex> lock(exceptionMutex);
+          if (!workerException) {
+            workerException = std::current_exception();
+          }
+        }
+      });
+    }
   }
-  for (std::thread& worker : workers) {
-    worker.join();
+  if (workerException) {
+    std::rethrow_exception(workerException);
   }
   std::cerr << "\rmeasured " << options.pages << " pages in " << timer.elapsed() / 1000 << " s" << std::endl;
 
