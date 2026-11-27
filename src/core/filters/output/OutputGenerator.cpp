@@ -438,35 +438,6 @@ GrayImage detail::Processor::detectPictures(const GrayImage& input300dpi) const 
                           m_inputs.dbg);
 }
 
-BinaryThreshold detail::Processor::adjustThreshold(BinaryThreshold threshold) const {
-  return adjustedThreshold(threshold, m_colorParams.blackWhiteOptions());
-}
-
-BinaryThreshold detail::Processor::calcBinarizationThreshold(const QImage& image, const BinaryImage& mask) const {
-  GrayscaleHistogram hist(image, mask);
-  return adjustThreshold(BinaryThreshold::otsuThreshold(hist));
-}
-
-BinaryThreshold detail::Processor::calcBinarizationThreshold(const QImage& image,
-                                                             const QPolygonF& cropArea,
-                                                             const BinaryImage* mask) const {
-  QPainterPath path;
-  path.addPolygon(cropArea);
-
-  if (path.contains(image.rect())) {
-    return adjustThreshold(BinaryThreshold::otsuThreshold(image));
-  } else {
-    BinaryImage modifiedMask(image.size(), BLACK);
-    PolygonRasterizer::fillExcept(modifiedMask, WHITE, cropArea, Qt::WindingFill);
-    modifiedMask = erodeBrick(modifiedMask, QSize(3, 3), WHITE);
-
-    if (mask) {
-      rasterOp<RopAnd<RopSrc, RopDst>>(modifiedMask, *mask);
-    }
-    return calcBinarizationThreshold(image, modifiedMask);
-  }
-}
-
 void detail::Processor::morphologicalSmoothInPlace(BinaryImage& binImg) const {
   // When removing black noise, remove small ones first.
 
@@ -556,7 +527,7 @@ BinaryImage detail::Processor::binarize(const QImage& image) const {
 }
 
 BinaryImage detail::Processor::binarize(const QImage& image, const BinaryImage& mask) const {
-  BinaryImage binarized = binarize(image);
+  BinaryImage binarized = binarizeBlackWhite(image, m_colorParams.blackWhiteOptions(), &mask);
 
   rasterOp<RopAnd<RopSrc, RopDst>>(binarized, mask);
   return binarized;

@@ -173,14 +173,6 @@ class Processor {
                               const QRect& maskRect,
                               const ZoneSet& zones) const;
 
-  BinaryThreshold adjustThreshold(BinaryThreshold threshold) const;
-
-  BinaryThreshold calcBinarizationThreshold(const QImage& image, const BinaryImage& mask) const;
-
-  BinaryThreshold calcBinarizationThreshold(const QImage& image,
-                                            const QPolygonF& cropArea,
-                                            const BinaryImage* mask = nullptr) const;
-
   void morphologicalSmoothInPlace(BinaryImage& binImg) const;
 
   BinaryImage binarize(const QImage& image) const;

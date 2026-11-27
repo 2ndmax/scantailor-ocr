@@ -339,6 +339,36 @@ BOOST_AUTO_TEST_CASE(test_color_segmenter_values_at_the_ends_of_their_fields_are
   BOOST_CHECK_EQUAL(options.getGreenThresholdAdjustment(), 99);
 }
 
+BOOST_AUTO_TEST_CASE(test_otsu_uses_mask_so_masked_dark_border_does_not_skew_threshold) {
+  GrayImage image(QSize(120, 120));
+  image.fill(220);
+  for (int y = 20; y < 50; ++y) {
+    uint8_t* line = image.data() + y * image.stride();
+    for (int x = 20; x < 100; ++x) {
+      line[x] = 120;
+    }
+  }
+  // Dark area outside the active mask that pulls unmasked Otsu below 120.
+  for (int y = 70; y < 120; ++y) {
+    uint8_t* line = image.data() + y * image.stride();
+    for (int x = 0; x < 120; ++x) {
+      line[x] = 0;
+    }
+  }
+
+  BlackWhiteOptions options;
+  options.setBinarizationMethod(T_OTSU);
+
+  const BinaryImage unmasked = binarizeBlackWhite(image.toQImage(), options);
+  BOOST_CHECK_EQUAL(unmasked.getPixel(50, 35), WHITE);
+
+  BinaryImage mask(QSize(120, 120), BLACK);
+  mask.fill(QRect(0, 70, 120, 50), WHITE);
+  const BinaryImage masked = binarizeBlackWhite(image.toQImage(), options, &mask);
+  BOOST_CHECK_EQUAL(masked.getPixel(50, 35), BLACK);
+  BOOST_CHECK_EQUAL(masked.getPixel(10, 10), WHITE);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace output

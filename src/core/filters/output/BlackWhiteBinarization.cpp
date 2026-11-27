@@ -24,7 +24,9 @@ BinaryThreshold adjustedThreshold(const BinaryThreshold threshold, const BlackWh
   return BinaryThreshold(qBound(30, adjusted, 225));
 }
 
-BinaryImage binarizeBlackWhite(const QImage& image, const BlackWhiteOptions& blackWhiteOptions) {
+BinaryImage binarizeBlackWhite(const QImage& image,
+                               const BlackWhiteOptions& blackWhiteOptions,
+                               const BinaryImage* const mask) {
   if ((image.format() == QImage::Format_Mono) || (image.format() == QImage::Format_MonoLSB)) {
     return BinaryImage(image);
   }
@@ -45,7 +47,9 @@ BinaryImage binarizeBlackWhite(const QImage& image, const BlackWhiteOptions& bla
   BinaryImage binarized;
   switch (binarizationMethod) {
     case T_OTSU: {
-      GrayscaleHistogram hist(image);
+      const GrayscaleHistogram hist = (mask && !mask->isNull() && (mask->size() == image.size()))
+                                          ? GrayscaleHistogram(image, *mask)
+                                          : GrayscaleHistogram(image);
       const BinaryThreshold bwThresh(BinaryThreshold::otsuThreshold(hist));
 
       binarized = BinaryImage(image, adjustedThreshold(bwThresh, blackWhiteOptions));
