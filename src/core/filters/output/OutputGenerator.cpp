@@ -277,6 +277,12 @@ void detail::Processor::initFilterData(const FilterData& input) {
 
   m_images.inputGrayImage = m_images.blackOnWhite ? input.grayImage() : input.grayImage().inverted();
   m_images.inputOrigImage = input.origImage();
+  if ((m_images.inputOrigImage.format() != QImage::Format_RGB32)
+      && (m_images.inputOrigImage.format() != QImage::Format_ARGB32)
+      && !((m_images.inputOrigImage.format() == QImage::Format_Indexed8) && m_images.inputOrigImage.isGrayscale())) {
+    m_images.inputOrigImage = m_images.inputOrigImage.convertToFormat(
+        m_images.inputOrigImage.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32);
+  }
   if (!m_images.blackOnWhite) {
     m_images.inputOrigImage.invertPixels();
   }

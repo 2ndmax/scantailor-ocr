@@ -85,6 +85,11 @@ std::unique_ptr<OutputImage> detail::Processor::processWithDewarping(ZoneSet& pi
       normalizedOriginal = normalizedGray;
     } else {
       normalizedOriginal = m_images.inputOrigImage;
+      if ((normalizedOriginal.format() != QImage::Format_RGB32)
+          && (normalizedOriginal.format() != QImage::Format_ARGB32)) {
+        normalizedOriginal = normalizedOriginal.convertToFormat(
+            normalizedOriginal.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32);
+      }
       adjustBrightnessGrayscale(normalizedOriginal, normalizedGray);
       if (m_inputs.dbg) {
         m_inputs.dbg->add(normalizedOriginal, "norm_illum_color");

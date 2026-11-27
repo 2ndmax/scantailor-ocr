@@ -1426,5 +1426,24 @@ BOOST_AUTO_TEST_CASE(draw_point_ignores_pixels_outside_image_bounds) {
   BOOST_CHECK(image.pixel(20, 20) == qRgb(0, 0, 0));
 }
 
+BOOST_AUTO_TEST_CASE(dewarping_normalize_illumination_handles_indexed_color_image) {
+  QImage indexed = syntheticPage(true, qRgb(0, 0, 0)).convertToFormat(QImage::Format_Indexed8);
+  BOOST_REQUIRE(indexed.format() == QImage::Format_Indexed8);
+  BOOST_REQUIRE(!indexed.isGrayscale());
+  const Dpm dpm(DPI);
+  indexed.setDotsPerMeterX(dpm.horizontal());
+  indexed.setDotsPerMeterY(dpm.vertical());
+
+  Run run;
+  run.page = indexed;
+  run.mode = COLOR_GRAYSCALE;
+  run.manualModel = undistortedModel(QRectF(0, 0, WIDTH, HEIGHT));
+  run.normalizeIlluminationColor = true;
+  const QImage output = process(run);
+  BOOST_CHECK(!output.isNull());
+  BOOST_CHECK_EQUAL(output.width(), WIDTH);
+  BOOST_CHECK_EQUAL(output.height(), HEIGHT);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests
