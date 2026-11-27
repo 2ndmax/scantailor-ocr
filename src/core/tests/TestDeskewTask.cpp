@@ -93,5 +93,22 @@ BOOST_AUTO_TEST_CASE(empty_image_area_still_stores_params) {
   BOOST_CHECK_EQUAL(params->obliqueAngle(), 0.0);
 }
 
+BOOST_AUTO_TEST_CASE(empty_image_area_preserves_manual_deskew_angle) {
+  auto settings = std::make_shared<Settings>();
+  QPolygonF otherOutline;
+  otherOutline << QPointF(0, 0) << QPointF(10, 0) << QPointF(10, 10) << QPointF(0, 10);
+  settings->setPageParams(PAGE,
+                          Params(3.5, 0.0, Dependencies(otherOutline, OrthogonalRotation()), MODE_MANUAL, MODE_AUTO));
+
+  const FilterData original(textPage(DPM_300, DPM_300));
+  ImageTransformation xform(original.xform());
+  xform.setPreCropArea(QPolygonF(QRectF(2000, 2000, 100, 100)));
+  const std::unique_ptr<Params> params(runTask(settings, FilterData(original, xform), true));
+  BOOST_REQUIRE(params);
+  BOOST_CHECK(params->mode() == MODE_MANUAL);
+  BOOST_CHECK_CLOSE(params->deskewAngle(), 3.5, 1e-9);
+  BOOST_CHECK(params->obliqueMode() == MODE_AUTO);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

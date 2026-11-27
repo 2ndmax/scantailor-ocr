@@ -156,8 +156,13 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
     } else {
       // Nothing of the image is left to measure (e.g. a crop area outside of it). The page still
       // gets parameters, so that it has a fixed state instead of staying unfinished for ever.
-      uiData.setEffectiveDeskewAngle(0);
-      uiData.setMode(MODE_AUTO);
+      if (priorParamsBeforeRecompute && (priorParamsBeforeRecompute->mode() == MODE_MANUAL)) {
+        uiData.setEffectiveDeskewAngle(priorParamsBeforeRecompute->deskewAngle());
+        uiData.setMode(MODE_MANUAL);
+      } else {
+        uiData.setEffectiveDeskewAngle(0);
+        uiData.setMode(MODE_AUTO);
+      }
       uiData.setObliqueMode(autoObliqueEnabled ? MODE_AUTO : MODE_MANUAL);
       uiData.setEffectiveObliqueAngle(preservedObliqueDeg);
     }
