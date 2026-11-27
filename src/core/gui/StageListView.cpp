@@ -114,6 +114,7 @@ StageListView::StageListView(QWidget* parent)
 
   connect(verticalScrollBar(), &QAbstractSlider::rangeChanged, this, &StageListView::ensureSelectedRowVisible,
           Qt::QueuedConnection);
+  connect(verticalScrollBar(), &QAbstractSlider::valueChanged, this, [this]() { placeLaunchButton(selectedRow()); });
 }
 
 StageListView::~StageListView() = default;
@@ -212,8 +213,10 @@ void StageListView::setBatchProcessingInProgress(const bool inProgress) {
     if (m_model) {
       m_model->disableBatchProcessingAnimation();
     }
-    killTimer(m_timerId);
-    m_timerId = 0;
+    if (m_timerId != 0) {
+      killTimer(m_timerId);
+      m_timerId = 0;
+    }
   }
 }  // StageListView::setBatchProcessingInProgress
 
@@ -226,8 +229,18 @@ void StageListView::timerEvent(QTimerEvent* event) {
   initiateBatchAnimationFrameRendering();
 }
 
+void StageListView::resizeEvent(QResizeEvent* event) {
+  QTableView::resizeEvent(event);
+  placeLaunchButton(selectedRow());
+}
+
+void StageListView::updateGeometries() {
+  QTableView::updateGeometries();
+  placeLaunchButton(selectedRow());
+}
+
 void StageListView::initiateBatchAnimationFrameRendering() {
-  if (!m_model || !m_batchProcessingInProgress) {
+  if (!m_model || !m_batchProcessingInProgress || m_batchAnimationPixmaps.empty()) {
     return;
   }
 
@@ -236,8 +249,9 @@ void StageListView::initiateBatchAnimationFrameRendering() {
     return;
   }
 
+  m_curBatchAnimationFrame %= static_cast<int>(m_batchAnimationPixmaps.size());
   m_model->updateBatchProcessingAnimation(selectedRow, m_batchAnimationPixmaps[m_curBatchAnimationFrame]);
-  if (++m_curBatchAnimationFrame == (int) m_batchAnimationPixmaps.size()) {
+  if (++m_curBatchAnimationFrame == static_cast<int>(m_batchAnimationPixmaps.size())) {
     m_curBatchAnimationFrame = 0;
   }
 }
@@ -256,9 +270,11 @@ void StageListView::selectionChanged(const QItemSelection& selected, const QItem
 }
 
 void StageListView::ensureSelectedRowVisible() {
-  // This loop won't run more than one iteration.
-  for (const QModelIndex& idx : selectionModel()->selectedRows(0)) {
-    scrollTo(idx, EnsureVisible);
+  if (QItemSelectionModel* sm = selectionModel()) {
+    // This loop won't run more than one iteration.
+    for (const QModelIndex& idx : sm->selectedRows(0)) {
+      scrollTo(idx, EnsureVisible);
+    }
   }
 }
 
@@ -271,7 +287,7 @@ void StageListView::removeLaunchButton(const int row) {
 }
 
 void StageListView::placeLaunchButton(int row) {
-  if (row == -1) {
+  if (!m_model || (row < 0) || (row >= m_model->rowCount(QModelIndex()))) {
     return;
   }
   if (!m_batchProcessingPossible || m_batchProcessingInProgress) {
@@ -330,7 +346,11 @@ void StageListView::updateRowSpans() {
 }
 
 int StageListView::selectedRow() const {
-  const QModelIndexList selection(selectionModel()->selectedRows(0));
+  QItemSelectionModel* sm = selectionModel();
+  if (!sm) {
+    return -1;
+  }
+  const QModelIndexList selection(sm->selectedRows(0));
   if (selection.empty()) {
     return -1;
   }
@@ -408,13 +428,6 @@ void StageListView::LeftColDelegate::paint(QPainter* painter,
                                            const QStyleOptionViewItem& option,
                                            const QModelIndex& index) const {
   SuperClass::paint(painter, option, index);
-
-  if ((index.row() == m_view->selectedRow()) && m_view->m_launchBtn->isVisible()) {
-    QRect buttonGeometry(option.rect);
-    // Place it to the right (assuming height is less than width).
-    buttonGeometry.setLeft(buttonGeometry.right() + 1 - buttonGeometry.height());
-    m_view->m_launchBtn->setGeometry(buttonGeometry);
-  }
 }
 
 /*================= StageListView::RightColDelegate ===================*/

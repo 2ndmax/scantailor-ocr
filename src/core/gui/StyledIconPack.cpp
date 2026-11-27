@@ -8,6 +8,7 @@
 #include <QtGui/QPainter>
 #include <QtSvg/QSvgRenderer>
 #include <QtXml/QDomDocument>
+#include <algorithm>
 #include <cmath>
 #include <functional>
 #include <map>
@@ -53,6 +54,8 @@ class SvgStyledIconEngine : public QIconEngine {
 
   QPixmap pixmap(const QSize& size, QIcon::Mode mode, QIcon::State state) override;
 
+  QPixmap scaledPixmap(const QSize& size, QIcon::Mode mode, QIcon::State state, qreal scale) override;
+
   SvgStyledIconEngine* clone() const override;
 
   void addFile(const QString& fileName, const QSize& size, QIcon::Mode mode, QIcon::State state) override;
@@ -78,6 +81,10 @@ class SvgStyledIconEngine : public QIconEngine {
 };
 
 QRectF fitKeepingAspectRatio(const QSizeF& srcSize, const QRectF& boundingRect) {
+  if ((srcSize.width() <= 0.0) || (srcSize.height() <= 0.0) || (boundingRect.width() <= 0.0)
+      || (boundingRect.height() <= 0.0)) {
+    return {};
+  }
   const double factor = std::min(boundingRect.width() / srcSize.width(), boundingRect.height() / srcSize.height());
   const QSizeF size = {std::floor(srcSize.width() * factor), std::floor(srcSize.height() * factor)};
   const QPointF origin = {std::floor(boundingRect.x() + ((boundingRect.width() - size.width()) / 2.0)),
@@ -86,8 +93,17 @@ QRectF fitKeepingAspectRatio(const QSizeF& srcSize, const QRectF& boundingRect) 
 }
 
 void SvgStyledIconEngine::paint(QPainter* painter, const QRect& rect, QIcon::Mode mode, QIcon::State state) {
+  if (!painter || rect.isEmpty()) {
+    return;
+  }
   QSvgRenderer& svg = renderer(mode, state);
-  svg.render(painter, fitKeepingAspectRatio(svg.viewBoxF().size(), rect));
+  if (!svg.isValid()) {
+    return;
+  }
+  const QRectF target = fitKeepingAspectRatio(svg.viewBoxF().size(), rect);
+  if (!target.isEmpty()) {
+    svg.render(painter, target);
+  }
 }
 
 QSvgRenderer& SvgStyledIconEngine::renderer(const QIcon::Mode mode, const QIcon::State state) {
@@ -101,13 +117,28 @@ QSvgRenderer& SvgStyledIconEngine::renderer(const QIcon::Mode mode, const QIcon:
 }
 
 QPixmap SvgStyledIconEngine::pixmap(const QSize& size, QIcon::Mode mode, QIcon::State state) {
+  return scaledPixmap(size, mode, state, 1.0);
+}
+
+QPixmap SvgStyledIconEngine::scaledPixmap(const QSize& size,
+                                          const QIcon::Mode mode,
+                                          const QIcon::State state,
+                                          const qreal scale) {
+  if (size.isEmpty()) {
+    return {};
+  }
+  const qreal dpr = (std::isfinite(scale) && (scale > 0.0)) ? scale : 1.0;
   QImage img(size, QImage::Format_ARGB32_Premultiplied);
+  if (img.isNull()) {
+    return {};
+  }
   img.fill(qRgba(0, 0, 0, 0));
-  QPixmap pixmap = QPixmap::fromImage(img, Qt::NoFormatConversion);
   {
-    QPainter painter(&pixmap);
+    QPainter painter(&img);
     paint(&painter, QRect(QPoint(0, 0), size), mode, state);
   }
+  QPixmap pixmap = QPixmap::fromImage(img, Qt::NoFormatConversion);
+  pixmap.setDevicePixelRatio(dpr);
   return pixmap;
 }
 

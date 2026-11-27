@@ -102,21 +102,30 @@ void ThumbnailBase::paint(QPainter* painter, const QStyleOptionGraphicsItem* /*o
   QPolygonF displayPoly(imageToDisplay.map(imagePoly));
 
   QRectF displayRect(imageToDisplay.map(PolygonUtils::round(m_displayArea)).boundingRect().toAlignedRect());
+  if (displayRect.isEmpty()) {
+    return;
+  }
 
   // The temporary pixmap has screen pixels, so that thumbnails stay sharp on scaled screens.
-  const qreal dpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
+  const qreal rawDpr = painter->device() ? painter->device()->devicePixelRatioF() : 1.0;
+  const qreal dpr = (std::isfinite(rawDpr) && (rawDpr > 0.0)) ? rawDpr : 1.0;
   QPixmap tempPixmap;
   const QString cacheKey(QString::fromLatin1("ThumbnailBase::tempPixmap"));
   if (!QPixmapCache::find(cacheKey, &tempPixmap) || (tempPixmap.devicePixelRatio() != dpr)
       || (tempPixmap.deviceIndependentSize().width() < displayRect.width())
       || (tempPixmap.deviceIndependentSize().height() < displayRect.height())) {
-    auto w = (int) displayRect.width();
-    auto h = (int) displayRect.height();
-    // Add some extra, to avoid rectreating the pixmap too often.
+    auto w = static_cast<int>(displayRect.width());
+    auto h = static_cast<int>(displayRect.height());
+    // Add some extra, to avoid recreating the pixmap too often.
     w += w / 10;
     h += h / 10;
 
-    tempPixmap = QPixmap(static_cast<int>(std::ceil(w * dpr)), static_cast<int>(std::ceil(h * dpr)));
+    const int deviceW = static_cast<int>(std::ceil(w * dpr));
+    const int deviceH = static_cast<int>(std::ceil(h * dpr));
+    if ((deviceW <= 0) || (deviceH <= 0)) {
+      return;
+    }
+    tempPixmap = QPixmap(deviceW, deviceH);
     tempPixmap.setDevicePixelRatio(dpr);
   }
   // While the cache shares the pixmap, painting on it would copy it first. So it is taken out of the
@@ -127,7 +136,9 @@ void ThumbnailBase::paint(QPainter* painter, const QStyleOptionGraphicsItem* /*o
   tempPixmap.fill(Qt::transparent);
 
   QPainter tempPainter;
-  tempPainter.begin(&tempPixmap);
+  if (!tempPainter.begin(&tempPixmap)) {
+    return;
+  }
 
   QTransform tempAdjustment;
   tempAdjustment.translate(-displayRect.left(), -displayRect.top());
@@ -170,13 +181,20 @@ void ThumbnailBase::paint(QPainter* painter, const QStyleOptionGraphicsItem* /*o
   tempPainter.restore();
 
   tempPainter.end();
+  const int neededKb = std::max(
+      1, static_cast<int>((static_cast<qint64>(tempPixmap.width()) * tempPixmap.height() * 4 + 1023) / 1024));
+  if (QPixmapCache::cacheLimit() < neededKb) {
+    QPixmapCache::setCacheLimit(std::min(65536, neededKb * 2));
+  }
   QPixmapCache::insert(cacheKey, tempPixmap);
 
+  painter->save();
   painter->setWorldTransform(QTransform());
-  painter->setClipRect(displayRect);
+  painter->setClipRect(displayRect, Qt::IntersectClip);
   painter->setRenderHint(QPainter::SmoothPixmapTransform, false);
   painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
   painter->drawPixmap(displayRect.topLeft(), tempPixmap);
+  painter->restore();
 }  // ThumbnailBase::paint
 
 namespace {

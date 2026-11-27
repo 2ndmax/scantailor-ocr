@@ -53,6 +53,10 @@ class StageListView : public QTableView {
  protected:
   void timerEvent(QTimerEvent* event) override;
 
+  void resizeEvent(QResizeEvent* event) override;
+
+  void updateGeometries() override;
+
  private:
   class Model;
   class LeftColDelegate;

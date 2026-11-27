@@ -5,6 +5,8 @@
 
 #include <QGuiApplication>
 #include <QPainter>
+#include <algorithm>
+#include <cmath>
 
 namespace OverlayStyle {
 QColor primary(const int alpha) {
@@ -39,9 +41,13 @@ QPen pen(const QColor& color, const Line line) {
   return result;
 }
 
-QPixmap handlePixmap() {
-  const qreal pixelRatio = qApp->devicePixelRatio();
-  QPixmap pixmap(QSize(16, 16) * pixelRatio);
+QPixmap handlePixmap(const qreal devicePixelRatio) {
+  qreal pixelRatio = (std::isfinite(devicePixelRatio) && (devicePixelRatio > 0.0))
+                         ? devicePixelRatio
+                         : (qApp ? qApp->devicePixelRatio() : 1.0);
+  pixelRatio = std::max<qreal>(1.0, pixelRatio);
+  const QSize deviceSize(std::max(1, qRound(16.0 * pixelRatio)), std::max(1, qRound(16.0 * pixelRatio)));
+  QPixmap pixmap(deviceSize);
   pixmap.setDevicePixelRatio(pixelRatio);
   pixmap.fill(Qt::transparent);
 

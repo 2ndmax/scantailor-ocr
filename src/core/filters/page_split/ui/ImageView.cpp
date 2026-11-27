@@ -31,7 +31,7 @@ ImageView::ImageView(const QImage& image,
       m_rightUnremoveButton(std::bind(&ImageView::rightPageCenter, this)),
       m_dragHandler(*this),
       m_zoomHandler(*this),
-      m_handlePixmap(OverlayStyle::handlePixmap()),
+      m_handlePixmap(OverlayStyle::handlePixmap(devicePixelRatioF())),
       m_virtLayout(layout),
       m_leftPageRemoved(leftHalfRemoved),
       m_rightPageRemoved(rightHalfRemoved) {
@@ -129,6 +129,11 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction
 
   painter.setPen(OverlayStyle::pen(OverlayStyle::primary(), OverlayStyle::Line::Normal));
   painter.setBrush(Qt::NoBrush);
+
+  const qreal dpr = devicePixelRatioF();
+  if (m_handlePixmap.devicePixelRatio() != dpr) {
+    m_handlePixmap = OverlayStyle::handlePixmap(dpr);
+  }
 
   const int numCutters = m_virtLayout.numCutters();
   for (int i = 0; i < numCutters; ++i) {

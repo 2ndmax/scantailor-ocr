@@ -25,7 +25,7 @@ const int ImageView::m_cellSize = 20;
 
 ImageView::ImageView(const QImage& image, const QImage& downscaledImage, const ImageTransformation& xform)
     : ImageViewBase(image, downscaledImage, ImagePresentation(xform.transform(), xform.resultingPreCropArea())),
-      m_handlePixmap(OverlayStyle::handlePixmap()),
+      m_handlePixmap(OverlayStyle::handlePixmap(devicePixelRatioF())),
       m_dragHandler(*this),
       m_zoomHandler(*this),
       m_xform(xform),
@@ -147,6 +147,11 @@ void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction
   painter.setBrush(Qt::NoBrush);
   painter.drawArc(arcSquare, qRound(16 * -m_maxRotationDeg), qRound(16 * 2 * m_maxRotationDeg));
   painter.drawArc(arcSquare, qRound(16 * (180 - m_maxRotationDeg)), qRound(16 * 2 * m_maxRotationDeg));
+
+  const qreal dpr = devicePixelRatioF();
+  if (m_handlePixmap.devicePixelRatio() != dpr) {
+    m_handlePixmap = OverlayStyle::handlePixmap(dpr);
+  }
 
   const std::pair<QPointF, QPointF> handles(getRotationHandles(arcSquare));
 

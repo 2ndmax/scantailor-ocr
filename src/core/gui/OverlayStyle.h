@@ -48,7 +48,7 @@ QColor secondary(int alpha = 255);
 QColor removed();
 
 /** A handle to drag: a white circle with a border in the primary color, 16 pixels wide. */
-QPixmap handlePixmap();
+QPixmap handlePixmap(qreal devicePixelRatio = 0.0);
 }  // namespace OverlayStyle
 
 #endif  // SCANTAILOR_CORE_OVERLAYSTYLE_H_

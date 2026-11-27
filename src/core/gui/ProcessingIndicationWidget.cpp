@@ -5,6 +5,7 @@
 
 #include <ColorInterpolation.h>
 
+#include <QHideEvent>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QTimerEvent>
@@ -36,34 +37,29 @@ void ProcessingIndicationWidget::processingRestartedEffect() {
 }
 
 void ProcessingIndicationWidget::paintEvent(QPaintEvent* event) {
-  QRect animationRect(this->animationRect());
-  // REVIEW-NOTE (2026-10): a partial repaint without the animation rect draws nothing -> that strip briefly
-  // lacks the veil. Not fixed because the next full repaint restores it.
-  if (!event->rect().contains(animationRect)) {
-    update(animationRect);
-    return;
-  }
-
-  QColor headColor(colorInterpolation(m_tailColor, m_headColor, m_distinction));
-
-  m_distinction += m_distinctionDelta;
-  if (m_distinction > 1.0) {
-    m_distinction = 1.0;
-  } else if (m_distinction <= 0.0) {
-    m_distinction = 0.0;
-    m_distinctionDelta = distinctionIncrease;
-  }
-
   QPainter painter(this);
 
   QColor fadeColor = ColorSchemeManager::instance().getColorParam("ProcessingIndicationFade");
   fadeColor.setAlpha(127);
-  painter.fillRect(rect(), fadeColor);
+  painter.fillRect(event->rect(), fadeColor);
 
-  m_animation.nextFrame(headColor, m_tailColor, &painter, animationRect);
+  const QRect animationRect(this->animationRect());
+  if (!animationRect.isEmpty() && event->rect().intersects(animationRect)) {
+    const QColor headColor(colorInterpolation(m_tailColor, m_headColor, m_distinction));
 
-  if (m_timerId == 0) {
-    m_timerId = startTimer(180);
+    m_distinction += m_distinctionDelta;
+    if (m_distinction > 1.0) {
+      m_distinction = 1.0;
+    } else if (m_distinction <= 0.0) {
+      m_distinction = 0.0;
+      m_distinctionDelta = distinctionIncrease;
+    }
+
+    m_animation.nextFrame(headColor, m_tailColor, &painter, animationRect);
+
+    if (m_timerId == 0) {
+      m_timerId = startTimer(180);
+    }
   }
 }
 
@@ -71,6 +67,14 @@ void ProcessingIndicationWidget::timerEvent(QTimerEvent* event) {
   killTimer(event->timerId());
   m_timerId = 0;
   update(animationRect());
+}
+
+void ProcessingIndicationWidget::hideEvent(QHideEvent* event) {
+  if (m_timerId != 0) {
+    killTimer(m_timerId);
+    m_timerId = 0;
+  }
+  QWidget::hideEvent(event);
 }
 
 QRect ProcessingIndicationWidget::animationRect() const {

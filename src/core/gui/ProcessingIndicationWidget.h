@@ -35,6 +35,8 @@ class ProcessingIndicationWidget : public QWidget {
 
   void timerEvent(QTimerEvent* event) override;
 
+  void hideEvent(QHideEvent* event) override;
+
  private:
   QRect animationRect() const;
 
