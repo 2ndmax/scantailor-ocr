@@ -4,8 +4,9 @@
 #include "OrientationDetection.h"
 
 #include <QSize>
-
+#include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <set>
 
 #include "Dpi.h"
@@ -31,8 +32,13 @@ constexpr int kBookRotationMajorityPercent = 60;
 constexpr int kMaxSizeDifferencePercent = 5;
 
 bool similarSize(const QSize& a, const QSize& b) {
-  return std::abs(a.width() - b.width()) * 100 <= b.width() * kMaxSizeDifferencePercent
-         && std::abs(a.height() - b.height()) * 100 <= b.height() * kMaxSizeDifferencePercent;
+  if ((a.width() <= 0) || (a.height() <= 0) || (b.width() <= 0) || (b.height() <= 0)) {
+    return false;
+  }
+  const int64_t dw = std::abs(static_cast<int64_t>(a.width()) - b.width());
+  const int64_t dh = std::abs(static_cast<int64_t>(a.height()) - b.height());
+  return dw * 100 <= static_cast<int64_t>(b.width()) * kMaxSizeDifferencePercent
+         && dh * 100 <= static_cast<int64_t>(b.height()) * kMaxSizeDifferencePercent;
 }
 
 int majorityAngle(const std::vector<OrientationDetection::Detection>& scans, const std::function<bool(size_t)>& pick) {
@@ -40,8 +46,11 @@ int majorityAngle(const std::vector<OrientationDetection::Detection>& scans, con
   int total = 0;
   for (size_t i = 0; i < scans.size(); ++i) {
     if (pick(i) && scans[i].decided) {
-      ++votes[scans[i].angle / 90];
-      ++total;
+      const int normalized = ((scans[i].angle % 360) + 360) % 360;
+      if ((normalized % 90) == 0) {
+        ++votes[normalized / 90];
+        ++total;
+      }
     }
   }
   int best = 0;
@@ -332,12 +341,17 @@ QString OrientationDetection::summary(const Result& result,
     return tr("The detection was canceled. No pages were rotated.");
   }
 
+  std::set<ImageId> selectedImages;
+  for (const PageId& selected : selection) {
+    selectedImages.insert(selected.imageId());
+  }
+
   int detected = 0;
   int byBookRule = 0;
   QStringList uncertain;
   QStringList unreadable;
   for (const auto& [pageId, pageResult] : result.results) {
-    if (selection.find(pageId) == selection.end()) {
+    if (selectedImages.find(pageId.imageId()) == selectedImages.end()) {
       continue;
     }
     switch (pageResult.status) {
@@ -357,7 +371,7 @@ QString OrientationDetection::summary(const Result& result,
   }
 
   const int rotated = result.changed;
-  const int alreadyCorrect = detected + byBookRule - rotated;
+  const int alreadyCorrect = std::max(0, detected + byBookRule - rotated);
 
   QString text
       = tr("Orientation detected for %n page(s): %1 rotated, %2 already correct.", nullptr, detected + byBookRule)

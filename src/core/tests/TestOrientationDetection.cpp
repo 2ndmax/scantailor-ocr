@@ -278,4 +278,40 @@ BOOST_AUTO_TEST_CASE(summary_shortens_a_long_list) {
   BOOST_CHECK_MESSAGE(text.endsWith(QStringLiteral("p8.png, p9.png, and 2 more")), text.toStdString());
 }
 
+BOOST_AUTO_TEST_CASE(summary_filters_by_image_id_across_page_views) {
+  OrientationDetection::Result result;
+  const PageId imgPage(ImageId(QStringLiteral("doc.png")), PageId::SINGLE_PAGE);
+  const PageId selectedLeft(ImageId(QStringLiteral("doc.png")), PageId::LEFT_PAGE);
+  OrientationDetection::PageResult pageResult;
+  pageResult.status = OrientationDetection::PageResult::DETECTED;
+  pageResult.angle = 90;
+  result.results.emplace_back(imgPage, pageResult);
+  result.detected = 1;
+  result.changed = 1;
+
+  const std::set<PageId> selection{selectedLeft};
+  const QString text = OrientationDetection::summary(result, selection, false,
+                                                     [](const PageId& page) { return page.imageId().filePath(); });
+  BOOST_CHECK_MESSAGE(text.contains(QStringLiteral("1 rotated, 0 already correct")), text.toStdString());
+  BOOST_CHECK(!text.contains(QStringLiteral("-1")));
+}
+
+BOOST_AUTO_TEST_CASE(book_rule_ignores_invalid_angles_and_zero_sizes) {
+  std::vector<OrientationDetection::Detection> imgs;
+  for (int i = 0; i < 6; ++i) {
+    imgs.push_back(makeDet(true, 0, 100, 200));
+  }
+  // Out-of-range / non-orthogonal decided angles must not corrupt stack votes.
+  imgs.push_back(makeDet(true, 360, 100, 200));
+  imgs.push_back(makeDet(true, -90, 100, 200));
+  imgs.push_back(makeDet(true, 45, 100, 200));
+  // 0x0 undecided scan must not match non-zero book size.
+  imgs.push_back(makeDet(false, 0, 0, 0));
+
+  const auto res = OrientationDetection::applyBookRule(imgs);
+  BOOST_REQUIRE_EQUAL(res.size(), imgs.size());
+  BOOST_CHECK(!res.back().decided);
+  BOOST_CHECK_EQUAL(res.back().source, OrientationDetection::BookDecision::UNDECIDED);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
