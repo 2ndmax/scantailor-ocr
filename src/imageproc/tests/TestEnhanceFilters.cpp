@@ -7,6 +7,7 @@
 #include <GrayImage.h>
 #include <KnnDenoiser.h>
 #include <Sharpen.h>
+#include <Sobel.h>
 #include <WienerFilter.h>
 
 #include <QImage>
@@ -278,6 +279,24 @@ BOOST_AUTO_TEST_CASE(test_sharpen_guards_nan_and_invalid_radius) {
   }
   sharpenColorInPlace(color, -2, 1.0);
   BOOST_CHECK(color == colorOrig);
+}
+
+BOOST_AUTO_TEST_CASE(test_vertical_sobel_distinct_tmp_and_dst_types) {
+  const uint8_t src[9] = {10, 10, 10, 20, 20, 20, 50, 50, 50};
+  float tmp[9] = {};
+  int dst[9] = {};
+
+  verticalSobel<float>(
+      3, 3, src, 3, [](const uint8_t v) { return static_cast<float>(v); }, tmp, 3,
+      [](float& cell, const float v) { cell = v; }, [](const float cell) { return cell; }, dst, 3,
+      [](int& cell, const float v) { cell = static_cast<int>(v); });
+
+  // Horizontal pass yields 40, 80, 200 per row; vertical differences are 40, 160, 120.
+  for (int x = 0; x < 3; ++x) {
+    BOOST_CHECK_EQUAL(dst[0 * 3 + x], 40);
+    BOOST_CHECK_EQUAL(dst[1 * 3 + x], 160);
+    BOOST_CHECK_EQUAL(dst[2 * 3 + x], 120);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

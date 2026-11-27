@@ -239,7 +239,7 @@ void verticalSobel(const int width,
   // Vertical pass: mid = bottom - top
   for (int x = 0; x < width; ++x) {
     TmpIt pTmp(tmpOrig + x);
-    TmpIt pDst(dst + x);
+    DstIt pDst(dst + x);
 
     T top(tmpReader(*pTmp));
     if (height == 1) {

@@ -4,6 +4,7 @@
 #include "SlicedHistogram.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <stdexcept>
 
 #include "BinaryImage.h"
@@ -24,6 +25,9 @@ SlicedHistogram::SlicedHistogram(const BinaryImage& image, const Type type) {
 }
 
 SlicedHistogram::SlicedHistogram(const BinaryImage& image, const QRect& area, const Type type) {
+  if (image.isNull() && area.isNull()) {
+    return;
+  }
   if (!image.rect().contains(area)) {
     throw std::invalid_argument("SlicedHistogram: area exceeds the image");
   }
@@ -39,9 +43,12 @@ SlicedHistogram::SlicedHistogram(const BinaryImage& image, const QRect& area, co
 }
 
 void SlicedHistogram::processHorizontalLines(const BinaryImage& image, const QRect& area) {
+  if (area.height() <= 0) {
+    return;
+  }
   if (area.width() <= 0) {
     // The word arithmetic below needs at least one column. Without columns every row counts zero.
-    m_data.resize(std::max(area.height(), 0));
+    m_data.resize(area.height());
     return;
   }
 
@@ -55,7 +62,7 @@ void SlicedHistogram::processHorizontalLines(const BinaryImage& image, const QRe
   const uint32_t firstWordMask = ~uint32_t(0) >> (area.left() & 31);
   const int lastWordUnusedBits = (lastWordIdx << 5) + 31 - area.right();
   const uint32_t lastWordMask = ~uint32_t(0) << lastWordUnusedBits;
-  const uint32_t* line = image.data() + top * wpl;
+  const uint32_t* line = image.data() + static_cast<ptrdiff_t>(top) * wpl;
 
   if (firstWordIdx == lastWordIdx) {
     const uint32_t mask = firstWordMask & lastWordMask;
@@ -77,12 +84,20 @@ void SlicedHistogram::processHorizontalLines(const BinaryImage& image, const QRe
 }  // SlicedHistogram::processHorizontalLines
 
 void SlicedHistogram::processVerticalLines(const BinaryImage& image, const QRect& area) {
+  if (area.width() <= 0) {
+    return;
+  }
+  if (area.height() <= 0) {
+    m_data.resize(area.width(), 0);
+    return;
+  }
+
   m_data.reserve(area.width());
 
   const int right = area.right();
   const int height = area.height();
   const int wpl = image.wordsPerLine();
-  const uint32_t* const topLine = image.data() + area.top() * wpl;
+  const uint32_t* const topLine = image.data() + static_cast<ptrdiff_t>(area.top()) * wpl;
 
   for (int x = area.left(); x <= right; ++x) {
     const uint32_t* pword = topLine + (x >> 5);

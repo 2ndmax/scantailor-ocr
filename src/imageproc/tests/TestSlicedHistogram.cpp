@@ -37,6 +37,28 @@ BOOST_AUTO_TEST_CASE(test_null_image) {
 
   SlicedHistogram verHist(nullImg, SlicedHistogram::COLS);
   BOOST_CHECK(verHist.size() == 0);
+
+  SlicedHistogram horNullArea(nullImg, QRect(), SlicedHistogram::ROWS);
+  BOOST_CHECK(horNullArea.size() == 0);
+
+  SlicedHistogram verNullArea(nullImg, QRect(), SlicedHistogram::COLS);
+  BOOST_CHECK(verNullArea.size() == 0);
+
+  BOOST_CHECK_THROW(SlicedHistogram(nullImg, QRect(0, 0, 1, 1), SlicedHistogram::ROWS), std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(test_empty_area_in_valid_image) {
+  const BinaryImage img(5, 4);
+
+  SlicedHistogram zeroWidthRows(img, QRect(0, 0, 0, 3), SlicedHistogram::ROWS);
+  BOOST_CHECK_EQUAL(zeroWidthRows.size(), 3u);
+  BOOST_CHECK_EQUAL(zeroWidthRows[0], 0);
+  BOOST_CHECK_EQUAL(zeroWidthRows[2], 0);
+
+  SlicedHistogram zeroHeightCols(img, QRect(0, 0, 3, 0), SlicedHistogram::COLS);
+  BOOST_CHECK_EQUAL(zeroHeightCols.size(), 3u);
+  BOOST_CHECK_EQUAL(zeroHeightCols[0], 0);
+  BOOST_CHECK_EQUAL(zeroHeightCols[2], 0);
 }
 
 BOOST_AUTO_TEST_CASE(test_exceeding_area) {
