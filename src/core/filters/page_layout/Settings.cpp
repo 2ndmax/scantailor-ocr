@@ -7,6 +7,7 @@
 
 #include <QDomElement>
 #include <QMutex>
+#include <algorithm>
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/mem_fun.hpp>
@@ -55,7 +56,7 @@ class Settings::Item {
 
   double influenceHardHeightMM() const;
 
-  bool alignedWithOthers() const { return !alignment.isNull(); }
+  bool alignedWithOthers() const { return !alignment.isNull() && contentSizeMM.isValid(); }
 };
 
 
@@ -301,11 +302,11 @@ double Settings::Item::hardHeightMM() const {
 }
 
 double Settings::Item::influenceHardWidthMM() const {
-  return alignment.isNull() ? 0.0 : hardWidthMM();
+  return (alignment.isNull() || !contentSizeMM.isValid()) ? 0.0 : hardWidthMM();
 }
 
 double Settings::Item::influenceHardHeightMM() const {
-  return alignment.isNull() ? 0.0 : hardHeightMM();
+  return (alignment.isNull() || !contentSizeMM.isValid()) ? 0.0 : hardHeightMM();
 }
 
 /*============================= Settings::Impl ==============================*/
@@ -564,43 +565,26 @@ QSizeF Settings::Impl::getAggregateHardSizeMM(const PageId& pageId,
                                               const QSizeF& hardSizeMm,
                                               const Alignment& alignment) const {
   const QMutexLocker locker(&m_mutex);
-  if (alignment.isNull()) {
-    return computeAggregateHardSizeMMLocked();
-  }
 
+  const double candidateW = alignment.isNull() ? 0.0 : hardSizeMm.width();
+  const double candidateH = alignment.isNull() ? 0.0 : hardSizeMm.height();
   if (m_items.empty()) {
-    return QSizeF(0.0, 0.0);
+    return QSizeF(candidateW, candidateH);
   }
 
-  double width = 0.0;
-
-  {
-    DescWidthOrder::iterator it(m_descWidthOrder.begin());
-    if (it->pageId != pageId) {
-      width = it->influenceHardWidthMM();
-    } else {
-      ++it;
-      if (it == m_descWidthOrder.end()) {
-        width = hardSizeMm.width();
-      } else {
-        width = std::max(hardSizeMm.width(), qreal(it->influenceHardWidthMM()));
-      }
+  double width = candidateW;
+  for (const Item& item : m_descWidthOrder) {
+    if (item.pageId != pageId) {
+      width = std::max(width, item.influenceHardWidthMM());
+      break;
     }
   }
 
-  double height = 0.0;
-
-  {
-    DescHeightOrder::iterator it(m_descHeightOrder.begin());
-    if (it->pageId != pageId) {
-      height = it->influenceHardHeightMM();
-    } else {
-      ++it;
-      if (it == m_descHeightOrder.end()) {
-        height = hardSizeMm.height();
-      } else {
-        height = std::max(hardSizeMm.height(), qreal(it->influenceHardHeightMM()));
-      }
+  double height = candidateH;
+  for (const Item& item : m_descHeightOrder) {
+    if (item.pageId != pageId) {
+      height = std::max(height, item.influenceHardHeightMM());
+      break;
     }
   }
   return QSizeF(width, height);

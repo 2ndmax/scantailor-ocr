@@ -95,4 +95,44 @@ BOOST_AUTO_TEST_CASE(test_each_setter_keeps_the_other_values_of_a_page) {
              == "margins 1 2 3 4; page 0 0 1000 2000; content 0 0 0 0; size -1 -1; alignment 2 2; auto 1");
 }
 
+BOOST_AUTO_TEST_CASE(test_aggregate_hard_size_drag_and_null_alignment) {
+  const PageId pageA(ImageId("/a/pageA.tif"));
+  const PageId pageB(ImageId("/a/pageB.tif"));
+  Settings settings;
+  settings.updateContentSizeAndGetParams(pageA, QRectF(0, 0, 1000, 2000), QRectF(0, 0, 100, 100), QSizeF(100, 150));
+  settings.updateContentSizeAndGetParams(pageB, QRectF(0, 0, 1000, 2000), QRectF(0, 0, 50, 50), QSizeF(50, 80));
+
+  // Hard sizes include default margins 10/5/10/5 -> A: 120x160, B: 70x90.
+  BOOST_TEST((settings.getAggregateHardSizeMM() == QSizeF(120, 160)));
+
+  // Dragging smaller page B past A's maximum updates the preview aggregate immediately.
+  const QSizeF dragged
+      = settings.getAggregateHardSizeMM(pageB, QSizeF(150, 200), Alignment(Alignment::VCENTER, Alignment::HCENTER));
+  BOOST_TEST((dragged == QSizeF(150, 200)));
+
+  // Previewing null alignment on current max page A falls back to B's size instead of keeping A's.
+  Alignment nullAlign;
+  nullAlign.setNull(true);
+  const QSizeF withoutA = settings.getAggregateHardSizeMM(pageA, QSizeF(120, 160), nullAlign);
+  BOOST_TEST((withoutA == QSizeF(70, 90)));
+}
+
+BOOST_AUTO_TEST_CASE(test_unprocessed_page_does_not_skew_aggregate_size) {
+  const PageId processed(ImageId("/a/processed.tif"));
+  const PageId unprocessed(ImageId("/a/unprocessed.tif"));
+  Settings settings;
+
+  // Processed empty page with 0 margins has 0x0 hard size.
+  settings.setHardMarginsMM(processed, Margins(0, 0, 0, 0));
+  settings.updateContentSizeAndGetParams(processed, QRectF(0, 0, 100, 100), QRectF(), QSizeF(0, 0));
+
+  // Unprocessed page keeps contentSizeMM == QSizeF(-1, -1) with default 10/5/10/5 margins.
+  settings.setHardMarginsMM(unprocessed, Margins(10, 5, 10, 5));
+  BOOST_TEST((settings.getAggregateHardSizeMM() == QSizeF(0, 0)));
+
+  // Small positive processed page is also not masked by unprocessed page's nominal margins.
+  settings.updateContentSizeAndGetParams(processed, QRectF(0, 0, 100, 100), QRectF(0, 0, 10, 10), QSizeF(5, 5));
+  BOOST_TEST((settings.getAggregateHardSizeMM() == QSizeF(5, 5)));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
