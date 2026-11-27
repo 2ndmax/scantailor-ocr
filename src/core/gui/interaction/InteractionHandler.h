@@ -22,9 +22,13 @@ class InteractionHandler
   DECLARE_NON_COPYABLE(InteractionHandler)
 
  public:
+  using Hook = boost::intrusive::list_base_hook<boost::intrusive::link_mode<boost::intrusive::auto_unlink>>;
+
   InteractionHandler();
 
   virtual ~InteractionHandler();
+
+  void unlink();
 
   void paint(QPainter& painter, const InteractionState& interaction);
 
@@ -82,11 +86,11 @@ class InteractionHandler
   static bool defaultInteractionPermitter(const InteractionState& interaction);
 
  private:
-  class HandlerList : public boost::intrusive::list<InteractionHandler, boost::intrusive::constant_time_size<false>> {};
-
+  struct HandlerList;
 
   std::shared_ptr<HandlerList> m_preceeders;
   std::shared_ptr<HandlerList> m_followers;
+  HandlerList* m_parentList = nullptr;
 };
 
 

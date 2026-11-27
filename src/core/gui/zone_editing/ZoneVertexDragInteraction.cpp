@@ -5,8 +5,12 @@
 
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPolygonF>
+#include <cmath>
 
 #include "ImageViewBase.h"
+#include "SerializableSpline.h"
+#include "Zone.h"
 #include "ZoneInteractionContext.h"
 
 ZoneVertexDragInteraction::ZoneVertexDragInteraction(ZoneInteractionContext& context,
@@ -14,6 +18,12 @@ ZoneVertexDragInteraction::ZoneVertexDragInteraction(ZoneInteractionContext& con
                                                      const EditableSpline::Ptr& spline,
                                                      const SplineVertex::Ptr& vertex)
     : m_context(context), m_spline(spline), m_vertex(vertex) {
+  m_origPrev = m_vertex->prev(SplineVertex::LOOP);
+  m_origNext = m_vertex->next(SplineVertex::LOOP);
+  m_origVertexPos = m_vertex->point();
+  m_origPrevPos = m_origPrev ? m_origPrev->point() : QPointF();
+  m_origNextPos = m_origNext ? m_origNext->point() : QPointF();
+
   const QPointF screenMousePos(m_context.imageView().mapFromGlobal(QCursor::pos()) + QPointF(0.5, 0.5));
   const QTransform toScreen(m_context.imageView().imageToWidget());
   m_dragOffset = toScreen.map(vertex->point()) - screenMousePos;
@@ -49,15 +59,44 @@ void ZoneVertexDragInteraction::onPaint(QPainter& painter, const InteractionStat
 
 void ZoneVertexDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   if (event->button() == Qt::LeftButton) {
-    if ((m_vertex->point() == m_vertex->next(SplineVertex::LOOP)->point())
-        || (m_vertex->point() == m_vertex->prev(SplineVertex::LOOP)->point())) {
-      if (m_vertex->hasAtLeastSiblings(3)) {
-        m_vertex->remove();
+    const auto restoreSaved = [this]() {
+      m_vertex->setPoint(m_origVertexPos);
+      if (m_origPrev) {
+        m_origPrev->setPoint(m_origPrevPos);
       }
+      if (m_origNext) {
+        m_origNext->setPoint(m_origNextPos);
+      }
+    };
+
+    const bool mergeRequested = ((m_vertex->point() == m_vertex->next(SplineVertex::LOOP)->point())
+                                 || (m_vertex->point() == m_vertex->prev(SplineVertex::LOOP)->point()))
+                                && m_vertex->hasAtLeastSiblings(3);
+    if (mergeRequested) {
+      QPolygonF polyWithoutVertex;
+      if (SplineVertex::Ptr v = m_spline->firstVertex()) {
+        do {
+          if (v != m_vertex) {
+            polyWithoutVertex.push_back(v->point());
+          }
+          v = v->next(SplineVertex::LOOP);
+        } while (v && (v != m_spline->firstVertex()));
+      }
+      if (Zone(SerializableSpline(polyWithoutVertex)).isValid()) {
+        m_vertex->remove();
+        m_context.zones().commit();
+      } else {
+        restoreSaved();
+      }
+    } else if (Zone(SerializableSpline(*m_spline)).isValid()) {
+      m_context.zones().commit();
+    } else {
+      restoreSaved();
     }
 
-    m_context.zones().commit();
     makePeerPreceeder(*m_context.createDefaultInteraction());
+    m_context.imageView().updateViewport();
+    event->accept();
     delete this;
   }
 }
@@ -66,27 +105,37 @@ void ZoneVertexDragInteraction::onMouseMoveEvent(QMouseEvent* event, Interaction
   const QTransform fromScreen(m_context.imageView().widgetToImage());
   m_vertex->setPoint(fromScreen.map(event->pos() + QPointF(0.5, 0.5) + m_dragOffset));
 
-  checkProximity(interaction);
+  const bool canMerge = checkProximity(interaction);
 
   const Qt::KeyboardModifiers mask = event->modifiers();
-  if (mask == Qt::ControlModifier) {
+  if ((mask == Qt::ControlModifier) && !canMerge) {
     const QTransform toScreen(m_context.imageView().imageToWidget());
 
     const QPointF current = toScreen.map(m_vertex->point());
     QPointF prev = toScreen.map(m_vertex->prev(SplineVertex::LOOP)->point());
     QPointF next = toScreen.map(m_vertex->next(SplineVertex::LOOP)->point());
 
-    if (!((current == prev) && (current == next))) {
-      double prevAngleCos
-          = std::abs((prev.x() - current.x())
-                     / std::sqrt(std::pow((prev.y() - current.y()), 2) + std::pow((prev.x() - current.x()), 2)));
-      double nextAngleCos
-          = std::abs((next.x() - current.x())
-                     / std::sqrt(std::pow((next.y() - current.y()), 2) + std::pow((next.x() - current.x()), 2)));
+    const QPointF prevDelta = prev - current;
+    const QPointF nextDelta = next - current;
+    const double prevLenSq = prevDelta.x() * prevDelta.x() + prevDelta.y() * prevDelta.y();
+    const double nextLenSq = nextDelta.x() * nextDelta.x() + nextDelta.y() * nextDelta.y();
 
+    if ((prevLenSq > 0.0) || (nextLenSq > 0.0)) {
+      constexpr double kInvSqrt2 = 0.70710678118654752440;
+      bool verticalPrev = false;
+      if ((prevLenSq > 0.0) && (nextLenSq > 0.0)) {
+        const double prevAngleCos = std::abs(prevDelta.x()) / std::sqrt(prevLenSq);
+        const double nextAngleCos = std::abs(nextDelta.x()) / std::sqrt(nextLenSq);
+        verticalPrev = (prevAngleCos < nextAngleCos);
+      } else if (prevLenSq == 0.0) {
+        const double nextAngleCos = std::abs(nextDelta.x()) / std::sqrt(nextLenSq);
+        verticalPrev = (nextAngleCos > kInvSqrt2);
+      } else {
+        const double prevAngleCos = std::abs(prevDelta.x()) / std::sqrt(prevLenSq);
+        verticalPrev = (prevAngleCos < kInvSqrt2);
+      }
 
-      if ((prevAngleCos < nextAngleCos) || (std::isnan(prevAngleCos) && (nextAngleCos > (1.0 / std::sqrt(2))))
-          || (std::isnan(nextAngleCos) && (prevAngleCos < (1.0 / std::sqrt(2))))) {
+      if (verticalPrev) {
         prev.setX(current.x());
         next.setY(current.y());
       } else {
@@ -102,7 +151,7 @@ void ZoneVertexDragInteraction::onMouseMoveEvent(QMouseEvent* event, Interaction
   m_context.imageView().updateViewport();
 }  // ZoneVertexDragInteraction::onMouseMoveEvent
 
-void ZoneVertexDragInteraction::checkProximity(const InteractionState& interaction) {
+bool ZoneVertexDragInteraction::checkProximity(const InteractionState& interaction) {
   bool canMerge = false;
 
   if (m_vertex->hasAtLeastSiblings(3)) {
@@ -129,4 +178,5 @@ void ZoneVertexDragInteraction::checkProximity(const InteractionState& interacti
   } else {
     m_interaction.setInteractionStatusTip(tr("Move the corner to one of its neighbors to merge them."));
   }
+  return canMerge;
 }

@@ -6,6 +6,7 @@
 
 #include <QCoreApplication>
 #include <QPointF>
+#include <vector>
 
 #include "BasicSplineVisualizer.h"
 #include "EditableSpline.h"
@@ -32,7 +33,7 @@ class ZoneDragInteraction : public InteractionHandler {
   ZoneInteractionContext& m_context;
   EditableSpline::Ptr m_spline;
   QPointF m_initialMousePos;
-  QPointF m_initialSplineFirstVertexPos;
+  std::vector<QPointF> m_initialVertexPositions;
   bool m_isNewCopy;
   double m_largestShift = 0;  // In screen pixels.
   InteractionState::Captor m_interaction;

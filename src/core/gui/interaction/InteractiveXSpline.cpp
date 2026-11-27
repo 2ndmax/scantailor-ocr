@@ -16,6 +16,7 @@
 #ifndef Q_MOC_RUN
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 
 #endif
@@ -100,6 +101,9 @@ bool InteractiveXSpline::curveIsProximityLeader(const InteractionState& state, Q
 }
 
 void InteractiveXSpline::onProximityUpdate(const QPointF& screenMousePos, InteractionState& interaction) {
+  if (m_spline.numSegments() <= 0) {
+    return;
+  }
   m_curveProximityPointStorage = m_spline.pointClosestTo(m_toStorage(screenMousePos), &m_curveProximityT);
   m_curveProximityPointScreen = m_fromStorage(m_curveProximityPointStorage);
 
@@ -123,7 +127,7 @@ void InteractiveXSpline::onMousePressEvent(QMouseEvent* event, InteractionState&
   if (event->button() != Qt::LeftButton) {
     return;  // Dragging the new point ends with the left button, so no other button may start it.
   }
-  if (interaction.captured()) {
+  if (interaction.captured() || (m_spline.numSegments() <= 0)) {
     return;
   }
 
@@ -144,7 +148,7 @@ void InteractiveXSpline::onMousePressEvent(QMouseEvent* event, InteractionState&
 
 void InteractiveXSpline::removeControlPointUnderMouse() {
   InteractionState& interaction = m_imageView.interactionState();
-  if (interaction.captured()) {
+  if (interaction.captured() || (m_spline.numSegments() <= 0)) {
     return;
   }
 
@@ -167,69 +171,83 @@ QPointF InteractiveXSpline::controlPointPosition(int idx) const {
 
 namespace {
 double findAngle(QPointF p1, QPointF p2) {  // return angle between vector (0,0)(1,0) and this
-  // move p1 to 0,0
   p2 -= p1;
-
-  // get angle with (1,0)
-  double a = p2.x() / std::sqrt(p2.x() * p2.x() + p2.y() * p2.y());
-  return std::acos(a) * constants::RAD2DEG;
+  if (p2.isNull()) {
+    return 0.0;
+  }
+  return std::atan2(std::abs(p2.y()), p2.x()) * constants::RAD2DEG;
 }
 }  // namespace
 
-void InteractiveXSpline::controlPointMoveRequest(int idx, const QPointF& pos, Qt::KeyboardModifiers mask) {
-  const QPointF storagePt(m_toStorage(pos));
-  bool swapSides = false;
-  bool modified = mask.testFlag(Qt::ControlModifier) || mask.testFlag(Qt::ShiftModifier);
-
-  if (modified) {
-    double ang = findAngle(m_toStorage(QPointF(0, 0)), m_toStorage(QPointF(1, 0)));
-    swapSides = (ang >= 45 && ang <= 135);  // page has been rotated
-
-    if (mask.testFlag(Qt::ShiftModifier)) {
-      swapSides = !swapSides;
+void InteractiveXSpline::shiftControlPointsAlongAxis(const int idx, const QPointF& storagePt, const bool swapSides) {
+  const int numControlPoints = m_spline.numControlPoints();
+  const Vec2d shift = storagePt - m_spline.controlPointPosition(idx);
+  for (int i = 0; i < numControlPoints; ++i) {
+    const QPointF orig = m_spline.controlPointPosition(i);
+    QPointF newPosition = orig + shift;
+    if (!swapSides) {
+      newPosition.setX(orig.x());
+    } else {
+      newPosition.setY(orig.y());
     }
+    m_spline.moveControlPoint(i, newPosition);
+  }
+}
+
+void InteractiveXSpline::rotateAndScaleControlPoints(const int idx,
+                                                     const QPointF& origin,
+                                                     const QPointF& oldPos,
+                                                     const QPointF& storagePt) {
+  const int numControlPoints = m_spline.numControlPoints();
+  const Vec4d mat(rotationAndScale(oldPos - origin, storagePt - origin));
+  for (int i = 0; i < numControlPoints; ++i) {
+    Vec2d pt(m_spline.controlPointPosition(i) - origin);
+    MatrixCalc<double> mc;
+    (mc(mat, 2, 2) * mc(pt, 2, 1)).write(pt);
+    m_spline.moveControlPoint(i, pt + origin);
+  }
+}
+
+void InteractiveXSpline::controlPointMoveRequest(int idx, const QPointF& pos, Qt::KeyboardModifiers mask) {
+  const int numControlPoints = m_spline.numControlPoints();
+  if ((numControlPoints < 2) || (idx < 0) || (idx >= numControlPoints)) {
+    return;
   }
 
-  const int numControlPoints = m_spline.numControlPoints();
+  const QPointF storagePt(m_toStorage(pos));
   if ((idx > 0) && (idx < numControlPoints - 1)) {
     // A midpoint - just move it.
     m_spline.moveControlPoint(idx, storagePt);
+    m_modifiedCallback();
+    return;
+  }
+
+  // An endpoint was moved. Instead of moving it on its own, we move/scale/rotate
+  // relative to the opposite endpoint.
+  const bool modified = mask.testFlag(Qt::ControlModifier) || mask.testFlag(Qt::ShiftModifier);
+  if (modified) {
+    const double ang = findAngle(m_toStorage(QPointF(0, 0)), m_toStorage(QPointF(1, 0)));
+    bool swapSides = (ang >= 45 && ang <= 135);  // page has been rotated
+    if (mask.testFlag(Qt::ShiftModifier)) {
+      swapSides = !swapSides;
+    }
+    shiftControlPointsAlongAxis(idx, storagePt, swapSides);
+    m_modifiedCallback();
+    return;
+  }
+
+  const int originIdx = (idx == 0) ? (numControlPoints - 1) : 0;
+  const QPointF origin(m_spline.controlPointPosition(originIdx));
+  const QPointF oldPos(m_spline.controlPointPosition(idx));
+  if (Vec2d(oldPos - origin).squaredNorm() > 1.0) {
+    // rotationAndScale() would throw an exception if oldPos == origin.
+    rotateAndScaleControlPoints(idx, origin, oldPos, storagePt);
   } else {
-    // An endpoint was moved. Instead of moving it on its own,
-    // we are going to rotate and / or scale all of the points
-    // relative to the opposite endpoint.
-    const int originIdx = idx == 0 ? numControlPoints - 1 : 0;
-    const QPointF origin(m_spline.controlPointPosition(originIdx));
-    const QPointF oldPos(m_spline.controlPointPosition(idx));
-    if (Vec2d(oldPos - origin).squaredNorm() > 1.0) {
-      // rotationAndScale() would throw an exception if oldPos == origin.
-      const Vec4d mat(rotationAndScale(oldPos - origin, storagePt - origin));
-      for (int i = 0; i < numControlPoints; ++i) {
-        if (!modified) {  // default behavior
-          Vec2d pt(m_spline.controlPointPosition(i) - origin);
-          MatrixCalc<double> mc;
-          (mc(mat, 2, 2) * mc(pt, 2, 1)).write(pt);
-          m_spline.moveControlPoint(i, pt + origin);
-        } else {  // Ctrl or Shift is pressed
-          Vec2d shift = storagePt - oldPos;
-          QPointF newPosition = m_spline.controlPointPosition(i) + shift;
-
-          if (!swapSides) {
-            newPosition.setX(m_spline.controlPointPosition(i).x());
-          } else {
-            newPosition.setY(m_spline.controlPointPosition(i).y());
-          }
-
-          m_spline.moveControlPoint(i, newPosition);
-        }
-      }
-    } else {
-      // Move the endpoint and distribute midpoints uniformly.
-      const QLineF line(origin, storagePt);
-      const double scale = 1.0 / (numControlPoints - 1);
-      for (int i = 0; i < numControlPoints; ++i) {
-        m_spline.moveControlPoint(i, line.pointAt(i * scale));
-      }
+    // Move the endpoint and distribute midpoints uniformly.
+    const QLineF line(origin, storagePt);
+    const double scale = 1.0 / (numControlPoints - 1);
+    for (int i = 0; i < numControlPoints; ++i) {
+      m_spline.moveControlPoint(i, line.pointAt(i * scale));
     }
   }
 

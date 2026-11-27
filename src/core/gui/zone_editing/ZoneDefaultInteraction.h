@@ -40,6 +40,8 @@ class ZoneDefaultInteraction : public InteractionHandler {
   void onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction) override;
 
  private:
+  void clearHoverCache();
+
   void removeZoneUnderMouse();
 
   void removeVertexUnderMouse();

@@ -75,6 +75,10 @@ class InteractiveXSpline : public InteractionHandler {
 
   void controlPointMoveRequest(int idx, const QPointF& pos, Qt::KeyboardModifiers mask);
 
+  void shiftControlPointsAlongAxis(int idx, const QPointF& storagePt, bool swapSides);
+
+  void rotateAndScaleControlPoints(int idx, const QPointF& origin, const QPointF& oldPos, const QPointF& storagePt);
+
   void dragFinished();
 
   static Vec4d rotationAndScale(const QPointF& from, const QPointF& to);

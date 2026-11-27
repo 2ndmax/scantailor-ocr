@@ -157,6 +157,7 @@ void ZoneContextMenuInteraction::menuAboutToHide() {
   }
 #endif
 
+  m_interaction.release();
   InteractionHandler* nextHandler = m_context.createDefaultInteraction();
   if (nextHandler) {
     makePeerPreceeder(*nextHandler);
@@ -170,6 +171,7 @@ void ZoneContextMenuInteraction::menuAboutToHide() {
 void ZoneContextMenuInteraction::menuItemTriggered(InteractionState& interaction,
                                                    const ZoneContextMenuItem::Callback& callback) {
   m_menuItemTriggered = true;
+  m_interaction.release();
   m_visualizer.switchToStrokeMode();
 
   InteractionHandler* nextHandler = callback(interaction);

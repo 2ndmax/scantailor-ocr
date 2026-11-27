@@ -30,14 +30,19 @@ class ZoneVertexDragInteraction : public InteractionHandler {
   void onMouseMoveEvent(QMouseEvent* event, InteractionState& interaction) override;
 
  private:
-  void checkProximity(const InteractionState& interaction);
+  bool checkProximity(const InteractionState& interaction);
 
   ZoneInteractionContext& m_context;
   EditableSpline::Ptr m_spline;
   SplineVertex::Ptr m_vertex;
+  SplineVertex::Ptr m_origPrev;
+  SplineVertex::Ptr m_origNext;
   InteractionState::Captor m_interaction;
   BasicSplineVisualizer m_visualizer;
   QPointF m_dragOffset;
+  QPointF m_origVertexPos;
+  QPointF m_origPrevPos;
+  QPointF m_origNextPos;
 };
 
 

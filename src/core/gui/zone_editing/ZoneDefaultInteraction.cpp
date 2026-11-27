@@ -252,18 +252,37 @@ void ZoneDefaultInteraction::onContextMenuEvent(QContextMenuEvent* event, Intera
   delete this;
 }
 
+void ZoneDefaultInteraction::clearHoverCache() {
+  m_splineUnderMouse.reset();
+  m_nearestVertex.reset();
+  m_nearestVertexSpline.reset();
+  m_nearestSegmentSpline.reset();
+  m_nearestSegment = SplineSegment();
+}
+
 void ZoneDefaultInteraction::removeZoneUnderMouse() {
+  if (m_context.imageView().interactionState().captured()) {
+    return;
+  }
   if (m_splineUnderMouse) {
-    m_context.zones().removeZone(m_splineUnderMouse);
+    EditableSpline::Ptr spline = m_splineUnderMouse;
+    clearHoverCache();
+    m_context.zones().removeZone(spline);
     m_context.zones().commit();
     m_context.imageView().updateViewport();
   }
 }
 
 void ZoneDefaultInteraction::removeVertexUnderMouse() {
+  InteractionState& interaction = m_context.imageView().interactionState();
+  if (interaction.captured()) {
+    return;
+  }
   if ((m_nearestVertex && m_nearestVertexSpline) && m_nearestVertexSpline->hasAtLeastSegments(4)
-      && m_context.imageView().interactionState().proximityLeader(m_vertexProximity)) {
-    m_nearestVertex->remove();
+      && interaction.proximityLeader(m_vertexProximity)) {
+    SplineVertex::Ptr vertex = m_nearestVertex;
+    clearHoverCache();
+    vertex->remove();
     m_context.zones().commit();
     m_context.imageView().updateViewport();
   }

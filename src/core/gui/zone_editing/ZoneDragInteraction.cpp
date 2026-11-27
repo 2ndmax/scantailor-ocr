@@ -19,8 +19,14 @@ ZoneDragInteraction::ZoneDragInteraction(ZoneInteractionContext& context,
     : m_context(context), m_spline(spline), m_isNewCopy(isNewCopy) {
   m_initialMousePos = m_context.imageView().mapFromGlobal(QCursor::pos()) + QPointF(0.5, 0.5);
 
-  const QTransform toScreen(m_context.imageView().imageToWidget());
-  m_initialSplineFirstVertexPos = toScreen.map(spline->firstVertex()->point());
+  if (m_spline) {
+    if (SplineVertex::Ptr vertex = m_spline->firstVertex()) {
+      do {
+        m_initialVertexPositions.push_back(vertex->point());
+        vertex = vertex->next(SplineVertex::LOOP);
+      } while (vertex && (vertex != m_spline->firstVertex()));
+    }
+  }
 
   m_interaction.setInteractionStatusTip(tr("Release left mouse button to finish dragging."));
   m_interaction.setInteractionCursor(Qt::DragMoveCursor);
@@ -54,21 +60,29 @@ void ZoneDragInteraction::onMouseReleaseEvent(QMouseEvent* event, InteractionSta
       m_context.zones().commit();
     }
     makePeerPreceeder(*m_context.createDefaultInteraction());
+    m_context.imageView().updateViewport();
+    event->accept();
     delete this;
   }
 }
 
 void ZoneDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
-  const QTransform toScreen(m_context.imageView().imageToWidget());
+  if (!m_spline || !m_spline->firstVertex() || m_initialVertexPositions.empty()) {
+    return;
+  }
+
   const QTransform fromScreen(m_context.imageView().widgetToImage());
-  const QPointF shift = (event->pos() + QPointF(0.5, 0.5)) - m_initialMousePos;
+  const QPointF screenPos(event->pos() + QPointF(0.5, 0.5));
+  const QPointF shift = screenPos - m_initialMousePos;
   m_largestShift = std::max(m_largestShift, std::hypot(shift.x(), shift.y()));
-  const QPointF splineShift = toScreen.map(m_spline->firstVertex()->point()) - m_initialSplineFirstVertexPos;
+  const QPointF imageShift = fromScreen.map(screenPos) - fromScreen.map(m_initialMousePos);
 
   SplineVertex::Ptr vertex(m_spline->firstVertex());
+  size_t idx = 0;
   do {
-    vertex->setPoint(fromScreen.map(toScreen.map(vertex->point()) + shift - splineShift));
-  } while (vertex = vertex->next(SplineVertex::LOOP), vertex != m_spline->firstVertex());
+    vertex->setPoint(m_initialVertexPositions[idx++] + imageShift);
+    vertex = vertex->next(SplineVertex::LOOP);
+  } while (vertex && (vertex != m_spline->firstVertex()) && (idx < m_initialVertexPositions.size()));
 
   m_context.imageView().updateViewport();
 }  // ZoneDragInteraction::onMouseMoveEvent

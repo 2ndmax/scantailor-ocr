@@ -9,16 +9,68 @@
 
 #include "InteractionState.h"
 
-// REVIEW-NOTE (2026-10): the iterator is advanced before the call, which only guards against "delete this" ->
-// a handler deleting its next sibling during dispatch would cause a use-after-free. Not fixed because no
-// handler does that today.
-#define DISPATCH(list, call)                      \
-  {                                               \
-    HandlerList::iterator it(list->begin());      \
-    const HandlerList::iterator end(list->end()); \
-    while (it != end) {                           \
-      (it++)->call;                               \
-    }                                             \
+struct InteractionHandler::HandlerList {
+  using Nodes = boost::intrusive::list<InteractionHandler, boost::intrusive::constant_time_size<false>>;
+
+  struct Cursor {
+    HandlerList* list = nullptr;
+    Nodes::iterator it;
+    Cursor* prev = nullptr;
+    Cursor* nextCursor = nullptr;
+
+    explicit Cursor(HandlerList& owner) : list(&owner), it(owner.nodes.begin()), nextCursor(owner.activeCursors) {
+      if (nextCursor) {
+        nextCursor->prev = this;
+      }
+      list->activeCursors = this;
+    }
+
+    ~Cursor() {
+      if (prev) {
+        prev->nextCursor = nextCursor;
+      } else if (list) {
+        list->activeCursors = nextCursor;
+      }
+      if (nextCursor) {
+        nextCursor->prev = prev;
+      }
+    }
+
+    Cursor(const Cursor&) = delete;
+    Cursor& operator=(const Cursor&) = delete;
+
+    bool atEnd() const { return !list || (it == list->nodes.end()); }
+
+    InteractionHandler& next() {
+      InteractionHandler& handler = *it;
+      ++it;
+      return handler;
+    }
+  };
+
+  void notifyRemoving(const InteractionHandler* const node) {
+    for (Cursor* c = activeCursors; c != nullptr; c = c->nextCursor) {
+      if ((c->it != nodes.end()) && (&(*c->it) == node)) {
+        ++c->it;
+      }
+    }
+  }
+
+  void invalidateAllCursors() {
+    for (Cursor* c = activeCursors; c != nullptr; c = c->nextCursor) {
+      c->it = nodes.end();
+    }
+  }
+
+  Nodes nodes;
+  Cursor* activeCursors = nullptr;
+};
+
+#define DISPATCH(list, call)                                    \
+  {                                                             \
+    for (HandlerList::Cursor cursor(*list); !cursor.atEnd();) { \
+      cursor.next().call;                                       \
+    }                                                           \
   }
 
 #define RETURN_IF_ACCEPTED(event) \
@@ -58,9 +110,23 @@ InteractionHandler::InteractionHandler()
     : m_preceeders(std::make_shared<HandlerList>()), m_followers(std::make_shared<HandlerList>()) {}
 
 InteractionHandler::~InteractionHandler() {
-  const auto deleteHandler = [](InteractionHandler* handler) { delete handler; };
-  m_preceeders->clear_and_dispose(deleteHandler);
-  m_followers->clear_and_dispose(deleteHandler);
+  unlink();
+  m_preceeders->invalidateAllCursors();
+  m_followers->invalidateAllCursors();
+  const auto deleteHandler = [](InteractionHandler* handler) {
+    handler->m_parentList = nullptr;
+    delete handler;
+  };
+  m_preceeders->nodes.clear_and_dispose(deleteHandler);
+  m_followers->nodes.clear_and_dispose(deleteHandler);
+}
+
+void InteractionHandler::unlink() {
+  if (m_parentList) {
+    m_parentList->notifyRemoving(this);
+    m_parentList = nullptr;
+  }
+  Hook::unlink();
 }
 
 void InteractionHandler::paint(QPainter& painter, const InteractionState& interaction) {
@@ -196,32 +262,38 @@ void InteractionHandler::contextMenuEvent(QContextMenuEvent* event, InteractionS
 
 void InteractionHandler::makePeerPreceeder(InteractionHandler& handler) {
   handler.unlink();
-  HandlerList::node_algorithms::link_before(this, &handler);
+  handler.m_parentList = m_parentList;
+  HandlerList::Nodes::node_algorithms::link_before(this, &handler);
 }
 
 void InteractionHandler::makePeerFollower(InteractionHandler& handler) {
   handler.unlink();
-  HandlerList::node_algorithms::link_after(this, &handler);
+  handler.m_parentList = m_parentList;
+  HandlerList::Nodes::node_algorithms::link_after(this, &handler);
 }
 
 void InteractionHandler::makeFirstPreceeder(InteractionHandler& handler) {
   handler.unlink();
-  m_preceeders->push_front(handler);
+  handler.m_parentList = m_preceeders.get();
+  m_preceeders->nodes.push_front(handler);
 }
 
 void InteractionHandler::makeLastPreceeder(InteractionHandler& handler) {
   handler.unlink();
-  m_preceeders->push_back(handler);
+  handler.m_parentList = m_preceeders.get();
+  m_preceeders->nodes.push_back(handler);
 }
 
 void InteractionHandler::makeFirstFollower(InteractionHandler& handler) {
   handler.unlink();
-  m_followers->push_front(handler);
+  handler.m_parentList = m_followers.get();
+  m_followers->nodes.push_front(handler);
 }
 
 void InteractionHandler::makeLastFollower(InteractionHandler& handler) {
   handler.unlink();
-  m_followers->push_back(handler);
+  handler.m_parentList = m_followers.get();
+  m_followers->nodes.push_back(handler);
 }
 
 bool InteractionHandler::defaultInteractionPermitter(const InteractionState& interaction) {
