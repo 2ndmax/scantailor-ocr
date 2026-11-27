@@ -67,6 +67,25 @@ function Get-StdSwitches([string]$BuildDir) {
 $BoostTestPrograms = 'foundation_tests.exe', 'math_tests.exe', 'imageproc_tests.exe', 'core_tests.exe'
 
 # Only the "windows" Qt platform plugin is deployed to the build directory; the programs run
+function Save-EnvVars([string[]]$Names) {
+    $saved = @{}
+    foreach ($n in $Names) {
+        $item = Get-Item -Path "Env:$n" -ErrorAction SilentlyContinue
+        $saved[$n] = if ($item) { $item.Value } else { $null }
+    }
+    return $saved
+}
+
+function Restore-EnvVars([hashtable]$Saved) {
+    foreach ($kv in $Saved.GetEnumerator()) {
+        if ($null -eq $kv.Value) {
+            Remove-Item -Path "Env:$($kv.Key)" -ErrorAction SilentlyContinue
+        } else {
+            Set-Item -Path "Env:$($kv.Key)" -Value $kv.Value
+        }
+    }
+}
+
 # headless with "offscreen", so that plugin is copied from vcpkg.
 function Enable-OffscreenQt([string]$BuildDir, [string]$VcpkgRoot) {
     $env:QT_QPA_PLATFORM = 'offscreen'
@@ -122,16 +141,21 @@ function Invoke-ConformanceRun([string]$Id, [string]$Name, [string]$Title, [stri
                                [string]$Extra, [string]$OutDir, [string]$BuildDir, [string]$VcpkgRoot) {
     $flagsAll = "/W4 /external:W0 /external:anglebrackets $Flags".Trim()
     $log = "$OutDir\$Id-$Name.log"
-    $env:CFLAGS = $flagsAll
-    $env:CXXFLAGS = $flagsAll
-    New-Log $log "${Id}: $Title, full rebuild in $(Split-Path $BuildDir -Leaf)" (@(
-        "# Compiler: $(Get-ClVersion)"
-    ) + (Get-ToolVersions) + @("# CFLAGS/CXXFLAGS env: $flagsAll"))
-    $rc = Invoke-Build $log $BuildDir "$(Get-ConfigureArgs $BuildDir $VcpkgRoot) -DENABLE_CODE_ANALYSIS=OFF $Extra"
-    if (Test-Path "$BuildDir\compile_commands.json") {
-        # Records the language standard actually used, as a check of the override.
-        Add-LogLine $log "# Standard switches in compile_commands.json: $(Get-StdSwitches $BuildDir)"
+    $savedEnv = Save-EnvVars @('CFLAGS', 'CXXFLAGS')
+    try {
+        $env:CFLAGS = $flagsAll
+        $env:CXXFLAGS = $flagsAll
+        New-Log $log "${Id}: $Title, full rebuild in $(Split-Path $BuildDir -Leaf)" (@(
+            "# Compiler: $(Get-ClVersion)"
+        ) + (Get-ToolVersions) + @("# CFLAGS/CXXFLAGS env: $flagsAll"))
+        $rc = Invoke-Build $log $BuildDir "$(Get-ConfigureArgs $BuildDir $VcpkgRoot) -DENABLE_CODE_ANALYSIS=OFF $Extra"
+        if (Test-Path "$BuildDir\compile_commands.json") {
+            # Records the language standard actually used, as a check of the override.
+            Add-LogLine $log "# Standard switches in compile_commands.json: $(Get-StdSwitches $BuildDir)"
+        }
+        Add-LogLine $log "# End: $(Get-Stamp)"
+        return $rc
+    } finally {
+        Restore-EnvVars $savedEnv
     }
-    Add-LogLine $log "# End: $(Get-Stamp)"
-    return $rc
 }

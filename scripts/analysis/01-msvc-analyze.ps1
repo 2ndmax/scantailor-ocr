@@ -45,19 +45,25 @@ if (-not (Confirm-Run 'Analysis run 01: MSVC with /W4 and /analyze' @(
 ) $log $BuildDir)) { Write-Host 'Not started.'; exit 1 }
 
 # Picked up by CMake on the first configure and appended to the default flags.
-$env:CFLAGS = '/analyze:log:format:sarif'
-$env:CXXFLAGS = $env:CFLAGS
+$savedEnv = Save-EnvVars @('CFLAGS', 'CXXFLAGS')
+$rc = 1
+try {
+    $env:CFLAGS = '/analyze:log:format:sarif'
+    $env:CXXFLAGS = $env:CFLAGS
 
-New-Log $log '01: MSVC /W4 /analyze via ENABLE_CODE_ANALYSIS=ON, full rebuild' (@(
-    "# Build directory: $BuildDir"
-    "# SARIF files (one per translation unit): $sarif"
-    "# Compiler: $(Get-ClVersion)"
-) + (Get-ToolVersions) + @("# CFLAGS/CXXFLAGS env: $env:CXXFLAGS"))
+    New-Log $log '01: MSVC /W4 /analyze via ENABLE_CODE_ANALYSIS=ON, full rebuild' (@(
+        "# Build directory: $BuildDir"
+        "# SARIF files (one per translation unit): $sarif"
+        "# Compiler: $(Get-ClVersion)"
+    ) + (Get-ToolVersions) + @("# CFLAGS/CXXFLAGS env: $env:CXXFLAGS"))
 
-$rc = Invoke-Build $log $BuildDir "$(Get-ConfigureArgs $BuildDir $VcpkgRoot) -DENABLE_CODE_ANALYSIS=ON"
-if ($rc -eq 0) {
-    robocopy $BuildDir $sarif *.sarif /S /NJH /NJS /NDL /NFL /NP | Out-Null
+    $rc = Invoke-Build $log $BuildDir "$(Get-ConfigureArgs $BuildDir $VcpkgRoot) -DENABLE_CODE_ANALYSIS=ON"
+    if ($rc -eq 0) {
+        robocopy $BuildDir $sarif *.sarif /S /NJH /NJS /NDL /NFL /NP | Out-Null
+    }
+    Add-LogLine $log "# End: $(Get-Stamp)"
+    Write-RunEnd $rc @("Log: $log", "SARIF files: $sarif")
+} finally {
+    Restore-EnvVars $savedEnv
 }
-Add-LogLine $log "# End: $(Get-Stamp)"
-Write-RunEnd $rc @("Log: $log", "SARIF files: $sarif")
 exit $rc

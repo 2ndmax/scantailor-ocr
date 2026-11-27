@@ -55,7 +55,8 @@ if (-not $Only -and -not (Confirm-Run 'Analysis run 03: cppcheck' @(
     "Build directory of run 01: $BuildDir"
 ) $log)) { Write-Host 'Not started.'; exit 1 }
 
-$vcpkgInclude = '\s(-I|-external:I|/external:I)\s*' + [regex]::Escape((Get-VcpkgRoot '')) + '\S*'
+$vcpkgEsc = ([regex]::Escape((Get-VcpkgRoot ''))) -replace '\\\\', '[\\/]'
+$vcpkgInclude = '\s(-I|-external:I|/external:I)\s*(?:"' + $vcpkgEsc + '[^"]*"|' + $vcpkgEsc + '\S*)'
 $sel = Get-FilteredCompileDb $BuildDir @('\s/analyze\S*', $vcpkgInclude)
 if ($Only) {
     $o = $Only -replace '\\', '/'

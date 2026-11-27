@@ -117,26 +117,32 @@ if (-not (Confirm-Run 'Analysis run 09: sanitizers ASan and UBSan' $intro "$OutD
 # --- Build ---------------------------------------------------------------------------------------
 if (-not $SkipBuild) {
     $log = "$OutDir\09-ubsan-build.log"
-    $env:CFLAGS = $flags
-    $env:CXXFLAGS = $flags
-    $env:LDFLAGS = $ldflags
-    New-Log $log '09: UBSan + ASan build with clang-cl (RelWithDebInfo)' ($header + @(
-        "# Build directory: $BuildDir"
-        "# LDFLAGS env: $ldflags"
-    ) + (Get-ToolVersions))
-    $cc = $clang -replace '\\', '/'
-    $rc = Invoke-Build $log $BuildDir ((Get-ConfigureArgs $BuildDir $VcpkgRoot 'RelWithDebInfo') +
-        " -DCMAKE_TRY_COMPILE_CONFIGURATION=RelWithDebInfo -DENABLE_CODE_ANALYSIS=OFF " +
-        "-DCMAKE_C_COMPILER=`"$cc`" -DCMAKE_CXX_COMPILER=`"$cc`"")
-    Add-LogLine $log "# End: $(Get-Stamp)"
-    Remove-Item Env:CFLAGS, Env:CXXFLAGS, Env:LDFLAGS
+    $savedBuildEnv = Save-EnvVars @('CFLAGS', 'CXXFLAGS', 'LDFLAGS')
+    try {
+        $env:CFLAGS = $flags
+        $env:CXXFLAGS = $flags
+        $env:LDFLAGS = $ldflags
+        New-Log $log '09: UBSan + ASan build with clang-cl (RelWithDebInfo)' ($header + @(
+            "# Build directory: $BuildDir"
+            "# LDFLAGS env: $ldflags"
+        ) + (Get-ToolVersions))
+        $cc = $clang -replace '\\', '/'
+        $rc = Invoke-Build $log $BuildDir ((Get-ConfigureArgs $BuildDir $VcpkgRoot 'RelWithDebInfo') +
+            " -DCMAKE_TRY_COMPILE_CONFIGURATION=RelWithDebInfo -DENABLE_CODE_ANALYSIS=OFF " +
+            "-DCMAKE_C_COMPILER=`"$cc`" -DCMAKE_CXX_COMPILER=`"$cc`"")
+        Add-LogLine $log "# End: $(Get-Stamp)"
+    } finally {
+        Restore-EnvVars $savedBuildEnv
+    }
     if ($rc -ne 0) { Write-RunEnd $rc @("Log: $log"); exit $rc }
 }
 
-$env:UBSAN_OPTIONS = $ubsanOptions
-$env:ASAN_OPTIONS = $asanOptions
-$env:PATH = "$rtDir;$env:PATH"
-Enable-OffscreenQt $BuildDir $VcpkgRoot
+$savedRunEnv = Save-EnvVars @('UBSAN_OPTIONS', 'ASAN_OPTIONS', 'PATH', 'QT_QPA_PLATFORM')
+try {
+    $env:UBSAN_OPTIONS = $ubsanOptions
+    $env:ASAN_OPTIONS = $asanOptions
+    $env:PATH = "$rtDir;$env:PATH"
+    Enable-OffscreenQt $BuildDir $VcpkgRoot
 
 # $ResultDir: where the program writes its results instead of to stdout (Qt Test with -o); they
 # are taken as its output.
@@ -215,14 +221,20 @@ foreach ($t in $BoostTestPrograms) {
 $qtResults = "$BuildDir\qt-results"
 Invoke-Logged $log 'qt_tests.exe' "-o `"$qtResults\qt_tests.txt,txt`"" 60 -IsTest -ResultDir $qtResults
 
-# --- b) Dev tools on real scans ------------------------------------------------------------------
-Add-LogLine $log "# End: $(Get-Stamp)"
-if (-not $Images) { Write-RunEnd 0 @("Log: $log"); exit 0 }
-$testLog = $log
-$log = "$OutDir\09-ubsan-tools.log"
-$tools = New-DevToolInput $Images $BuildDir
-New-Log $log '09: UBSan + ASan, dev tools binarization_compare and color_detect on real scans' ($header + $tools.Header)
-foreach ($c in $tools.Calls) { Invoke-Logged $log $c.Exe $c.Args 120 }
-Add-LogLine $log "# End: $(Get-Stamp)"
-Write-RunEnd 0 @("Logs: $testLog", "      $log")
+    # --- b) Dev tools on real scans --------------------------------------------------------------
+    Add-LogLine $log "# End: $(Get-Stamp)"
+    if (-not $Images) {
+        Write-RunEnd 0 @("Log: $log")
+    } else {
+        $testLog = $log
+        $log = "$OutDir\09-ubsan-tools.log"
+        $tools = New-DevToolInput $Images $BuildDir
+        New-Log $log '09: UBSan + ASan, dev tools binarization_compare and color_detect on real scans' ($header + $tools.Header)
+        foreach ($c in $tools.Calls) { Invoke-Logged $log $c.Exe $c.Args 120 }
+        Add-LogLine $log "# End: $(Get-Stamp)"
+        Write-RunEnd 0 @("Logs: $testLog", "      $log")
+    }
+} finally {
+    Restore-EnvVars $savedRunEnv
+}
 exit 0

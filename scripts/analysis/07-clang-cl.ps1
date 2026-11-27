@@ -44,21 +44,27 @@ if (-not (Confirm-Run 'Analysis run 07: clang-cl' @(
     "Build directory: $BuildDir"
 ) $log $BuildDir)) { Write-Host 'Not started.'; exit 1 }
 
-$env:CFLAGS = '/W4 /external:W0 /external:anglebrackets'
-$env:CXXFLAGS = $env:CFLAGS
+$savedEnv = Save-EnvVars @('CFLAGS', 'CXXFLAGS')
+$rc = 1
+try {
+    $env:CFLAGS = '/W4 /external:W0 /external:anglebrackets'
+    $env:CXXFLAGS = $env:CFLAGS
 
-New-Log $log '07: clang-cl instead of MSVC cl.exe, full rebuild' (@(
-    "# Build directory: $BuildDir"
-    "# Compiler: $((& $clang --version | Select-Object -First 1))"
-) + (Get-ToolVersions) + @("# CFLAGS/CXXFLAGS env: $env:CXXFLAGS"))
-$cc = $clang -replace '\\', '/'
-$rc = Invoke-Build $log $BuildDir ("$(Get-ConfigureArgs $BuildDir $VcpkgRoot) -DENABLE_CODE_ANALYSIS=OFF " +
-    "-DCMAKE_C_COMPILER=`"$cc`" -DCMAKE_CXX_COMPILER=`"$cc`"")
-if (Test-Path "$BuildDir\CMakeCache.txt") {
-    $tools = (Get-Content "$BuildDir\CMakeCache.txt" |
-        Select-String '^CMAKE_(CXX_COMPILER|LINKER|AR|RC_COMPILER|MT):' | ForEach-Object Line) -join '; '
-    Add-LogLine $log "# Tools from CMakeCache: $tools"
+    New-Log $log '07: clang-cl instead of MSVC cl.exe, full rebuild' (@(
+        "# Build directory: $BuildDir"
+        "# Compiler: $((& $clang --version | Select-Object -First 1))"
+    ) + (Get-ToolVersions) + @("# CFLAGS/CXXFLAGS env: $env:CXXFLAGS"))
+    $cc = $clang -replace '\\', '/'
+    $rc = Invoke-Build $log $BuildDir ("$(Get-ConfigureArgs $BuildDir $VcpkgRoot) -DENABLE_CODE_ANALYSIS=OFF " +
+        "-DCMAKE_C_COMPILER=`"$cc`" -DCMAKE_CXX_COMPILER=`"$cc`"")
+    if (Test-Path "$BuildDir\CMakeCache.txt") {
+        $tools = (Get-Content "$BuildDir\CMakeCache.txt" |
+            Select-String '^CMAKE_(CXX_COMPILER|LINKER|AR|RC_COMPILER|MT):' | ForEach-Object Line) -join '; '
+        Add-LogLine $log "# Tools from CMakeCache: $tools"
+    }
+    Add-LogLine $log "# End: $(Get-Stamp)"
+    Write-RunEnd $rc @("Log: $log")
+} finally {
+    Restore-EnvVars $savedEnv
 }
-Add-LogLine $log "# End: $(Get-Stamp)"
-Write-RunEnd $rc @("Log: $log")
 exit $rc

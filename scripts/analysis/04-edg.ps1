@@ -96,13 +96,22 @@ foreach ($dir in (Get-VsEnv 'INCLUDE') -split ';' | Where-Object { $_ }) {
 
 # Translates one MSVC command line into EDG options (see the table at the top). A trailing
 # backslash is removed from paths, as it would escape the closing quote.
+function Convert-IncludePath([string]$Raw) {
+    $p = $Raw.Trim('"')
+    if ($p.Length -gt 3) { $p = $p.TrimEnd('\') }
+    return $p
+}
+
 function Convert-Command([string]$Command) {
     $opts = @()
-    foreach ($m in [regex]::Matches($Command, '"[^"]*"|\S+')) {
-        switch -regex ($m.Value) {
+    $tokens = @([regex]::Matches($Command, '(?:"[^"]*"|\S)+') | ForEach-Object { $_.Value })
+    for ($i = 0; $i -lt $tokens.Count; $i++) {
+        switch -regex ($tokens[$i]) {
             '^[-/]D(.+)$'          { $opts += "-D$($Matches[1])"; break }
-            '^[-/]I(.+)$'          { $opts += "-I`"$($Matches[1].Trim('"').TrimEnd('\'))`""; break }
-            '^[-/]external:I(.+)$' { $opts += "--sys_include `"$($Matches[1].Trim('"').TrimEnd('\'))`""; break }
+            '^[-/]I$'              { if ($i + 1 -lt $tokens.Count) { $i++; $opts += "-I`"$(Convert-IncludePath $tokens[$i])`"" }; break }
+            '^[-/]I(.+)$'          { $opts += "-I`"$(Convert-IncludePath $Matches[1])`""; break }
+            '^[-/]external:I$'     { if ($i + 1 -lt $tokens.Count) { $i++; $opts += "--sys_include `"$(Convert-IncludePath $tokens[$i])`"" }; break }
+            '^[-/]external:I(.+)$' { $opts += "--sys_include `"$(Convert-IncludePath $Matches[1])`""; break }
             '^[-/]std:c\+\+(\w+)$' { $opts += "--ms_c++$($Matches[1])"; break }
             '^[-/]permissive-$'    { $opts += '--no_ms_permissive'; break }
             '^[-/]Zc:__cplusplus$' { $opts += '--ms_cplusplus_std_value'; break }
@@ -129,7 +138,7 @@ foreach ($e in $sel) {
 
 New-Log $log '04: EDG C++ front end, MSVC emulation with /permissive-' @(
     "# Files: $($sel.Count) translation units under src\ (without tests and generated files)$(if ($Files) { ", filter '$Files'" })"
-    "# EDG: $(git -C $EdgDir log -1 --format='%H (%cs)')"
+    "# EDG: $((cmd /c "git -C `"$EdgDir`" log -1 --format=`"%H (%cs)`" 2>nul") -join '').Trim()"
     "# Compiler emulated: $clVersion"
     "# ninja $(ninja --version)"
     "# Options for all files: $($common -join ' ')"

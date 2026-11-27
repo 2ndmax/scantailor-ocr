@@ -157,7 +157,9 @@ if (-not $SkipBuild) {
     if ($rc -ne 0) { Write-RunEnd $rc @("Log: $log"); exit $rc }
 }
 
-Enable-OffscreenQt $BuildDir $VcpkgRoot
+$savedEnv = Save-EnvVars @('QT_QPA_PLATFORM')
+try {
+    Enable-OffscreenQt $BuildDir $VcpkgRoot
 $xmlDir = "$OutDir\12-appverif"
 New-Item -ItemType Directory -Force $xmlDir | Out-Null
 
@@ -273,7 +275,10 @@ if ($LowResource) {
     Invoke-Verified $log 'core_tests.exe' '--run_test=CommandLineRunTestSuite' $lowres 120 -IsTest
 }
 
-foreach ($l in $logs) { Add-LogLine $l "# End: $(Get-Stamp)" }
-$results = @("Logs: $($logs[0])") + @($logs | Select-Object -Skip 1 | ForEach-Object { "      $_" }) + "XML:  $xmlDir"
-Write-RunEnd 0 $results
+    foreach ($l in $logs) { Add-LogLine $l "# End: $(Get-Stamp)" }
+    $results = @("Logs: $($logs[0])") + @($logs | Select-Object -Skip 1 | ForEach-Object { "      $_" }) + "XML:  $xmlDir"
+    Write-RunEnd 0 $results
+} finally {
+    Restore-EnvVars $savedEnv
+}
 exit 0
