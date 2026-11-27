@@ -30,6 +30,7 @@ set(sources
     TestImageCombination.cpp
     TestExperimentalBinarization.cpp
     TestGaussBlur.cpp
+    TestImageprocModules.cpp
     Utils.cpp Utils.h)
 
 remove_definitions(-DBUILDING_IMAGEPROC)

@@ -167,6 +167,20 @@ BOOST_AUTO_TEST_CASE(test_fill_except_polygon_outside_image) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_gray_fill_and_clipping) {
+  QImage gray(12, 12, QImage::Format_Indexed8);
+  gray.setColorTable(createGrayscalePalette());
+  gray.fill(255);
+
+  const QPolygonF clippedRect(QRectF(2, 3, 16, 5));
+  PolygonRasterizer::grayFill(gray, 40, clippedRect, Qt::OddEvenFill);
+
+  BOOST_CHECK_EQUAL(qGray(gray.pixel(2, 3)), 40);
+  BOOST_CHECK_EQUAL(qGray(gray.pixel(11, 7)), 40);
+  BOOST_CHECK_EQUAL(qGray(gray.pixel(0, 0)), 255);
+  BOOST_CHECK_EQUAL(qGray(gray.pixel(5, 9)), 255);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc

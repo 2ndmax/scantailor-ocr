@@ -105,6 +105,35 @@ BOOST_AUTO_TEST_CASE(test_transform_rejects_singular_and_handles_extreme_zoom) {
   BOOST_CHECK_EQUAL(int(farTranslated.data()[0]), 255);
 }
 
+BOOST_AUTO_TEST_CASE(test_geometric_translation_rotation_and_scale) {
+  QImage src(4, 4, QImage::Format_RGB32);
+  src.fill(qRgb(20, 40, 60));
+  src.setPixel(1, 0, qRgb(200, 10, 10));
+
+  const QImage translated = transform(src, QTransform::fromTranslate(2.0, 1.0), QRect(0, 0, 6, 5),
+                                      OutsidePixels::assumeColor(QColor(255, 255, 255)));
+  BOOST_CHECK_EQUAL(translated.pixel(3, 1), qRgb(200, 10, 10));
+  BOOST_CHECK_EQUAL(translated.pixel(0, 0), qRgb(255, 255, 255));
+
+  const QImage nearestTranslated
+      = transform(src, QTransform::fromTranslate(2.0, 1.0), QRect(0, 0, 6, 5), OutsidePixels::assumeWeakNearest());
+  BOOST_CHECK_EQUAL(nearestTranslated.pixel(0, 0), qRgb(20, 40, 60));
+
+  // 90 deg clockwise around origin maps (1, 0) -> (0, 1); shift by +3 in y into [0, 4)x[0, 4).
+  GrayImage graySrc(QSize(4, 4));
+  graySrc.fill(50);
+  graySrc.data()[0 * graySrc.stride() + 1] = 220;
+  const GrayImage rotated = transformToGray(graySrc, QTransform().rotate(90.0), QRect(-3, 0, 4, 4),
+                                            OutsidePixels::assumeColor(QColor(0, 0, 0)));
+  BOOST_CHECK_EQUAL(int(rotated.data()[1 * rotated.stride() + 2]), 220);
+
+  const GrayImage upscaled = transformToGray(graySrc, QTransform::fromScale(2.0, 2.0), QRect(0, 0, 8, 8),
+                                             OutsidePixels::assumeWeakNearest(), QSizeF(0.1, 0.1));
+  BOOST_CHECK_EQUAL(int(upscaled.data()[0 * upscaled.stride() + 2]), 220);
+  BOOST_CHECK_EQUAL(int(upscaled.data()[1 * upscaled.stride() + 3]), 220);
+  BOOST_CHECK_EQUAL(int(upscaled.data()[4 * upscaled.stride() + 4]), 50);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
 }  // namespace imageproc
