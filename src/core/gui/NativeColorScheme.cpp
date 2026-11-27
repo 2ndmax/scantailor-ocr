@@ -92,6 +92,17 @@ class CompactSpinBoxStyle : public QProxyStyle {
  private:
   static int buttonColumnWidth(const QStyleOptionSpinBox& spinBox) { return spinBox.fontMetrics.height(); }
 };
+
+bool isWindows11Style() {
+  QStyle* style = qApp ? qApp->style() : nullptr;
+  while (auto* proxy = qobject_cast<QProxyStyle*>(style)) {
+    if (proxy->name() == QLatin1String("windows11")) {
+      return true;
+    }
+    style = proxy->baseStyle();
+  }
+  return style && (style->name() == QLatin1String("windows11"));
+}
 }  // namespace
 
 NativeColorScheme::NativeColorScheme() {
@@ -99,9 +110,13 @@ NativeColorScheme::NativeColorScheme() {
   loadColorParams();
 }
 
+bool NativeColorScheme::hasRoundedCorners() const {
+  return isWindows11Style();
+}
+
 QStyle* NativeColorScheme::getStyle() const {
   // The scheme is set once at startup, so the application still has the platform's style.
-  if (qApp->style()->name() == QLatin1String("windows11")) {
+  if (isWindows11Style()) {
     if (QStyle* windows11 = QStyleFactory::create(QStringLiteral("windows11"))) {
       return new CompactSpinBoxStyle(windows11);
     }
@@ -127,62 +142,12 @@ void NativeColorScheme::loadStyleSheet() {
                               "  background-attachment: scroll;\n"
                               "}")
                           .arg(imageViewColor(QPalette()).name()));
-  // The tabs of the output views, in the same shape as in the Light and Dark schemes (stylesheet.qss): separate
-  // buttons, the selected one filled with the accent color. The native style shows the selected tab only by a
-  // slight shade. Unlike there, no border, and the colors come from the system palette; change both places.
   const QPalette palette;
-  m_styleSheet.append(QString("\n"
-                              "output--TabbedImageView > QTabBar::tab {\n"
-                              "  padding: 9px 3px 9px 3px;\n"
-                              "  min-height: 17px;\n"
-                              "  min-width: 17px;\n"
-                              "  margin: 2px 0px 2px 0px;\n"
-                              "  border: none;\n"
-                              "  background-color: %1;\n"
-                              "}\n"
-                              "\n"
-                              "output--TabbedImageView > QTabBar::tab:hover {\n"
-                              "  background-color: %2;\n"
-                              "}\n"
-                              "\n"
-                              "output--TabbedImageView > QTabBar::tab:selected {\n"
-                              "  color: palette(highlighted-text);\n"
-                              "  background-color: palette(highlight);\n"
-                              "}")
-                          .arg(offWindowColor(palette, false).name(), offWindowColor(palette, true).name()));
-  // The grips between the panels, as in the Light and Dark schemes (stylesheet.qss): a bar, in the accent color
-  // under the pointer. Change both places.
-  m_styleSheet.append(QString("\n"
-                              "QMainWindow::separator {\n"
-                              "  background-color: %1;\n"
-                              "  width: 5px;\n"
-                              "  height: 5px;\n"
-                              "}\n"
-                              "\n"
-                              "QMainWindow::separator:hover {\n"
-                              "  background-color: palette(highlight);\n"
-                              "}")
-                          .arg(offWindowColor(palette, false).name()));
-  // The recent projects on the start panel, as in the Light and Dark schemes (stylesheet.qss): a list under a
-  // heading on a dividing line, without a frame of its own. The line has the border color of the scheme
-  // (palette(mid)). Change both places.
-  m_styleSheet.append(
-      QString("\n"
-              "QGroupBox#recentProjectsGroup {\n"
-              "  background-color: transparent;\n"
-              "  border: none;\n"
-              "  border-top: 1px solid palette(mid);\n"
-              "  margin-top: 0.75em;\n"
-              "  padding-top: 0.5em;\n"
-              "  color: palette(window-text);\n"
-              "}\n"
-              "\n"
-              "QGroupBox#recentProjectsGroup::title {\n"
-              "  subcontrol-origin: margin;\n"
-              "  subcontrol-position: top center;\n"
-              "  padding: 0px 4px 0px 4px;\n"
-              "  background-color: palette(window);\n"
-              "}"));
+  const QString barColor = offWindowColor(palette, false).name();
+  const QString hoverColor = offWindowColor(palette, true).name();
+  m_styleSheet.append(QLatin1Char('\n'));
+  m_styleSheet.append(StyleSheetColorScheme::sharedComponentRules(barColor, hoverColor, barColor,
+                                                                  QStringLiteral("palette(mid)"), false));
 }
 
 void NativeColorScheme::loadColorParams() {

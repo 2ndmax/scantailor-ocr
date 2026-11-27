@@ -42,7 +42,7 @@ StyleSheetColorScheme::StyleSheetColorScheme(const Colors& colors,
   const QColor accent = chosenAccent.isValid() ? chosenAccent : QColor(defaultAccentColor);
   const QColor onAccent = textOnAccent(accent, colors.lightTextOnAccent, colors.darkTextOnAccent);
   loadPalette(colors, accent, onAccent);
-  loadStyleSheet(styleSheetPath, onAccent == colors.lightTextOnAccent);
+  loadStyleSheet(styleSheetPath, colors, onAccent == colors.lightTextOnAccent);
   m_customColors = colorParams(colors, accent, onAccent);
 }
 
@@ -93,7 +93,81 @@ void StyleSheetColorScheme::loadPalette(const Colors& colors, const QColor& acce
   m_palette.setColor(QPalette::Disabled, QPalette::HighlightedText, colors.disabledText);
 }
 
-void StyleSheetColorScheme::loadStyleSheet(const QString& path, const bool lightMarks) {
+QString StyleSheetColorScheme::sharedComponentRules(const QString& tabBackground,
+                                                    const QString& tabHoverBackground,
+                                                    const QString& separatorBackground,
+                                                    const QString& groupBorder,
+                                                    const bool tabBorder) {
+  QString rules;
+  if (tabBorder) {
+    rules.append(
+        QStringLiteral("QTabWidget[outputTabs=\"true\"]::tab-bar {\n"
+                       "  left: 0px;\n"
+                       "  right: 0px;\n"
+                       "  top: 0px;\n"
+                       "}\n\n"
+                       "QTabWidget[outputTabs=\"true\"] > QTabBar::tab {\n"
+                       "  padding: 9px 3px 9px 3px;\n"
+                       "  min-height: 17px;\n"
+                       "  min-width: 17px;\n"
+                       "  margin: 2px 0px 2px 0px;\n"
+                       "}\n\n"
+                       "QTabWidget[outputTabs=\"true\"] > QTabBar::tab:!first,\n"
+                       "QTabWidget[outputTabs=\"true\"] > QTabBar::tab:selected {\n"
+                       "  border-width: 1px;\n"
+                       "  padding: 9px 3px 9px 3px;\n"
+                       "}\n\n"
+                       "QTabWidget[outputTabs=\"true\"] > QTabBar::tab:selected {\n"
+                       "  color: palette(highlighted-text);\n"
+                       "  background-color: palette(highlight);\n"
+                       "  border-color: palette(highlight);\n"
+                       "}\n\n"));
+  } else {
+    rules.append(QStringLiteral("QTabWidget[outputTabs=\"true\"] > QTabBar::tab {\n"
+                                "  padding: 9px 3px 9px 3px;\n"
+                                "  min-height: 17px;\n"
+                                "  min-width: 17px;\n"
+                                "  margin: 2px 0px 2px 0px;\n"
+                                "  border: none;\n"
+                                "  background-color: %1;\n"
+                                "}\n\n"
+                                "QTabWidget[outputTabs=\"true\"] > QTabBar::tab:hover {\n"
+                                "  background-color: %2;\n"
+                                "}\n\n"
+                                "QTabWidget[outputTabs=\"true\"] > QTabBar::tab:selected {\n"
+                                "  color: palette(highlighted-text);\n"
+                                "  background-color: palette(highlight);\n"
+                                "}\n\n")
+                     .arg(tabBackground, tabHoverBackground));
+  }
+
+  rules.append(QStringLiteral("QMainWindow::separator {\n"
+                              "  background-color: %1;\n"
+                              "  width: 5px;\n"
+                              "  height: 5px;\n"
+                              "}\n\n"
+                              "QMainWindow::separator:hover {\n"
+                              "  background-color: palette(highlight);\n"
+                              "}\n\n"
+                              "QGroupBox#recentProjectsGroup {\n"
+                              "  background-color: transparent;\n"
+                              "  border: none;\n"
+                              "  border-top: 1px solid %2;\n"
+                              "  margin-top: 0.75em;\n"
+                              "  padding-top: 0.5em;\n"
+                              "  color: palette(window-text);\n"
+                              "}\n\n"
+                              "QGroupBox#recentProjectsGroup::title {\n"
+                              "  subcontrol-origin: margin;\n"
+                              "  subcontrol-position: top center;\n"
+                              "  padding: 0px 4px 0px 4px;\n"
+                              "  background-color: palette(window);\n"
+                              "}\n")
+                   .arg(separatorBackground, groupBorder));
+  return rules;
+}
+
+void StyleSheetColorScheme::loadStyleSheet(const QString& path, const Colors& colors, const bool lightMarks) {
   QFile styleSheetFile(path);
   if (styleSheetFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
     m_styleSheet = styleSheetFile.readAll();
@@ -102,6 +176,8 @@ void StyleSheetColorScheme::loadStyleSheet(const QString& path, const bool light
   // The marks on the accent color exist with light and with dark text color (cmake/ColorSchemes.cmake).
   m_styleSheet.replace(QStringLiteral("/icons/marks/"),
                        lightMarks ? QStringLiteral("/icons/marks_light/") : QStringLiteral("/icons/marks_dark/"));
+  m_styleSheet.append(QLatin1Char('\n'));
+  m_styleSheet.append(sharedComponentRules({}, {}, colors.bar.name(), colors.border.name(), true));
 
 #ifdef _WIN32
   m_styleSheet = CoreUtils::qssConvertPxToEm(m_styleSheet, 13, 4);

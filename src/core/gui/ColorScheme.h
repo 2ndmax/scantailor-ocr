@@ -31,6 +31,8 @@ class ColorScheme {
    * @return the list of colors to override the default values by the color scheme
    */
   virtual const ColorParams* getColorParams() const = 0;
+
+  virtual bool hasRoundedCorners() const { return false; }
 };
 
 #endif  // SCANTAILOR_CORE_COLORSCHEME_H_

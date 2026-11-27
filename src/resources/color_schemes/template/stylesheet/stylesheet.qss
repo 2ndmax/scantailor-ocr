@@ -250,25 +250,6 @@ QGraphicsView {
   margin: 1px 1px 1px 1px;
 }
 
-/* The recent projects on the start panel: a list under a heading on a dividing line, without a frame
-   of its own, as the panel has one. The System scheme has the same rule (NativeColorScheme); change
-   both places. */
-QGroupBox#recentProjectsGroup {
-  background-color: transparent;
-  border: none;
-  border-top: 1px solid {{border}};
-  margin-top: 0.75em;  /* half the title height: the line runs through the middle of the title */
-  padding-top: 0.5em;
-  color: palette(window-text);
-}
-
-QGroupBox#recentProjectsGroup::title {
-  subcontrol-origin: margin;
-  subcontrol-position: top center;
-  padding: 0px 4px 0px 4px;
-  background-color: palette(window);  /* hides the line behind the title */
-}
-
 QMenuBar {
   background-color: palette(window);
   border-bottom: 1px solid {{border}};
@@ -342,19 +323,6 @@ QDockWidget > QWidget {
   border: 1px solid {{border}};
   border-top: none;
   border-bottom: none;
-}
-
-/* The grips between the panels: a bar that takes the accent color when the pointer is over it.
-   NativeColorScheme.cpp sets the same rules for the System scheme, with the bar color from the
-   system palette: change both. */
-QMainWindow::separator {
-  background-color: {{bar}};
-  width: 5px;
-  height: 5px;
-}
-
-QMainWindow::separator:hover {
-  background-color: palette(highlight);
 }
 
 QDockWidget::close-button, QDockWidget::float-button {
@@ -485,33 +453,6 @@ QTabBar::tab:selected {
   background-color: palette(window);
   border-bottom-width: 0px;
   padding-bottom: 4px;
-}
-
-output--TabbedImageView::tab-bar {
-  left: 0px;
-  right: 0px;
-  top: 0px;
-}
-
-/* The tabs of the output views are separate buttons; the selected one is filled with the accent color.
-   NativeColorScheme.cpp sets the same rules for the System scheme, without a border and with colors
-   from the system palette: change both. */
-output--TabbedImageView > QTabBar::tab {
-  padding: 9px 3px 9px 3px;
-  min-height: 17px;
-  min-width: 17px;
-  margin: 2px 0px 2px 0px;
-}
-
-output--TabbedImageView > QTabBar::tab:!first, output--TabbedImageView > QTabBar::tab:selected {
-  border-width: 1px;
-  padding: 9px 3px 9px 3px;
-}
-
-output--TabbedImageView > QTabBar::tab:selected {
-  color: palette(highlighted-text);
-  background-color: palette(highlight);
-  border-color: palette(highlight);
 }
 
 QComboBox {

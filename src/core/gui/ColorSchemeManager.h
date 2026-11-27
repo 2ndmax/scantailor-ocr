@@ -38,7 +38,7 @@ class ColorSchemeManager {
 
  private:
   mutable std::unique_ptr<ColorScheme::ColorParams> m_colorParams;
-  bool m_roundedCorners = true;
+  bool m_roundedCorners = false;
 };
 
 

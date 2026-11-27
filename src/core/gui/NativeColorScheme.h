@@ -20,6 +20,8 @@ class NativeColorScheme : public ColorScheme {
 
   const ColorParams* getColorParams() const override;
 
+  bool hasRoundedCorners() const override;
+
  private:
   void loadStyleSheet();
 
