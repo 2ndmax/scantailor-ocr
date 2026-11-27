@@ -670,16 +670,13 @@ DistortionModel detail::Processor::buildMarginalDistortionModel() const {
     setupTrivialDistortionModel(distortionModel);
   }
 
-  // REVIEW-NOTE (2026-10): the control points are in original coordinates but drawn onto the pre-rotated
-  // bwImage -> on rotated pages the debug image shows them at wrong places. Not fixed because it only
-  // affects the debug output.
   if (m_inputs.dbg) {
     QImage outImage(bwImage.toQImage().convertToFormat(QImage::Format_RGB32));
     for (int i = 0; i <= topSpline.numSegments(); i++) {
-      detail::drawPoint(outImage, topSpline.controlPointPosition(i));
+      detail::drawPoint(outImage, transform.map(topSpline.controlPointPosition(i)));
     }
     for (int i = 0; i <= bottomSpline.numSegments(); i++) {
-      detail::drawPoint(outImage, bottomSpline.controlPointPosition(i));
+      detail::drawPoint(outImage, transform.map(bottomSpline.controlPointPosition(i)));
     }
     m_inputs.dbg->add(outImage, "marginal dewarping");
   }

@@ -25,6 +25,7 @@
 #include <filters/output/FillColorProperty.h>
 #include <filters/output/OutputGenerator.h>
 #include <filters/output/OutputImage.h>
+#include <filters/output/OutputImageOps.h>
 #include <filters/output/OutputImageWithForeground.h>
 #include <filters/output/Params.h>
 #include <filters/output/PictureLayerProperty.h>
@@ -1375,6 +1376,54 @@ BOOST_AUTO_TEST_CASE(few_text_lines_with_normalized_light_keep_the_trivial_margi
   BOOST_TEST(closeTo(top.back(), QPointF(A4_PAGE_SIZE.width(), 0)));
   BOOST_TEST(closeTo(bottom.front(), QPointF(0, A4_PAGE_SIZE.height())));
   BOOST_TEST(closeTo(bottom.back(), QPointF(A4_PAGE_SIZE.width(), A4_PAGE_SIZE.height())));
+}
+
+BOOST_AUTO_TEST_CASE(fill_margins_preserves_border_aligned_content_and_colored_formats) {
+  // PR 197: rounding content polygon before rect intersection keeps border-aligned boxes non-empty.
+  QImage borderImg(100, 100, QImage::Format_RGB32);
+  borderImg.fill(Qt::black);
+  QPolygonF borderPoly;
+  borderPoly << QPointF(-0.2, -0.2) << QPointF(100.2, -0.2) << QPointF(100.2, 100.2) << QPointF(-0.2, 100.2);
+  output::detail::fillMarginsInPlace(borderImg, borderPoly, Qt::white);
+  BOOST_CHECK(borderImg.pixel(50, 50) == qRgb(0, 0, 0));
+
+  // P8-03: non-grayscale Indexed8 and RGB888 formats work cleanly without hitting assert or buffer UB.
+  for (const bool maskOverload : {false, true}) {
+    QImage indexed(40, 40, QImage::Format_Indexed8);
+    indexed.setColorTable({qRgb(200, 10, 10), qRgb(10, 10, 200)});
+    indexed.fill(0);
+    if (!maskOverload) {
+      output::detail::fillMarginsInPlace(indexed, QPolygonF(QRectF(10, 10, 20, 20)), Qt::white);
+    } else {
+      imageproc::BinaryImage mask(QSize(40, 40), imageproc::WHITE);
+      mask.fill(QRect(10, 10, 20, 20), imageproc::BLACK);
+      output::detail::fillMarginsInPlace(indexed, mask, Qt::white);
+    }
+    BOOST_CHECK(indexed.pixel(20, 20) == qRgb(200, 10, 10));
+    BOOST_CHECK(indexed.pixel(0, 0) == qRgb(255, 255, 255));
+
+    QImage rgb888(40, 40, QImage::Format_RGB888);
+    rgb888.fill(QColor(20, 180, 40));
+    if (!maskOverload) {
+      output::detail::fillMarginsInPlace(rgb888, QPolygonF(QRectF(10, 10, 20, 20)), Qt::white);
+    } else {
+      imageproc::BinaryImage mask(QSize(40, 40), imageproc::WHITE);
+      mask.fill(QRect(10, 10, 20, 20), imageproc::BLACK);
+      output::detail::fillMarginsInPlace(rgb888, mask, Qt::white);
+    }
+    BOOST_CHECK(rgb888.pixel(20, 20) == qRgb(20, 180, 40));
+    BOOST_CHECK(rgb888.pixel(0, 0) == qRgb(255, 255, 255));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(draw_point_ignores_pixels_outside_image_bounds) {
+  QImage image(40, 40, QImage::Format_RGB32);
+  image.fill(Qt::black);
+  output::detail::drawPoint(image, QPointF(-5.0, -5.0));
+  output::detail::drawPoint(image, QPointF(42.0, 42.0));
+  BOOST_CHECK(image.pixel(0, 0) == qRgb(255, 0, 0));
+  BOOST_CHECK(image.pixel(39, 39) == qRgb(255, 0, 0));
+  BOOST_CHECK(image.pixel(20, 20) == qRgb(0, 0, 0));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

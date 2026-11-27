@@ -139,7 +139,13 @@ QPolygonF clipContentPolyToRect(const QPolygonF& contentPoly, const QRect& image
   const QRectF r(imageRect);
   QPolygonF rectPoly;
   rectPoly << r.topLeft() << r.topRight() << r.bottomRight() << r.bottomLeft();
-  return contentPoly.intersected(rectPoly);
+  return PolygonUtils::round(contentPoly).intersected(rectPoly);
+}
+
+void ensureArgb32OrRgb32(QImage& image) {
+  if ((image.format() != QImage::Format_RGB32) && (image.format() != QImage::Format_ARGB32)) {
+    image = image.convertToFormat(image.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32);
+  }
 }
 }  // namespace
 
@@ -176,7 +182,7 @@ void fillMarginsInPlace(QImage& image, const QPolygonF& contentPoly, const QColo
     return;
   }
 
-  assert(image.format() == QImage::Format_RGB32 || image.format() == QImage::Format_ARGB32);
+  ensureArgb32OrRgb32(image);
 
   const QImage::Format imageFormat = image.format();
   image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
@@ -230,7 +236,7 @@ void fillMarginsInPlace(QImage& image, const BinaryImage& contentMask, const QCo
   if ((image.format() == QImage::Format_Indexed8) && image.isGrayscale()) {
     fillExcept<uint8_t>(image, contentMask, color);
   } else {
-    assert(image.format() == QImage::Format_RGB32 || image.format() == QImage::Format_ARGB32);
+    ensureArgb32OrRgb32(image);
     fillExcept<uint32_t>(image, contentMask, color);
   }
 }
@@ -351,7 +357,9 @@ void drawPoint(QImage& image, const QPointF& pt) {
     for (int j = pts.y() - 10; j < pts.y() + 10; j++) {
       QPoint p1(i, j);
 
-      image.setPixel(p1, qRgb(255, 0, 0));
+      if (image.rect().contains(p1)) {
+        image.setPixel(p1, qRgb(255, 0, 0));
+      }
     }
   }
 }
