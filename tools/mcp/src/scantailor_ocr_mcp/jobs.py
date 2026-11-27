@@ -12,13 +12,15 @@ import subprocess
 import sys
 import tempfile
 import uuid
+from collections import deque
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 import anyio
+from mcp.server.mcpserver.exceptions import ToolError
 
 from .console import ensure_console
-from .roots import allowed_roots, is_allowed, resolve_path
+from .roots import allowed_roots, normalize_path_key, resolve_allowed_path
 from .validation import validate_cli_json
 
 logger = logging.getLogger(__name__)
@@ -34,11 +36,37 @@ LAST_STEPS = {
 }
 EXPORT_FORMATS = {"pdf", "txt", "hocr", "alto"}
 MAX_STDERR_TAIL = 64 * 1024
+MAX_PROGRESS_EVENTS = 1000
+MAX_FINISHED_JOBS = 100
 CANCEL_WAIT_TIMEOUT = 30.0
+
+
+def _tool_error(message: str) -> NoReturn:
+    raise ToolError(message)
+
+
+def _resolve_allowed(raw: str | Path, roots: list[Path]) -> Path:
+    try:
+        return resolve_allowed_path(raw, roots)
+    except ValueError as exc:
+        _tool_error(str(exc))
 
 
 def _is_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _parse_int(value: Any, default: int = 0) -> int:
+    if isinstance(value, bool):
+        return default
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            return default
+    return default
 
 
 def parse_dpi_value(value: str) -> bool:
@@ -46,7 +74,7 @@ def parse_dpi_value(value: str) -> bool:
     if not parts or len(parts) > 2 or any(not p for p in parts):
         return False
     for part in parts:
-        if not part.isdigit():
+        if not part.isascii() or not part.isdigit():
             return False
         if int(part) <= 0:
             return False
@@ -86,8 +114,7 @@ class Job:
         self.passes_started: int = 0
         self.cancel_requested: bool = False
         self.cancel_signal_sent: bool = False
-        self.progress_events: list[dict[str, Any]] = []
-        self.non_json_lines: list[str] = []
+        self.progress_events: deque[dict[str, Any]] = deque(maxlen=MAX_PROGRESS_EVENTS)
         self.stderr_tail: str = ""
         self.report: dict[str, Any] | None = None
         self.message: str | None = None
@@ -112,11 +139,10 @@ class Job:
                     try:
                         obj = json.loads(text)
                     except json.JSONDecodeError:
-                        self.non_json_lines.append(text)
                         logger.warning("non-JSON stdout line from CLI: %s", text)
                         continue
                     if not isinstance(obj, dict):
-                        self.non_json_lines.append(text)
+                        logger.warning("non-dict JSON stdout line from CLI: %s", text)
                         continue
                     self.progress_events.append(obj)
                     self._update_progress(obj)
@@ -130,32 +156,32 @@ class Job:
                             self.progress_events.append(obj)
                             self._update_progress(obj)
                         else:
-                            self.non_json_lines.append(text)
+                            logger.warning("non-dict JSON stdout line from CLI: %s", text)
                     except json.JSONDecodeError:
-                        self.non_json_lines.append(text)
+                        logger.warning("non-JSON stdout line from CLI: %s", text)
 
     def _update_progress(self, obj: dict[str, Any]) -> None:
         event = obj.get("event")
         if event == "pass-start":
             self.passes_started += 1
-            if "step" in obj:
+            if "step" in obj and isinstance(obj.get("step"), str):
                 self.step = obj.get("step")
             if "total" in obj:
-                self.total = int(obj.get("total") or 0)
+                self.total = _parse_int(obj.get("total"))
             self.done = 0
         elif event == "page":
-            if "step" in obj:
+            if "step" in obj and isinstance(obj.get("step"), str):
                 self.step = obj.get("step")
             if "done" in obj:
-                self.done = int(obj.get("done") or 0)
+                self.done = _parse_int(obj.get("done"))
             if "total" in obj:
-                self.total = int(obj.get("total") or 0)
+                self.total = _parse_int(obj.get("total"))
         elif event == "export":
             self.step = "export"
             if "done" in obj:
-                self.done = int(obj.get("done") or 0)
+                self.done = _parse_int(obj.get("done"))
             if "total" in obj:
-                self.total = int(obj.get("total") or 0)
+                self.total = _parse_int(obj.get("total"))
 
     async def _read_stderr(self) -> None:
         buf = b""
@@ -178,17 +204,30 @@ class Job:
 
     async def _wait(self) -> None:
         try:
-            await self.process.wait()
-        except Exception as exc:  # pragma: no cover - defensive
-            logger.exception("waiting for CLI failed: %s", exc)
-        self.exit_code = self.process.returncode
-        # make sure readers are done
-        for task in (self.stdout_task, self.stderr_task):
-            if task is not None and not task.done():
-                with contextlib.suppress(Exception):
-                    await task
-        await self._finalize()
-        self.finished.set()
+            if self.process is None:
+                self.state = "crashed"
+                self.message = "CLI process was not started"
+                return
+            try:
+                await self.process.wait()
+            except Exception as exc:  # pragma: no cover - defensive
+                logger.exception("waiting for CLI failed: %s", exc)
+            self.exit_code = self.process.returncode
+            # make sure readers are done
+            for task in (self.stdout_task, self.stderr_task):
+                if task is not None and not task.done():
+                    with contextlib.suppress(Exception):
+                        await task
+            with contextlib.suppress(Exception):
+                await self.process.aclose()
+            try:
+                await self._finalize()
+            except Exception as exc:
+                logger.exception("finalizing CLI job %s failed: %s", self.id, exc)
+                self.state = "crashed"
+                self.message = str(exc) or "Failed to finalize CLI run"
+        finally:
+            self.finished.set()
 
     async def _finalize(self) -> None:
         report = None
@@ -219,11 +258,13 @@ class Job:
             self.state = "crashed"
 
         if self.state == "crashed":
-            self.message = stderr
+            self.message = stderr or f"CLI exited with code {rc} without a report"
         elif self.state == "refused":
-            self.message = stderr
+            self.message = stderr or f"CLI refused inputs with exit code {rc}"
 
     async def _send_cancel(self) -> None:
+        if self.process is None:
+            return
         try:
             if sys.platform == "win32":
                 self.process.send_signal(signal.CTRL_BREAK_EVENT)
@@ -267,13 +308,25 @@ class Job:
         return result
 
     async def kill(self) -> None:
-        with contextlib.suppress(Exception):
-            self.process.kill()
-        for task in (self.stdout_task, self.stderr_task, self.wait_task):
-            if task is not None and not task.done():
-                task.cancel()
-                with contextlib.suppress(asyncio.CancelledError, Exception):
-                    await task
+        try:
+            if self.process is not None:
+                with contextlib.suppress(Exception):
+                    self.process.kill()
+            for task in (self.stdout_task, self.stderr_task, self.wait_task):
+                if task is not None and not task.done():
+                    task.cancel()
+                    with contextlib.suppress(asyncio.CancelledError, Exception):
+                        await task
+            if self.process is not None:
+                with contextlib.suppress(Exception):
+                    await self.process.wait()
+                with contextlib.suppress(Exception):
+                    await self.process.aclose()
+        finally:
+            if self.state == "running":
+                self.state = "crashed"
+                self.message = self.message or "CLI process was killed"
+            self.finished.set()
 
 
 class JobManager:
@@ -284,20 +337,33 @@ class JobManager:
         capability_message: str,
         configured_roots: list[Path],
         max_runs: int,
+        max_finished_jobs: int = MAX_FINISHED_JOBS,
     ):
         self.cli = cli
         self.capable = capable
         self.capability_message = capability_message
         self.configured_roots = configured_roots
         self.max_runs = max_runs
+        self.max_finished_jobs = max_finished_jobs
         self.jobs: dict[str, Job] = {}
         self._console_ready = False
+        self._shutting_down = False
 
     def _ensure_capable(self) -> None:
         if self.cli is None or not self.capable:
-            from .server import _tool_error
-
             _tool_error(self.capability_message)
+
+    def _prune_finished_jobs(self) -> None:
+        if self.max_finished_jobs < 0:
+            return
+        finished_ids = [
+            jid
+            for jid, job in self.jobs.items()
+            if job.state != "running" and job.finished.is_set()
+        ]
+        excess = len(finished_ids) - self.max_finished_jobs
+        for jid in finished_ids[: max(0, excess)]:
+            del self.jobs[jid]
 
     async def start_job(
         self,
@@ -317,9 +383,10 @@ class JobManager:
         export_name: str | None = None,
         export_formats: list[str] | None = None,
     ) -> Job:
-        from .server import _tool_error
-
         self._ensure_capable()
+        if self._shutting_down:
+            _tool_error("Server is shutting down")
+        self._prune_finished_jobs()
 
         # source check
         has_folder = folder is not None
@@ -327,7 +394,7 @@ class JobManager:
         if has_folder == has_project:
             _tool_error("exactly one of 'folder' or 'project' is required")
 
-        anlege_used = (
+        creation_options_used = (
             profile is not None
             or dpi is not None
             or dpi_fix is not None
@@ -336,7 +403,7 @@ class JobManager:
             or bool(color_mode_detect)
             or orientation_detect is not None
         )
-        if has_project and anlege_used:
+        if has_project and creation_options_used:
             _tool_error("creation options cannot be used with 'project'")
 
         # types
@@ -372,62 +439,29 @@ class JobManager:
 
         # resolve source
         if has_folder:
-            try:
-                folder_resolved = resolve_path(folder)
-            except (OSError, RuntimeError) as exc:
-                _tool_error(f"Could not resolve path: {exc}")
-            if not is_allowed(folder_resolved, roots):
-                _tool_error(f"Path is outside the allowed folders: {folder_resolved}")
+            folder_resolved = _resolve_allowed(folder, roots)  # type: ignore[arg-type]
         else:
             if not isinstance(project, str) or not project.lower().endswith(".scantailor"):
                 _tool_error("project must end with .ScanTailor")
-            try:
-                project_resolved = resolve_path(project)
-            except (OSError, RuntimeError) as exc:
-                _tool_error(f"Could not resolve path: {exc}")
-            if not is_allowed(project_resolved, roots):
-                _tool_error(f"Path is outside the allowed folders: {project_resolved}")
+            project_resolved = _resolve_allowed(project, roots)
 
         # resolve optional paths
-        project_file_resolved: Path | None = None
-        if project_file is not None:
-            try:
-                project_file_resolved = resolve_path(project_file)
-            except (OSError, RuntimeError) as exc:
-                _tool_error(f"Could not resolve path: {exc}")
-            if not is_allowed(project_file_resolved, roots):
-                _tool_error(f"Path is outside the allowed folders: {project_file_resolved}")
-
-        output_folder_resolved: Path | None = None
-        if output_folder is not None:
-            try:
-                output_folder_resolved = resolve_path(output_folder)
-            except (OSError, RuntimeError) as exc:
-                _tool_error(f"Could not resolve path: {exc}")
-            if not is_allowed(output_folder_resolved, roots):
-                _tool_error(f"Path is outside the allowed folders: {output_folder_resolved}")
-
-        export_folder_resolved: Path | None = None
-        if export_folder is not None:
-            try:
-                export_folder_resolved = resolve_path(export_folder)
-            except (OSError, RuntimeError) as exc:
-                _tool_error(f"Could not resolve path: {exc}")
-            if not is_allowed(export_folder_resolved, roots):
-                _tool_error(f"Path is outside the allowed folders: {export_folder_resolved}")
+        project_file_resolved = (
+            _resolve_allowed(project_file, roots) if project_file is not None else None
+        )
+        output_folder_resolved = (
+            _resolve_allowed(output_folder, roots) if output_folder is not None else None
+        )
+        export_folder_resolved = (
+            _resolve_allowed(export_folder, roots) if export_folder is not None else None
+        )
 
         profile_value: str | None = None
         if profile is not None:
             if not isinstance(profile, str) or not profile.strip():
                 _tool_error("invalid profile name")
             if profile.lower().endswith(".stp"):
-                try:
-                    profile_resolved = resolve_path(profile)
-                except (OSError, RuntimeError) as exc:
-                    _tool_error(f"Could not resolve path: {exc}")
-                if not is_allowed(profile_resolved, roots):
-                    _tool_error(f"Path is outside the allowed folders: {profile_resolved}")
-                profile_value = str(profile_resolved)
+                profile_value = str(_resolve_allowed(profile, roots))
             else:
                 if (
                     profile in (".", "..")
@@ -439,12 +473,12 @@ class JobManager:
 
         # project key
         if has_project:
-            project_key = str(project_resolved)
+            project_path = project_resolved
+        elif project_file_resolved is not None:
+            project_path = project_file_resolved
         else:
-            if project_file_resolved is not None:
-                project_key = str(project_file_resolved)
-            else:
-                project_key = str(default_project_file(folder_resolved))
+            project_path = default_project_file(folder_resolved)
+        project_key = normalize_path_key(project_path)
 
         # max runs / per-project
         running = [j for j in self.jobs.values() if j.state == "running"]
@@ -495,8 +529,7 @@ class JobManager:
 
         # ensure console once
         if not self._console_ready:
-            ensure_console()
-            self._console_ready = True
+            self._console_ready = ensure_console()
 
         creationflags = 0
         if sys.platform == "win32":
@@ -515,10 +548,25 @@ class JobManager:
                 stderr=subprocess.PIPE,
                 creationflags=creationflags,
             )
+        except OSError as exc:
+            del self.jobs[job_id]
+            shutil.rmtree(report_dir, ignore_errors=True)
+            _tool_error(f"Could not start CLI process: {exc}")
         except BaseException:
             del self.jobs[job_id]
             shutil.rmtree(report_dir, ignore_errors=True)
             raise
+        if self._shutting_down:
+            with contextlib.suppress(Exception):
+                job.process.kill()
+            with contextlib.suppress(Exception):
+                await job.process.wait()
+            with contextlib.suppress(Exception):
+                await job.process.aclose()
+            del self.jobs[job_id]
+            shutil.rmtree(report_dir, ignore_errors=True)
+            _tool_error("Server is shutting down")
+
         job.stdout_task = asyncio.create_task(job._read_stdout())
         job.stderr_task = asyncio.create_task(job._read_stderr())
         job.wait_task = asyncio.create_task(job._wait())
@@ -527,14 +575,13 @@ class JobManager:
         return job
 
     def get_job(self, job_id: str) -> Job:
-        from .server import _tool_error
-
         job = self.jobs.get(job_id)
         if job is None:
             _tool_error(f"unknown job_id: {job_id}")
-        return job  # type: ignore[return-value]
+        return job
 
     async def shutdown(self) -> None:
+        self._shutting_down = True
         running = [j for j in self.jobs.values() if j.state == "running"]
         for job in running:
             job.cancel_requested = True

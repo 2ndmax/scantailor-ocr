@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import argparse
 import logging
+import subprocess
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 import anyio
 from mcp.server.mcpserver import Context, MCPServer
@@ -22,13 +23,13 @@ from .cli import (
     run_cli,
 )
 from .jobs import JobManager
-from .roots import allowed_roots, is_allowed, resolve_path
+from .roots import allowed_roots, resolve_allowed_path
 from .validation import validate_cli_json
 
 logger = logging.getLogger(__name__)
 
 
-def _tool_error(message: str) -> None:
+def _tool_error(message: str) -> NoReturn:
     raise ToolError(message)
 
 
@@ -44,11 +45,7 @@ def build_server(
         )
     else:
         capable, capability_message = is_capable(cli)
-        if not capable:
-            capability_message = (
-                f"The found CLI ({cli}) is too old for this server: {capability_message}"
-            )
-        else:
+        if capable:
             logger.info("Using CLI %s (%s)", cli, cli_version(cli))
 
     job_manager = JobManager(cli, capable, capability_message, configured_roots, max_runs)
@@ -84,7 +81,12 @@ def build_server(
 
     async def _run_cli(args: list[str]) -> tuple[int, str, str]:
         cli_path: Path = state["cli"]
-        return await anyio.to_thread.run_sync(run_cli, [str(cli_path), *args], RUN_TIMEOUT)
+        try:
+            return await anyio.to_thread.run_sync(run_cli, [str(cli_path), *args], RUN_TIMEOUT)
+        except subprocess.TimeoutExpired:
+            _tool_error(f"CLI command timed out after {RUN_TIMEOUT:g}s")
+        except OSError as exc:
+            _tool_error(f"Could not run CLI: {exc}")
 
     @server.tool(
         description=(
@@ -122,11 +124,9 @@ def build_server(
                 "or let the client provide roots."
             )
         try:
-            resolved = resolve_path(project)
-        except (OSError, RuntimeError) as exc:
-            _tool_error(f"Could not resolve path: {exc}")
-        if not is_allowed(resolved, roots):
-            _tool_error(f"Path is outside the allowed folders: {resolved}")
+            resolved = resolve_allowed_path(project, roots)
+        except ValueError as exc:
+            _tool_error(str(exc))
         rc, out, err = await _run_cli(["--project-info", str(resolved)])
         if rc == 1:
             _tool_error(f"CLI usage error: {err.strip()}")

@@ -48,6 +48,22 @@ def is_allowed(path: str | Path, allowed: list[Path]) -> bool:
     return False
 
 
+def normalize_path_key(path: Path) -> str:
+    """Return a normalized comparison key for *path*."""
+    return _norm(resolve_path(path))
+
+
+def resolve_allowed_path(path: str | Path, allowed: list[Path]) -> Path:
+    """Resolve *path* and ensure it is within *allowed*, or raise ValueError."""
+    try:
+        resolved = resolve_path(path)
+    except (OSError, RuntimeError) as exc:
+        raise ValueError(f"Could not resolve path: {exc}") from exc
+    if not is_allowed(resolved, allowed):
+        raise ValueError(f"Path is outside the allowed folders: {resolved}")
+    return resolved
+
+
 def file_uri_to_path(uri: str) -> Path | None:
     parsed = urlparse(uri)
     if parsed.scheme != "file":

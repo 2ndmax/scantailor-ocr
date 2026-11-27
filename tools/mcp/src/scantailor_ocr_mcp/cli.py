@@ -70,12 +70,21 @@ def is_capable(cli: Path) -> tuple[bool, str]:
     """Check whether the CLI supports what this server needs."""
     try:
         rc, out, err = run_cli([str(cli), "--profile-list"], timeout=PROFILE_LIST_TIMEOUT)
-    except Exception as exc:
-        return False, f"could not run {cli}: {exc}"
+    except subprocess.TimeoutExpired as exc:
+        return False, f"CLI timed out while running --profile-list ({cli}): {exc}"
+    except OSError as exc:
+        return False, f"Could not launch CLI ({cli}): {exc}"
+    if rc == 1:
+        detail = err.strip() or f"exit code {rc}"
+        return (
+            False,
+            f"The found CLI ({cli}) is too old for this server (--profile-list failed: {detail})",
+        )
     if rc != 0:
-        return False, f"{cli} --profile-list exited {rc}: {err.strip()}"
+        detail = err.strip() or f"exit code {rc}"
+        return False, f"CLI ({cli}) failed --profile-list with exit code {rc}: {detail}"
     try:
         validate_cli_json(out)
     except ValueError as exc:
-        return False, f"{cli} --profile-list {exc}"
+        return False, f"CLI ({cli}) returned invalid --profile-list output: {exc}"
     return True, ""
