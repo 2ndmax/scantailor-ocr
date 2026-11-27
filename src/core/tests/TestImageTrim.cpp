@@ -1,11 +1,22 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <BinaryThreshold.h>
+#include <FilterData.h>
+#include <ImageSettings.h>
+#include <NullTaskStatus.h>
+#include <PageId.h>
 #include <filters/fix_orientation/ImageTrim.h>
+#include <filters/fix_orientation/Settings.h>
+#include <filters/fix_orientation/Task.h>
 
+#include <QColor>
+#include <QImage>
+#include <QPainter>
 #include <QRect>
 #include <QSize>
 #include <boost/test/unit_test.hpp>
+#include <memory>
 
 namespace Tests {
 using namespace fix_orientation;
@@ -121,6 +132,39 @@ BOOST_AUTO_TEST_CASE(rescaled_huge_edges_stay_positive) {
   trim.enabled = true;
   trim.left = 2147483647;
   BOOST_CHECK_EQUAL(trim.rescaled(Dpi(100, 100), Dpi(1200, 1200)).left, 2147483647);
+}
+
+BOOST_AUTO_TEST_CASE(task_otsu_threshold_uses_active_trim_area) {
+  QImage image(300, 300, QImage::Format_RGB32);
+  image.fill(QColor(0, 0, 0));
+  {
+    QPainter painter(&image);
+    painter.fillRect(QRect(60, 60, 180, 180), QColor(240, 240, 240));
+    painter.fillRect(QRect(80, 80, 140, 70), QColor(120, 120, 120));
+  }
+
+  const ImageId imageId(QStringLiteral("trimmed.png"));
+  const PageId pageId(imageId);
+  auto settings = std::make_shared<fix_orientation::Settings>();
+  ImageTrim trim;
+  trim.enabled = true;
+  trim.left = 60;
+  trim.right = 60;
+  trim.top = 60;
+  trim.bottom = 60;
+  settings->setTrim(imageId, trim);
+
+  auto imageSettings = std::make_shared<ImageSettings>();
+  fix_orientation::Task task(pageId, nullptr, settings, imageSettings, nullptr, true);
+  task.process(NullTaskStatus(), FilterData(image));
+
+  const std::unique_ptr<ImageSettings::PageParams> params = imageSettings->getPageParams(pageId);
+  BOOST_REQUIRE(params != nullptr);
+  BOOST_CHECK(params->isBlackOnWhite());
+  const int fullThreshold = imageproc::BinaryThreshold::otsuThreshold(image);
+  const int trimmedThreshold = imageproc::BinaryThreshold::otsuThreshold(image.copy(60, 60, 180, 180));
+  BOOST_CHECK_NE(trimmedThreshold, fullThreshold);
+  BOOST_CHECK_EQUAL(int(params->getBwThreshold()), trimmedThreshold);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

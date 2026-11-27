@@ -3,8 +3,7 @@
 
 #include "Task.h"
 
-#include <UnitsProvider.h>
-
+#include <QRect>
 #include <utility>
 
 #include "BatchProcessingResult.h"
@@ -58,10 +57,12 @@ void Task::updateFilterData(FilterData& data) {
   if (const std::unique_ptr<ImageSettings::PageParams> params = m_imageSettings->getPageParams(m_pageId)) {
     data.updateImageParams(*params);
   } else {
-    // REVIEW-NOTE (2026-10): the Otsu threshold is computed once over the whole image, ignoring the trim and
-    // assuming black on white -> wide black scanner borders skew the threshold page_split uses. Not fixed
-    // because changing it alters split detection for every page.
-    ImageSettings::PageParams newParams(BinaryThreshold::otsuThreshold(data.grayImage()), true);
+    const ImageTrim trim = m_settings->getTrim(m_imageId);
+    const QRect trimRect = trim.toInnerRect(data.grayImage().size());
+    const QImage otsuImage = (trim.enabled && !trimRect.isEmpty() && trimRect != data.grayImage().rect())
+                                 ? data.grayImage().toQImage().copy(trimRect)
+                                 : data.grayImage().toQImage();
+    ImageSettings::PageParams newParams(BinaryThreshold::otsuThreshold(otsuImage), true);
 
     m_imageSettings->setPageParams(m_pageId, newParams);
     data.updateImageParams(newParams);
