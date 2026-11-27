@@ -506,6 +506,7 @@ double hsvKMeansInPlace(QImage& dst,
     /* reinit clusters*/
     unsigned int mean_y[256] = {0};
     unsigned int mean_x[256] = {0};
+    bool has_seed[256] = {false};
 
     uint32_t const msb = uint32_t(1) << 31;
 
@@ -603,6 +604,7 @@ double hsvKMeansInPlace(QImage& dst,
                 mean_v[i] = hsv_v;
                 mean_y[i] = y;
                 mean_x[i] = x;
+                has_seed[i] = true;
                 dist_min = dist;
               }
             }
@@ -701,16 +703,18 @@ double hsvKMeansInPlace(QImage& dst,
           mean_h[i] = mean_h0[i];
           mean_s[i] = mean_s0[i];
           mean_v[i] = mean_v0[i];
-          if (reseeded[i]) {
+          if (reseeded[i] || !has_seed[i]) {
             continue;
           }
           reseeded[i] = true;
 
-          unsigned int y0 = mean_y[i];
-          unsigned int x0 = mean_x[i];
-          uint32_t indx = y0 * clusters_stride + x0;
+          unsigned int const y0 = mean_y[i];
+          unsigned int const x0 = mean_x[i];
+          size_t const indx = static_cast<size_t>(y0) * static_cast<size_t>(clusters_stride) + x0;
           int const cluster = clusters_line[indx];
-          mean_len[cluster]--;
+          if (mean_len[cluster] > 0) {
+            mean_len[cluster]--;
+          }
           clusters_line[indx] = i;
           mean_len[i] = 1;
           changes++;

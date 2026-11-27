@@ -150,6 +150,53 @@ void testHsvKMeansBoundsAndCoefBg() {
     }
   }
 }
+
+void testHsvKMeansEmptyMaskAndZones() {
+  QImage img(16, 16, QImage::Format_RGB32);
+  require(!img.isNull(), "empty-mask test image allocation failed");
+  for (int y = 0; y < img.height(); ++y) {
+    QRgb* row = reinterpret_cast<QRgb*>(img.scanLine(y));
+    for (int x = 0; x < img.width(); ++x) {
+      row[x] = qRgb(10 + x * 8, 20 + y * 8, 200);
+    }
+  }
+
+  // Case 1: All-white mask (no foreground pixels) on full zone mask.
+  {
+    const imageproc::BinaryImage mask(img.size(), imageproc::WHITE);
+    const imageproc::BinaryImage maskZones(img.size(), imageproc::BLACK);
+    QImage dst = img.copy();
+    const double mse = stexp::hsvKMeansInPlace(dst, img, mask, maskZones, 6, 128, 0, 0.0f, 0.0f, 0.0f, true, true);
+    require(std::isfinite(mse) && mse >= 0.0, "all-white mask produced invalid mse");
+    for (int y = 0; y < dst.height(); ++y) {
+      for (int x = 0; x < dst.width(); ++x) {
+        require(dst.pixel(x, y) == qRgb(255, 255, 255), "expected white background output on all-white mask");
+      }
+    }
+  }
+
+  // Case 2: All-white zone mask (zero pixels inside mask_zones).
+  {
+    const imageproc::BinaryImage mask(img.size(), imageproc::BLACK);
+    const imageproc::BinaryImage maskZones(img.size(), imageproc::WHITE);
+    QImage dst(img.size(), QImage::Format_RGB32);
+    dst.fill(qRgb(42, 84, 126));
+    const double mse = stexp::hsvKMeansInPlace(dst, img, mask, maskZones, 6, 128, 0, 0.0f, 0.0f, 0.5f, true, true);
+    require(mse == 0.0, "expected zero mse on empty mask_zones");
+    require(dst.pixel(0, 0) == qRgb(42, 84, 126), "dst should remain untouched outside mask_zones");
+  }
+
+  // Case 3: Single foreground pixel in mask while fgcount == 6 (multiple empty clusters).
+  {
+    imageproc::BinaryImage mask(img.size(), imageproc::WHITE);
+    mask.fill(QRect(3, 3, 1, 1), imageproc::BLACK);
+    const imageproc::BinaryImage maskZones(img.size(), imageproc::BLACK);
+    QImage dst = img.copy();
+    const double mse = stexp::hsvKMeansInPlace(dst, img, mask, maskZones, 6, 128, 0, 0.0f, 0.0f, 0.0f, false, false);
+    require(std::isfinite(mse) && mse >= 0.0, "single-pixel foreground mask produced invalid mse");
+    require(dst.size() == img.size(), "single-pixel foreground mask changed dst size");
+  }
+}
 }  // namespace
 
 int main() {
@@ -159,6 +206,7 @@ int main() {
     testGatosBgLargeImageNoOverflow();
     testGatosBgAllBlackNiblack();
     testHsvKMeansBoundsAndCoefBg();
+    testHsvKMeansEmptyMaskAndZones();
   } catch (const std::exception& e) {
     std::cerr << "Test failed: " << e.what() << '\n';
     return 1;
