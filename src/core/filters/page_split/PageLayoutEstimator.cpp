@@ -565,7 +565,7 @@ PageLayout PageLayoutEstimator::processContentSpansSinglePage(const LayoutType l
   const QRectF virtualImageRect(0, 0, width, height);
 
   // Just to be able to break from it.
-  while (leftOffcut && !rightOffcut && layoutType == AUTO_LAYOUT_TYPE) {
+  while (leftOffcut && !rightOffcut && ((layoutType == AUTO_LAYOUT_TYPE) || (layoutType == PAGE_PLUS_OFFCUT))) {
     double x;
     if (spans.empty()) {
       x = 0.0;
@@ -588,7 +588,7 @@ PageLayout PageLayoutEstimator::processContentSpansSinglePage(const LayoutType l
   }
 
   // Just to be able to break from it.
-  while (rightOffcut && !leftOffcut && layoutType == AUTO_LAYOUT_TYPE) {
+  while (rightOffcut && !leftOffcut && ((layoutType == AUTO_LAYOUT_TYPE) || (layoutType == PAGE_PLUS_OFFCUT))) {
     double x;
     if (spans.empty()) {
       x = width;

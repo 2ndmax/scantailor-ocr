@@ -17,12 +17,12 @@ class PageLayoutAdapter {
   /**
    * Creates the new page layout from the given with another outline adapting the cutters
    */
-  static PageLayout adaptPageLayout(const PageLayout& pageLayout, const QRectF& outline);
+  static PageLayout adaptPageLayout(const PageLayout& pageLayout, const QRectF& outline, bool allowFullPageCut = false);
 
   /**
    * Corrects page layout type in place, depending on cutters.
    */
-  static void correctPageLayoutType(PageLayout* layout);
+  static void correctPageLayoutType(PageLayout* layout, bool allowFullPageCut = false);
 
  private:
   /**

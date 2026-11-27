@@ -3,6 +3,8 @@
 
 #include "PageLayoutAdapter.h"
 
+#include <cmath>
+
 namespace page_split {
 
 QLineF PageLayoutAdapter::adaptCutter(const QLineF& cutterLine, const QRectF& newRect) {
@@ -87,43 +89,73 @@ QVector<QLineF> PageLayoutAdapter::adaptCutters(const QVector<QLineF>& cuttersLi
   return adaptedCutters;
 }
 
-void PageLayoutAdapter::correctPageLayoutType(PageLayout* layout) {
-  const QRectF outline = layout->uncutOutline().boundingRect().toRect();
+void PageLayoutAdapter::correctPageLayoutType(PageLayout* layout, const bool allowFullPageCut) {
+  constexpr double kEps = 1e-4;
+  auto isDegenerate = [](const QLineF& line) { return line.isNull() || line.length() <= 1e-9; };
+
+  const QRectF outline = layout->uncutOutline().boundingRect();
+  if (outline.isEmpty()) {
+    return;
+  }
+  auto onVerticalEdge = [&](const QLineF& line) {
+    return (std::abs(line.x1() - outline.left()) <= kEps && std::abs(line.x2() - outline.left()) <= kEps)
+           || (std::abs(line.x1() - outline.right()) <= kEps && std::abs(line.x2() - outline.right()) <= kEps);
+  };
 
   if (layout->type() == PageLayout::SINGLE_PAGE_CUT) {
-    QLineF cutterLine1 = layout->cutterLine(0).toLine();
-    QLineF cutterLine2 = layout->cutterLine(1).toLine();
+    if (isDegenerate(layout->cutterLine(0)) || isDegenerate(layout->cutterLine(1))) {
+      layout->setType(PageLayout::SINGLE_PAGE_UNCUT);
+      return;
+    }
+
+    const QLineF cutterLine1 = layout->inscribedCutterLine(0);
+    const QLineF cutterLine2 = layout->inscribedCutterLine(1);
+    if (isDegenerate(cutterLine1) || isDegenerate(cutterLine2)) {
+      layout->setType(PageLayout::SINGLE_PAGE_UNCUT);
+      return;
+    }
 
     // if both cutter lines match left or right bound
-    if (((cutterLine1.x1() == cutterLine1.x2())
-         && ((cutterLine1.x1() == outline.left()) || (cutterLine1.x1() == outline.right())))
-        && ((cutterLine2.x1() == cutterLine2.x2())
-            && ((cutterLine2.x1() == outline.left()) || (cutterLine2.x1() == outline.right())))) {
+    if (!allowFullPageCut && onVerticalEdge(cutterLine1) && onVerticalEdge(cutterLine2)) {
       layout->setType(PageLayout::SINGLE_PAGE_UNCUT);
+      return;
     }
 
-    // if cutter lines match or intersect inside outline (not valid)
+    // if cutter lines match/overlap (collinear) or intersect inside outline (not valid)
     QPointF intersection;
-    QLineF::IntersectType intersectType = cutterLine1.intersects(cutterLine2, &intersection);
-    if (((intersectType != QLineF::NoIntersection)
-         && (((intersection.y() > outline.top()) && (intersection.y() < outline.bottom()))))
-        || ((intersectType == QLineF::NoIntersection) && (cutterLine1.pointAt(0) == cutterLine2.pointAt(0)))) {
+    const QLineF::IntersectType intersectType = cutterLine1.intersects(cutterLine2, &intersection);
+    bool invalid = false;
+    if (intersectType != QLineF::NoIntersection) {
+      invalid = (intersection.y() > outline.top() + kEps) && (intersection.y() < outline.bottom() - kEps);
+    } else {
+      const QPointF d = cutterLine1.p2() - cutterLine1.p1();
+      const QPointF v = cutterLine2.p1() - cutterLine1.p1();
+      const double cross = std::abs(d.x() * v.y() - d.y() * v.x());
+      invalid = (cross / cutterLine1.length() <= kEps);
+    }
+    if (invalid) {
       layout->setType(PageLayout::SINGLE_PAGE_UNCUT);
     }
+    return;
   }
 
   if (layout->type() == PageLayout::TWO_PAGES) {
-    QLineF cutterLine1 = layout->cutterLine(0).toLine();
+    if (isDegenerate(layout->cutterLine(0))) {
+      layout->setType(PageLayout::SINGLE_PAGE_UNCUT);
+      return;
+    }
 
-    // if the cutter line matches left or right bound
-    if ((cutterLine1.x1() == cutterLine1.x2())
-        && ((cutterLine1.x1() == outline.left()) || (cutterLine1.x1() == outline.right()))) {
+    const QLineF cutterLine1 = layout->inscribedCutterLine(0);
+    // if the cutter line is degenerate or matches left or right bound
+    if (isDegenerate(cutterLine1) || onVerticalEdge(cutterLine1)) {
       layout->setType(PageLayout::SINGLE_PAGE_UNCUT);
     }
   }
 }
 
-PageLayout PageLayoutAdapter::adaptPageLayout(const PageLayout& pageLayout, const QRectF& outline) {
+PageLayout PageLayoutAdapter::adaptPageLayout(const PageLayout& pageLayout,
+                                              const QRectF& outline,
+                                              const bool allowFullPageCut) {
   if (pageLayout.uncutOutline().boundingRect() == outline) {
     return pageLayout;
   }
@@ -134,11 +166,11 @@ PageLayout PageLayoutAdapter::adaptPageLayout(const PageLayout& pageLayout, cons
     const QVector<QLineF> adaptedCutters
         = PageLayoutAdapter::adaptCutters({pageLayout.cutterLine(0), pageLayout.cutterLine(1)}, outline);
     newPageLayout = PageLayout(outline, adaptedCutters.at(0), adaptedCutters.at(1));
-    correctPageLayoutType(&newPageLayout);
+    correctPageLayoutType(&newPageLayout, allowFullPageCut);
   } else if (pageLayout.type() == PageLayout::TWO_PAGES) {
     QLineF adaptedCutter = PageLayoutAdapter::adaptCutter(pageLayout.cutterLine(0), outline);
     newPageLayout = PageLayout(outline, adaptedCutter);
-    correctPageLayoutType(&newPageLayout);
+    correctPageLayoutType(&newPageLayout, allowFullPageCut);
   } else {
     newPageLayout = PageLayout(outline);
   }

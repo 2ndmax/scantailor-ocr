@@ -45,5 +45,41 @@ BOOST_AUTO_TEST_CASE(test_cutters_are_sorted_by_their_upper_points) {
   BOOST_CHECK(adapted.cutterLine(1) == QLineF(55, 10, 55, 90));
 }
 
+BOOST_AUTO_TEST_CASE(correct_page_layout_type_preserves_subpixel_parallel_cutters) {
+  PageLayout layout(QRectF(0, 0, 1000, 1000), QLineF(100.4, 0.0, 100.6, 2.0), QLineF(900.4, 0.0, 900.6, 2.0));
+  BOOST_REQUIRE(layout.type() == PageLayout::SINGLE_PAGE_CUT);
+
+  PageLayoutAdapter::correctPageLayoutType(&layout);
+  BOOST_CHECK(layout.type() == PageLayout::SINGLE_PAGE_CUT);
+}
+
+BOOST_AUTO_TEST_CASE(correct_page_layout_type_downgrades_collinear_and_null_cutters) {
+  PageLayout collinear(QRectF(0, 0, 1000, 1000), QLineF(100.0, 0.0, 100.0, 2.0), QLineF(100.0, 5.0, 100.0, 7.0));
+  PageLayoutAdapter::correctPageLayoutType(&collinear);
+  BOOST_CHECK(collinear.type() == PageLayout::SINGLE_PAGE_UNCUT);
+
+  PageLayout nullCut(QRectF(0, 0, 1000, 1000), QLineF(), QLineF(900.0, 0.0, 900.0, 1000.0));
+  nullCut.setType(PageLayout::SINGLE_PAGE_CUT);
+  PageLayoutAdapter::correctPageLayoutType(&nullCut);
+  BOOST_CHECK(nullCut.type() == PageLayout::SINGLE_PAGE_UNCUT);
+
+  PageLayout nullTwoPages(QRectF(0, 0, 1000, 1000), QLineF());
+  nullTwoPages.setType(PageLayout::TWO_PAGES);
+  PageLayoutAdapter::correctPageLayoutType(&nullTwoPages);
+  BOOST_CHECK(nullTwoPages.type() == PageLayout::SINGLE_PAGE_UNCUT);
+}
+
+BOOST_AUTO_TEST_CASE(correct_page_layout_type_respects_allow_full_page_cut) {
+  const QRectF outline(0, 0, 100, 200);
+  PageLayout layout(outline, QLineF(0, 0, 0, 200), QLineF(100, 0, 100, 200));
+  BOOST_REQUIRE(layout.type() == PageLayout::SINGLE_PAGE_CUT);
+
+  PageLayoutAdapter::correctPageLayoutType(&layout, true);
+  BOOST_CHECK(layout.type() == PageLayout::SINGLE_PAGE_CUT);
+
+  PageLayoutAdapter::correctPageLayoutType(&layout, false);
+  BOOST_CHECK(layout.type() == PageLayout::SINGLE_PAGE_UNCUT);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

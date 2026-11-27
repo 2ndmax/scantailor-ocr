@@ -62,21 +62,33 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data) 
     // A split line from a project file may leave a page only a sliver without area, on which the
     // later steps fail; such a split line is found again, as if none had been stored.
     const bool storedLayoutUsable = params && Utils::everyPageHasArea(params->pageLayout(), data.xform());
+    const bool allowFullPageCut = (record.combinedLayoutType() == PAGE_PLUS_OFFCUT);
     if (!storedLayoutUsable || !deps.compatibleWith(*params)) {
-      if (!storedLayoutUsable || (record.combinedLayoutType() == AUTO_LAYOUT_TYPE)) {
+      if (!storedLayoutUsable || (record.combinedLayoutType() == AUTO_LAYOUT_TYPE)
+          || (params->splitLineMode() == MODE_AUTO)) {
         newLayout = PageLayoutEstimator::estimatePageLayout(
             record.combinedLayoutType(), m_settings->detectionMethod(m_pageInfo.imageId()), data.grayImage(),
             data.xform(), data.bwThreshold(), m_dbg.get());
 
         status.throwIfCancelled();
       } else {
-        newLayout = PageLayoutAdapter::adaptPageLayout(params->pageLayout(), data.xform().resultingRect());
+        newLayout
+            = PageLayoutAdapter::adaptPageLayout(params->pageLayout(), data.xform().resultingRect(), allowFullPageCut);
+        if (!Utils::everyPageHasArea(newLayout, data.xform())) {
+          newLayout = PageLayoutEstimator::estimatePageLayout(
+              record.combinedLayoutType(), m_settings->detectionMethod(m_pageInfo.imageId()), data.grayImage(),
+              data.xform(), data.bwThreshold(), m_dbg.get());
+
+          status.throwIfCancelled();
+          splitLineMode = MODE_AUTO;
+        } else {
+          splitLineMode = params->splitLineMode();
+        }
         newLayoutType = newLayout.toLayoutType();
-        splitLineMode = params->splitLineMode();
       }
     } else {
       PageLayout correctedPageLayout = params->pageLayout();
-      PageLayoutAdapter::correctPageLayoutType(&correctedPageLayout);
+      PageLayoutAdapter::correctPageLayoutType(&correctedPageLayout, allowFullPageCut);
       if (correctedPageLayout.type() == params->pageLayout().type()) {
         if (!params->dependencies().hasPreCropArea()) {
           recordPreCropArea(*params, deps.preCropArea());
