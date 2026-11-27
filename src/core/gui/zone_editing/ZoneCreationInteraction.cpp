@@ -107,7 +107,7 @@ void ZoneCreationInteraction::addFinishedZone() {
 
 void ZoneCreationInteraction::cancel() {
   makePeerPreceeder(*m_context.createDefaultInteraction());
-  m_context.imageView().update();
+  m_context.imageView().updateViewport();
   delete this;
 }
 
@@ -152,7 +152,7 @@ void ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, Interactio
     }
 
     makePeerPreceeder(*m_context.createDefaultInteraction());
-    m_context.imageView().update();
+    m_context.imageView().updateViewport();
     delete this;
   } else {
     if (m_spline->hasAtLeastSegments(2) && (m_nextVertexImagePos == m_spline->firstVertex()->point())) {
@@ -161,7 +161,7 @@ void ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, Interactio
       addFinishedZone();
 
       makePeerPreceeder(*m_context.createDefaultInteraction());
-      m_context.imageView().update();
+      m_context.imageView().updateViewport();
       delete this;
     } else if (!m_lassoVertexAddedSincePress && (m_nextVertexImagePos == m_spline->lastVertex()->point())) {
       // Removing the last vertex, i.e. a click on it. The vertex that the stroke ending now has added stays,
@@ -170,7 +170,7 @@ void ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, Interactio
       if (!m_spline->firstVertex()) {
         // If it was the only vertex, cancelling spline creation.
         makePeerPreceeder(*m_context.createDefaultInteraction());
-        m_context.imageView().update();
+        m_context.imageView().updateViewport();
         delete this;
       }
     } else {
@@ -239,7 +239,7 @@ void ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionSt
       addFinishedZone();
 
       makePeerPreceeder(*m_context.createDefaultInteraction());
-      m_context.imageView().update();
+      m_context.imageView().updateViewport();
       delete this;
       // No member may be accessed from here on.
       return;
@@ -248,7 +248,7 @@ void ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionSt
 
   // Also covers moving away from the first point again and mode switches while drawing.
   updateStatusTip();
-  m_context.imageView().update();
+  m_context.imageView().updateViewport();
 }  // ZoneCreationInteraction::onMouseMoveEvent
 
 void ZoneCreationInteraction::updateStatusTip() {

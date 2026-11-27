@@ -271,7 +271,7 @@ void ImageViewBase::setZoomLevel(double zoom) {
   if (m_zoom != zoom) {
     m_zoom = zoom;
     updateWidgetTransform();
-    update();
+    updateViewport();
   }
 }
 
@@ -296,7 +296,7 @@ void ImageViewBase::moveTowardsIdealPosition(const double pixelLength) {
   }
 
   updateWidgetTransform();
-  update();
+  updateViewport();
 }
 
 void ImageViewBase::updateTransform(const ImagePresentation& presentation) {
@@ -309,7 +309,7 @@ void ImageViewBase::updateTransform(const ImagePresentation& presentation) {
   m_virtualDisplayArea = presentation.displayArea();
 
   updateWidgetTransform();
-  update();
+  updateViewport();
   updatePhysSize();
 }
 
@@ -323,7 +323,7 @@ void ImageViewBase::updateTransformAndFixFocalPoint(const ImagePresentation& pre
   m_virtualDisplayArea = presentation.displayArea();
 
   updateWidgetTransformAndFixFocalPoint(mode);
-  update();
+  updateViewport();
   updatePhysSize();
 }
 
@@ -351,7 +351,7 @@ void ImageViewBase::updateTransformPreservingScale(const ImagePresentation& pres
     updateWidgetTransform();
   }
 
-  update();
+  updateViewport();
   updatePhysSize();
 }
 
@@ -387,7 +387,8 @@ void ImageViewBase::paintEvent(QPaintEvent* /*event*/) {
   const double xscale = m_virtualToWidget.m11();
 
   // Width of a source pixel in mm, as it's displayed on screen.
-  const double pixelWidth = widthMM() * xscale / width();
+  const int w = width();
+  const double pixelWidth = (w > 0) ? (widthMM() * xscale / w) : 0.0;
 
   // Make clipping smooth.
   painter.setRenderHint(QPainter::Antialiasing, true);
@@ -423,7 +424,8 @@ void ImageViewBase::paintEvent(QPaintEvent* /*event*/) {
 
   m_interactionState.resetProximity();
   if (!m_interactionState.captured()) {
-    m_rootInteractionHandler.proximityUpdate(QPointF(0.5, 0.5) + mapFromGlobal(QCursor::pos()), m_interactionState);
+    m_rootInteractionHandler.proximityUpdate(QPointF(0.5, 0.5) + viewport()->mapFromGlobal(QCursor::pos()),
+                                             m_interactionState);
     updateStatusTipAndCursor();
   }
 
@@ -837,7 +839,7 @@ void ImageViewBase::setNewWidgetFP(const QPointF widgetFp, const bool update) {
     m_widgetFocalPoint = widgetFp;
     updateWidgetTransform();
     if (update) {
-      this->update();
+      this->updateViewport();
     }
   }
 }
@@ -892,7 +894,7 @@ void ImageViewBase::adjustAndSetNewWidgetFP(const QPointF proposedWidgetFp, cons
     m_widgetFocalPoint = adjustedWidgetFp;
     updateWidgetTransform();
     if (update) {
-      this->update();
+      this->updateViewport();
     }
   }
 }  // ImageViewBase::adjustAndSetNewWidgetFP
@@ -935,7 +937,33 @@ bool ImageViewBase::validateHqPixmap() const {
   return true;
 }
 
+bool ImageViewBase::canBuildHqVersion() const {
+  if (m_image.isNull()) {
+    return false;
+  }
+
+  const QSize targetSize(hqTargetSize());
+  if (targetSize.isEmpty()) {
+    return false;
+  }
+
+  const qreal dpr = viewport()->devicePixelRatioF();
+  const QTransform xform(m_imageToVirtual * m_virtualToWidget * QTransform::fromScale(dpr, dpr));
+  const QRect targetRect(
+      xform.map(QRectF(m_image.rect())).boundingRect().toRect().intersected(QRect(QPoint(0, 0), targetSize)));
+  return !targetRect.isEmpty();
+}
+
 void ImageViewBase::scheduleHqVersionRebuild() {
+  if (!canBuildHqVersion()) {
+    if (m_hqTransformTask) {
+      m_hqTransformTask->cancel();
+      m_hqTransformTask.reset();
+    }
+    m_timer.stop();
+    return;
+  }
+
   const QTransform xform(m_imageToVirtual * m_virtualToWidget);
 
   if (!m_timer.isActive() || (m_potentialHqXform != xform)) {
@@ -958,6 +986,10 @@ void ImageViewBase::initiateBuildingHqVersion() {
   if (m_hqTransformTask) {
     m_hqTransformTask->cancel();
     m_hqTransformTask.reset();
+  }
+
+  if (!canBuildHqVersion()) {
+    return;
   }
 
   const QTransform xform(m_imageToVirtual * m_virtualToWidget);
@@ -985,12 +1017,17 @@ QSize ImageViewBase::hqTargetSize() const {
  * Gets called from HqTransformationTask::Result.
  */
 void ImageViewBase::hqVersionBuilt(const QPoint& origin, const QImage& image) {
+  m_hqTransformTask.reset();
+  if (image.isNull()) {
+    m_hqPixmap = QPixmap();
+    return;
+  }
+
   // The image and origin are in screen pixels.
   m_hqPixmap = QPixmap::fromImage(image);
   m_hqPixmap.setDevicePixelRatio(m_hqDevicePixelRatio);
   m_hqPixmapPos = QPointF(origin) / m_hqDevicePixelRatio;
-  m_hqTransformTask.reset();
-  update();
+  updateViewport();
 }
 
 void ImageViewBase::updateStatusTipAndCursor() {
@@ -1009,7 +1046,7 @@ void ImageViewBase::updateCursor() {
 void ImageViewBase::maybeQueueRedraw() {
   if (m_interactionState.redrawRequested()) {
     m_interactionState.setRedrawRequested(false);
-    update();
+    updateViewport();
   }
 }
 

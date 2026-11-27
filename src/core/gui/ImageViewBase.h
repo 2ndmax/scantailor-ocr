@@ -98,7 +98,7 @@ class ImageViewBase : public QAbstractScrollArea {
 
   QTransform widgetToImage() const { return m_widgetToVirtual * m_virtualToImage; }
 
-  void update() { viewport()->update(); }
+  void updateViewport() { viewport()->update(); }
 
   const QRectF& virtualDisplayRect() const { return m_virtualDisplayArea; }
 
@@ -277,6 +277,8 @@ class ImageViewBase : public QAbstractScrollArea {
   QPointF centeredWidgetFocalPoint() const;
 
   bool validateHqPixmap() const;
+
+  bool canBuildHqVersion() const;
 
   /** The current viewport size in screen pixels, which an HQ pixmap is built for. */
   QSize hqTargetSize() const;

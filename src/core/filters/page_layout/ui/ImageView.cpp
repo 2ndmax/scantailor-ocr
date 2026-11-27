@@ -733,7 +733,7 @@ void ImageView::addHorizontalGuide(double y) {
   m_guides[m_guidesFreeIndex] = Guide(Qt::Horizontal, y);
   setupGuideInteraction(m_guidesFreeIndex++);
 
-  update();
+  updateViewport();
   syncGuidesSettings();
 }
 
@@ -745,7 +745,7 @@ void ImageView::addVerticalGuide(double x) {
   m_guides[m_guidesFreeIndex] = Guide(Qt::Vertical, x);
   setupGuideInteraction(m_guidesFreeIndex++);
 
-  update();
+  updateViewport();
   syncGuidesSettings();
 }
 
@@ -760,7 +760,7 @@ void ImageView::removeAllGuides() {
   m_guides.clear();
   m_guidesFreeIndex = 0;
 
-  update();
+  updateViewport();
   syncGuidesSettings();
 }
 
@@ -777,7 +777,7 @@ void ImageView::removeGuide(const int index) {
 
   m_guides.erase(index);
 
-  update();
+  updateViewport();
   syncGuidesSettings();
 }
 
@@ -847,7 +847,7 @@ void ImageView::guideMoveRequest(const int index, QLineF line) {
   }
 
   m_guides[index] = widgetToGuideCs().map(line);
-  update();
+  updateViewport();
 }
 
 void ImageView::guideDragFinished() {
@@ -1081,7 +1081,7 @@ void ImageView::enableMiddleRectInteraction(const bool state) {
     }
   }
 
-  update();
+  updateViewport();
 }
 
 bool ImageView::isShowingMiddleRectEnabled() const {

@@ -177,7 +177,7 @@ void ImageView::createContentBox() {
   forcePageRectDescribeContent();
   enableContentRectInteraction(true);
 
-  update();
+  updateViewport();
   // Like after dragging: forcePageRectDescribeContent() may have enlarged the page box,
   // which has to be stored as well.
   contentRectDragFinished();
@@ -194,7 +194,7 @@ void ImageView::removeContentBox() {
   enableContentRectInteraction(false);
   m_contentRect = QRectF();
 
-  update();
+  updateViewport();
   emit manualContentRectSet(m_contentRect);
 }
 
@@ -252,7 +252,7 @@ void ImageView::contentRectCornerMoveRequest(int edgeMask, const QPointF& pos) {
 
   forcePageRectDescribeContent();
 
-  update();
+  updateViewport();
 }
 
 QLineF ImageView::contentRectEdgePosition(int edge) const {
@@ -280,7 +280,7 @@ void ImageView::pageRectCornerMoveRequest(int edgeMask, const QPointF& pos) {
       resizeRectByEdges(virtualToWidget().mapRect(m_pageRect), edgeMask, pos, m_minBoxSize));
   forcePageRectDescribeContent();
 
-  update();
+  updateViewport();
   emit pageRectSizeChanged(m_pageRect.size());
 }
 
@@ -358,7 +358,7 @@ void ImageView::contentRectMoveRequest(const QPolygonF& polyMoved) {
 
   forcePageRectDescribeContent();
 
-  update();
+  updateViewport();
 }
 
 QRectF ImageView::pageRectPosition() const {
@@ -386,7 +386,7 @@ void ImageView::pageRectMoveRequest(const QPolygonF& polyMoved) {
 
   m_pageRect = widgetToVirtual().mapRect(pageRectInWidget);
 
-  update();
+  updateViewport();
 }
 
 void ImageView::pageRectSetExternally(const QRectF& pageRect) {
@@ -400,7 +400,7 @@ void ImageView::pageRectSetExternally(const QRectF& pageRect) {
   emit manualPageRectSet(m_pageRect);
   m_pageRectReloadRequested = false;
 
-  update();
+  updateViewport();
 }
 
 void ImageView::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
@@ -474,14 +474,14 @@ void ImageView::correctContentBox(const QPointF& pos, const Qt::KeyboardModifier
     contentRectCornerMoveRequest(edgeMask, virtualToWidget().map(movePoint));
   }
 
-  update();
+  updateViewport();
   contentRectDragFinished();
 }
 
 void ImageView::setPageRectEnabled(const bool state) {
   m_pageRectEnabled = state;
   enablePageRectInteraction(state);
-  update();
+  updateViewport();
 }
 
 void ImageView::enableContentRectInteraction(const bool state) {

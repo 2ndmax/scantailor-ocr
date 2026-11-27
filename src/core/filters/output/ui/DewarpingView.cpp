@@ -152,7 +152,7 @@ void DewarpingView::fitSpline(XSpline& spline, const std::vector<QPointF>& polyl
 
 void DewarpingView::depthPerceptionChanged(double val) {
   m_depthPerception.setValue(val);
-  update();
+  updateViewport();
 }
 
 void DewarpingView::onPaint(QPainter& painter, const InteractionState& interaction) {
@@ -266,7 +266,7 @@ void DewarpingView::curveModified(int curveIdx) {
   } else {
     m_distortionModel.setBottomCurve(dewarping::Curve(m_bottomSpline.spline()));
   }
-  update();
+  updateViewport();
 }
 
 void DewarpingView::dragFinished() {

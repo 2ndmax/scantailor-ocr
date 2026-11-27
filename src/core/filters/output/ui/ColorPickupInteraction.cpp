@@ -60,7 +60,7 @@ void ColorPickupInteraction::onMousePressEvent(QMouseEvent* event, InteractionSt
 }
 
 void ColorPickupInteraction::onMouseMoveEvent(QMouseEvent* /*event*/, InteractionState& /*interaction*/) {
-  m_context.imageView().update();
+  m_context.imageView().updateViewport();
 }
 
 void ColorPickupInteraction::takeColor() {
@@ -138,7 +138,7 @@ void ColorPickupInteraction::switchToDefaultInteraction() {
   m_cancelShortcut->setEnabled(false);
   makePeerPreceeder(*m_context.createDefaultInteraction());
   unlink();
-  m_context.imageView().update();
+  m_context.imageView().updateViewport();
 }
 
 uint32_t ColorPickupInteraction::bitMixColor(const uint32_t color) {

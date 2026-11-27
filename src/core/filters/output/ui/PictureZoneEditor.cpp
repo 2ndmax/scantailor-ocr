@@ -155,7 +155,7 @@ void PictureZoneEditor::onPaint(QPainter& painter, const InteractionState& /*int
 
 void PictureZoneEditor::advancePictureMaskAnimation() {
   m_pictureMaskAnimationPhase = (m_pictureMaskAnimationPhase + 40) % 360;
-  update();
+  updateViewport();
 }
 
 bool PictureZoneEditor::validateScreenPictureMask() const {
@@ -211,7 +211,7 @@ void PictureZoneEditor::screenPictureMaskBuilt(const QPoint& origin, const QImag
   m_pictureMaskAnimationPhase = 270;
 
   m_maskTransformTask.reset();
-  update();
+  updateViewport();
 }
 
 void PictureZoneEditor::paintOverPictureMask(QPainter& painter) {
@@ -255,7 +255,7 @@ void PictureZoneEditor::showPropertiesDialog(const EditableZoneSet::Zone& zone) 
     m_settings->setDefaultPictureZoneProperties(zones().defaultProperties());
   } else {
     zone.properties()->swap(savedProperties);
-    update();
+    updateViewport();
   }
 }
 
@@ -272,7 +272,7 @@ void PictureZoneEditor::commitZones() {
 }
 
 void PictureZoneEditor::updateRequested() {
-  update();
+  updateViewport();
 }
 
 /*============================= MaskTransformTask ===============================*/

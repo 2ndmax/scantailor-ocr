@@ -163,7 +163,7 @@ void ZoneContextMenuInteraction::menuAboutToHide() {
   }
 
   unlink();
-  m_context.imageView().update();
+  m_context.imageView().updateViewport();
   deleteLater();
 }
 
@@ -178,7 +178,7 @@ void ZoneContextMenuInteraction::menuItemTriggered(InteractionState& interaction
   }
 
   unlink();
-  m_context.imageView().update();
+  m_context.imageView().updateViewport();
   deleteLater();
 }
 
@@ -208,7 +208,7 @@ void ZoneContextMenuInteraction::highlightItem(const int zoneIdx) {
     m_visualizer.switchToStrokeMode();
   }
   m_highlightedZoneIdx = zoneIdx;
-  m_context.imageView().update();
+  m_context.imageView().updateViewport();
 }
 
 std::vector<ZoneContextMenuItem> ZoneContextMenuInteraction::defaultMenuCustomizer(

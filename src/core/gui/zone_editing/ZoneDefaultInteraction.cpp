@@ -225,7 +225,7 @@ void ZoneDefaultInteraction::onMouseReleaseEvent(QMouseEvent* event, Interaction
       m_context.zones().commit();
     }
 
-    m_context.imageView().update();
+    m_context.imageView().updateViewport();
     return;
   }
 
@@ -236,7 +236,7 @@ void ZoneDefaultInteraction::onMouseReleaseEvent(QMouseEvent* event, Interaction
 
 void ZoneDefaultInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
   m_screenMousePos = event->pos() + QPointF(0.5, 0.5);
-  m_context.imageView().update();
+  m_context.imageView().updateViewport();
 }
 
 void ZoneDefaultInteraction::onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction) {
@@ -256,7 +256,7 @@ void ZoneDefaultInteraction::removeZoneUnderMouse() {
   if (m_splineUnderMouse) {
     m_context.zones().removeZone(m_splineUnderMouse);
     m_context.zones().commit();
-    m_context.imageView().update();
+    m_context.imageView().updateViewport();
   }
 }
 
@@ -265,6 +265,6 @@ void ZoneDefaultInteraction::removeVertexUnderMouse() {
       && m_context.imageView().interactionState().proximityLeader(m_vertexProximity)) {
     m_nearestVertex->remove();
     m_context.zones().commit();
-    m_context.imageView().update();
+    m_context.imageView().updateViewport();
   }
 }

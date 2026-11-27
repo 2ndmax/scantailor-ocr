@@ -97,7 +97,7 @@ void ImageView::setupCuttersInteraction() {
 void ImageView::pageLayoutSetExternally(const PageLayout& layout) {
   m_virtLayout = layout;
   setupCuttersInteraction();
-  update();
+  updateViewport();
 }
 
 void ImageView::onPaint(QPainter& painter, const InteractionState& /*interaction*/) {
@@ -326,7 +326,7 @@ void ImageView::handleMoveRequest(int lineIdx, int handleIdx, const QPointF& pos
   }
 
   setCutterLineWithoutCrossing(lineIdx, virtLine);
-  update();
+  updateViewport();
 }
 
 QLineF ImageView::linePosition(int lineIdx) const {
@@ -354,7 +354,7 @@ void ImageView::lineMoveRequest(int lineIdx, QLineF line) {
   }
 
   setCutterLineWithoutCrossing(lineIdx, widgetToVirtual().map(line));
-  update();
+  updateViewport();
 }
 
 void ImageView::dragFinished() {
@@ -363,7 +363,7 @@ void ImageView::dragFinished() {
   // That means we have to redraw once dragging is over.
   // BTW, the only reason for displaying handles at widget's edges
   // is to make them visible and accessible for dragging.
-  update();
+  updateViewport();
   emit pageLayoutSetLocally(m_virtLayout);
 }
 
@@ -392,7 +392,7 @@ void ImageView::unremoveLeftPage() {
   m_leftUnremoveButton.unlink();
   m_leftPageRemoved = false;
 
-  update();
+  updateViewport();
 
   // We need invalidateThumbnail(PageInfo) rather than (PageId),
   // as we are updating page removal status.
@@ -405,7 +405,7 @@ void ImageView::unremoveRightPage() {
   m_rightUnremoveButton.unlink();
   m_rightPageRemoved = false;
 
-  update();
+  updateViewport();
 
   // We need invalidateThumbnail(PageInfo) rather than (PageId),
   // as we are updating page removal status.

@@ -70,5 +70,5 @@ void ZoneDragInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState&
     vertex->setPoint(fromScreen.map(toScreen.map(vertex->point()) + shift - splineShift));
   } while (vertex = vertex->next(SplineVertex::LOOP), vertex != m_spline->firstVertex());
 
-  m_context.imageView().update();
+  m_context.imageView().updateViewport();
 }  // ZoneDragInteraction::onMouseMoveEvent

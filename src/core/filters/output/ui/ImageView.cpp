@@ -53,6 +53,6 @@ void ImageView::contextMenuEvent(QContextMenuEvent* event) {
   connect(showGuidesAction, &QAction::toggled,
           [](bool checked) { ApplicationSettings::getInstance().setOutputShowGuidesEnabled(checked); });
   menu.exec(event->globalPos());
-  update();
+  updateViewport();
 }
 }  // namespace output

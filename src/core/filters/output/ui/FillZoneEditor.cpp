@@ -119,7 +119,7 @@ void FillZoneEditor::commitZones() {
 }
 
 void FillZoneEditor::updateRequested() {
-  update();
+  updateViewport();
 }
 
 QColor FillZoneEditor::toOpaque(const QColor& color) {

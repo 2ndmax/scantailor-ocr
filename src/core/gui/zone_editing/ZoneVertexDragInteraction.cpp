@@ -99,7 +99,7 @@ void ZoneVertexDragInteraction::onMouseMoveEvent(QMouseEvent* event, Interaction
     }
   }
 
-  m_context.imageView().update();
+  m_context.imageView().updateViewport();
 }  // ZoneVertexDragInteraction::onMouseMoveEvent
 
 void ZoneVertexDragInteraction::checkProximity(const InteractionState& interaction) {
