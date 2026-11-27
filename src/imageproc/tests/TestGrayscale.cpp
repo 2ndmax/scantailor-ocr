@@ -6,8 +6,8 @@
 
 #include <QImage>
 #include <boost/test/unit_test.hpp>
-#include <cstdlib>
 #include <limits>
+#include <random>
 
 #include "Utils.h"
 
@@ -29,9 +29,10 @@ BOOST_AUTO_TEST_CASE(test_mono_to_grayscale) {
   QImage gray(w, h, QImage::Format_Indexed8);
   gray.setColorTable(createGrayscalePalette());
 
+  std::mt19937 rng(0x5CA1E002u);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
-      const int rnd = rand() & 1;
+      const unsigned rnd = rng() & 1u;
       mono.setPixel(x, y, rnd ? 0 : 1);
       gray.setPixel(x, y, rnd ? 0 : 255);
     }
@@ -50,9 +51,10 @@ BOOST_AUTO_TEST_CASE(test_argb32_to_grayscale) {
   QImage gray(w, h, QImage::Format_Indexed8);
   gray.setColorTable(createGrayscalePalette());
 
+  std::mt19937 rng(0x5CA1E003u);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
-      const int rnd = rand() & 1;
+      const unsigned rnd = rng() & 1u;
       argb32.setPixel(x, y, rnd ? 0x80303030 : 0x80606060);
       gray.setPixel(x, y, rnd ? 0x30 : 0x60);
     }

@@ -8,7 +8,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cassert>
 #include <cstddef>
-#include <cstdlib>
+#include <random>
 #include <vector>
 
 #include "Utils.h"
@@ -77,14 +77,15 @@ Tester1::Tester1() {
   const int w = 400;
   const int h = 300;
 
+  std::mt19937 rng(0x5CA1E004u);
   std::vector<int> src(w * h);
   for (int& i : src) {
-    i = rand() & 1;
+    i = static_cast<int>(rng() & 1u);
   }
 
   std::vector<int> dst(w * h);
   for (int& i : dst) {
-    i = rand() & 1;
+    i = static_cast<int>(rng() & 1u);
   }
 
   std::vector<int> res(w * h);

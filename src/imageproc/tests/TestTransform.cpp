@@ -9,7 +9,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdint>
-#include <cstdlib>
+#include <random>
 #include <stdexcept>
 
 #include "Utils.h"
@@ -32,9 +32,10 @@ BOOST_AUTO_TEST_CASE(test_null_image) {
 BOOST_AUTO_TEST_CASE(test_random_image) {
   GrayImage img(QSize(100, 100));
   uint8_t* line = img.data();
+  std::mt19937 rng(0x5CA1E006u);
   for (int y = 0; y < img.height(); ++y) {
     for (int x = 0; x < img.width(); ++x) {
-      line[x] = static_cast<uint8_t>(rand() % 256);
+      line[x] = static_cast<uint8_t>(rng() % 256u);
     }
     line += img.stride();
   }

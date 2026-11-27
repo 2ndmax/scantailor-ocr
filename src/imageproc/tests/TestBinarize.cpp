@@ -213,7 +213,16 @@ BOOST_AUTO_TEST_CASE(test_results_of_window_methods_stay_the_same) {
         Checksum checksum;
         for (const QSize window : kWindows) {
           for (const Settings& settings : kSettings) {
-            checksum.add(method.binarize(pages[pageIndex].image, window, settings));
+            const BinaryImage res(method.binarize(pages[pageIndex].image, window, settings));
+            if (!kChecksumsApply) {
+              BOOST_CHECK(!res.isNull());
+              BOOST_CHECK(res.size() == pages[pageIndex].image.size());
+              if ((pageIndex == 0) && (window == QSize(20, 20)) && (settings.delta == 0)) {
+                BOOST_CHECK_GT(res.countBlackPixels(), 0);
+                BOOST_CHECK_GT(res.countWhitePixels(), 0);
+              }
+            }
+            checksum.add(res);
           }
         }
         if (kChecksumsApply) {

@@ -8,7 +8,7 @@
 
 #include <QImage>
 #include <boost/test/unit_test.hpp>
-#include <cstdlib>
+#include <random>
 
 #include "Utils.h"
 
@@ -31,9 +31,10 @@ BOOST_AUTO_TEST_CASE(test_from_to_qimage) {
   qimgMono.setColorCount(2);
   qimgMono.setColor(0, 0xffffffff);
   qimgMono.setColor(1, 0xff000000);
+  std::mt19937 rng(0x5CA1E001u);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
-      const int rnd = rand() & 1;
+      const unsigned rnd = rng() & 1u;
       qimgArgb32.setPixel(x, y, rnd ? 0x66888888 : 0x66777777);
       qimgMono.setPixel(x, y, rnd ? 0 : 1);
     }

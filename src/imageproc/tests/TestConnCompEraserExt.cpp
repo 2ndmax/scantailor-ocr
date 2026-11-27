@@ -21,7 +21,7 @@ using namespace utils;
 BOOST_AUTO_TEST_SUITE(ConnCompEraserExtTestSuite)
 
 BOOST_AUTO_TEST_CASE(test_null_image) {
-  ConnCompEraser eraser(BinaryImage(), CONN4);
+  ConnCompEraserExt eraser(BinaryImage(), CONN4);
   BOOST_CHECK(eraser.nextConnComp().isNull());
 }
 

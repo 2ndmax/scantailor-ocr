@@ -10,8 +10,8 @@
 #include <QRect>
 #include <cassert>
 #include <cstdint>
-#include <cstdlib>
 #include <iostream>
+#include <random>
 
 namespace imageproc {
 namespace tests {
@@ -20,10 +20,9 @@ BinaryImage randomBinaryImage(const int width, const int height) {
   BinaryImage image(width, height);
   uint32_t* pword = image.data();
   uint32_t* const end = pword + image.height() * image.wordsPerLine();
+  static std::mt19937 rng(0x5CA1E007u);
   for (; pword != end; ++pword) {
-    const uint32_t w1 = rand() % (1 << 16);
-    const uint32_t w2 = rand() % (1 << 16);
-    *pword = (w1 << 16) | w2;
+    *pword = rng();
   }
   return image;
 }
@@ -36,10 +35,9 @@ QImage randomMonoQImage(const int width, const int height) {
   auto* pword = (uint32_t*) image.bits();
   assert(image.bytesPerLine() % 4 == 0);
   uint32_t* const end = pword + image.height() * (image.bytesPerLine() / 4);
+  static std::mt19937 rng(0x5CA1E008u);
   for (; pword != end; ++pword) {
-    const uint32_t w1 = rand() % (1 << 16);
-    const uint32_t w2 = rand() % (1 << 16);
-    *pword = (w1 << 16) | w2;
+    *pword = rng();
   }
   return image;
 }
@@ -47,9 +45,10 @@ QImage randomMonoQImage(const int width, const int height) {
 QImage randomGrayImage(int width, int height) {
   QImage img(width, height, QImage::Format_Indexed8);
   img.setColorTable(createGrayscalePalette());
+  static std::mt19937 rng(0x5CA1E009u);
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      img.setPixel(x, y, rand() % 10);
+      img.setPixel(x, y, static_cast<unsigned>(rng() % 10u));
     }
   }
   return img;

@@ -4,14 +4,13 @@
 #include <BinaryImage.h>
 #include <SkewFinder.h>
 
-#include <QApplication>
 #include <QColor>
 #include <QImage>
 #include <QPainter>
 #include <QTransform>
 #include <boost/test/unit_test.hpp>
 #include <cmath>
-#include <cstdlib>
+#include <random>
 #include <stdexcept>
 
 namespace imageproc {
@@ -19,10 +18,6 @@ namespace tests {
 BOOST_AUTO_TEST_SUITE(SkewFinderTestSuite)
 
 BOOST_AUTO_TEST_CASE(test_positive_detection) {
-  int argc = 1;
-  char argv0[] = "test";
-  char* argv[1] = {argv0};
-  QApplication app(argc, argv);
   QImage image(1000, 800, QImage::Format_ARGB32_Premultiplied);
   image.fill(0xffffffff);
   {
@@ -53,10 +48,11 @@ BOOST_AUTO_TEST_CASE(test_negative_detection) {
   QImage image(1000, 800, QImage::Format_Mono);
   image.fill(1);
 
+  std::mt19937 rng(0x5CA1E005u);
   const int numDots = image.width() * image.height() / 5;
   for (int i = 0; i < numDots; ++i) {
-    const int x = rand() % image.width();
-    const int y = rand() % image.height();
+    const int x = static_cast<int>(rng() % static_cast<unsigned>(image.width()));
+    const int y = static_cast<int>(rng() % static_cast<unsigned>(image.height()));
     image.setPixel(x, y, 0);
   }
 
