@@ -9,6 +9,7 @@
 #include <filters/select_content/Dependencies.h>
 #include <filters/select_content/DetectionOptions.h>
 #include <filters/select_content/Params.h>
+#include <filters/select_content/SelectContentParams.h>
 
 #include <QDomDocument>
 #include <QImage>
@@ -161,6 +162,29 @@ BOOST_AUTO_TEST_CASE(content_box_with_unequal_dpi) {
   BOOST_CHECK(std::fabs(content.bottom() - 1500) < 20);
   BOOST_CHECK(std::fabs(content.left() - 300) < 20);
   BOOST_CHECK(std::fabs(content.right() - 840) < 20);
+}
+
+BOOST_AUTO_TEST_CASE(missing_xml_page_detection_attributes_use_safe_defaults) {
+  QDomDocument doc;
+  QDomElement paramsEl = doc.createElement("params");
+  const Params restoredParams(paramsEl);
+  BOOST_CHECK(restoredParams.pageDetectionMode() == MODE_DISABLED);
+
+  QDomElement depsEl = doc.createElement("dependencies");
+  depsEl.appendChild(doc.createElement("params"));
+  const Dependencies restoredDeps(depsEl);
+  const Dependencies disabledDeps(QPolygonF(), MODE_AUTO, MODE_DISABLED, false, std::nullopt);
+  const Dependencies autoDeps(QPolygonF(), MODE_AUTO, MODE_AUTO, false, std::nullopt);
+  BOOST_CHECK(disabledDeps.compatibleWith(restoredDeps));
+  BOOST_CHECK(!autoDeps.compatibleWith(restoredDeps));
+  BOOST_CHECK(restoredDeps.toXml(doc, "check").firstChildElement("params").attribute("pageDetectionMode")
+              == "disabled");
+
+  QDomElement defaultsEl = doc.createElement("select-content-params");
+  const SelectContentParams restoredDefaults(defaultsEl);
+  BOOST_CHECK(restoredDefaults.getPageDetectMode() == MODE_DISABLED);
+  BOOST_CHECK_CLOSE(restoredDefaults.getPageRectSize().width(), 210.0, 1e-9);
+  BOOST_CHECK_CLOSE(restoredDefaults.getPageRectSize().height(), 297.0, 1e-9);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

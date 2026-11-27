@@ -33,7 +33,7 @@ Params::Params(const QDomElement& filterEl)
       m_contentSizeMM(XmlUnmarshaller::sizeF(filterEl.namedItem("content-size-mm").toElement())),
       m_deps(filterEl.namedItem("dependencies").toElement()),
       m_contentDetectionMode(stringToAutoManualMode(filterEl.attribute("contentDetectionMode"))),
-      m_pageDetectionMode(stringToAutoManualMode(filterEl.attribute("pageDetectionMode"))),
+      m_pageDetectionMode(stringToAutoManualMode(filterEl.attribute("pageDetectionMode", "disabled"))),
       m_fineTuneCorners(filterEl.attribute("fineTuneCorners") == "1") {
   const QDomElement detectionEl = filterEl.namedItem("detection").toElement();
   if (!detectionEl.isNull()) {

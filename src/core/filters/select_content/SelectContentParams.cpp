@@ -30,9 +30,11 @@ SelectContentParams::SelectContentParams(const QSizeF& pageRectSize,
       m_fineTuneCorners(fineTuneCorners) {}
 
 SelectContentParams::SelectContentParams(const QDomElement& el)
-    : m_pageRectSize(XmlUnmarshaller::sizeF(el.namedItem("pageRectSize").toElement())),
+    : m_pageRectSize(el.namedItem("pageRectSize").isNull()
+                         ? QSizeF(210, 297)
+                         : XmlUnmarshaller::sizeF(el.namedItem("pageRectSize").toElement())),
       m_contentDetectEnabled(el.attribute("contentDetectEnabled", "1") != "0"),
-      m_pageDetectMode(stringToAutoManualMode(el.attribute("pageDetectMode"))),
+      m_pageDetectMode(stringToAutoManualMode(el.attribute("pageDetectMode", "disabled"))),
       m_fineTuneCorners(el.attribute("fineTuneCorners") == "1"),
       m_detectionOptions(el.namedItem("detection").toElement()) {}
 

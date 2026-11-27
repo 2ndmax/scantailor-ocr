@@ -104,7 +104,7 @@ Dependencies::Params::Params(const AutoManualMode contentDetectionMode,
 
 Dependencies::Params::Params(const QDomElement& el)
     : m_contentDetectionMode(stringToAutoManualMode(el.attribute("contentDetectionMode"))),
-      m_pageDetectionMode(stringToAutoManualMode(el.attribute("pageDetectionMode"))),
+      m_pageDetectionMode(stringToAutoManualMode(el.attribute("pageDetectionMode", "disabled"))),
       m_fineTuneCorners(el.attribute("fineTuneCorners") == "1") {
   const QDomElement detectionEl = el.namedItem("detection").toElement();
   if (!detectionEl.isNull()) {
