@@ -24,6 +24,7 @@ set(sources
     TestPosterizer.cpp
     TestColoredDimming.cpp
     TestEnhanceFilters.cpp
+    TestPolynomial.cpp
     TestSavGolFilter.cpp
     TestHoughLineDetector.cpp
     TestImageCombination.cpp

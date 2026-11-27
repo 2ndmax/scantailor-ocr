@@ -31,7 +31,7 @@ PolynomialSurface::PolynomialSurface(const int horDegree, const int vertDegree, 
     throw std::invalid_argument("PolynomialSurface: vertical degree is invalid");
   }
 
-  const int numDataPoints = src.width() * src.height();
+  const int64_t numDataPoints = static_cast<int64_t>(src.width()) * src.height();
   if (numDataPoints == 0) {
     m_horDegree = 0;
     m_vertDegree = 0;
@@ -56,10 +56,14 @@ PolynomialSurface::PolynomialSurface(const int horDegree, const int vertDegree, 
   try {
     DynamicMatrixCalc<double> mc;
     mc(AtA).solve(mc(Atb)).write(m_coeffs.data());
-  } catch (const std::runtime_error&) {
-    // REVIEW-NOTE (2026-10): the LinearSolver rejects the normal equations -> the exception is swallowed and
-    // the coefficients stay 0, so the background surface is silently empty and the page gets no illumination
-    // compensation. Not fixed because a page without the compensation is a usable fallback.
+  } catch (const std::runtime_error& e) {
+    qWarning("PolynomialSurface least squares failed: %s", e.what());
+    for (size_t i = 0; i < m_coeffs.size(); ++i) {
+      m_coeffs[i] = 0.0;
+    }
+    if ((m_coeffs.size() > 0) && std::isfinite(Atb[0])) {
+      m_coeffs[0] = Atb[0] / static_cast<double>(numDataPoints);
+    }
   }
 }
 
@@ -80,7 +84,7 @@ PolynomialSurface::PolynomialSurface(const int horDegree,
     throw std::invalid_argument("PolynomialSurface: image and mask have different sizes");
   }
 
-  const int numDataPoints = mask.countBlackPixels();
+  const int64_t numDataPoints = mask.countBlackPixels();
   if (numDataPoints == 0) {
     m_horDegree = 0;
     m_vertDegree = 0;
@@ -105,10 +109,14 @@ PolynomialSurface::PolynomialSurface(const int horDegree,
   try {
     DynamicMatrixCalc<double> mc;
     mc(AtA).solve(mc(Atb)).write(m_coeffs.data());
-  } catch (const std::runtime_error&) {
-    // REVIEW-NOTE (2026-10): the LinearSolver rejects the normal equations -> the exception is swallowed and
-    // the coefficients stay 0, so the background surface is silently empty and the page gets no illumination
-    // compensation. Not fixed because a page without the compensation is a usable fallback.
+  } catch (const std::runtime_error& e) {
+    qWarning("PolynomialSurface least squares failed: %s", e.what());
+    for (size_t i = 0; i < m_coeffs.size(); ++i) {
+      m_coeffs[i] = 0.0;
+    }
+    if ((m_coeffs.size() > 0) && std::isfinite(Atb[0])) {
+      m_coeffs[0] = Atb[0] / static_cast<double>(numDataPoints);
+    }
   }
 }
 
@@ -129,9 +137,7 @@ GrayImage PolynomialSurface::render(const QSize& size) const {
   const double xscale = calcScale(width);
   const double yscale = calcScale(height);
 
-  // REVIEW-NOTE (2026-11): numCoeffs * height is an int product -> it would overflow for a height above
-  // 39 million. Not fixed because ImageSizeLimit keeps both sides at 32767 or less and numCoeffs is at most 54.
-  AlignedArray<float, 4> vertMatrix(numCoeffs * height);
+  AlignedArray<float, 4> vertMatrix(static_cast<size_t>(numCoeffs) * height);
   float* out = &vertMatrix[0];
   for (int y = 0; y < height; ++y) {
     const double yAdjusted = y * yscale;
@@ -145,9 +151,7 @@ GrayImage PolynomialSurface::render(const QSize& size) const {
     }
   }
 
-  // REVIEW-NOTE (2026-11): numCoeffs * width is an int product -> it would overflow for a width above
-  // 39 million. Not fixed because ImageSizeLimit keeps both sides at 32767 or less and numCoeffs is at most 54.
-  AlignedArray<float, 4> horMatrix(numCoeffs * width);
+  AlignedArray<float, 4> horMatrix(static_cast<size_t>(numCoeffs) * width);
   out = &horMatrix[0];
   for (int x = 0; x < width; ++x) {
     const double xAdjusted = x * xscale;
@@ -168,14 +172,14 @@ GrayImage PolynomialSurface::render(const QSize& size) const {
       for (int i = 0; i < numCoeffs; ++i) {
         sum += horLine[i] * vertLine[i];
       }
-      const auto isum = (int) (sum * 255.0);
-      line[x] = static_cast<unsigned char>(qBound(0, isum, 255));
+      const double scaled = std::isfinite(sum) ? (static_cast<double>(sum) * 255.0) : 0.0;
+      line[x] = static_cast<unsigned char>(std::clamp(scaled, 0.0, 255.0));
     }
   }
   return image;
 }  // PolynomialSurface::render
 
-void PolynomialSurface::maybeReduceDegrees(const int numDataPoints) {
+void PolynomialSurface::maybeReduceDegrees(const int64_t numDataPoints) {
   assert(numDataPoints > 0);
 
   while (numDataPoints < calcNumTerms()) {

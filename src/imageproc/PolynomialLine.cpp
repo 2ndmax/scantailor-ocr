@@ -3,6 +3,8 @@
 
 #include "PolynomialLine.h"
 
+#include <QDebug>
+#include <cmath>
 #include <stdexcept>
 
 #include "MatT.h"
@@ -74,10 +76,22 @@ void PolynomialLine::doLeastSquares(const VecT<double>& dataPoints, VecT<double>
   try {
     DynamicMatrixCalc<double> mc;
     mc(AtA).solve(mc(Atb)).write(coeffs.data());
-  } catch (const std::runtime_error&) {
-    // REVIEW-NOTE (2026-10): the LinearSolver rejects the normal equations -> the exception is swallowed and
-    // the coefficients stay 0, so the background surface is silently empty and the page gets no illumination
-    // compensation. Not fixed because a page without the compensation is a usable fallback.
+  } catch (const std::runtime_error& e) {
+    qWarning("PolynomialLine::doLeastSquares failed: %s", e.what());
+    for (int i = 0; i < numTerms; ++i) {
+      coeffs[i] = 0.0;
+    }
+    double sum = 0.0;
+    int finiteCount = 0;
+    for (int x = 0; x < numValues; ++x) {
+      if (std::isfinite(dataPoints[x])) {
+        sum += dataPoints[x];
+        ++finiteCount;
+      }
+    }
+    if ((numTerms > 0) && (finiteCount > 0)) {
+      coeffs[0] = sum / static_cast<double>(finiteCount);
+    }
   }
 }  // PolynomialLine::doLeastSquares
 }  // namespace imageproc

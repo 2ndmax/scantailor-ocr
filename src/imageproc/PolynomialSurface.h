@@ -67,7 +67,7 @@ class PolynomialSurface {
   GrayImage render(const QSize& size) const;
 
  private:
-  void maybeReduceDegrees(int numDataPoints);
+  void maybeReduceDegrees(int64_t numDataPoints);
 
   int calcNumTerms() const;
 

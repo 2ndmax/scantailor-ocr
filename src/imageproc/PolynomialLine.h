@@ -120,14 +120,17 @@ PolynomialLine::RoundAndClipPostProcessor<T>::RoundAndClipPostProcessor()
 
 template <typename T>
 inline T PolynomialLine::RoundAndClipPostProcessor<T>::operator()(const double val) const {
-  const double rounded = std::floor(val + 0.5);
-  if (rounded < m_min) {
-    return m_min;
-  } else if (rounded > m_max) {
-    return m_max;
-  } else {
-    return static_cast<T>(rounded);
+  if (std::isnan(val)) {
+    return T(0);
   }
+  const double rounded = std::floor(val + 0.5);
+  if (rounded <= static_cast<double>(m_min)) {
+    return m_min;
+  }
+  if (rounded >= static_cast<double>(m_max)) {
+    return m_max;
+  }
+  return static_cast<T>(rounded);
 }
 
 template <typename T>
