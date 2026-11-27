@@ -17,6 +17,7 @@ class TestDeskewQt : public QObject {
   void testShowsPanelAndConnectedView();
   void testThumbnailOfPage();
   void testHandlesStayCenteredAtHiDpi();
+  void testZeroSizeViewHandleDragDoesNotProduceNaN();
 };
 
 #endif

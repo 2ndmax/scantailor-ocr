@@ -13,6 +13,7 @@
 #include <QStyle>
 #include <QWheelEvent>
 #include <algorithm>
+#include <cmath>
 #include <functional>
 
 #include "ImagePresentation.h"
@@ -215,11 +216,14 @@ void ImageView::handleMoveRequest(int idx, const QPointF& pos) {
   if (idx < 2) {
     const QRectF arcSquare(getRotationArcSquare());
     const double arcRadius = 0.5 * arcSquare.width();
+    if (!(arcRadius > 0.0)) {
+      return;
+    }
     const double absY = pos.y();
     double relY = absY - arcSquare.center().y();
     relY = qBound(-arcRadius, relY, arcRadius);
 
-    double angleRad = std::asin(relY / arcRadius);
+    double angleRad = std::asin(qBound(-1.0, relY / arcRadius, 1.0));
     if (idx == 0) {
       angleRad = -angleRad;
     }
@@ -234,11 +238,14 @@ void ImageView::handleMoveRequest(int idx, const QPointF& pos) {
   } else {
     const QRectF arcSquare(getObliqueArcSquare());
     const double arcRadius = 0.5 * arcSquare.height();
+    if (!(arcRadius > 0.0)) {
+      return;
+    }
     const double absX = pos.x();
     double relX = absX - arcSquare.center().x();
     relX = qBound(-arcRadius, relX, arcRadius);
 
-    double angleRad = std::asin(relX / arcRadius);
+    double angleRad = std::asin(qBound(-1.0, relX / arcRadius, 1.0));
     if (idx == 3) {
       angleRad = -angleRad;  // bottom handle: right drag => negative oblique
     }

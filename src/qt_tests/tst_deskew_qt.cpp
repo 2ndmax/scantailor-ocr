@@ -23,8 +23,11 @@
 #include <QAbstractButton>
 #include <QFrame>
 #include <QImage>
+#include <QMouseEvent>
 #include <QPolygonF>
+#include <QSignalSpy>
 #include <QtTest/QtTest>
+#include <cmath>
 #include <memory>
 #include <optional>
 #include <set>
@@ -271,4 +274,36 @@ void TestDeskewQt::testHandlesStayCenteredAtHiDpi() {
                           .arg(crosshairX)
                           .arg(crosshairY)
                           .arg(dpr)));
+}
+
+void TestDeskewQt::testZeroSizeViewHandleDragDoesNotProduceNaN() {
+  QImage page(200, 200, QImage::Format_RGB32);
+  page.fill(Qt::white);
+  const ImageTransformation xform(QRectF(0, 0, 200, 200), Dpi(300, 300));
+
+  ImageView view(page, page, xform);
+  view.resize(0, 0);
+
+  QSignalSpy deskewSpy(&view, &ImageView::manualDeskewAngleSet);
+  InteractionState state;
+  view.rootInteractionHandler().proximityUpdate(QPointF(0.0, 0.0), state);
+  QMouseEvent press(QEvent::MouseButtonPress, QPointF(0.0, 0.0), QPointF(0.0, 0.0), Qt::LeftButton, Qt::LeftButton,
+                    Qt::NoModifier);
+  press.ignore();
+  view.rootInteractionHandler().mousePressEvent(&press, state);
+  QVERIFY(state.captured());
+
+  QMouseEvent move(QEvent::MouseMove, QPointF(10.0, 10.0), QPointF(10.0, 10.0), Qt::NoButton, Qt::LeftButton,
+                   Qt::NoModifier);
+  move.ignore();
+  view.rootInteractionHandler().mouseMoveEvent(&move, state);
+  QMouseEvent release(QEvent::MouseButtonRelease, QPointF(10.0, 10.0), QPointF(10.0, 10.0), Qt::LeftButton,
+                      Qt::NoButton, Qt::NoModifier);
+  release.ignore();
+  view.rootInteractionHandler().mouseReleaseEvent(&release, state);
+
+  QCOMPARE(deskewSpy.count(), 1);
+  const double angle = deskewSpy.at(0).at(0).toDouble();
+  QVERIFY(std::isfinite(angle));
+  QCOMPARE(angle, 0.0);
 }
