@@ -9,6 +9,7 @@
 #include "AbstractCommand.h"
 #include "BackgroundExecutor.h"
 #include "BasicImageView.h"
+#include "ErrorWidget.h"
 #include "ImageViewBase.h"
 #include "ProcessingIndicationWidget.h"
 
@@ -71,20 +72,19 @@ void DebugImageView::setLive(const bool live) {
 }
 
 void DebugImageView::imageLoaded(const QImage& image) {
-  // A debug image whose file is gone can't be shown; the image views need a non-empty image.
-  // REVIEW-NOTE (2026-10): an empty image leaves the loading indicator running -> a deleted debug image spins
-  // forever. Not fixed because it only affects the debug view.
-  if (!m_isLive || image.isNull()) {
+  if (!m_isLive) {
     return;
   }
 
   if (currentWidget() == m_placeholderWidget) {
-    std::unique_ptr<QWidget> imageView;
-    if (!m_imageViewFactory) {
-      imageView = std::make_unique<BasicImageView>(image);
+    std::unique_ptr<QWidget> view;
+    if (image.isNull()) {
+      view = std::make_unique<ErrorWidget>(tr("The debug image could not be loaded."));
+    } else if (!m_imageViewFactory) {
+      view = std::make_unique<BasicImageView>(image);
     } else {
-      imageView.reset(m_imageViewFactory(image));
+      view.reset(m_imageViewFactory(image));
     }
-    setCurrentIndex(addWidget(imageView.release()));
+    setCurrentIndex(addWidget(view.release()));
   }
 }

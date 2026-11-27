@@ -11,13 +11,22 @@ PageSelectionAccessor::PageSelectionAccessor(std::shared_ptr<const PageSelection
     : m_provider(std::move(provider)) {}
 
 PageSequence PageSelectionAccessor::allPages() const {
+  if (!m_provider) {
+    return {};
+  }
   return m_provider->allPages();
 }
 
 std::set<PageId> PageSelectionAccessor::selectedPages() const {
+  if (!m_provider) {
+    return {};
+  }
   return m_provider->selectedPages();
 }
 
 std::vector<PageRange> PageSelectionAccessor::selectedRanges() const {
+  if (!m_provider) {
+    return {};
+  }
   return m_provider->selectedRanges();
 }

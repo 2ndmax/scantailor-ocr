@@ -193,18 +193,17 @@ void CollapsibleGroupBox::childEvent(QChildEvent* event) {
     for (auto it = m_collapsedWidgets.begin(); it != m_collapsedWidgets.end();) {
       it = (static_cast<QObject*>(*it) == event->child()) ? m_collapsedWidgets.erase(it) : std::next(it);
     }
-  }
-
-  auto* childWidget = dynamic_cast<QWidget*>(event->child());
-  if (childWidget && (event->type() == QEvent::ChildAdded)) {
-    if (m_collapsed) {
-      if (childWidget->isVisible()) {
-        m_collapsedWidgets.insert(childWidget);
-        childWidget->hide();
+  } else if (event->type() == QEvent::ChildAdded) {
+    if (auto* childWidget = dynamic_cast<QWidget*>(event->child())) {
+      if (m_collapsed) {
+        if (childWidget->isVisible()) {
+          m_collapsedWidgets.insert(childWidget);
+          childWidget->hide();
+        }
       }
-    }
 
-    childWidget->installEventFilter(this);
+      childWidget->installEventFilter(this);
+    }
   }
 
   QGroupBox::childEvent(event);

@@ -10,10 +10,12 @@
 #include <QFontMetrics>
 #include <QLineEdit>
 #include <QMessageBox>
+#include <QMetaObject>
 #include <QSlider>
 #include <QTextDocument>
 #include <QTimer>
 #include <QToolTip>
+#include <QWheelEvent>
 #include <QWidget>
 #include <atomic>
 #include <exception>
@@ -107,7 +109,17 @@ bool Application::notify(QObject* receiver, QEvent* e) {
     // Has to be decided here: inside QApplication::notify() the wheel would first give the control the focus.
     if (e->type() == QEvent::Wheel) {
       if (QWidget* insteadOfReceiver = wheelReceiverInsteadOf(receiver)) {
-        return QApplication::notify(insteadOfReceiver, e);
+        auto* wheel = static_cast<QWheelEvent*>(e);
+        auto* origWidget = qobject_cast<QWidget*>(receiver);
+        const QPointF localPos = (origWidget && insteadOfReceiver->isAncestorOf(origWidget))
+                                     ? origWidget->mapTo(insteadOfReceiver, wheel->position())
+                                     : insteadOfReceiver->mapFromGlobal(wheel->globalPosition());
+        QWheelEvent forwarded(localPos, wheel->globalPosition(), wheel->pixelDelta(), wheel->angleDelta(),
+                              wheel->buttons(), wheel->modifiers(), wheel->phase(), wheel->inverted(), wheel->source(),
+                              wheel->pointingDevice());
+        const bool res = QApplication::notify(insteadOfReceiver, &forwarded);
+        e->setAccepted(forwarded.isAccepted());
+        return res;
       }
     }
     return QApplication::notify(receiver, e);
@@ -129,20 +141,28 @@ bool Application::notify(QObject* receiver, QEvent* e) {
 
 void Application::showUnexpectedError(const QString& reason) {
   // Shown with a delay, not from within the failing event handler, and only once
-  // for a burst of errors. notify() also runs in worker threads that have an event
-  // loop, hence the atomic flag and the timer, which runs the lambda in the GUI thread.
+  // for a burst of errors. notify() can run on threads without a Qt event loop, so
+  // invokeMethod queues directly onto the GUI thread owning this object.
   static std::atomic<bool> messagePending(false);
   if (messagePending.exchange(true)) {
     return;
   }
-  QTimer::singleShot(0, this, [reason]() {
-    QMessageBox::critical(activeWindow(), tr("Unexpected Error"),
-                          tr("An unexpected error occurred:\n%1\n\n"
-                             "ScanTailor OCR continues to run, but to be safe, save your project under "
-                             "a new name and restart the program.")
-                              .arg(reason));
+  const bool queued = QMetaObject::invokeMethod(
+      this,
+      [reason]() {
+        struct ResetPending {
+          ~ResetPending() { messagePending = false; }
+        } resetGuard;
+        QMessageBox::critical(activeWindow(), tr("Unexpected Error"),
+                              tr("An unexpected error occurred:\n%1\n\n"
+                                 "ScanTailor OCR continues to run, but to be safe, save your project under "
+                                 "a new name and restart the program.")
+                                  .arg(reason));
+      },
+      Qt::QueuedConnection);
+  if (!queued) {
     messagePending = false;
-  });
+  }
 }
 
 

@@ -8,18 +8,23 @@
 
 #include <QPaintDevice>
 #include <QPainter>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 
 using namespace imageproc;
 
-BubbleAnimation::BubbleAnimation(const int numBubbles) : m_numBubbles(numBubbles), m_curFrame(0) {
-  assert(m_numBubbles > 0);
+BubbleAnimation::BubbleAnimation(const int numBubbles) : m_numBubbles(std::max(1, numBubbles)), m_curFrame(0) {
+  assert(numBubbles > 0);
 }
 
 bool BubbleAnimation::nextFrame(const QColor& headColor, const QColor& tailColor, QPaintDevice* pd, QRectF rect) {
+  if (!pd) {
+    return false;
+  }
   if (rect.isNull()) {
-    rect = QRectF(0.0, 0.0, pd->width(), pd->height());
+    const qreal dpr = (pd->devicePixelRatioF() > 0.0) ? pd->devicePixelRatioF() : 1.0;
+    rect = QRectF(0.0, 0.0, pd->width() / dpr, pd->height() / dpr);
   }
 
   QPainter painter(pd);
@@ -30,34 +35,39 @@ bool BubbleAnimation::nextFrame(const QColor& headColor,
                                 const QColor& tailColor,
                                 QPainter* painter,
                                 const QRectF rect) {
+  if (!painter) {
+    return false;
+  }
   const QPointF center(rect.center());
   const double radius = std::min(center.x() - rect.x(), center.y() - rect.y());
 
   const double PI = constants::PI;
-  const double arcFractionAsRadius = 0.25;
-  // We have the following system of equations:
-  // bubbleRadius = arc_between_bubbles * arcFractionAsRadius;
-  // arc_between_bubbles = 2.0 * PI * reducedRadius / m_numBubbles;
-  // reducedRadius = radius - bubbleRadius.
-  // Solving this system of equations, we get:
-  const double reducedRadius = radius / (1.0 + 2.0 * PI * arcFractionAsRadius / m_numBubbles);
-  const double bubbleRadius = radius - reducedRadius;
+  if (radius > 0.0) {
+    const double arcFractionAsRadius = 0.25;
+    // We have the following system of equations:
+    // bubbleRadius = arc_between_bubbles * arcFractionAsRadius;
+    // arc_between_bubbles = 2.0 * PI * reducedRadius / m_numBubbles;
+    // reducedRadius = radius - bubbleRadius.
+    // Solving this system of equations, we get:
+    const double reducedRadius = radius / (1.0 + 2.0 * PI * arcFractionAsRadius / m_numBubbles);
+    const double bubbleRadius = radius - reducedRadius;
 
-  const double tailLength = 0.5 * m_numBubbles;
+    const double tailLength = 0.5 * m_numBubbles;
 
-  painter->setRenderHint(QPainter::Antialiasing);
-  painter->setPen(Qt::NoPen);
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setPen(Qt::NoPen);
 
-  for (int i = 0; i < m_numBubbles; ++i) {
-    const double angle = -0.5 * PI + 2.0 * PI * (m_curFrame - i) / m_numBubbles;
-    const double s = std::sin(angle);
-    const double c = std::cos(angle);
-    const QPointF vec(c * reducedRadius, s * reducedRadius);
-    QRectF r(0.0, 0.0, 2.0 * bubbleRadius, 2.0 * bubbleRadius);
-    r.moveCenter(center + vec);
-    const double colorDist = std::min(1.0, i / tailLength);
-    painter->setBrush(colorInterpolation(headColor, tailColor, colorDist));
-    painter->drawEllipse(r);
+    for (int i = 0; i < m_numBubbles; ++i) {
+      const double angle = -0.5 * PI + 2.0 * PI * (m_curFrame - i) / m_numBubbles;
+      const double s = std::sin(angle);
+      const double c = std::cos(angle);
+      const QPointF vec(c * reducedRadius, s * reducedRadius);
+      QRectF r(0.0, 0.0, 2.0 * bubbleRadius, 2.0 * bubbleRadius);
+      r.moveCenter(center + vec);
+      const double colorDist = std::min(1.0, i / tailLength);
+      painter->setBrush(colorInterpolation(headColor, tailColor, colorDist));
+      painter->drawEllipse(r);
+    }
   }
 
   if (m_curFrame + 1 < m_numBubbles) {
