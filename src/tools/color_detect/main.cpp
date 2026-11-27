@@ -254,6 +254,11 @@ int main(int argc, char** argv) {
     std::cout << fileNo << "/" << files.size() << " " << name.toStdString() << "\n" << std::flush;
   }
   csv.flush();
+  if ((csv.status() != QTextStream::Ok) || !csvFile.flush() || (csvFile.error() != QFileDevice::NoError)) {
+    std::cerr << "Cannot write " << csvFile.fileName().toStdString() << ": " << csvFile.errorString().toStdString()
+              << "\n";
+    return 1;
+  }
   if (!results.empty()) {
     writeSheet(results, ++sheetNo, outDir);
   }

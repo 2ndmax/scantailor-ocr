@@ -360,11 +360,12 @@ QString csv(const std::vector<PageResult>& results, const RunInfo& info) {
 
 bool writeText(const QString& path, const QString& text, QString* error) {
   QFile file(path);
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+  const QByteArray bytes = text.toUtf8();
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate) || (file.write(bytes) != bytes.size()) || !file.flush()
+      || (file.error() != QFileDevice::NoError)) {
     *error = QStringLiteral("Cannot write %1: %2").arg(path, file.errorString());
     return false;
   }
-  file.write(text.toUtf8());
   return true;
 }
 }  // namespace

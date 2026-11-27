@@ -895,5 +895,11 @@ int bench(const QString& outDir, const bool images) {
     }
     std::cout << row.toStdString() << "\n";
   }
+  csv.flush();
+  if ((csv.status() != QTextStream::Ok) || !csvFile.flush() || (csvFile.error() != QFileDevice::NoError)) {
+    std::cerr << "cannot write " << csvFile.fileName().toStdString() << ": " << csvFile.errorString().toStdString()
+              << "\n";
+    return 1;
+  }
   return tools::exitCodeOfSaves();
 }

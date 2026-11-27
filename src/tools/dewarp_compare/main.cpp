@@ -777,8 +777,11 @@ int showModelsOfRealPages(const Options& options) {
   }
 
   QFile reportFile(QDir(options.outDir).filePath("real-pages.txt"));
-  if (!reportFile.open(QIODevice::WriteOnly | QIODevice::Text) || (reportFile.write(report.toUtf8()) < 0)) {
-    std::cerr << "Cannot write " << reportFile.fileName().toStdString() << std::endl;
+  const QByteArray reportBytes = report.toUtf8();
+  if (!reportFile.open(QIODevice::WriteOnly | QIODevice::Text) || (reportFile.write(reportBytes) != reportBytes.size())
+      || !reportFile.flush() || (reportFile.error() != QFileDevice::NoError)) {
+    std::cerr << "Cannot write " << reportFile.fileName().toStdString() << ": "
+              << reportFile.errorString().toStdString() << std::endl;
     return 1;
   }
   return tools::exitCodeOfSaves();
@@ -958,8 +961,11 @@ int main(int argc, char** argv) {
 
   std::cout << summary.toStdString() << std::flush;
   QFile file(QDir(options.outDir).filePath(QStringLiteral("summary.txt")));
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text) || (file.write(summary.toUtf8()) < 0)) {
-    std::cerr << "Cannot write " << file.fileName().toStdString() << std::endl;
+  const QByteArray summaryBytes = summary.toUtf8();
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text) || (file.write(summaryBytes) != summaryBytes.size())
+      || !file.flush() || (file.error() != QFileDevice::NoError)) {
+    std::cerr << "Cannot write " << file.fileName().toStdString() << ": " << file.errorString().toStdString()
+              << std::endl;
     return 1;
   }
   return tools::exitCodeOfSaves();

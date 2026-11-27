@@ -205,7 +205,12 @@ QImage angleImage(const QImage& scan, const QPointF& truth, const QPointF& found
   return image;
 }
 
-std::vector<CaseImage> caseImages(const std::vector<PageResult>& results, const Options& options) {
+std::vector<CaseImage> caseImages(const std::vector<PageResult>& results,
+                                  const Options& options,
+                                  bool* allSaved = nullptr) {
+  if (allSaved) {
+    *allSaved = true;
+  }
   std::vector<CaseImage> cases;
   for (size_t m = 0; m < methods().size(); ++m) {
     const int method = static_cast<int>(m);
@@ -227,6 +232,9 @@ std::vector<CaseImage> caseImages(const std::vector<PageResult>& results, const 
       const QString file(QStringLiteral("images/m%1_%2.png").arg(m).arg(r->spec.index, 4, 10, QLatin1Char('0')));
       if (!image.save(options.outDir + QLatin1Char('/') + file)) {
         std::cerr << "Cannot write " << qPrintable(file) << std::endl;
+        if (allSaved) {
+          *allSaved = false;
+        }
         continue;
       }
       const QString caption(pageText(r->spec)
@@ -464,11 +472,12 @@ bool writeRealReport(const Options& options,
                                                       {QStringLiteral("real_scans.html"), &html}};
   for (const auto& [name, content] : files) {
     QFile file(options.outDir + QLatin1Char('/') + name);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+    const QByteArray bytes = content->toUtf8();
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate) || (file.write(bytes) != bytes.size()) || !file.flush()
+        || (file.error() != QFileDevice::NoError)) {
       *error = QStringLiteral("Cannot write %1: %2").arg(file.fileName(), file.errorString());
       return false;
     }
-    file.write(content->toUtf8());
   }
   return true;
 }
@@ -639,7 +648,8 @@ int main(int argc, char** argv) {
   }
   std::cerr << "\rmeasured " << options.pages << " pages in " << timer.elapsed() / 1000 << " s" << std::endl;
 
-  const std::vector<CaseImage> cases(caseImages(results, options));
+  bool allSaved = true;
+  const std::vector<CaseImage> cases(caseImages(results, options, &allSaved));
 
   RunInfo info;
   info.pages = options.pages;
@@ -657,5 +667,5 @@ int main(int argc, char** argv) {
   }
   std::cerr << "done in " << timer.elapsed() / 1000 << " s: " << qPrintable(QDir(options.outDir).absolutePath())
             << "/report.html" << std::endl;
-  return 0;
+  return allSaved ? 0 : 1;
 }
