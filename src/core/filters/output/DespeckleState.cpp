@@ -19,6 +19,9 @@ DespeckleState::DespeckleState(const QImage& output,
                                const Dpi& dpi)
     : m_speckles(speckles), m_dpi(dpi), m_despeckleLevel(level) {
   m_everythingMixed = overlaySpeckles(output, speckles);
+  if (!m_speckles.isNull() && (m_speckles.size() != m_everythingMixed.size())) {
+    m_speckles.release();
+  }
   m_everythingBW = extractBW(m_everythingMixed);
 }
 

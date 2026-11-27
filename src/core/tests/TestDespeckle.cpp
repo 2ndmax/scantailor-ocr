@@ -7,6 +7,8 @@
 #include <Despeckle.h>
 #include <Dpi.h>
 #include <NullTaskStatus.h>
+#include <filters/output/DespeckleState.h>
+#include <filters/output/DespeckleVisualization.h>
 
 #include <QImage>
 #include <QRect>
@@ -399,6 +401,24 @@ BOOST_AUTO_TEST_CASE(results_are_unchanged) {
       BOOST_CHECK_EQUAL(results[i], c.expected[i]);
     }
   }
+}
+
+BOOST_AUTO_TEST_CASE(mismatched_speckles_are_dropped_and_zero_dpi_visualization_is_safe) {
+  QImage img10x10(10, 10, QImage::Format_RGB32);
+  img10x10.fill(Qt::white);
+
+  BinaryImage speckles5x5(5, 5, WHITE);
+  speckles5x5.setPixel(2, 2, BLACK);
+  const output::DespeckleState state(img10x10, speckles5x5, 1.0, Dpi(300, 300));
+  const output::DespeckleVisualization visMismatch = state.visualize();
+  BOOST_CHECK(!visMismatch.isNull());
+  BOOST_CHECK(visMismatch.image().size() == QSize(10, 10));
+
+  BinaryImage speckles10x10(10, 10, WHITE);
+  speckles10x10.setPixel(3, 3, BLACK);
+  const output::DespeckleVisualization visZeroDpi(img10x10, speckles10x10, Dpi(0, 0));
+  BOOST_CHECK(!visZeroDpi.isNull());
+  BOOST_CHECK(visZeroDpi.image().size() == QSize(10, 10));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
