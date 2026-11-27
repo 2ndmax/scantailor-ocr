@@ -5,8 +5,11 @@
 
 #include <QDebug>
 #include <QPainter>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <limits>
+#include <stdexcept>
 
 #include "BinaryImage.h"
 #include "ConnCompEraser.h"
@@ -29,6 +32,19 @@ HoughLineDetector::HoughLineDetector(const QSize& inputDimensions,
                                      const double angleDelta,
                                      const int numAngles)
     : m_distanceResolution(distanceResolution), m_recipDistanceResolution(1.0 / distanceResolution) {
+  if (inputDimensions.isEmpty()) {
+    throw std::invalid_argument("HoughLineDetector: empty inputDimensions");
+  }
+  if (!std::isfinite(distanceResolution) || !(distanceResolution > 0.0)) {
+    throw std::invalid_argument("HoughLineDetector: invalid distanceResolution");
+  }
+  if (!std::isfinite(startAngle) || !std::isfinite(angleDelta)) {
+    throw std::invalid_argument("HoughLineDetector: non-finite angle");
+  }
+  if (numAngles <= 0) {
+    throw std::invalid_argument("HoughLineDetector: numAngles must be positive");
+  }
+
   const int maxX = inputDimensions.width() - 1;
   const int maxY = inputDimensions.height() - 1;
 
@@ -58,11 +74,16 @@ HoughLineDetector::HoughLineDetector(const QSize& inputDimensions,
   m_distanceBias = -minDistance;
 
   const double maxBiasedDistance = maxDistance + m_distanceBias;
-  const auto maxBin = int(maxBiasedDistance * m_recipDistanceResolution + 0.5);
+  const double maxBinReal = maxBiasedDistance * m_recipDistanceResolution + 0.5;
+  if (!std::isfinite(maxBinReal) || (maxBinReal < 0.0)
+      || (maxBinReal >= static_cast<double>(std::numeric_limits<int>::max()))) {
+    throw std::invalid_argument("HoughLineDetector: histogram width overflow");
+  }
+  const int maxBin = static_cast<int>(maxBinReal);
 
   m_histWidth = maxBin + 1;
   m_histHeight = numAngles;
-  m_histogram.resize(m_histWidth * m_histHeight, 0);
+  m_histogram.resize(static_cast<size_t>(m_histWidth) * static_cast<size_t>(m_histHeight), 0);
 }
 
 void HoughLineDetector::process(int x, int y, unsigned weight) {
@@ -72,12 +93,10 @@ void HoughLineDetector::process(int x, int y, unsigned weight) {
     const double distance = uv.x() * x + uv.y() * y;
     const double biasedDistance = distance + m_distanceBias;
 
-    const auto bin = (int) (biasedDistance * m_recipDistanceResolution + 0.5);
-    // REVIEW-NOTE (2026-11): a point outside the documented range (see the header) -> a bin outside the
-    // histogram, checked only by this assert. Not fixed because the only caller, VertLineFinder, passes
-    // points inside the image the detector was made for.
-    assert(bin >= 0 && bin < m_histWidth);
-    histLine[bin] += weight;
+    const double binPos = biasedDistance * m_recipDistanceResolution + 0.5;
+    if (std::isfinite(binPos) && (binPos >= 0.0) && (binPos < static_cast<double>(m_histWidth))) {
+      histLine[static_cast<int>(binPos)] += weight;
+    }
 
     histLine += m_histWidth;
   }
