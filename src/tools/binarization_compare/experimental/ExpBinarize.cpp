@@ -18,6 +18,7 @@
 // Taken from ScanTailor Experimental (commit 80e1c57), only put into the namespace
 // imageproc::stexp, for comparing binarization methods. GPLv3, as the original.
 // Fix: binarizeLAAB divided by zero, or turned the lightest pixels black, with a negative delta.
+// Fix: binarizeGatosBG uses 64-bit sums when needed and returns early on all-black niblack masks.
 
 
 #include "ExpBinarize.h"
@@ -37,6 +38,7 @@
 #include "GaussBlur.h"
 #include "GrayImage.h"
 #include "Grayscale.h"
+#include "LocalWindow.h"
 #include "RasterOpGeneric.h"
 
 namespace imageproc {
@@ -369,25 +371,19 @@ BinaryImage binarizeNiblack(GrayImage const& src,
  * modification by zvezdochiot:
  * q = q - (1 - q) * delta * 2 / (max_delta - min_delta), delta = 0
  */
-GrayImage binarizeGatosBG(GrayImage const& src, BinaryImage const& niblack, int const radius) {
-  GrayImage gray = GrayImage(src);
-  if (gray.isNull() || niblack.isNull()) {
-    return GrayImage();
-  }
-  if (radius < 1) {
-    return gray;
-  }
+static int64_t mostBackgroundPixelsInGatosWindow(int const w, int const h, int64_t const ws) {
+  int64_t const firstWindow = ws * ws;
+  int64_t const lastRing = (int64_t(w) + h) * (ws + 1);
+  return std::min(int64_t(w) * h, std::max(firstWindow, lastRing));
+}
 
-  int const w = src.width();
-  int const h = src.height();
-  unsigned int const ws = radius + radius + 1;
-
-  if ((w != niblack.width()) || (h != niblack.height())) {
-    return gray;
-  }
+template <typename GraySum>
+static GrayImage gatosBackgroundOf(GrayImage const& gray, BinaryImage const& niblack, int64_t const ws) {
+  int const w = gray.width();
+  int const h = gray.height();
 
   IntegralImage<uint32_t> niblack_bg_ii(w, h);
-  IntegralImage<uint32_t> gray_bg_ii(w, h);
+  IntegralImage<GraySum> gray_bg_ii(w, h);
 
   uint32_t const* niblack_line = niblack.data();
   int const niblack_stride = niblack.wordsPerLine();
@@ -410,6 +406,11 @@ GrayImage binarizeGatosBG(GrayImage const& src, BinaryImage const& niblack, int 
     niblack_line += niblack_stride;
   }
 
+  QRect const image_rect(gray.rect());
+  if (niblack_bg_ii.sum(image_rect) == 0) {
+    return gray;
+  }
+
   GrayImage background(gray);
   if (background.isNull()) {
     return gray;
@@ -417,30 +418,34 @@ GrayImage binarizeGatosBG(GrayImage const& src, BinaryImage const& niblack, int 
   uint8_t* background_line = background.data();
   int const background_stride = background.stride();
 
-  QRect const image_rect(gray.rect());
-
   niblack_line = niblack.data();
-  unsigned int const w2 = w + w;
-  unsigned int const h2 = h + h;
+  int64_t const maxWindow = std::max<int64_t>(w, h) * 2 + 1;
+  int64_t const w2 = int64_t(w) * 2;
+  int64_t const h2 = int64_t(h) * 2;
   for (int y = 0; y < h; y++) {
     for (int x = 0; x < w; x++) {
       if (binaryGetBW(niblack_line, x)) {
         uint32_t niblack_sum_bg = 0;
-        unsigned int wss = 0;
+        int64_t wss = 0;
         QRect window;
         while ((niblack_sum_bg == 0) && ((wss < w2) || (wss < h2))) {
           wss += ws;
-          window = QRect(0, 0, wss, wss);
+          int const side = static_cast<int>(std::min(wss, maxWindow));
+          window = QRect(0, 0, side, side);
           window.moveCenter(QPoint(x, y));
           window &= image_rect;
           niblack_sum_bg = niblack_bg_ii.sum(window);
+          if (window == image_rect) {
+            break;
+          }
         }
 
         // Foreground pixel. Interpolate from background pixels in window.
         uint32_t bg = background_line[x];
         if (niblack_sum_bg > 0) {
-          uint32_t const gray_sum_bg = gray_bg_ii.sum(window);
-          bg = (gray_sum_bg + (niblack_sum_bg >> 1)) / niblack_sum_bg;
+          GraySum const gray_sum_bg = gray_bg_ii.sum(window);
+          bg = static_cast<uint32_t>((static_cast<uint64_t>(gray_sum_bg) + (static_cast<uint64_t>(niblack_sum_bg) >> 1))
+                                     / static_cast<uint64_t>(niblack_sum_bg));
         }
         background_line[x] = bg;
       }
@@ -450,6 +455,30 @@ GrayImage binarizeGatosBG(GrayImage const& src, BinaryImage const& niblack, int 
   }
 
   return background;
+}
+
+GrayImage binarizeGatosBG(GrayImage const& src, BinaryImage const& niblack, int const radius) {
+  GrayImage gray = GrayImage(src);
+  if (gray.isNull() || niblack.isNull()) {
+    return GrayImage();
+  }
+  if (radius < 1) {
+    return gray;
+  }
+
+  int const w = src.width();
+  int const h = src.height();
+
+  if ((w != niblack.width()) || (h != niblack.height())) {
+    return gray;
+  }
+
+  int64_t const maxWindow = std::max<int64_t>(w, h) * 2 + 1;
+  int64_t const ws = std::min<int64_t>(int64_t(radius) * 2 + 1, maxWindow);
+
+  return (mostBackgroundPixelsInGatosWindow(w, h, ws) > MAX_AREA_FOR_32_BITS)
+             ? gatosBackgroundOf<uint64_t>(gray, niblack, ws)
+             : gatosBackgroundOf<uint32_t>(gray, niblack, ws);
 }
 
 BinaryImage binarizeGatos(GrayImage const& src,

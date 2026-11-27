@@ -6,6 +6,8 @@
 #include <exception>
 #include <iostream>
 
+#include "BinaryImage.h"
+#include "ExpBinarize.h"
 #include "ExpGrayImage.h"
 #include "GrayImage.h"
 
@@ -74,12 +76,45 @@ void testRetinexClamping() {
     require(center == 255, "grayRetinex wrapped center 23 pixel on gray 10 background");
   }
 }
+
+void testGatosBgLargeImageNoOverflow() {
+  imageproc::GrayImage img(QSize(4200, 4200));
+  require(!img.isNull(), "large gray image allocation failed");
+  img.fill(250);
+
+  imageproc::BinaryImage niblack(QSize(4200, 4200), imageproc::WHITE);
+  require(!niblack.isNull(), "large niblack image allocation failed");
+  niblack.fill(QRect(2100, 2100, 1, 1), imageproc::BLACK);
+
+  const imageproc::GrayImage out = stexp::binarizeGatosBG(img, niblack, 2100);
+  require(!out.isNull(), "binarizeGatosBG returned null on large image");
+  require(out.size() == QSize(4200, 4200), "binarizeGatosBG changed large image size");
+  require(out.data()[2100 * out.stride() + 2100] == 250, "binarizeGatosBG overflowed 32-bit sum on >16.8 MP window");
+}
+
+void testGatosBgAllBlackNiblack() {
+  imageproc::GrayImage img(QSize(512, 512));
+  require(!img.isNull(), "gray image allocation failed");
+  img.fill(123);
+
+  const imageproc::BinaryImage niblack(QSize(512, 512), imageproc::BLACK);
+  require(!niblack.isNull(), "all-black niblack allocation failed");
+
+  const imageproc::GrayImage out = stexp::binarizeGatosBG(img, niblack, 1);
+  require(!out.isNull(), "binarizeGatosBG returned null on all-black niblack");
+  require(out.size() == QSize(512, 512), "binarizeGatosBG changed image size on all-black niblack");
+  require(out.data()[0] == 123, "unexpected top-left pixel on all-black niblack");
+  require(out.data()[256 * out.stride() + 256] == 123, "unexpected center pixel on all-black niblack");
+  require(out.data()[511 * out.stride() + 511] == 123, "unexpected bottom-right pixel on all-black niblack");
+}
 }  // namespace
 
 int main() {
   try {
     testEqualizeSmallImages();
     testRetinexClamping();
+    testGatosBgLargeImageNoOverflow();
+    testGatosBgAllBlackNiblack();
   } catch (const std::exception& e) {
     std::cerr << "Test failed: " << e.what() << '\n';
     return 1;
