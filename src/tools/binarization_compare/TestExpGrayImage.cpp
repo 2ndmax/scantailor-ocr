@@ -1,13 +1,17 @@
 // Copyright (C) 2026  ScanTailor OCR contributors
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <QImage>
 #include <QSize>
 #include <algorithm>
+#include <cmath>
 #include <exception>
 #include <iostream>
+#include <limits>
 
 #include "BinaryImage.h"
 #include "ExpBinarize.h"
+#include "ExpColorFilter.h"
 #include "ExpGrayImage.h"
 #include "GrayImage.h"
 
@@ -107,6 +111,45 @@ void testGatosBgAllBlackNiblack() {
   require(out.data()[256 * out.stride() + 256] == 123, "unexpected center pixel on all-black niblack");
   require(out.data()[511 * out.stride() + 511] == 123, "unexpected bottom-right pixel on all-black niblack");
 }
+
+void testHsvKMeansBoundsAndCoefBg() {
+  QImage img(16, 16, QImage::Format_RGB32);
+  require(!img.isNull(), "color test image allocation failed");
+  for (int y = 0; y < img.height(); ++y) {
+    QRgb* row = reinterpret_cast<QRgb*>(img.scanLine(y));
+    for (int x = 0; x < img.width(); ++x) {
+      row[x] = qRgb(x * 16, y * 16, ((x + y) * 8) & 255);
+    }
+  }
+
+  imageproc::BinaryImage mask(img.size(), imageproc::WHITE);
+  mask.fill(QRect(0, 0, 8, 16), imageproc::BLACK);
+  const imageproc::BinaryImage maskZones(img.size(), imageproc::BLACK);
+
+  struct Case {
+    float coefBg;
+    float coefNorm;
+  };
+  const Case cases[] = {
+      {0.0f, 0.0f},
+      {1.0f, 0.0f},
+      {-0.5f, 0.0f},
+      {1.5f, 0.0f},
+      {std::numeric_limits<float>::quiet_NaN(), 0.0f},
+      {0.0f, std::numeric_limits<float>::quiet_NaN()},
+  };
+
+  for (const Case& c : cases) {
+    QImage dst = img.copy();
+    const double mse
+        = stexp::hsvKMeansInPlace(dst, img, mask, maskZones, 254, 128, 0, 0.0f, c.coefNorm, c.coefBg, true, true);
+    require(!dst.isNull(), "hsvKMeansInPlace returned null image");
+    require(dst.size() == img.size(), "hsvKMeansInPlace changed image size");
+    if (std::isfinite(c.coefNorm)) {
+      require(std::isfinite(mse) && mse >= 0.0, "hsvKMeansInPlace produced non-finite or negative mse");
+    }
+  }
+}
 }  // namespace
 
 int main() {
@@ -115,6 +158,7 @@ int main() {
     testRetinexClamping();
     testGatosBgLargeImageNoOverflow();
     testGatosBgAllBlackNiblack();
+    testHsvKMeansBoundsAndCoefBg();
   } catch (const std::exception& e) {
     std::cerr << "Test failed: " << e.what() << '\n';
     return 1;

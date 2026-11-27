@@ -21,7 +21,7 @@
 // color space conversions, the palette functions and hsvKMeansInPlace), only put into the
 // namespace imageproc::stexp, for comparing K-means color reduction. GPLv3, as the original.
 // Fixes in hsvKMeansInPlace: sorting the clusters read the first row of the mask for every row,
-// and the background clusters also took foreground pixels.
+// the background clusters also took foreground pixels, and coef_bg / k_white / reseeding check bounds.
 
 #define _USE_MATH_DEFINES
 
@@ -29,7 +29,9 @@
 #include <math.h>
 #include <string.h>
 #include <QImage>
+#include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include "BinaryImage.h"
@@ -447,7 +449,8 @@ double hsvKMeansInPlace(QImage& dst,
       return mse;
     }
 
-    int const bgcount = (int) (coef_bg * (float) ncount + 0.25f);
+    float const safe_coef_bg = std::isfinite(coef_bg) ? std::clamp(coef_bg, 0.0f, 1.0f) : 0.0f;
+    int const bgcount = std::clamp((int) (safe_coef_bg * (float) ncount + 0.25f), 0, ncount);
     int const fgcount = ncount - bgcount;
     int const start = (fgcount > 0) ? 1 : 0;
     int const sfull = ncount + 2;
@@ -774,7 +777,7 @@ double hsvKMeansInPlace(QImage& dst,
 
     /* find dominantes black and white */
     int k_black = 0;
-    int k_white = sfull;
+    int k_white = sfull - 1;
     if (find_black) {
       float sv_min = 256.0f * 512.0f;
       for (int k = start; k <= fgcount; k++) {
@@ -788,7 +791,7 @@ double hsvKMeansInPlace(QImage& dst,
           sat = mean_s[k] + 1.0f;
         }
         float const sv_k = value * sat;
-        if (sv_min > sv_k) {
+        if (std::isfinite(sv_k) && (sv_min > sv_k)) {
           sv_min = sv_k;
           k_black = k;
         }
@@ -806,10 +809,12 @@ double hsvKMeansInPlace(QImage& dst,
         } else {
           sat = mean_s[k] + 1.0f;
         }
-        float const sv_k = value / sat;
-        if (sv_max < sv_k) {
-          sv_max = sv_k;
-          k_white = k;
+        if (std::isfinite(value) && std::isfinite(sat) && (sat > 0.0f)) {
+          float const sv_k = value / sat;
+          if (std::isfinite(sv_k) && (sv_max < sv_k)) {
+            sv_max = sv_k;
+            k_white = k;
+          }
         }
       }
     }
@@ -839,12 +844,12 @@ double hsvKMeansInPlace(QImage& dst,
     }
 
     /* replace dominantes black and white */
-    if (find_black) {
+    if (find_black && (k_black >= 0) && (k_black < sfull)) {
       mean_h[k_black] = 0.0;
       mean_s[k_black] = 0.0;
       mean_v[k_black] = 0.0;
     }
-    if (find_white) {
+    if (find_white && (k_white >= 0) && (k_white < sfull)) {
       mean_h[k_white] = 255.0;
       mean_s[k_white] = 255.0;
       mean_v[k_white] = 255.0;
