@@ -1,20 +1,21 @@
-# add_dynamic_lib_locations(<prefix name> <target> ...)
+# add_dynamic_library_locations(<targets> [<optional_name>])
 #
-# Finds and adds the dynamic library locations for each configuration 
-# to the imported unknown target if it is actually a shared library on Windows.
+# Finds and adds the dynamic library locations for each configuration
+# to each imported UNKNOWN_LIBRARY target in <targets> if it is actually
+# a shared library on Windows.
 #
-# Tries to find the matching dynamic library for each import one in IMPORTED_LOCATION properties
-# and saves the result in the <prefix name>_DYNAMIC_LIBRARY_<Config> variable 
+# Tries to find the matching dynamic library for each IMPORTED_LOCATION_<Config> property
+# and saves the result in the <target>_DYNAMIC_LIBRARY_<Config> cache variable
 # adding IMPORTED_DYNLIB_<Config> property with the actual dynamic library location to the target on success.
 #
-# If an IMPORTED_LOCATION property points to a non-import library (for example static) 
-# or the matching dynamic library not found, no actions are applied to the target.
+# If an IMPORTED_LOCATION property points to a non-import library (for example static)
+# or the matching dynamic library is not found, no actions are applied to the target.
 #
-# For shared libraries that have non-standard dynamic libraries locations 
-# appropriate <prefix name>_DYNAMIC_LIBRARY_<Config> cache variables should be set
+# For shared libraries that have non-standard dynamic library locations,
+# appropriate <target>_DYNAMIC_LIBRARY_<Config> cache variables should be set
 # or the locations should be added to CMAKE_PROGRAM_PATH or CMAKE_PREFIX_PATH variables.
 #
-# An optional argument can be used to specify a non-standard name for the dynamic library.
+# An optional second argument can be used to specify a non-standard name for the dynamic library.
 
 function(add_dynamic_library_locations Targets)
   foreach(_target ${Targets})
@@ -33,12 +34,12 @@ function(add_dynamic_library_locations Targets)
       string(REPLACE IMPORTED_LOCATION DYNAMIC_LIBRARY dynamic_lib ${_prop})
       string(REPLACE IMPORTED_LOCATION IMPORTED_DYNLIB dynlib_prop ${_prop})
       get_target_property(imp_loc ${_target} ${_prop})
-      if (NOT imp_loc OR NOT EXISTS ${imp_loc})
+      if (NOT imp_loc OR NOT EXISTS "${imp_loc}")
         continue()
       endif()
-      get_filename_component(imp_loc_ext ${imp_loc} EXT)
+      get_filename_component(imp_loc_ext "${imp_loc}" EXT)
       if (imp_loc_ext STREQUAL CMAKE_IMPORT_LIBRARY_SUFFIX)
-        get_filename_component(lib_name_we ${imp_loc} NAME_WE)
+        get_filename_component(lib_name_we "${imp_loc}" NAME_WE)
         set(candidate_names
           "${lib_name_we}${CMAKE_SHARED_LIBRARY_SUFFIX}")
         if(DEFINED ARGV1)
@@ -52,7 +53,7 @@ function(add_dynamic_library_locations Targets)
         if (${_target}_${dynamic_lib})
           set_target_properties(
               ${_target} PROPERTIES
-              ${dynlib_prop} ${${_target}_${dynamic_lib}})
+              ${dynlib_prop} "${${_target}_${dynamic_lib}}")
         endif()
       endif()
     endforeach()

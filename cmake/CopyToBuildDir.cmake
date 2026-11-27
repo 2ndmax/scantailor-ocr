@@ -39,7 +39,7 @@ macro (copy_to_build_dir)
     endforeach()
 
     # Force the new value to be written to the cache.
-    set("COPY_TO_BUILD_DIR_${conf_}" ${COPY_TO_BUILD_DIR_${conf_}}
+    set("COPY_TO_BUILD_DIR_${conf_}" "${COPY_TO_BUILD_DIR_${conf_}}"
         CACHE INTERNAL "Files to copy to ${conf_} build directory" FORCE)
   endforeach()
 endmacro()

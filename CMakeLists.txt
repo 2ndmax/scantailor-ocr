@@ -37,7 +37,7 @@ if (NOT DEFAULT_COMPILER_FLAGS_IS_SET)
   # prebuilt Qt and Boost binaries is an ODR violation that leads to crashes
   # at library boundaries. (_SECURE_SCL is also deprecated since VS2012.)
 
-  if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
+  if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Werror=return-type -Wno-unused")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror=return-type -Wno-unused")
   endif()
@@ -57,7 +57,7 @@ endif()
 # (distro packages, AppImage, CI artifacts) would abort with SIGILL elsewhere.
 # Kept outside the block above, as add_compile_options() sets a directory
 # property that has to be applied on every configure run, not just the first.
-if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
   option(NATIVE_ARCH "Optimize for the build machine's CPU. The resulting binary is not portable." OFF)
   if (NATIVE_ARCH)
     add_compile_options("$<$<CONFIG:RELEASE>:-march=native;-mtune=native>")
@@ -78,7 +78,7 @@ if (ENABLE_CODE_ANALYSIS)
     # via dominance, as the output::OutputImage* classes do on purpose).
     add_compile_options(/wd4324 /wd4250)
   elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wno-sign-conversion)
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror=return-type -Wshadow -Wconversion -Wno-sign-conversion)
   endif()
 endif()
 
