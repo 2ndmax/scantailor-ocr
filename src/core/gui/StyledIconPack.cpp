@@ -128,14 +128,15 @@ QPixmap SvgStyledIconEngine::scaledPixmap(const QSize& size,
     return {};
   }
   const qreal dpr = (std::isfinite(scale) && (scale > 0.0)) ? scale : 1.0;
-  QImage img(size, QImage::Format_ARGB32_Premultiplied);
+  const QSize pixelSize(std::max(1, qRound(size.width() * dpr)), std::max(1, qRound(size.height() * dpr)));
+  QImage img(pixelSize, QImage::Format_ARGB32_Premultiplied);
   if (img.isNull()) {
     return {};
   }
   img.fill(qRgba(0, 0, 0, 0));
   {
     QPainter painter(&img);
-    paint(&painter, QRect(QPoint(0, 0), size), mode, state);
+    paint(&painter, QRect(QPoint(0, 0), pixelSize), mode, state);
   }
   QPixmap pixmap = QPixmap::fromImage(img, Qt::NoFormatConversion);
   pixmap.setDevicePixelRatio(dpr);

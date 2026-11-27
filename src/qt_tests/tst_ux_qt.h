@@ -26,6 +26,21 @@ class TestUxQt : public QObject {
   void testWheelGoesPastAControlFocusedByOpeningAWindow();
   void testWheelGoesPastAControlThatGotTheFocusOfAHiddenOne();
   void testWheelGoesPastAControlClickedWithoutTakingTheFocus();
+  void testImageViewBaseEmptyAndZeroWidthGuards();
+  void testBubbleAnimationDegenerateInputs();
+  void testWheelPositionMapping();
+  void testColorSchemeRoundedCornersAndTabbedView();
+  void testDebugImageViewMissingFileShowsErrorWidget();
+  void testPageSelectionAccessorNullProvider();
+  void testStyledIconPackDegenerateAndHiDpiPixmap();
+  void testOverlayStyleHiDpiHandlePixmap();
+  void testProcessingIndicationPartialRepaintAndHideStopsTimer();
+  void testThumbnailEmptyAreaAndClipPreservation();
+  void testStageListViewSafeWithoutStages();
+  void testZoomHandlerShortcutStack();
+  void testInteractionHandlerSelfAndSiblingDeletionInDispatch();
+  void testInteractiveXSplineDegenerateAndDraggableDefaults();
+  void testZoneInteractionsFixes();
 };
 
 #endif

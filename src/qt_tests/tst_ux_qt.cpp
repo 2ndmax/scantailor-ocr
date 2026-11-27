@@ -5,19 +5,48 @@
 
 #include <Application.h>
 #include <ApplicationSettings.h>
+#include <AutoRemovingFile.h>
+#include <BasicImageView.h>
+#include <BubbleAnimation.h>
 #include <CollapsibleGroupBox.h>
+#include <ColorSchemeManager.h>
+#include <DebugImageView.h>
 #include <Dpi.h>
+#include <DraggableLineSegment.h>
+#include <DraggablePoint.h>
+#include <DraggablePolygon.h>
+#include <EditableSpline.h>
+#include <EditableZoneSet.h>
 #include <ErrorWidget.h>
 #include <FocusFrameStyle.h>
 #include <ImageId.h>
 #include <ImageTransformation.h>
+#include <InteractionHandler.h>
+#include <InteractionState.h>
+#include <InteractiveXSpline.h>
 #include <NativeColorScheme.h>
+#include <ObjectDragHandler.h>
+#include <OverlayStyle.h>
+#include <PageSelectionAccessor.h>
+#include <PageSequence.h>
+#include <ProcessingIndicationWidget.h>
+#include <SerializableSpline.h>
+#include <StageListView.h>
 #include <StyleSheetColorScheme.h>
 #include <StyledIconPack.h>
 #include <ThumbnailBase.h>
 #include <ThumbnailPixmapCache.h>
+#include <XSpline.h>
+#include <Zone.h>
+#include <ZoneContextMenuInteraction.h>
+#include <ZoneDefaultInteraction.h>
+#include <ZoneDragInteraction.h>
+#include <ZoneInteractionContext.h>
+#include <ZoneVertexDragInteraction.h>
+#include <ZoomHandler.h>
 #include <color_schemes/dark_scheme_colors.h>
 #include <color_schemes/light_scheme_colors.h>
+#include <core/filters/output/ui/TabbedImageView.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -30,10 +59,15 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QList>
+#include <QMenu>
+#include <QMouseEvent>
 #include <QPainter>
+#include <QPainterPath>
+#include <QPointingDevice>
 #include <QPushButton>
 #include <QScrollBar>
 #include <QSettings>
+#include <QShortcut>
 #include <QSignalSpy>
 #include <QSlider>
 #include <QSpinBox>
@@ -41,6 +75,8 @@
 #include <QStyleFactory>
 #include <QStyleOptionFocusRect>
 #include <QTemporaryDir>
+#include <QTimerEvent>
+#include <QWheelEvent>
 #include <QtTest/QtTest>
 #include <algorithm>
 #include <cmath>
@@ -463,4 +499,437 @@ void TestUxQt::testWheelGoesPastAControlClickedWithoutTakingTheFocus() {
   // Later the list gets the focus without a click, e.g. by the Tab key.
   controls.list->setFocus();
   QCOMPARE(Application::wheelReceiverInsteadOf(controls.list), &controls.panel);
+}
+
+void TestUxQt::testImageViewBaseEmptyAndZeroWidthGuards() {
+  BasicImageView emptyView(QImage{});
+  emptyView.resize(0, 0);
+  emptyView.show();
+  QCoreApplication::processEvents();
+  emptyView.setZoomLevel(2.0);
+  emptyView.setWidgetFocalPointWithoutMoving(QPointF(10.0, 10.0));
+  QVERIFY(emptyView.virtualDisplayRect().isEmpty());
+
+  QImage img(40, 40, QImage::Format_ARGB32_Premultiplied);
+  img.fill(Qt::white);
+  BasicImageView validView(img);
+  validView.resize(200, 200);
+  validView.setZoomLevel(2.0);
+  QCOMPARE(validView.zoomLevel(), 2.0);
+}
+
+void TestUxQt::testBubbleAnimationDegenerateInputs() {
+  BubbleAnimation zeroBubbles(0);
+  QImage canvas(32, 32, QImage::Format_ARGB32_Premultiplied);
+  canvas.fill(Qt::transparent);
+  QVERIFY(!zeroBubbles.nextFrame(Qt::red, Qt::blue, static_cast<QPaintDevice*>(nullptr)));
+  QVERIFY(!zeroBubbles.nextFrame(Qt::red, Qt::blue, static_cast<QPainter*>(nullptr), QRectF(0, 0, 10, 10)));
+  // numBubbles == 0 clamps to 1 bubble; a 1-frame cycle returns false (cycle complete) safely without UB.
+  QVERIFY(!zeroBubbles.nextFrame(Qt::red, Qt::blue, &canvas));
+
+  BubbleAnimation anim(8);
+  QImage hiDpi(64, 64, QImage::Format_ARGB32_Premultiplied);
+  hiDpi.fill(Qt::transparent);
+  hiDpi.setDevicePixelRatio(2.0);
+  QVERIFY(anim.nextFrame(Qt::red, Qt::blue, &hiDpi));
+}
+
+void TestUxQt::testWheelPositionMapping() {
+  QWidget panel;
+  panel.resize(200, 200);
+  auto* spin = new QSpinBox(&panel);
+  spin->setGeometry(40, 50, 80, 30);
+
+  QWidget other;
+  other.resize(100, 100);
+
+  const QPointF childLocal(5.0, 6.0);
+  const QPointF childGlobal = spin->mapToGlobal(childLocal);
+  QWheelEvent childWheel(childLocal, childGlobal, QPoint(), QPoint(0, 120), Qt::NoButton, Qt::NoModifier,
+                         Qt::NoScrollPhase, false, Qt::MouseEventNotSynthesized,
+                         QPointingDevice::primaryPointingDevice());
+  QCOMPARE(Application::mapWheelPosition(spin, &panel, childWheel), spin->mapTo(&panel, childLocal));
+
+  const QPointF otherGlobal(250.0, 260.0);
+  QWheelEvent otherWheel(QPointF(10.0, 10.0), otherGlobal, QPoint(), QPoint(0, 120), Qt::NoButton, Qt::NoModifier,
+                         Qt::NoScrollPhase, false, Qt::MouseEventNotSynthesized,
+                         QPointingDevice::primaryPointingDevice());
+  QCOMPARE(Application::mapWheelPosition(&other, &panel, otherWheel), QPointF(panel.mapFromGlobal(otherGlobal)));
+}
+
+void TestUxQt::testColorSchemeRoundedCornersAndTabbedView() {
+  auto lightScheme = StyleSheetColorScheme::of<light_scheme_colors>();
+  ColorSchemeManager::instance().setColorScheme(*lightScheme);
+  QVERIFY(!ColorSchemeManager::instance().hasRoundedCorners());
+
+  NativeColorScheme nativeScheme;
+  ColorSchemeManager::instance().setColorScheme(nativeScheme);
+  QCOMPARE(ColorSchemeManager::instance().hasRoundedCorners(), nativeScheme.hasRoundedCorners());
+
+  output::TabbedImageView tabs;
+  QCOMPARE(tabs.property("outputTabs").toBool(), true);
+}
+
+void TestUxQt::testDebugImageViewMissingFileShowsErrorWidget() {
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  DebugImageView view(AutoRemovingFile(dir.filePath("missing_debug_image.png")));
+  view.setLive(true);
+  QTRY_VERIFY_WITH_TIMEOUT(qobject_cast<ErrorWidget*>(view.currentWidget()) != nullptr, 5000);
+  view.setLive(false);
+}
+
+void TestUxQt::testPageSelectionAccessorNullProvider() {
+  PageSelectionAccessor accessor{std::shared_ptr<const PageSelectionProvider>()};
+  QVERIFY(accessor.allPages().numPages() == 0);
+  QVERIFY(accessor.selectedPages().empty());
+  QVERIFY(accessor.selectedRanges().empty());
+}
+
+void TestUxQt::testStyledIconPackDegenerateAndHiDpiPixmap() {
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+
+  QFile emptySheet(dir.filePath("empty.xml"));
+  QVERIFY(emptySheet.open(QIODevice::WriteOnly));
+  emptySheet.write("");
+  emptySheet.close();
+  StyledIconPack emptyPack(emptySheet.fileName());
+  QVERIFY(emptyPack.getIcon("missing").pixmap(QSize(0, 0)).isNull());
+
+  QFile svg(dir.filePath("square.svg"));
+  QVERIFY(svg.open(QIODevice::WriteOnly));
+  svg.write("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\"><rect width=\"10\" height=\"10\"/></svg>");
+  svg.close();
+
+  QFile sheet(dir.filePath("icons.xml"));
+  QVERIFY(sheet.open(QIODevice::WriteOnly));
+  sheet.write(
+      ("<icons><icon name=\"square\" styled=\"on\"><file>" + svg.fileName() + "</file></icon></icons>").toUtf8());
+  sheet.close();
+
+  const QPalette oldPalette = QGuiApplication::palette();
+  QPalette palette(oldPalette);
+  palette.setColor(QPalette::Normal, QPalette::WindowText, QColor(0x20, 0x80, 0x40));
+  QGuiApplication::setPalette(palette);
+
+  StyledIconPack pack(sheet.fileName());
+  const QPixmap pm = pack.getIcon("square").pixmap(QSize(16, 16), 2.0);
+  QGuiApplication::setPalette(oldPalette);
+
+  QCOMPARE(pm.size(), QSize(32, 32));
+  QCOMPARE(pm.devicePixelRatio(), 2.0);
+  QCOMPARE(pm.toImage().pixelColor(24, 24), QColor(0x20, 0x80, 0x40));
+}
+
+void TestUxQt::testOverlayStyleHiDpiHandlePixmap() {
+  const QPixmap p1 = OverlayStyle::handlePixmap(1.0);
+  const QPixmap p2 = OverlayStyle::handlePixmap(2.0);
+  QCOMPARE(p1.size(), QSize(16, 16));
+  QCOMPARE(p2.size(), QSize(32, 32));
+  QCOMPARE(p2.devicePixelRatio(), 2.0);
+}
+
+void TestUxQt::testProcessingIndicationPartialRepaintAndHideStopsTimer() {
+  ProcessingIndicationWidget widget;
+  widget.resize(200, 200);
+  widget.show();
+  widget.processingRestartedEffect();
+
+  QImage partial(200, 200, QImage::Format_ARGB32_Premultiplied);
+  partial.fill(Qt::transparent);
+  widget.render(&partial, QPoint(0, 0), QRegion(0, 0, 20, 20));
+  QVERIFY(partial.pixelColor(5, 5).alpha() > 0);
+
+  struct PaintCounter : public QObject {
+    int count = 0;
+    bool eventFilter(QObject*, QEvent* event) override {
+      if (event->type() == QEvent::Paint) {
+        ++count;
+      }
+      return false;
+    }
+  } counter;
+  widget.installEventFilter(&counter);
+  widget.hide();
+  QTest::qWait(80);
+  QCOMPARE(counter.count, 0);
+}
+
+void TestUxQt::testThumbnailEmptyAreaAndClipPreservation() {
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+  auto cache = std::make_shared<ThumbnailPixmapCache>(dir.path(), QSize(250, 250), 100, 5);
+  QImage img(100, 100, QImage::Format_RGB32);
+  img.fill(Qt::blue);
+  const ImageId id(dir.filePath("blue.png"));
+  QVERIFY(addLoadedThumbnail(*cache, id, img));
+
+  ImageTransformation xform(QRectF(0, 0, 100, 100), Dpi(300, 300));
+  ThumbnailBase emptyThumb(cache, QSizeF(0, 0), id, xform);
+  paintThumbnail(emptyThumb);
+
+  ThumbnailBase thumb(cache, QSizeF(120, 120), id, xform);
+  QImage canvas(160, 160, QImage::Format_ARGB32_Premultiplied);
+  canvas.fill(Qt::white);
+  QPainter painter(&canvas);
+  const QRectF outerClip(10.0, 10.0, 40.0, 40.0);
+  painter.setClipRect(outerClip);
+  thumb.paint(&painter, nullptr, nullptr);
+  QVERIFY(painter.hasClipping());
+  QCOMPARE(painter.clipBoundingRect(), outerClip);
+}
+
+void TestUxQt::testStageListViewSafeWithoutStages() {
+  StageListView view(nullptr);
+  view.setBatchProcessingInProgress(true);
+  view.setBatchProcessingPossible(true);
+  view.resize(180, 180);
+  view.setBatchProcessingInProgress(false);
+  view.setPdfRowEnabled(false);
+}
+
+void TestUxQt::testZoomHandlerShortcutStack() {
+  QImage img(100, 100, QImage::Format_ARGB32_Premultiplied);
+  img.fill(Qt::white);
+  BasicImageView view(img);
+
+  const QList<QShortcut*> baseShortcuts = view.findChildren<QShortcut*>();
+  QCOMPARE(baseShortcuts.size(), 2);
+  QVERIFY(baseShortcuts[0]->isEnabled());
+  QVERIFY(baseShortcuts[1]->isEnabled());
+
+  {
+    ZoomHandler topHandler(view);
+    const QList<QShortcut*> allShortcuts = view.findChildren<QShortcut*>();
+    QCOMPARE(allShortcuts.size(), 4);
+    QVERIFY(!baseShortcuts[0]->isEnabled());
+    QVERIFY(!baseShortcuts[1]->isEnabled());
+  }
+
+  QVERIFY(baseShortcuts[0]->isEnabled());
+  QVERIFY(baseShortcuts[1]->isEnabled());
+}
+
+void TestUxQt::testInteractionHandlerSelfAndSiblingDeletionInDispatch() {
+  struct ActionHandler : public InteractionHandler {
+    std::function<void()> fn;
+    int calls = 0;
+    explicit ActionHandler(std::function<void()> callback) : fn(std::move(callback)) {}
+    void onMousePressEvent(QMouseEvent*, InteractionState&) override {
+      ++calls;
+      if (fn) {
+        fn();
+      }
+    }
+  };
+
+  InteractionHandler root;
+  InteractionState state;
+  std::unique_ptr<ActionHandler> victim(new ActionHandler({}));
+  std::unique_ptr<ActionHandler> selfDel;
+  ActionHandler afterVictim([&]() {});
+
+  ActionHandler killer([&]() { victim.reset(); });
+  selfDel = std::make_unique<ActionHandler>([&]() { selfDel.reset(); });
+
+  root.makeLastFollower(killer);
+  root.makeLastFollower(*victim);
+  root.makeLastFollower(*selfDel);
+  root.makeLastFollower(afterVictim);
+
+  QMouseEvent press(QEvent::MouseButtonPress, QPointF(1, 1), QPointF(1, 1), Qt::LeftButton, Qt::LeftButton,
+                    Qt::NoModifier);
+  press.ignore();
+  root.mousePressEvent(&press, state);
+
+  QCOMPARE(killer.calls, 1);
+  QVERIFY(!victim);
+  QVERIFY(!selfDel);
+  QCOMPARE(afterVictim.calls, 1);
+}
+
+void TestUxQt::testInteractiveXSplineDegenerateAndDraggableDefaults() {
+  QImage img(100, 100, QImage::Format_ARGB32_Premultiplied);
+  img.fill(Qt::white);
+  BasicImageView view(img);
+  InteractionState state;
+
+  InteractiveXSpline splineHandler(view);
+  splineHandler.proximityUpdate(QPointF(10, 10), state);
+  splineHandler.removeControlPointUnderMouse();
+
+  XSpline singlePointSpline;
+  singlePointSpline.appendControlPoint(QPointF(20, 20), 0.0);
+  splineHandler.setSpline(singlePointSpline);
+  splineHandler.proximityUpdate(QPointF(20, 20), state);
+  splineHandler.removeControlPointUnderMouse();
+
+  DraggablePoint pt;
+  pt.proximity(QPointF(0, 0));
+  pt.dragInitiated(QPointF(0, 0));
+  pt.dragContinuation(QPointF(10, 10), Qt::NoModifier);
+
+  DraggableLineSegment seg;
+  seg.proximity(QPointF(0, 0));
+  seg.dragInitiated(QPointF(0, 0));
+  seg.dragContinuation(QPointF(10, 10), Qt::NoModifier);
+
+  DraggablePolygon poly;
+  poly.proximity(QPointF(0, 0));
+  poly.dragInitiated(QPointF(0, 0));
+  poly.dragContinuation(QPointF(10, 10), Qt::NoModifier);
+
+  ObjectDragHandler dragHandler(nullptr);
+  dragHandler.forceEnterDragState(state, QPoint(5, 5));
+}
+
+void TestUxQt::testZoneInteractionsFixes() {
+  QImage img(200, 200, QImage::Format_ARGB32_Premultiplied);
+  img.fill(Qt::white);
+  BasicImageView view(img);
+  view.resize(400, 400);
+  view.setZoomLevel(2.0);
+  EditableZoneSet zones;
+  ZoneInteractionContext ctx(view, zones);
+
+  // P5-24: Empty spline in ZoneDragInteraction does not crash.
+  {
+    auto emptySpline = std::make_shared<EditableSpline>();
+    InteractionState state;
+    auto* emptyDrag = new ZoneDragInteraction(ctx, state, emptySpline, false);
+    view.rootInteractionHandler().makeLastFollower(*emptyDrag);
+    QMouseEvent move(QEvent::MouseMove, QPointF(20, 20), QPointF(20, 20), Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+    move.ignore();
+    emptyDrag->mouseMoveEvent(&move, state);
+    QMouseEvent rel(QEvent::MouseButtonRelease, QPointF(20, 20), QPointF(20, 20), Qt::LeftButton, Qt::NoButton,
+                    Qt::NoModifier);
+    rel.ignore();
+    emptyDrag->mouseReleaseEvent(&rel, state);
+    QVERIFY(rel.isAccepted());
+  }
+
+  // Build a valid quad spline in image coordinates.
+  auto makeQuad = []() {
+    auto s = std::make_shared<EditableSpline>();
+    s->appendVertex(QPointF(20, 20));
+    s->appendVertex(QPointF(120, 20));
+    s->appendVertex(QPointF(120, 120));
+    s->appendVertex(QPointF(20, 120));
+    s->setBridged(true);
+    return s;
+  };
+
+  // P5-19: Drift-free ZoneDragInteraction across multiple moves and event accept on release.
+  {
+    auto quad = makeQuad();
+    zones.addZone(quad);
+    InteractionState state;
+    const QPointF startWidget = view.imageToWidget().map(QPointF(70, 70));
+    auto* drag = new ZoneDragInteraction(ctx, state, quad, false);
+    view.rootInteractionHandler().makeLastFollower(*drag);
+    const QPointF step1 = startWidget + QPointF(10, 6);
+    const QPointF step2 = startWidget + QPointF(24, -8);
+    QMouseEvent move1(QEvent::MouseMove, step1, view.mapToGlobal(step1), Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+    move1.ignore();
+    drag->mouseMoveEvent(&move1, state);
+    QMouseEvent move2(QEvent::MouseMove, step2, view.mapToGlobal(step2), Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+    move2.ignore();
+    drag->mouseMoveEvent(&move2, state);
+    QMouseEvent rel(QEvent::MouseButtonRelease, step2, view.mapToGlobal(step2), Qt::LeftButton, Qt::NoButton,
+                    Qt::NoModifier);
+    rel.ignore();
+    drag->mouseReleaseEvent(&rel, state);
+    QVERIFY(rel.isAccepted());
+    zones.removeZone(quad);
+  }
+
+  // P5-20: ZoneContextMenuInteraction releases capture synchronously when menu hides.
+  {
+    auto quad = makeQuad();
+    zones.addZone(quad);
+    const QPointF centerWidget = view.imageToWidget().map(QPointF(70, 70));
+    ctx.setLastContextMenuScreenPos(view.mapToGlobal(centerWidget.toPoint()));
+    InteractionState state;
+    ZoneContextMenuInteraction* menuInteraction = ZoneContextMenuInteraction::create(ctx, state);
+    QVERIFY(menuInteraction != nullptr);
+    QSignalSpy destroyedSpy(menuInteraction, &QObject::destroyed);
+    view.rootInteractionHandler().makeLastFollower(*menuInteraction);
+    QVERIFY(state.captured());
+    QMenu* popup = qobject_cast<QMenu*>(QApplication::activePopupWidget());
+    QVERIFY(popup != nullptr);
+    popup->close();
+    QTRY_VERIFY(!state.captured());
+    QTRY_COMPARE(destroyedSpy.count(), 1);
+    zones.removeZone(quad);
+  }
+
+  // P5-19 & P5-22: ZoneVertexDragInteraction Ctrl align avoids /0 on coinciding neighbor and rolls back degenerate
+  // zone.
+  {
+    auto tri = std::make_shared<EditableSpline>();
+    tri->appendVertex(QPointF(20, 20));
+    tri->appendVertex(QPointF(120, 20));
+    tri->appendVertex(QPointF(120, 120));
+    tri->setBridged(true);
+    zones.addZone(tri);
+    SplineVertex::Ptr v0 = tri->firstVertex();
+    SplineVertex::Ptr v1 = v0->next(SplineVertex::NO_LOOP);
+    SplineVertex::Ptr v2 = v1->next(SplineVertex::NO_LOOP);
+    const QPointF origV2Pos = v2->point();
+
+    InteractionState state;
+    auto* vertexDrag = new ZoneVertexDragInteraction(ctx, state, tri, v2);
+    view.rootInteractionHandler().makeLastFollower(*vertexDrag);
+    // Drag v2 onto line between v0 and v1 with Ctrl so all 3 points become collinear (invalid zone).
+    const QPointF cursorWidget(view.mapFromGlobal(QCursor::pos()));
+    const QPointF collinearWidget
+        = cursorWidget + (view.imageToWidget().map(QPointF(70, 20)) - view.imageToWidget().map(origV2Pos));
+    QMouseEvent moveCollinear(QEvent::MouseMove, collinearWidget, collinearWidget, Qt::NoButton, Qt::LeftButton,
+                              Qt::ControlModifier);
+    moveCollinear.ignore();
+    vertexDrag->mouseMoveEvent(&moveCollinear, state);
+    QMouseEvent rel(QEvent::MouseButtonRelease, collinearWidget, collinearWidget, Qt::LeftButton, Qt::NoButton,
+                    Qt::NoModifier);
+    rel.ignore();
+    vertexDrag->mouseReleaseEvent(&rel, state);
+    QVERIFY(rel.isAccepted());
+    QCOMPARE(v2->point(), origV2Pos);
+    QCOMPARE(v0->point(), QPointF(20, 20));
+    QCOMPARE(v1->point(), QPointF(120, 20));
+    QVERIFY(Zone(SerializableSpline(*tri)).isValid());
+    zones.removeZone(tri);
+
+    // Ctrl align when moving near neighbor at (120, 20) on quad without division by zero.
+    auto quad = makeQuad();
+    zones.addZone(quad);
+    SplineVertex::Ptr quadV2 = quad->firstVertex()->next(SplineVertex::NO_LOOP)->next(SplineVertex::NO_LOOP);
+    auto* ctrlDrag = new ZoneVertexDragInteraction(ctx, state, quad, quadV2);
+    view.rootInteractionHandler().makeLastFollower(*ctrlDrag);
+    const QPointF coincideWidget
+        = cursorWidget + (view.imageToWidget().map(QPointF(120, 20)) - view.imageToWidget().map(quadV2->point()));
+    QMouseEvent moveCtrl(QEvent::MouseMove, coincideWidget, coincideWidget, Qt::NoButton, Qt::LeftButton,
+                         Qt::ControlModifier);
+    moveCtrl.ignore();
+    ctrlDrag->mouseMoveEvent(&moveCtrl, state);
+    QVERIFY(std::isfinite(quadV2->point().x()) && std::isfinite(quadV2->point().y()));
+    QMouseEvent relCtrl(QEvent::MouseButtonRelease, coincideWidget, coincideWidget, Qt::LeftButton, Qt::NoButton,
+                        Qt::NoModifier);
+    relCtrl.ignore();
+    ctrlDrag->mouseReleaseEvent(&relCtrl, state);
+    zones.removeZone(quad);
+  }
+
+  // P5-18: ZoneDefaultInteraction remains safe under captured state.
+  {
+    auto quad = makeQuad();
+    zones.addZone(quad);
+    ZoneDefaultInteraction def(ctx);
+    InteractionState state;
+    InteractionState::Captor cap;
+    state.capture(cap);
+    const QPointF v0Widget = view.imageToWidget().map(QPointF(20, 20));
+    def.proximityUpdate(v0Widget, state);
+    QCOMPARE(std::distance(zones.begin(), zones.end()), std::ptrdiff_t(1));
+  }
 }

@@ -5,9 +5,12 @@
 #define SCANTAILOR_CORE_APPLICATION_H_
 
 #include <QApplication>
+#include <QPointF>
 #include <QTimer>
 
 #include "Translations.h"
+
+class QWheelEvent;
 
 /**
  * Notes on each list, number field and slider whether it was clicked since it got the focus. The note stays
@@ -42,6 +45,11 @@ class Application : public QApplication {
    * a panel doesn't change settings on the way.
    */
   static QWidget* wheelReceiverInsteadOf(QObject* receiver);
+
+  /**
+   * Computes the local position in \p target for a wheel event originally aimed at \p receiver.
+   */
+  static QPointF mapWheelPosition(QObject* receiver, const QWidget* target, const QWheelEvent& wheel);
 
   const QString& getCurrentLocale() const;
 

@@ -104,16 +104,19 @@ QWidget* Application::wheelReceiverInsteadOf(QObject* receiver) {
   return control->parentWidget();
 }
 
+QPointF Application::mapWheelPosition(QObject* receiver, const QWidget* target, const QWheelEvent& wheel) {
+  auto* origWidget = qobject_cast<QWidget*>(receiver);
+  return (origWidget && target->isAncestorOf(origWidget)) ? origWidget->mapTo(target, wheel.position())
+                                                          : target->mapFromGlobal(wheel.globalPosition());
+}
+
 bool Application::notify(QObject* receiver, QEvent* e) {
   try {
     // Has to be decided here: inside QApplication::notify() the wheel would first give the control the focus.
     if (e->type() == QEvent::Wheel) {
       if (QWidget* insteadOfReceiver = wheelReceiverInsteadOf(receiver)) {
         auto* wheel = static_cast<QWheelEvent*>(e);
-        auto* origWidget = qobject_cast<QWidget*>(receiver);
-        const QPointF localPos = (origWidget && insteadOfReceiver->isAncestorOf(origWidget))
-                                     ? origWidget->mapTo(insteadOfReceiver, wheel->position())
-                                     : insteadOfReceiver->mapFromGlobal(wheel->globalPosition());
+        const QPointF localPos = mapWheelPosition(receiver, insteadOfReceiver, *wheel);
         QWheelEvent forwarded(localPos, wheel->globalPosition(), wheel->pixelDelta(), wheel->angleDelta(),
                               wheel->buttons(), wheel->modifiers(), wheel->phase(), wheel->inverted(), wheel->source(),
                               wheel->pointingDevice());
