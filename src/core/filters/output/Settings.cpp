@@ -8,6 +8,7 @@
 #include "CoreUtils.h"
 #include "FillColorProperty.h"
 #include "FillZonePropFactory.h"
+#include "OutputZoneOps.h"
 #include "PictureLayerProperty.h"
 #include "PictureZonePropFactory.h"
 #include "ProjectIdReader.h"
@@ -350,5 +351,43 @@ void Settings::setBlackOnWhite(const PageId& pageId, const bool blackOnWhite) {
   } else {
     it->second.setBlackOnWhite(blackOnWhite);
   }
+}
+
+void Settings::setDewarpingResult(const PageId& pageId, const double postDeskewAngle, const bool noModelFound) {
+  const QMutexLocker locker(&m_mutex);
+
+  const auto it(m_perPageParams.find(pageId));
+  Params params = (it == m_perPageParams.end()) ? Params() : it->second;
+  DewarpingOptions opt = params.dewarpingOptions();
+  opt.setPostDeskewAngle(postDeskewAngle);
+  opt.setNoModelFound(noModelFound);
+  params.setDewarpingOptions(opt);
+  if (it == m_perPageParams.end()) {
+    m_perPageParams.insert(it, PerPageParams::value_type(pageId, params));
+  } else {
+    it->second = params;
+  }
+}
+
+ZoneSet Settings::replaceAutoPictureZones(const PageId& pageId, const ZoneSet& autoZones) {
+  const QMutexLocker locker(&m_mutex);
+
+  const auto it(m_perPagePictureZones.find(pageId));
+  ZoneSet zones = (it == m_perPagePictureZones.end()) ? ZoneSet() : it->second;
+  detail::removeAutoPictureZones(zones);
+  for (const Zone& zone : autoZones) {
+    zones.add(zone);
+  }
+  CoreUtils::mapSetValue(m_perPagePictureZones, pageId, zones);
+  return zones;
+}
+
+void Settings::setAutoZonesFound(const PageId& pageId, const bool autoZonesFound) {
+  const QMutexLocker locker(&m_mutex);
+
+  const auto it(m_perPageOutputProcessingParams.find(pageId));
+  OutputProcessingParams params = (it == m_perPageOutputProcessingParams.end()) ? OutputProcessingParams() : it->second;
+  params.setAutoZonesFound(autoZonesFound);
+  CoreUtils::mapSetValue(m_perPageOutputProcessingParams, pageId, params);
 }
 }  // namespace output

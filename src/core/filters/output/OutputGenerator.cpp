@@ -686,9 +686,9 @@ void detail::Processor::processPictureZones(BinaryImage& mask, ZoneSet& pictureZ
     }
 
     detail::removeAutoPictureZones(pictureZones);
-    m_inputs.settings->setPictureZones(m_inputs.pageId, pictureZones);
+    m_inputs.settings->replaceAutoPictureZones(m_inputs.pageId, ZoneSet());
     m_outputProcessingParams.setAutoZonesFound(false);
-    m_inputs.settings->setOutputProcessingParams(m_inputs.pageId, m_outputProcessingParams);
+    m_inputs.settings->setAutoZonesFound(m_inputs.pageId, false);
   }
   if ((m_pictureShapeOptions.getPictureShape() == RECTANGULAR_SHAPE) && !m_outputProcessingParams.isAutoZonesFound()) {
     std::vector<QRect> areas = detail::findRectAreas(mask, m_pictureShapeOptions.getSensitivity());
@@ -699,12 +699,15 @@ void detail::Processor::processPictureZones(BinaryImage& mask, ZoneSet& pictureZ
       return toWorkingCs.inverted();
     }();
 
+    ZoneSet autoZones;
     for (const QRect& area : areas) {
-      pictureZones.add(detail::createPictureZoneFromPoly(fromWorkingCs.map(QRectF(area))));
+      const Zone zone = detail::createPictureZoneFromPoly(fromWorkingCs.map(QRectF(area)));
+      autoZones.add(zone);
+      pictureZones.add(zone);
     }
-    m_inputs.settings->setPictureZones(m_inputs.pageId, pictureZones);
+    m_inputs.settings->replaceAutoPictureZones(m_inputs.pageId, autoZones);
     m_outputProcessingParams.setAutoZonesFound(true);
-    m_inputs.settings->setOutputProcessingParams(m_inputs.pageId, m_outputProcessingParams);
+    m_inputs.settings->setAutoZonesFound(m_inputs.pageId, true);
 
     mask.fill(BLACK);
   }

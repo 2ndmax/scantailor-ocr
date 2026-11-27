@@ -203,7 +203,8 @@ std::unique_ptr<OutputImage> detail::Processor::processWithDewarping(ZoneSet& pi
                       m_outsideBackgroundColor);
   }
   normalizedOriginal = QImage();  // Save memory.
-  m_inputs.settings->setDewarpingOptions(m_inputs.pageId, m_dewarpingOptions);
+  m_inputs.settings->setDewarpingResult(m_inputs.pageId, m_dewarpingOptions.getPostDeskewAngle(),
+                                        m_dewarpingOptions.noModelFound());
   detail::applyAffineTransform(dewarped, rotateXform, m_outsideBackgroundColor);
   // As without dewarping, the filters work on the page in output resolution.
   applyEnhancementFilters(dewarped);

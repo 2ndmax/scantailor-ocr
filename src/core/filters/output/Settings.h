@@ -108,6 +108,12 @@ class Settings {
 
   void setBlackOnWhite(const PageId& pageId, bool blackOnWhite);
 
+  void setDewarpingResult(const PageId& pageId, double postDeskewAngle, bool noModelFound);
+
+  ZoneSet replaceAutoPictureZones(const PageId& pageId, const ZoneSet& autoZones);
+
+  void setAutoZonesFound(const PageId& pageId, bool autoZonesFound);
+
  private:
   using PerPageParams = std::unordered_map<PageId, Params>;
   using PerPageOutputParams = std::unordered_map<PageId, OutputParams>;

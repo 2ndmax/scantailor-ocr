@@ -31,6 +31,7 @@
 #include <filters/output/OutputImageWithForeground.h>
 #include <filters/output/OutputParams.h>
 #include <filters/output/OutputRectFinder.h>
+#include <filters/output/OutputZoneOps.h>
 #include <filters/output/Params.h>
 #include <filters/output/PictureLayerProperty.h>
 #include <filters/output/PictureShapeOptions.h>
@@ -1521,6 +1522,45 @@ BOOST_AUTO_TEST_CASE(output_task_creates_cache_subdirs_in_mixed_mode) {
   BOOST_CHECK(QFileInfo::exists(outFileNameGen.filePathFor(pageId)));
   BOOST_CHECK(QFileInfo::exists(automaskPath));
   BOOST_CHECK(settings->getOutputParams(pageId) != nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(fine_grained_output_setters_preserve_concurrent_gui_edits) {
+  const PageId pageId(ImageId(QStringLiteral("concurrent.png")), PageId::SINGLE_PAGE);
+  Settings settings;
+
+  // Worker starts with AUTO dewarping, needPostDeskew=true, evenOutLetterWidths=false.
+  // Meanwhile GUI toggles needPostDeskew=false and evenOutLetterWidths=true.
+  Params guiParams = settings.getParams(pageId);
+  DewarpingOptions guiDewarp(AUTO);
+  guiDewarp.setPostDeskew(false);
+  guiDewarp.setEvenOutLetterWidths(true);
+  guiParams.setDewarpingOptions(guiDewarp);
+  settings.setParams(pageId, guiParams);
+
+  settings.setDewarpingResult(pageId, 1.75, true);
+  const DewarpingOptions afterDewarp = settings.getParams(pageId).dewarpingOptions();
+  BOOST_CHECK(!afterDewarp.needPostDeskew());
+  BOOST_CHECK(afterDewarp.evenOutLetterWidths());
+  BOOST_CHECK_CLOSE(afterDewarp.getPostDeskewAngle(), 1.75, 1e-9);
+  BOOST_CHECK(afterDewarp.noModelFound());
+
+  // Meanwhile GUI adds a manual picture zone while worker replaces auto zones.
+  ZoneSet guiZones = pictureZone();
+  guiZones.add(output::detail::createPictureZoneFromPoly(QRectF(10, 10, 20, 20)));
+  settings.setPictureZones(pageId, guiZones);
+
+  ZoneSet newAutoZones;
+  newAutoZones.add(output::detail::createPictureZoneFromPoly(QRectF(40, 40, 30, 30)));
+  const ZoneSet merged = settings.replaceAutoPictureZones(pageId, newAutoZones);
+  int count = 0;
+  for (const Zone& z : merged) {
+    Q_UNUSED(z);
+    ++count;
+  }
+  BOOST_CHECK_EQUAL(count, 2);
+
+  settings.setAutoZonesFound(pageId, true);
+  BOOST_CHECK(settings.getOutputProcessingParams(pageId).isAutoZonesFound());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
