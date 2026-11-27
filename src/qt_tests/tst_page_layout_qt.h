@@ -12,6 +12,10 @@ class TestPageLayoutQt : public QObject {
   void testLengthFieldsSetDecimalsStepAndUnit();
   void testShowsPanelAndConnectedView();
   void testThumbnailOfPage();
+  void testOptionsWidgetAlignmentButtonApplyMarginsAndCommonSizeGroup();
+  void testGuidesRespectScaleAndDoNotShrinkSettings();
+  void testNegativeHardMarginsDoNotFlipPositive();
+  void testAttachContentToNearestGuideWithEdgeAlignment();
 };
 
 #endif  // TST_PAGE_LAYOUT_QT_H

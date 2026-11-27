@@ -181,7 +181,13 @@ class ImageView : public ImageViewBase, private InteractionHandler {
 
   void enableGuidesInteraction(bool state);
 
-  void forceInscribeGuides();
+  QPointF virtualToOutputMmScale() const;
+
+  double guidePosInVirtual(const Guide& guide) const;
+
+  QPointF findNearestGuideDelta(const QRectF& foundAreaInVirtual, Qt::KeyboardModifiers mask) const;
+
+  QPointF adjustGuideSnapDelta(QPointF delta) const;
 
   Proximity rectProximity(const QRectF& box, const QPointF& mousePos) const;
 

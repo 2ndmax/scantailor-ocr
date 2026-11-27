@@ -217,7 +217,6 @@ void ImageView::alignmentChanged(const Alignment& alignment) {
   recalcBoxesAndFit(calcHardMarginsMM());
 
   enableGuidesInteraction(!m_alignment.isNull());
-  forceInscribeGuides();
 
   enableMiddleRectInteraction(isShowingMiddleRectEnabled());
 
@@ -500,8 +499,6 @@ void ImageView::recalcBoxesAndFit(const Margins& marginsMm) {
   m_outerRect = outerRect;
 
   updatePhysSize();
-
-  forceInscribeGuides();
 }
 
 /**
@@ -553,13 +550,18 @@ Margins ImageView::calcHardMarginsMM() const {
 
   const QTransform virtToMm(virtualToImage() * m_pixelsToMmXform);
 
+  const double topSign = (m_middleRect.top() <= m_innerRect.top()) ? 1.0 : -1.0;
+  const double bottomSign = (m_middleRect.bottom() >= m_innerRect.bottom()) ? 1.0 : -1.0;
+  const double leftSign = (m_middleRect.left() <= m_innerRect.left()) ? 1.0 : -1.0;
+  const double rightSign = (m_middleRect.right() >= m_innerRect.right()) ? 1.0 : -1.0;
+
   // The margins are shown divided by the scale factor.
   const double factor = m_scaleFactor;
   Margins margins;
-  margins.setTop(virtToMm.map(topMarginLine).length() * factor);
-  margins.setBottom(virtToMm.map(bottomMarginLine).length() * factor);
-  margins.setLeft(virtToMm.map(leftMarginLine).length() * factor);
-  margins.setRight(virtToMm.map(rightMarginLine).length() * factor);
+  margins.setTop(topSign * virtToMm.map(topMarginLine).length() * factor);
+  margins.setBottom(bottomSign * virtToMm.map(bottomMarginLine).length() * factor);
+  margins.setLeft(leftSign * virtToMm.map(leftMarginLine).length() * factor);
+  margins.setRight(rightSign * virtToMm.map(rightMarginLine).length() * factor);
   return margins;
 }  // ImageView::calcHardMarginsMM
 
@@ -576,8 +578,6 @@ void ImageView::recalcOuterRect() {
 
   m_outerRect = mmToVirt.map(polyMm).boundingRect();
   updatePhysSize();
-
-  forceInscribeGuides();
 }
 
 double ImageView::calcScaleFactor(const Margins& hardMarginsMm) const {
@@ -720,7 +720,7 @@ void ImageView::onContextMenuEvent(QContextMenuEvent* event, InteractionState& i
 
 void ImageView::setupGuides() {
   for (const Guide& guide : m_settings->guides()) {
-    m_guides[m_guidesFreeIndex] = m_mmToPixelsXform.map(guide);
+    m_guides[m_guidesFreeIndex] = guide;
     setupGuideInteraction(m_guidesFreeIndex++);
   }
 }
@@ -781,9 +781,18 @@ void ImageView::removeGuide(const int index) {
   syncGuidesSettings();
 }
 
+QPointF ImageView::virtualToOutputMmScale() const {
+  const QTransform virtToMm(virtualToImage() * m_pixelsToMmXform);
+  const double sx = virtToMm.map(QLineF(0.0, 0.0, 1.0, 0.0)).length() * m_scaleFactor;
+  const double sy = virtToMm.map(QLineF(0.0, 0.0, 0.0, 1.0)).length() * m_scaleFactor;
+  return QPointF(sx, sy);
+}
+
 QTransform ImageView::widgetToGuideCs() const {
+  const QPointF scale = virtualToOutputMmScale();
   QTransform xform(widgetToVirtual());
   xform *= QTransform().translate(-m_outerRect.center().x(), -m_outerRect.center().y());
+  xform *= QTransform::fromScale(scale.x(), scale.y());
   return xform;
 }
 
@@ -794,7 +803,7 @@ QTransform ImageView::guideToWidgetCs() const {
 void ImageView::syncGuidesSettings() {
   m_settings->guides().clear();
   for (const auto& idxAndGuide : m_guides) {
-    m_settings->guides().emplace_back(m_pixelsToMmXform.map(idxAndGuide.second));
+    m_settings->guides().emplace_back(idxAndGuide.second);
   }
 }
 
@@ -888,33 +897,6 @@ void ImageView::enableGuidesInteraction(const bool state) {
   }
 }
 
-void ImageView::forceInscribeGuides() {
-  if (m_alignment.isNull()) {
-    return;
-  }
-
-  bool needSync = false;
-  for (const auto& idxAndGuide : m_guides) {
-    const Guide& guide = idxAndGuide.second;
-    const double pos = guide.getPosition();
-    if (guide.getOrientation() == Qt::Vertical) {
-      if (std::abs(pos) > (m_outerRect.width() / 2)) {
-        m_guides[idxAndGuide.first].setPosition(std::copysign(m_outerRect.width() / 2, pos));
-        needSync = true;
-      }
-    } else {
-      if (std::abs(pos) > (m_outerRect.height() / 2)) {
-        m_guides[idxAndGuide.first].setPosition(std::copysign(m_outerRect.height() / 2, pos));
-        needSync = true;
-      }
-    }
-  }
-
-  if (needSync) {
-    syncGuidesSettings();
-  }
-}
-
 void ImageView::innerRectMoveRequest(const QPointF& mousePos, const Qt::KeyboardModifiers mask) {
   QPointF delta(mousePos - m_beforeResizing.mousePos);
   if (mask == m_innerRectVerticalDragModifier) {
@@ -956,6 +938,93 @@ void ImageView::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& /*
   }
 }
 
+double ImageView::guidePosInVirtual(const Guide& guide) const {
+  const QPointF scale = virtualToOutputMmScale();
+  if (guide.getOrientation() == Qt::Vertical) {
+    return (scale.x() > 0.0) ? (guide.getPosition() / scale.x() + m_outerRect.center().x()) : m_outerRect.center().x();
+  }
+  return (scale.y() > 0.0) ? (guide.getPosition() / scale.y() + m_outerRect.center().y()) : m_outerRect.center().y();
+}
+
+QPointF ImageView::findNearestGuideDelta(const QRectF& foundAreaInVirtual, const Qt::KeyboardModifiers mask) const {
+  const bool onlyHorizontalDirection = (mask == m_innerRectHorizontalDragModifier);
+  const bool onlyVerticalDirection = (mask == m_innerRectVerticalDragModifier);
+  const bool bothDirections = (mask == (m_innerRectVerticalDragModifier | m_innerRectHorizontalDragModifier));
+
+  QPointF delta;
+  double minDistX = std::numeric_limits<double>::max();
+  double minDistY = std::numeric_limits<double>::max();
+  for (const auto& idxAndGuide : m_guides) {
+    const Guide& guide = idxAndGuide.second;
+    if (guide.getOrientation() == Qt::Vertical) {
+      if (onlyVerticalDirection) {
+        continue;
+      }
+
+      const double guideX = guidePosInVirtual(guide);
+      const double diffLeft = guideX - foundAreaInVirtual.left();
+      const double diffRight = guideX - foundAreaInVirtual.right();
+      const double diff = (std::abs(diffLeft) <= std::abs(diffRight)) ? diffLeft : diffRight;
+      const double dist = std::abs(diff);
+      const double minDist = bothDirections ? minDistX : std::min(minDistX, minDistY);
+      if (dist < minDist) {
+        minDistX = dist;
+        delta.setX(diff);
+        if (!bothDirections) {
+          delta.setY(0.0);
+        }
+      }
+    } else {
+      if (onlyHorizontalDirection) {
+        continue;
+      }
+
+      const double guideY = guidePosInVirtual(guide);
+      const double diffTop = guideY - foundAreaInVirtual.top();
+      const double diffBottom = guideY - foundAreaInVirtual.bottom();
+      const double diff = (std::abs(diffTop) <= std::abs(diffBottom)) ? diffTop : diffBottom;
+      const double dist = std::abs(diff);
+      const double minDist = bothDirections ? minDistY : std::min(minDistX, minDistY);
+      if (dist < minDist) {
+        minDistY = dist;
+        delta.setY(diff);
+        if (!bothDirections) {
+          delta.setX(0.0);
+        }
+      }
+    }
+  }
+  return delta;
+}
+
+QPointF ImageView::adjustGuideSnapDelta(QPointF delta) const {
+  QRectF correctedMiddleRect = m_middleRect;
+  correctedMiddleRect.translate(-delta);
+  correctedMiddleRect |= m_innerRect;
+
+  // Compensate center shift when the middle rect grows under centered/auto alignment; edge-aligned
+  // pages anchor directly at that edge so no extra shift compensation applies.
+  const bool centerCompX
+      = (m_alignment.horizontal() != Alignment::LEFT) && (m_alignment.horizontal() != Alignment::RIGHT);
+  const bool centerCompY = (m_alignment.vertical() != Alignment::TOP) && (m_alignment.vertical() != Alignment::BOTTOM);
+  const double xCorrection
+      = centerCompX ? std::copysign(std::max(0.0, correctedMiddleRect.width() - m_middleRect.width()), delta.x()) : 0.0;
+  const double yCorrection
+      = centerCompY ? std::copysign(std::max(0.0, correctedMiddleRect.height() - m_middleRect.height()), delta.y())
+                    : 0.0;
+  delta.setX(delta.x() + xCorrection);
+  delta.setY(delta.y() + yCorrection);
+
+  correctedMiddleRect.translate(-xCorrection, -yCorrection);
+  correctedMiddleRect |= m_innerRect;
+
+  const double excessX = std::max(0.0, correctedMiddleRect.width() - m_outerRect.width());
+  const double excessY = std::max(0.0, correctedMiddleRect.height() - m_outerRect.height());
+  delta.setX(delta.x() - std::copysign(std::min(std::abs(delta.x()), excessX), delta.x()));
+  delta.setY(delta.y() - std::copysign(std::min(std::abs(delta.y()), excessY), delta.y()));
+  return delta;
+}
+
 void ImageView::attachContentToNearestGuide(const QPointF& pos, const Qt::KeyboardModifiers mask) {
   const QTransform widgetToContentImage(widgetToImage() * m_contentMask.originalToContentXform());
   const QTransform contentImageToVirtual(m_contentMask.contentToOriginalXform() * imageToVirtual());
@@ -972,89 +1041,12 @@ void ImageView::attachContentToNearestGuide(const QPointF& pos, const Qt::Keyboa
     return;
   }
 
-  QPointF delta;
-  {
-    const bool onlyHorizontalDirection = (mask == m_innerRectHorizontalDragModifier);
-    const bool onlyVerticalDirection = (mask == m_innerRectVerticalDragModifier);
-    const bool bothDirections = (mask == (m_innerRectVerticalDragModifier | m_innerRectHorizontalDragModifier));
-
-    double minDistX = std::numeric_limits<int>::max();
-    double minDistY = std::numeric_limits<int>::max();
-    for (const auto& idxAndGuide : m_guides) {
-      const Guide& guide = idxAndGuide.second;
-      if (guide.getOrientation() == Qt::Vertical) {
-        if (onlyVerticalDirection) {
-          continue;
-        }
-
-        const double guidePosInVirtual = guide.getPosition() + m_outerRect.center().x();
-        const double diffLeft = guidePosInVirtual - foundAreaInVirtual.left();
-        const double diffRight = guidePosInVirtual - foundAreaInVirtual.right();
-        const double diff = std::abs(diffLeft) <= std::abs(diffRight) ? diffLeft : diffRight;
-        const double dist = std::abs(diff);
-        const double minDist = (bothDirections) ? minDistX : std::min(minDistX, minDistY);
-        if (dist < minDist) {
-          minDistX = dist;
-          delta.setX(diff);
-          if (!bothDirections) {
-            delta.setY(0.0);
-          }
-        }
-      } else {
-        if (onlyHorizontalDirection) {
-          continue;
-        }
-
-        const double guidePosInVirtual = guide.getPosition() + m_outerRect.center().y();
-        const double diffTop = guidePosInVirtual - foundAreaInVirtual.top();
-        const double diffBottom = guidePosInVirtual - foundAreaInVirtual.bottom();
-        const double diff = std::abs(diffTop) <= std::abs(diffBottom) ? diffTop : diffBottom;
-        const double dist = std::abs(diff);
-        const double minDist = (bothDirections) ? minDistY : std::min(minDistX, minDistY);
-        if (dist < minDist) {
-          minDistY = dist;
-          delta.setY(diff);
-          if (!bothDirections) {
-            delta.setX(0.0);
-          }
-        }
-      }
-    }
-  }
+  QPointF delta = findNearestGuideDelta(foundAreaInVirtual, mask);
   if (delta.isNull()) {
     return;
   }
 
-  {
-    QRectF correctedMiddleRect = m_middleRect;
-    correctedMiddleRect.translate(-delta);
-    correctedMiddleRect |= m_innerRect;
-
-    {
-      // Correct the delta in case of the middle rect size changed.
-      // It means that the center is shifted resulting
-      // the guide will change its position, so we need an extra addition to delta.
-      const double xCorrection
-          = std::copysign(std::max(0.0, correctedMiddleRect.width() - m_middleRect.width()), delta.x());
-      const double yCorrection
-          = std::copysign(std::max(0.0, correctedMiddleRect.height() - m_middleRect.height()), delta.y());
-      delta.setX(delta.x() + xCorrection);
-      delta.setY(delta.y() + yCorrection);
-
-      correctedMiddleRect.translate(-xCorrection, -yCorrection);
-      correctedMiddleRect |= m_innerRect;
-    }
-
-    {
-      // Restrict the delta value in order not to be out of the outer rect.
-      const double xCorrection
-          = std::copysign(std::max(0.0, correctedMiddleRect.width() - m_outerRect.width()), delta.x());
-      const double yCorrection
-          = std::copysign(std::max(0.0, correctedMiddleRect.height() - m_outerRect.height()), delta.y());
-      delta.setX(delta.x() - xCorrection);
-      delta.setY(delta.y() - yCorrection);
-    }
-  }
+  delta = adjustGuideSnapDelta(delta);
 
   // Move the page content.
   dragInitiated(virtualToWidget().map(QPointF(0, 0)));
