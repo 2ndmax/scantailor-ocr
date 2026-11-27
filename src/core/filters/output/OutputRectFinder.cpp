@@ -43,6 +43,27 @@ inline int findPositionOfTheHighestBitSet(uint32_t v) {
   v |= v >> 16;
   return MultiplyDeBruijnBitPosition2[(uint32_t) (v * 0x07C4ACDDU) >> 27];
 }
+
+int countWhitePixelsInRow(const uint32_t* const line, const int left, const int right) {
+  const int leftWord = left >> 5;
+  const int rightWord = right >> 5;
+  const uint32_t headMask = ~uint32_t(0) >> (left & 31);
+  const uint32_t tailMask = ~uint32_t(0) << (31 - (right & 31));
+  int count = 0;
+  for (int k = leftWord; k <= rightWord; ++k) {
+    uint32_t whiteBits = ~line[k];
+    if (k == leftWord) {
+      whiteBits &= headMask;
+    }
+    if (k == rightWord) {
+      whiteBits &= tailMask;
+    }
+    for (uint32_t b = whiteBits; b != 0; b &= (b - 1)) {
+      ++count;
+    }
+  }
+  return count;
+}
 }  // namespace
 
 std::vector<QRect> findRectAreas(const BinaryImage& mask, const int sensitivity) {
@@ -101,115 +122,83 @@ std::vector<QRect> findRectAreas(const BinaryImage& mask, const int sensitivity)
     }
   }
 
-  // join adjacent blocks of areas
-  bool join = true;
-  int overlap = 16;
-  while (join) {
-    join = false;
-    std::vector<QRect> tmp;
-    for (QRect area : areas) {
-      // take an area and try to join with something in tmp
-      QRect enlArea(area.adjusted(-overlap, -overlap, overlap, overlap));
-      bool intersected = false;
-      std::vector<QRect> tmp2;
-      for (QRect ta : tmp) {
-        QRect enlTA(ta.adjusted(-overlap, -overlap, overlap, overlap));
-        if (enlArea.intersects(enlTA)) {
-          intersected = true;
-          join = true;
-          tmp2.push_back(area.united(ta));
+  // Merge adjacent/overlapping blocks into one union rectangle per connected component.
+  constexpr int overlap = 16;
+  std::vector<QRect> merged;
+  merged.reserve(areas.size());
+  for (QRect current : areas) {
+    bool joinedAny = true;
+    while (joinedAny) {
+      joinedAny = false;
+      const QRect enlCurrent(current.adjusted(-overlap, -overlap, overlap, overlap));
+      for (size_t i = 0; i < merged.size();) {
+        if (enlCurrent.intersects(merged[i].adjusted(-overlap, -overlap, overlap, overlap))) {
+          current = current.united(merged[i]);
+          merged[i] = merged.back();
+          merged.pop_back();
+          joinedAny = true;
         } else {
-          tmp2.push_back(ta);
+          ++i;
         }
       }
-      if (!intersected) {
-        tmp2.push_back(area);
-      }
-      tmp = tmp2;
     }
-    areas = tmp;
+    merged.push_back(current);
   }
+  areas = std::move(merged);
 
   const auto percent = (float) (sensitivity / 100.);
   if (percent < 1.) {
+    const uint32_t* pdata = mask.data();
     for (QRect& area : areas) {
-      int wordWidth = area.width() >> 5;
-
       // All bounds inclusive.
       const int left = area.left();
-      const int leftWord = left >> 5;
       const int right = area.right();
-      const int rightWord = right >> 5;
       const int top = area.top();
       const int bottom = area.bottom();
 
-      const uint32_t* pdata = mask.data();
-
-      // A column is counted over the rows top to bottom, so its share is one of the height.
-      const auto columnCriterium = (int) ((bottom - top + 1) * percent);
-      const auto criteriumWord = (int) (wordWidth * percent);
+      const int rowCriterium = static_cast<int>((right - left + 1) * percent);
 
       // cut the dirty upper lines
-      for (int y = top; y <= bottom; y++) {
-        line = pdata + wpl * y;
-
-        int mword = 0;
-
-        for (int k = leftWord; k <= rightWord; k++) {
-          if (!line[k]) {
-            mword++;  // count the totally white words
-          }
-        }
-
-        if (mword > criteriumWord) {
+      for (int y = top; y <= bottom; ++y) {
+        if (countWhitePixelsInRow(pdata + wpl * y, left, right) > rowCriterium) {
           area.setTop(y);
           break;
         }
       }
 
       // cut the dirty bottom lines
-      for (int y = bottom; y >= top; y--) {
-        line = pdata + wpl * y;
-
-        int mword = 0;
-
-        for (int k = leftWord; k <= rightWord; k++) {
-          if (!line[k]) {
-            mword++;
-          }
-        }
-
-        if (mword > criteriumWord) {
+      for (int y = bottom; y >= area.top(); --y) {
+        if (countWhitePixelsInRow(pdata + wpl * y, left, right) > rowCriterium) {
           area.setBottom(y);
           break;
         }
       }
 
-      for (int x = left; x <= right; x++) {
-        int mword = 0;
+      const int trimmedTop = area.top();
+      const int trimmedBottom = area.bottom();
+      const int columnCriterium = static_cast<int>((trimmedBottom - trimmedTop + 1) * percent);
 
-        for (int y = top; y <= bottom; y++) {
+      for (int x = left; x <= right; ++x) {
+        int whitePixels = 0;
+        for (int y = trimmedTop; y <= trimmedBottom; ++y) {
           if (WHITE == mask.getPixel(x, y)) {
-            mword++;
+            ++whitePixels;
           }
         }
-
-        if (mword > columnCriterium) {
+        if (whitePixels > columnCriterium) {
           area.setLeft(x);
           break;
         }
       }
 
-      for (int x = right; x >= left; x--) {
-        int mword = 0;
-
-        for (int y = top; y <= bottom; y++) {
+      for (int x = right; x >= area.left(); --x) {
+        int whitePixels = 0;
+        for (int y = trimmedTop; y <= trimmedBottom; ++y) {
           if (WHITE == mask.getPixel(x, y)) {
-            mword++;
+            ++whitePixels;
           }
         }
-
-        if (mword > columnCriterium) {
+        if (whitePixels > columnCriterium) {
           area.setRight(x);
           break;
         }

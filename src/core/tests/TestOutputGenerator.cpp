@@ -27,6 +27,7 @@
 #include <filters/output/OutputImage.h>
 #include <filters/output/OutputImageOps.h>
 #include <filters/output/OutputImageWithForeground.h>
+#include <filters/output/OutputRectFinder.h>
 #include <filters/output/Params.h>
 #include <filters/output/PictureLayerProperty.h>
 #include <filters/output/PictureShapeOptions.h>
@@ -1443,6 +1444,36 @@ BOOST_AUTO_TEST_CASE(dewarping_normalize_illumination_handles_indexed_color_imag
   BOOST_CHECK(!output.isNull());
   BOOST_CHECK_EQUAL(output.width(), WIDTH);
   BOOST_CHECK_EQUAL(output.height(), HEIGHT);
+}
+
+BOOST_AUTO_TEST_CASE(output_rect_finder_merges_unions_once_and_trims_narrow_areas) {
+  // 1) Two adjacent blocks bridged by a middle strip must collapse into a single exact union.
+  {
+    imageproc::BinaryImage mask(120, 80, imageproc::BLACK);
+    mask.fill(QRect(10, 10, 20, 20), imageproc::WHITE);
+    mask.fill(QRect(50, 10, 20, 20), imageproc::WHITE);
+    mask.fill(QRect(25, 22, 30, 10), imageproc::WHITE);
+    const std::vector<QRect> rects = output::detail::findRectAreas(mask, 100);
+    BOOST_REQUIRE_EQUAL(rects.size(), size_t(1));
+    BOOST_CHECK(rects[0] == QRect(10, 10, 60, 22));
+  }
+
+  // 2) Narrow (< 32 px) white region with a dirty top band (which must be trimmed away before column trimming
+  //    measures column density, and with black pixels in the same 32-bit word outside [left, right]).
+  {
+    imageproc::BinaryImage mask(64, 40, imageproc::BLACK);
+    // Thin white trigger on the dirty top band [y=4..7] across [x=10..27], mostly black (> 50%),
+    // plus a solid white block at [x=12..25, y=8..35] (14 px wide < 32 px, with black outside x=12..25).
+    mask.fill(QRect(10, 4, 2, 4), imageproc::WHITE);
+    mask.fill(QRect(26, 4, 2, 4), imageproc::WHITE);
+    mask.fill(QRect(12, 8, 14, 28), imageproc::WHITE);
+    const std::vector<QRect> rects = output::detail::findRectAreas(mask, 70);
+    BOOST_REQUIRE_EQUAL(rects.size(), size_t(1));
+    BOOST_CHECK_EQUAL(rects[0].x(), 12);
+    BOOST_CHECK_EQUAL(rects[0].y(), 8);
+    BOOST_CHECK_EQUAL(rects[0].width(), 14);
+    BOOST_CHECK_EQUAL(rects[0].height(), 28);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
