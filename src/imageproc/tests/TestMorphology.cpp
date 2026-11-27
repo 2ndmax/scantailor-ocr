@@ -10,6 +10,7 @@
 #include <QPoint>
 #include <QSize>
 #include <boost/test/unit_test.hpp>
+#include <stdexcept>
 
 #include "Utils.h"
 
@@ -681,6 +682,32 @@ BOOST_AUTO_TEST_CASE(test_hmr_1) {
 
   BOOST_CHECK(hitMissReplace(img, WHITE, pattern, 3, 3) == control);
   BOOST_CHECK(hitMissReplace(img, BLACK, pattern, 3, 3) == control);
+}
+
+BOOST_AUTO_TEST_CASE(test_open_close_brick_empty_and_disjoint_area) {
+  const BinaryImage img(10, 10, BLACK);
+
+  BOOST_CHECK_THROW(openBrick(img, QSize(3, 3), QRect(0, 0, 0, 5), WHITE), std::invalid_argument);
+  BOOST_CHECK_THROW(closeBrick(img, QSize(3, 3), QRect(0, 0, 5, 0), BLACK), std::invalid_argument);
+
+  const QRect disjoint(50, 50, 4, 4);
+  BOOST_CHECK(openBrick(img, QSize(3, 3), disjoint, WHITE) == BinaryImage(4, 4, WHITE));
+  BOOST_CHECK(openBrick(img, QSize(3, 3), disjoint, BLACK) == BinaryImage(4, 4, BLACK));
+  BOOST_CHECK(closeBrick(img, QSize(3, 3), disjoint, WHITE) == BinaryImage(4, 4, WHITE));
+  BOOST_CHECK(closeBrick(img, QSize(3, 3), disjoint, BLACK) == BinaryImage(4, 4, BLACK));
+}
+
+BOOST_AUTO_TEST_CASE(test_hit_miss_invalid_pattern) {
+  const BinaryImage img(5, 5, WHITE);
+  const char validPattern[] = "X X";
+
+  BOOST_CHECK_THROW(hitMissMatch(img, WHITE, nullptr, 3, 1, QPoint(0, 0)), std::invalid_argument);
+  BOOST_CHECK_THROW(hitMissMatch(img, WHITE, validPattern, 0, 1, QPoint(0, 0)), std::invalid_argument);
+  BOOST_CHECK_THROW(hitMissMatch(img, WHITE, validPattern, 1, -1, QPoint(0, 0)), std::invalid_argument);
+
+  BOOST_CHECK_THROW(hitMissReplace(img, WHITE, nullptr, 3, 1), std::invalid_argument);
+  BOOST_CHECK_THROW(hitMissReplace(img, WHITE, validPattern, 0, 1), std::invalid_argument);
+  BOOST_CHECK_THROW(hitMissReplace(img, WHITE, validPattern, 1, 0), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

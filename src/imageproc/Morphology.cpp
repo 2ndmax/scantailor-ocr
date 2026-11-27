@@ -746,6 +746,9 @@ BinaryImage openBrick(const BinaryImage& src, const QSize& brick, const QRect& d
   if (brick.isEmpty()) {
     throw std::invalid_argument("openBrick: brick is empty");
   }
+  if (dstArea.isEmpty()) {
+    throw std::invalid_argument("openBrick: dstArea is empty");
+  }
 
   Brick actualBrick(brick);
 
@@ -764,6 +767,9 @@ BinaryImage openBrick(const BinaryImage& src, const QSize& brick, const QRect& d
   // tmpArea would be a waste if dstArea is small.
 
   tmpArea = extendByBrick(dstArea, actualBrick).intersected(tmpArea);
+  if (tmpArea.isEmpty()) {
+    return BinaryImage(dstArea.size(), srcSurroundings);
+  }
 
   CoordinateSystem tmpCs(tmpArea.topLeft());
 
@@ -816,6 +822,9 @@ BinaryImage closeBrick(const BinaryImage& src,
   if (brick.isEmpty()) {
     throw std::invalid_argument("closeBrick: brick is empty");
   }
+  if (dstArea.isEmpty()) {
+    throw std::invalid_argument("closeBrick: dstArea is empty");
+  }
 
   Brick actualBrick(brick);
 
@@ -834,6 +843,9 @@ BinaryImage closeBrick(const BinaryImage& src,
   // tmpArea would be a waste if dstArea is small.
 
   tmpArea = extendByBrick(dstArea, actualBrick).intersected(tmpArea);
+  if (tmpArea.isEmpty()) {
+    return BinaryImage(dstArea.size(), srcSurroundings);
+  }
 
   CoordinateSystem tmpCs(tmpArea.topLeft());
 
@@ -943,6 +955,10 @@ BinaryImage hitMissMatch(const BinaryImage& src,
                          const int patternWidth,
                          const int patternHeight,
                          const QPoint& patternOrigin) {
+  if ((pattern == nullptr) || (patternWidth <= 0) || (patternHeight <= 0)) {
+    throw std::invalid_argument("hitMissMatch: invalid pattern");
+  }
+
   std::vector<QPoint> hits;
   std::vector<QPoint> misses;
 
@@ -982,13 +998,16 @@ void hitMissReplaceInPlace(BinaryImage& img,
                            const char* const pattern,
                            const int patternWidth,
                            const int patternHeight) {
+  if ((pattern == nullptr) || (patternWidth <= 0) || (patternHeight <= 0)) {
+    throw std::invalid_argument("hitMissReplace: invalid pattern");
+  }
+
   // It's better to have the origin at one of the replacement positions.
   // Otherwise we may miss a partially outside-of-image match because
   // the origin point was outside of the image as well.
-  // The patterns are small literals (3x3 to 3x9 in OutputGenerator), so the product can't overflow.
-  const int patternLen = patternWidth * patternHeight;
-  const auto* const minusPos = (const char*) memchr(pattern, '-', patternLen);
-  const auto* const plusPos = (const char*) memchr(pattern, '+', patternLen);
+  const size_t patternLen = static_cast<size_t>(patternWidth) * static_cast<size_t>(patternHeight);
+  const auto* const minusPos = static_cast<const char*>(memchr(pattern, '-', patternLen));
+  const auto* const plusPos = static_cast<const char*>(memchr(pattern, '+', patternLen));
   const char* originPos;
   if (minusPos && plusPos) {
     originPos = std::min(minusPos, plusPos);
