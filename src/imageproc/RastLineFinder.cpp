@@ -22,21 +22,35 @@ RastLineFinderParams::RastLineFinderParams()
       m_minSupportPoints(3) {}
 
 bool RastLineFinderParams::validate(std::string* error) const {
-  if (m_angleToleranceDeg <= 0) {
+  if (!std::isfinite(m_origin.x()) || !std::isfinite(m_origin.y())) {
+    if (error) {
+      *error = "RastLineFinder: origin must be finite";
+    }
+    return false;
+  }
+
+  if (!std::isfinite(m_minAngleDeg) || !std::isfinite(m_maxAngleDeg)) {
+    if (error) {
+      *error = "RastLineFinder: angles must be finite";
+    }
+    return false;
+  }
+
+  if (!std::isfinite(m_angleToleranceDeg) || !(m_angleToleranceDeg > 0)) {
     if (error) {
       *error = "RastLineFinder: angle tolerance must be positive";
     }
     return false;
   }
 
-  if (m_angleToleranceDeg >= 180) {
+  if (!(m_angleToleranceDeg < 180)) {
     if (error) {
       *error = "RastLineFinder: angle tolerance must be below 180 degrees";
     }
     return false;
   }
 
-  if (m_maxDistFromLine <= 0) {
+  if (!std::isfinite(m_maxDistFromLine) || !(m_maxDistFromLine > 0)) {
     if (error) {
       *error = "RastLineFinder: max-dist-from-line must be positive";
     }
@@ -81,17 +95,32 @@ RastLineFinder::RastLineFinder(const std::vector<QPointF>& points, const RastLin
 
   const auto maxDist = static_cast<float>(std::sqrt(maxSqdist) + 1.0);  // + 1.0 to combant rounding issues
 
-  double deltaDeg = std::fmod(params.maxAngleDeg() - params.minAngleDeg(), 360.0);
-  if (deltaDeg < 0) {
-    deltaDeg += 360;
+  const double rawDelta = params.maxAngleDeg() - params.minAngleDeg();
+  double deltaDeg;
+  if (std::abs(rawDelta) >= 360.0) {
+    deltaDeg = 360.0;
+  } else {
+    deltaDeg = std::fmod(rawDelta, 360.0);
+    if (deltaDeg < 0) {
+      deltaDeg += 360.0;
+    }
   }
   const double minAngleDeg = std::fmod(params.minAngleDeg(), 360.0);
   const double maxAngleDeg = minAngleDeg + deltaDeg;
 
-  SearchSpace ssp(*this, -maxDist, maxDist, static_cast<float>(minAngleDeg * constants::DEG2RAD),
-                  static_cast<float>(maxAngleDeg * constants::DEG2RAD), candidateIdxs);
-  if (ssp.pointIdxs().size() >= m_minSupportPoints) {
-    m_orderedSearchSpaces.pushDestructive(ssp);
+  if (deltaDeg > 180.0) {
+    // SearchSpace's convex wedge geometry assumes an angular span of at most 180 degrees.
+    const double midAngleDeg = minAngleDeg + 0.5 * deltaDeg;
+    SearchSpace ssp1(*this, -maxDist, maxDist, static_cast<float>(minAngleDeg * constants::DEG2RAD),
+                     static_cast<float>(midAngleDeg * constants::DEG2RAD), candidateIdxs);
+    SearchSpace ssp2(*this, -maxDist, maxDist, static_cast<float>(midAngleDeg * constants::DEG2RAD),
+                     static_cast<float>(maxAngleDeg * constants::DEG2RAD), candidateIdxs);
+    pushIfGoodEnough(ssp1);
+    pushIfGoodEnough(ssp2);
+  } else {
+    SearchSpace ssp(*this, -maxDist, maxDist, static_cast<float>(minAngleDeg * constants::DEG2RAD),
+                    static_cast<float>(maxAngleDeg * constants::DEG2RAD), candidateIdxs);
+    pushIfGoodEnough(ssp);
   }
 }
 
@@ -252,7 +281,7 @@ bool RastLineFinder::SearchSpace::subdivideDist(const RastLineFinder& owner,
     return false;
   }
 
-  if (m_maxDist - m_minDist <= owner.m_angleToleranceRad * 3) {
+  if (m_maxDist - m_minDist <= owner.m_maxDistFromLine * 3) {
     // This branch prevents near-infinite subdivision that would have happened without it.
     SearchSpace ssp1(owner, m_minDist, static_cast<float>(m_minDist + owner.m_maxDistFromLine * 2), m_minAngleRad,
                      m_maxAngleRad, m_pointIdxs);
