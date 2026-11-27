@@ -11,10 +11,12 @@
 #include <DistortionModel.h>
 #include <Dpi.h>
 #include <Dpm.h>
+#include <FileNameDisambiguator.h>
 #include <FilterData.h>
 #include <ImageSizeLimit.h>
 #include <ImageTransformation.h>
 #include <NullTaskStatus.h>
+#include <OutputFileNameGenerator.h>
 #include <PageId.h>
 #include <PropertySet.h>
 #include <filters/output/BlackWhiteOptions.h>
@@ -27,20 +29,26 @@
 #include <filters/output/OutputImage.h>
 #include <filters/output/OutputImageOps.h>
 #include <filters/output/OutputImageWithForeground.h>
+#include <filters/output/OutputParams.h>
 #include <filters/output/OutputRectFinder.h>
 #include <filters/output/Params.h>
 #include <filters/output/PictureLayerProperty.h>
 #include <filters/output/PictureShapeOptions.h>
 #include <filters/output/Settings.h>
 #include <filters/output/SplittingOptions.h>
+#include <filters/output/Task.h>
+#include <filters/output/Utils.h>
 #include <zones/SerializableSpline.h>
 #include <zones/Zone.h>
 #include <zones/ZoneSet.h>
 
+#include <QDir>
 #include <QDomDocument>
+#include <QFileInfo>
 #include <QImage>
 #include <QPainter>
 #include <QPolygonF>
+#include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <memory>
@@ -1474,6 +1482,45 @@ BOOST_AUTO_TEST_CASE(output_rect_finder_merges_unions_once_and_trims_narrow_area
     BOOST_CHECK_EQUAL(rects[0].width(), 14);
     BOOST_CHECK_EQUAL(rects[0].height(), 28);
   }
+}
+
+BOOST_AUTO_TEST_CASE(output_task_creates_cache_subdirs_in_mixed_mode) {
+  QTemporaryDir srcDir;
+  QTemporaryDir outDir;
+  BOOST_REQUIRE(srcDir.isValid());
+  BOOST_REQUIRE(outDir.isValid());
+
+  const QImage srcImage = syntheticPage(false, qRgb(0, 0, 0));
+  const QString srcPath = srcDir.filePath(QStringLiteral("page.png"));
+  BOOST_REQUIRE(srcImage.save(srcPath));
+
+  const PageId pageId(ImageId(srcPath), PageId::SINGLE_PAGE);
+  auto settings = std::make_shared<Settings>();
+  Params params = settings->getParams(pageId);
+  params.setOutputDpi(DPI);
+  ColorParams colorParams = params.colorParams();
+  colorParams.setColorMode(MIXED);
+  params.setColorParams(colorParams);
+  settings->setParams(pageId, params);
+
+  const OutputFileNameGenerator outFileNameGen(std::make_shared<FileNameDisambiguator>(), outDir.path(),
+                                               Qt::LeftToRight);
+  // Precondition: cache/ directory does not exist under outDir yet.
+  const QString automaskPath
+      = QFileInfo(QDir(output::Utils::automaskDir(outDir.path())), outFileNameGen.fileNameFor(pageId)).filePath();
+  BOOST_REQUIRE(!QFileInfo::exists(automaskPath));
+
+  const FilterData data(srcImage);
+  ImageTransformation xform(data.xform());
+  xform.postScaleToDpi(DPI);
+  const QPolygonF contentRectPhys(xform.transformBack().map(QRectF(QPointF(0, 0), A4_PAGE_SIZE)));
+
+  output::Task task(nullptr, settings, nullptr, pageId, outFileNameGen, TAB_OUTPUT, ProcessingOptions(), false, false);
+  task.process(NullTaskStatus(), data, contentRectPhys);
+
+  BOOST_CHECK(QFileInfo::exists(outFileNameGen.filePathFor(pageId)));
+  BOOST_CHECK(QFileInfo::exists(automaskPath));
+  BOOST_CHECK(settings->getOutputParams(pageId) != nullptr);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

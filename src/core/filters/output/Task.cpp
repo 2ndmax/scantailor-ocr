@@ -37,6 +37,12 @@ using namespace imageproc;
 using namespace dewarping;
 
 namespace output {
+namespace {
+bool ensureOutputSubdir(const QString& baseOutDir, const QString& subdir) {
+  return QDir(baseOutDir).exists() && QDir().mkpath(subdir);
+}
+}  // namespace
+
 Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<Settings> settings,
            std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
@@ -72,12 +78,13 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
   ImageTransformation newXform(data.xform());
   newXform.postScaleToDpi(params.outputDpi());
 
+  const QString outDir(m_outFileNameGen.outDir());
   const QFileInfo sourceFileInfo(m_pageId.imageId().filePath());
   const QString outFilePath(m_outFileNameGen.filePathFor(m_pageId));
   const QFileInfo outFileInfo(outFilePath);
-  const QString foregroundDir(Utils::foregroundDir(m_outFileNameGen.outDir()));
-  const QString backgroundDir(Utils::backgroundDir(m_outFileNameGen.outDir()));
-  const QString originalBackgroundDir(Utils::originalBackgroundDir(m_outFileNameGen.outDir()));
+  const QString foregroundDir(Utils::foregroundDir(outDir));
+  const QString backgroundDir(Utils::backgroundDir(outDir));
+  const QString originalBackgroundDir(Utils::originalBackgroundDir(outDir));
   const QString foregroundFilePath(QDir(foregroundDir).absoluteFilePath(outFileInfo.fileName()));
   const QString backgroundFilePath(QDir(backgroundDir).absoluteFilePath(outFileInfo.fileName()));
   const QString originalBackgroundFilePath(QDir(originalBackgroundDir).absoluteFilePath(outFileInfo.fileName()));
@@ -235,16 +242,15 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
       if (renderParams.splitOutput()) {
         auto* outputImageWithForeground = dynamic_cast<OutputImageWithForeground*>(outputImage.get());
 
-        QDir().mkdir(foregroundDir);
-        QDir().mkdir(backgroundDir);
         if (!outputImageWithForeground) {
           // Report instead of crashing if the generator didn't produce the split layers.
           ImageLoadErrorReporter::instance().reportWriteFailure(
               foregroundFilePath, QStringList(QCoreApplication::translate(
                                       "output::Task", "The split output layers could not be created.")));
           invalidateParams = true;
-        } else if (!TiffWriter::writeImage(foregroundFilePath, outputImageWithForeground->getForegroundImage(),
-                                           m_processingOptions.tiffCompression)
+        } else if (!ensureOutputSubdir(outDir, foregroundDir) || !ensureOutputSubdir(outDir, backgroundDir)
+                   || !TiffWriter::writeImage(foregroundFilePath, outputImageWithForeground->getForegroundImage(),
+                                              m_processingOptions.tiffCompression)
                    || !TiffWriter::writeImage(backgroundFilePath, outputImageWithForeground->getBackgroundImage(),
                                               m_processingOptions.tiffCompression)) {
           invalidateParams = true;
@@ -253,12 +259,16 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
         if (renderParams.originalBackground()) {
           auto* outputImageWithOrigBg = dynamic_cast<OutputImageWithOriginalBackground*>(outputImage.get());
 
-          QDir().mkdir(originalBackgroundDir);
           if (!outputImageWithOrigBg) {
+            ImageLoadErrorReporter::instance().reportWriteFailure(
+                originalBackgroundFilePath,
+                QStringList(QCoreApplication::translate("output::Task",
+                                                        "The original background layer could not be created.")));
             invalidateParams = true;
-          } else if (!TiffWriter::writeImage(originalBackgroundFilePath,
-                                             outputImageWithOrigBg->getOriginalBackgroundImage(),
-                                             m_processingOptions.tiffCompression)) {
+          } else if (!ensureOutputSubdir(outDir, originalBackgroundDir)
+                     || !TiffWriter::writeImage(originalBackgroundFilePath,
+                                                outputImageWithOrigBg->getOriginalBackgroundImage(),
+                                                m_processingOptions.tiffCompression)) {
             invalidateParams = true;
           }
         }
@@ -298,22 +308,14 @@ FilterResultPtr Task::process(const TaskStatus& status, const FilterData& data, 
     }
 
     if (writeAutomask) {
-      // Note that QDir::mkdir() will fail if the parent directory,
-      // that is $OUT/cache doesn't exist. We want that behaviour,
-      // as otherwise when loading a project from a different machine,
-      // a whole bunch of bogus directories would be created.
-      QDir().mkdir(automaskDir);
-      // Also note that QDir::mkdir() will fail if the directory already exists,
-      // so we ignore its return value here.
-      if (!TiffWriter::writeImage(automaskFilePath, automaskImg.toQImage(), m_processingOptions.tiffCompression)) {
+      if (!ensureOutputSubdir(outDir, automaskDir)
+          || !TiffWriter::writeImage(automaskFilePath, automaskImg.toQImage(), m_processingOptions.tiffCompression)) {
         invalidateParams = true;
       }
     }
     if (writeSpecklesFile) {
-      if (!QDir().mkpath(specklesDir)) {
-        invalidateParams = true;
-      } else if (!TiffWriter::writeImage(specklesFilePath, specklesImg.toQImage(),
-                                         m_processingOptions.tiffCompression)) {
+      if (!ensureOutputSubdir(outDir, specklesDir)
+          || !TiffWriter::writeImage(specklesFilePath, specklesImg.toQImage(), m_processingOptions.tiffCompression)) {
         invalidateParams = true;
       }
     }
