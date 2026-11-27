@@ -11,7 +11,6 @@ import tempfile
 import time
 from pathlib import Path
 
-import pytest
 from mcp.client.client import Client
 from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
@@ -19,7 +18,7 @@ from PIL import Image, ImageDraw
 
 from scantailor_ocr_mcp.server import build_server
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
 
@@ -69,21 +68,6 @@ async def wait_finished(client, job_id, timeout: float = 120.0):
             return sc, running_seen
         await asyncio.sleep(0.5)
     raise TimeoutError(f"job {job_id} did not finish within {timeout}s; last={last}")
-
-
-def cli_path() -> Path:
-    env = os.environ.get("SCANTAILOR_OCR_CLI")
-    if env:
-        return Path(env)
-    exe = "scantailor-ocr-cli.exe" if os.name == "nt" else "scantailor-ocr-cli"
-    return REPO_ROOT / "build" / exe
-
-
-@pytest.fixture
-def allowed(tmp_path: Path) -> Path:
-    d = tmp_path / "allowed"
-    d.mkdir()
-    return d.resolve()
 
 
 # 1. success
@@ -328,7 +312,7 @@ def test_run_tool_errors(cli, tmp_path: Path):
             proj = book / "book.ScanTailor"
             # create project first
             subprocess.run(
-                [str(cli_path()), str(book), "--profile=Default", "--last-step=fix-orientation"],
+                [str(cli), str(book), "--profile=Default", "--last-step=fix-orientation"],
                 check=True,
                 capture_output=True,
             )
@@ -367,7 +351,7 @@ def test_no_console_cancel(cli, tmp_path: Path):
 
     async def main():
         env = dict(os.environ)
-        env["SCANTAILOR_OCR_CLI"] = str(cli_path())
+        env["SCANTAILOR_OCR_CLI"] = str(cli)
         params = StdioServerParameters(
             command=sys.executable,
             args=["-m", "scantailor_ocr_mcp", "--allow-root", str(allowed)],
@@ -425,7 +409,7 @@ def test_server_shutdown_during_run(cli, tmp_path: Path):
 
     async def main():
         env = dict(os.environ)
-        env["SCANTAILOR_OCR_CLI"] = str(cli_path())
+        env["SCANTAILOR_OCR_CLI"] = str(cli)
         params = StdioServerParameters(
             command=sys.executable,
             args=["-m", "scantailor_ocr_mcp", "--allow-root", str(allowed)],
@@ -449,8 +433,9 @@ def test_server_shutdown_during_run(cli, tmp_path: Path):
                 while not list((book / "out").glob("*.tif")):
                     assert time.time() < deadline, "no output file before leaving"
                     await asyncio.sleep(0.2)
-        # Leaving made the server cancel the run, not kill it, and not wait for its end: the
-        # project of the folder is written only when the CLI ends normally, and pages are left.
+        # Disconnecting triggers server shutdown cancellation: the server cancels the active run
+        # and waits up to CANCEL_WAIT_TIMEOUT for a clean exit (or kills leftovers if timed out).
+        # The folder's project is written only when the CLI finishes normally, and pages are left.
         assert (book / "book.ScanTailor").is_file()
         assert len(list((book / "out").glob("*.tif"))) < 18
 
@@ -594,7 +579,7 @@ def test_run_orientation_detect_tool_errors(cli, tmp_path: Path):
     make_page(book / "page1.png")
     proj = book / "book.ScanTailor"
     subprocess.run(
-        [str(cli_path()), str(book), "--profile=Default", "--last-step=fix-orientation"],
+        [str(cli), str(book), "--profile=Default", "--last-step=fix-orientation"],
         check=True,
         capture_output=True,
     )

@@ -13,12 +13,6 @@ from PIL import Image, ImageDraw
 
 from scantailor_ocr_mcp.server import build_server
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-
-
-def _cli() -> Path:
-    return Path(os.environ["SCANTAILOR_OCR_CLI"]) if "SCANTAILOR_OCR_CLI" in os.environ else None  # type: ignore
-
 
 def run_async(coro):
     return asyncio.run(coro)
