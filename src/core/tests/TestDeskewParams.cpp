@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(params_auto_oblique_false_roundtrip_xml) {
   BOOST_CHECK_CLOSE(restored.obliqueAngle(), 0.25, 1e-6);
 }
 
-BOOST_AUTO_TEST_CASE(params_missing_autoOblique_attribute_defaults_true) {
+BOOST_AUTO_TEST_CASE(params_missing_oblique_mode_defaults_manual) {
   QDomDocument doc;
   QDomElement el(doc.createElement("params"));
   el.setAttribute("mode", "auto");
@@ -185,7 +185,15 @@ BOOST_AUTO_TEST_CASE(params_missing_autoOblique_attribute_defaults_true) {
   doc.appendChild(el);
 
   const Params restored(doc.documentElement());
-  BOOST_CHECK(restored.autoOblique());
+  BOOST_CHECK(!restored.autoOblique());
+
+  QDomElement legacyAutoEl = el.cloneNode(true).toElement();
+  legacyAutoEl.setAttribute("autoOblique", "1");
+  BOOST_CHECK(Params(legacyAutoEl).autoOblique());
+
+  QDomElement modernAutoEl = el.cloneNode(true).toElement();
+  modernAutoEl.setAttribute("oblique-mode", "auto");
+  BOOST_CHECK(Params(modernAutoEl).autoOblique());
 }
 
 BOOST_AUTO_TEST_CASE(default_params_deskew_auto_oblique_off_by_default) {

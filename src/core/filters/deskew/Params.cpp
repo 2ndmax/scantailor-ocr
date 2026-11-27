@@ -28,7 +28,7 @@ AutoManualMode obliqueModeFromXml(const QDomElement& deskewEl) {
   if (deskewEl.hasAttribute("autoOblique")) {
     return deskewEl.attribute("autoOblique", "1") != "0" ? MODE_AUTO : MODE_MANUAL;
   }
-  return deskewEl.attribute("mode") == "manual" ? MODE_MANUAL : MODE_AUTO;
+  return MODE_MANUAL;
 }
 
 }  // namespace
