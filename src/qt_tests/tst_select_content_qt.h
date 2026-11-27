@@ -15,6 +15,7 @@ class TestSelectContentQt : public QObject {
   void testApplyDialogNeedsAnOption();
   void testShowsPanelAndConnectedView();
   void testThumbnailOfPage();
+  void testApplySelectionPreservesManualBoxes();
 };
 
 #endif

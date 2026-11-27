@@ -280,25 +280,52 @@ void OptionsWidget::applySelection(const std::set<PageId>& pages, const bool app
     // have params -> unprocessed pages get the boxes in the source page's coordinates. Not fixed because the
     // shift needs the target outline, which is only known in Task.
     if (oldParams) {
-      if (applyPageBox && (newParams.pageDetectionMode() == MODE_MANUAL)) {
-        QRectF correctedPageRect = newParams.pageRect();
-        // newParams carries empty dependencies by design, so the source image has to be
-        // taken from the page we are copying from.
-        const QRectF sourceImageRect = m_uiData.dependencies().rotatedPageOutline().boundingRect();
-        const QRectF currentImageRect = oldParams->dependencies().rotatedPageOutline().boundingRect();
-        if (sourceImageRect.isValid() && currentImageRect.isValid()) {
-          correctedPageRect.translate((currentImageRect.width() - sourceImageRect.width()) / 2,
-                                      (currentImageRect.height() - sourceImageRect.height()) / 2);
-          newParams.setPageRect(correctedPageRect);
+      Dependencies targetDeps(oldParams->dependencies());
+      if (applyPageBox) {
+        if (newParams.pageDetectionMode() == MODE_MANUAL) {
+          targetDeps.setPageDetectionMode(MODE_MANUAL);
+          QRectF correctedPageRect = newParams.pageRect();
+          // newParams carries source geometry until shifted into target coordinates.
+          const QRectF sourceImageRect = m_uiData.dependencies().rotatedPageOutline().boundingRect();
+          const QRectF currentImageRect = oldParams->dependencies().rotatedPageOutline().boundingRect();
+          if (sourceImageRect.isValid() && currentImageRect.isValid()) {
+            correctedPageRect.translate((currentImageRect.width() - sourceImageRect.width()) / 2,
+                                        (currentImageRect.height() - sourceImageRect.height()) / 2);
+            const QRectF clipped = correctedPageRect.intersected(currentImageRect);
+            if (clipped.isValid()) {
+              correctedPageRect = clipped;
+            }
+            newParams.setPageRect(correctedPageRect);
+          }
+        } else {
+          // Force page box re-computation on target while preserving its rotated outline and old pageRect.
+          targetDeps.setPageDetectionMode(newParams.pageDetectionMode() == MODE_AUTO ? MODE_DISABLED : MODE_AUTO);
+          newParams.setPageRect(keptParams.pageRect());
         }
+      } else {
+        targetDeps.setPageDetectionMode(keptParams.pageDetectionMode());
       }
-      if (applyContentBox && (newParams.contentDetectionMode() == MODE_MANUAL) && !newParams.contentRect().isEmpty()) {
-        QRectF correctedContentRect = newParams.contentRect();
-        const QRectF& sourcePageRect = m_uiData.pageRect();
-        const QRectF& newPageRect = newParams.pageRect();
-        correctedContentRect.translate(newPageRect.x() - sourcePageRect.x(), newPageRect.y() - sourcePageRect.y());
-        newParams.setContentRect(correctedContentRect);
+
+      if (applyContentBox) {
+        if (newParams.contentDetectionMode() == MODE_MANUAL) {
+          targetDeps.setContentDetectionMode(MODE_MANUAL);
+          if (!newParams.contentRect().isEmpty()) {
+            QRectF correctedContentRect = newParams.contentRect();
+            const QRectF& sourcePageRect = m_uiData.pageRect();
+            const QRectF& newPageRect = newParams.pageRect();
+            if (sourcePageRect.isValid() && newPageRect.isValid()) {
+              correctedContentRect.translate(newPageRect.x() - sourcePageRect.x(),
+                                             newPageRect.y() - sourcePageRect.y());
+              newParams.setContentRect(correctedContentRect);
+            }
+          }
+        } else {
+          targetDeps.setContentDetectionMode(newParams.contentDetectionMode() == MODE_AUTO ? MODE_DISABLED : MODE_AUTO);
+        }
+      } else {
+        targetDeps.setContentDetectionMode(keptParams.contentDetectionMode());
       }
+      newParams.setDependencies(targetDeps);
     }
 
     m_settings->setPageParams(pageId, newParams);

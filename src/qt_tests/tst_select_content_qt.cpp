@@ -9,9 +9,12 @@
 
 #include <DefaultParams.h>
 #include <Dpi.h>
+#include <Dpm.h>
+#include <FilterData.h>
 #include <FilterUiInterface.h>
 #include <ImageMetadata.h>
 #include <IncompleteThumbnail.h>
+#include <NullTaskStatus.h>
 #include <PageId.h>
 #include <PageInfo.h>
 #include <PageSelectionAccessor.h>
@@ -21,17 +24,20 @@
 #include <filters/select_content/Params.h>
 #include <filters/select_content/SelectContentParams.h>
 #include <filters/select_content/Settings.h>
+#include <filters/select_content/Task.h>
 #include <filters/select_content/UiData.h>
 #include <filters/select_content/ui/ApplyDialog.h>
 #include <filters/select_content/ui/ImageView.h>
 #include <filters/select_content/ui/OptionsWidget.h>
 #include <filters/select_content/ui/Thumbnail.h>
 
+#include <QMetaObject>
 #include <QPolygonF>
 #include <QSpinBox>
 #include <QtTest/QtTest>
 #include <memory>
 #include <optional>
+#include <set>
 #include <typeinfo>
 
 using namespace select_content;
@@ -175,4 +181,66 @@ void TestSelectContentQt::testThumbnailOfPage() {
   const std::unique_ptr<QGraphicsItem> after = filter_ui_checks::thumbnailFor(one, page, filterIdx);
   QVERIFY(after != nullptr);
   QVERIFY(typeid(*after) == typeid(Thumbnail));
+}
+
+void TestSelectContentQt::testApplySelectionPreservesManualBoxes() {
+  qRegisterMetaType<std::set<PageId>>("std::set<PageId>");
+  const PageId pageB(ImageId("page_b.png"));
+  const QPolygonF rectOutline(outline());
+
+  // P7-02: Eccentric manual page box copied onto processed target keeps its position after Task::process,
+  // and target's manual content box is not shifted by stale delta.
+  {
+    UiData sourceData;
+    sourceData.setPageRect(QRectF(20, 40, 200, 300));
+    sourceData.setContentRect(QRectF(30, 50, 150, 200));
+    sourceData.setPageDetectionMode(MODE_MANUAL);
+    sourceData.setContentDetectionMode(MODE_AUTO);
+    sourceData.setDependencies(Dependencies(rectOutline, MODE_AUTO, MODE_MANUAL, false));
+
+    Panel panel(sourceData);
+    panel.settings->setPageParams(
+        pageB, Params(QRectF(100, 120, 300, 400), QSizeF(), QRectF(0, 0, 600, 800),
+                      Dependencies(rectOutline, MODE_MANUAL, MODE_DISABLED, false), MODE_MANUAL, MODE_DISABLED, false));
+
+    const std::set<PageId> targets{pageB};
+    QVERIFY(QMetaObject::invokeMethod(&panel.widget, "applySelection", Qt::DirectConnection,
+                                      Q_ARG(std::set<PageId>, targets), Q_ARG(bool, false), Q_ARG(bool, true)));
+
+    QImage image(600, 800, QImage::Format_RGB32);
+    image.fill(Qt::white);
+    const Dpm dpm(Dpi(300, 300));
+    image.setDotsPerMeterX(dpm.horizontal());
+    image.setDotsPerMeterY(dpm.vertical());
+    Task task(nullptr, nullptr, panel.settings, pageB, DetectionOptions(), true, false);
+    task.process(NullTaskStatus(), FilterData(image));
+
+    const std::unique_ptr<Params> updated = panel.settings->getPageParams(pageB);
+    QVERIFY(updated != nullptr);
+    QCOMPARE(updated->pageRect(), QRectF(20, 40, 200, 300));
+    QCOMPARE(updated->contentRect(), QRectF(100, 120, 300, 400));
+  }
+
+  // P7-03: applyContentBox without applyPageBox does not shift manual content box when target pageRect is invalid.
+  {
+    UiData sourceData;
+    sourceData.setPageRect(QRectF(50, 60, 500, 700));
+    sourceData.setContentRect(QRectF(100, 120, 300, 400));
+    sourceData.setPageDetectionMode(MODE_AUTO);
+    sourceData.setContentDetectionMode(MODE_MANUAL);
+    sourceData.setDependencies(Dependencies(rectOutline, MODE_MANUAL, MODE_AUTO, false));
+
+    Panel panel(sourceData);
+    panel.settings->setPageParams(
+        pageB, Params(QRectF(), QSizeF(), QRectF(), Dependencies(rectOutline, MODE_AUTO, MODE_DISABLED, false),
+                      MODE_AUTO, MODE_DISABLED, false));
+
+    const std::set<PageId> targets{pageB};
+    QVERIFY(QMetaObject::invokeMethod(&panel.widget, "applySelection", Qt::DirectConnection,
+                                      Q_ARG(std::set<PageId>, targets), Q_ARG(bool, true), Q_ARG(bool, false)));
+
+    const std::unique_ptr<Params> updated = panel.settings->getPageParams(pageB);
+    QVERIFY(updated != nullptr);
+    QCOMPARE(updated->contentRect(), QRectF(100, 120, 300, 400));
+  }
 }
