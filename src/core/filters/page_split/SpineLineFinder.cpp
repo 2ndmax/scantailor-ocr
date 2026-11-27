@@ -121,7 +121,7 @@ QLineF SpineLineFinder::findSpine(const GrayImage& grayDownscaled,
   for (size_t i = 0; i < pageRows.size(); ++i) {
     rowBand[i] = static_cast<int>(i * kBands / pageRows.size());
     const uint8_t* row = data + pageRows[i] * stride;
-    uint8_t* rowMatches = matches.data() + i * tableWidth - tableLo;
+    uint8_t* rowMatches = matches.data() + i * tableWidth;
     for (int x = std::max(tableLo, kSideOuter); x <= std::min(tableHi, w - 1 - kSideOuter); ++x) {
       const int column = std::min({row[x - 1], row[x], row[x + 1]});
       int localMin = 255;
@@ -136,7 +136,7 @@ QLineF SpineLineFinder::findSpine(const GrayImage& grayDownscaled,
       }
       const double left = leftSum / sideWidth;
       const double right = rightSum / sideWidth;
-      rowMatches[x]
+      rowMatches[x - tableLo]
           = ((column <= localMin + kLocalMinTolerance) && (std::max(left, right) - column >= kMinDropBrightSide)
              && (std::min(left, right) - column >= kMinDropDarkSide))
                 ? MATCH
