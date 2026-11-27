@@ -235,7 +235,7 @@ std::optional<double> Task::findObliqueAngle(const TaskStatus& status,
                                              const double deskewAngleDeg,
                                              const double resolutionRatio) {
   // The text edges are measured along the lines, so the lines have to be horizontal first.
-  return findObliqueFromTextEdges(deskewedMask(image, deskewAngleDeg), status, resolutionRatio);
+  return findObliqueFromTextEdges(deskewedMask(image, deskewAngleDeg, resolutionRatio), status, resolutionRatio);
 }
 
 int Task::from150dpi(int size, int targetDpi) {

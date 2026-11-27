@@ -23,17 +23,24 @@ namespace deskew {
 
 using namespace imageproc;
 
-BinaryImage deskewedMask(const BinaryImage& mask, const double deskewAngleDeg) {
-  if (std::abs(deskewAngleDeg) < 1e-6) {
+BinaryImage deskewedMask(const BinaryImage& mask, const double deskewAngleDeg, const double resolutionRatio) {
+  if (mask.isNull() || (std::abs(deskewAngleDeg) < 1e-6)) {
     return mask;
   }
 
+  const double ratio = (std::isfinite(resolutionRatio) && resolutionRatio > 0.0) ? resolutionRatio : 1.0;
   const int w = mask.width();
   const int h = mask.height();
-  // Rotation about the centre. "*=" applies each step after the previous ones.
+  // Rotation about the centre in physical units. "*=" applies each step after the previous ones.
   const QPointF center(0.5 * w, 0.5 * h);
   QTransform rotXform(QTransform().translate(-center.x(), -center.y()));
+  if (ratio != 1.0) {
+    rotXform *= QTransform().scale(1.0 / ratio, 1.0);
+  }
   rotXform *= QTransform().rotate(deskewAngleDeg);
+  if (ratio != 1.0) {
+    rotXform *= QTransform().scale(ratio, 1.0);
+  }
   rotXform *= QTransform().translate(center.x(), center.y());
   const QRectF srcRectF(0, 0, w, h);
   QPolygonF dstCorners;
@@ -162,8 +169,11 @@ Edge fitEdge(const std::vector<EdgePoint>& points,
   const auto [lowest, highest] = std::minmax_element(points.begin(), points.end(),
                                                      [](const EdgePoint& a, const EdgePoint& b) { return a.y < b.y; });
   const double span = highest->y - lowest->y;
+  if (span <= 0.0) {
+    return edge;
+  }
   const double tolerance = std::max(1.0, 0.08 * typicalHeight);
-  const double maxTangent = std::tan((MAX_OBLIQUE_DEG + 1.0) * DEG2RAD);
+  const double maxTangent = std::tan((MAX_OBLIQUE_DEG + 1.0) * DEG2RAD) * resolutionRatio;
   // The points by x, so that only those near a proposed edge are tested: with all points for every
   // pair, a table with many cells took seconds.
   std::vector<int> byX(n);
@@ -178,7 +188,7 @@ Edge fitEdge(const std::vector<EdgePoint>& points,
     status.throwIfCancelled();
     for (int j = 0; j < n; ++j) {
       const double dy = points[j].y - points[i].y;
-      if (dy < 0.25 * span) {
+      if ((dy <= 0.0) || (dy < 0.25 * span)) {
         continue;
       }
       const double tangent = (points[j].x - points[i].x) / dy;
@@ -287,6 +297,7 @@ TextEdges measureTextEdges(const BinaryImage& deskewedMask, const TaskStatus& st
   if (deskewedMask.isNull()) {
     return result;
   }
+  const double ratio = (std::isfinite(resolutionRatio) && resolutionRatio > 0.0) ? resolutionRatio : 1.0;
   const TextLines text(textLines(deskewedMask));
   const int lineCount = static_cast<int>(text.lines.size());
   if (lineCount < MIN_EDGE_LINES) {
@@ -319,8 +330,8 @@ TextEdges measureTextEdges(const BinaryImage& deskewedMask, const TaskStatus& st
     }
   }
 
-  std::vector<Edge> edges(allEdges(starts, text.typicalHeight, lineCount, resolutionRatio, status));
-  const std::vector<Edge> rightEdges(allEdges(ends, text.typicalHeight, lineCount, resolutionRatio, status));
+  std::vector<Edge> edges(allEdges(starts, text.typicalHeight, lineCount, ratio, status));
+  const std::vector<Edge> rightEdges(allEdges(ends, text.typicalHeight, lineCount, ratio, status));
   edges.insert(edges.end(), rightEdges.begin(), rightEdges.end());
   if (edges.empty()) {
     return result;
@@ -330,7 +341,7 @@ TextEdges measureTextEdges(const BinaryImage& deskewedMask, const TaskStatus& st
   double sumTangents = 0;
   std::vector<double> anglesDeg;
   for (const Edge& edge : edges) {
-    const double tangent = edge.tangent / resolutionRatio;
+    const double tangent = edge.tangent / ratio;
     sumWeights += edge.weight;
     sumTangents += edge.weight * tangent;
     anglesDeg.push_back(degrees(tangent));

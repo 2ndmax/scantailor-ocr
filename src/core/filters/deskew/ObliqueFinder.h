@@ -24,7 +24,9 @@ namespace deskew {
  * With the deskew angle found for the mask, its lines become horizontal, as measureTextEdges()
  * expects.
  */
-imageproc::BinaryImage deskewedMask(const imageproc::BinaryImage& mask, double deskewAngleDeg);
+imageproc::BinaryImage deskewedMask(const imageproc::BinaryImage& mask,
+                                    double deskewAngleDeg,
+                                    double resolutionRatio = 1.0);
 
 /** What the straight vertical edges of the text tell about the oblique angle of a page. */
 struct TextEdges {

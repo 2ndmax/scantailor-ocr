@@ -16,6 +16,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <iomanip>
+#include <limits>
 #include <optional>
 
 namespace Tests {
@@ -258,6 +259,34 @@ BOOST_AUTO_TEST_CASE(text_edges_with_unequal_dpi) {
   const std::optional<double> found(findObliqueFromTextEdges(fax, NullTaskStatus(), 200.0 / 100.0));
   BOOST_REQUIRE(found.has_value());
   BOOST_CHECK_SMALL(*found - obliqueDeg, 0.05);
+}
+
+BOOST_AUTO_TEST_CASE(anisotropic_deskewed_mask_preserves_physical_oblique_angle) {
+  const double skewDeg = 4.0;
+  const double obliqueDeg = 3.5;
+  const double ratio = 2.0;  // 600 x 300 dpi
+  // textBlock applies obliqueDeg in unrotated axes, so -0.5 + 4.0 deg yields 3.5 deg after deskewing -4 deg.
+  const QImage physical(textBlock(skewDeg, obliqueDeg - skewDeg).toQImage());
+  const BinaryImage stretched(physical.scaled(2 * WIDTH, HEIGHT, Qt::IgnoreAspectRatio, Qt::FastTransformation));
+  const BinaryImage deskewed(deskewedMask(stretched, -skewDeg, ratio));
+  const std::optional<double> found(findObliqueFromTextEdges(deskewed, NullTaskStatus(), ratio));
+  BOOST_REQUIRE(found.has_value());
+  BOOST_CHECK_SMALL(*found - obliqueDeg, 0.15);
+}
+
+BOOST_AUTO_TEST_CASE(invalid_resolution_ratio_falls_back_cleanly) {
+  const BinaryImage column(textColumn(2.5, 2.5, Setting::JUSTIFIED));
+  const std::optional<double> expected(findObliqueFromTextEdges(column, NullTaskStatus(), 1.0));
+  BOOST_REQUIRE(expected.has_value());
+
+  for (const double badRatio : {0.0, -2.0, std::numeric_limits<double>::quiet_NaN()}) {
+    const BinaryImage masked(deskewedMask(column, -1.0, badRatio));
+    BOOST_CHECK(!masked.isNull());
+    const std::optional<double> found(findObliqueFromTextEdges(column, NullTaskStatus(), badRatio));
+    BOOST_REQUIRE(found.has_value());
+    BOOST_CHECK(std::isfinite(*found));
+    BOOST_CHECK_CLOSE(*found, *expected, 1e-6);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
