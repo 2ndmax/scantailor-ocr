@@ -45,7 +45,7 @@ using namespace imageproc;
 namespace {
 int run(const QString& inDir, const QString& outDir, const int dpi) {
   if (!QDir(inDir).exists()) {
-    std::cerr << "input folder not found: " << inDir.toStdString() << "\n";
+    std::cerr << "Input folder not found: " << inDir.toStdString() << "\n";
     return 1;
   }
   QDir().mkpath(outDir);
@@ -53,7 +53,7 @@ int run(const QString& inDir, const QString& outDir, const int dpi) {
   for (const QString& file : files) {
     const QImage image = ImageLoader::load(QDir(inDir).filePath(file));
     if (image.isNull()) {
-      std::cerr << "cannot read " << file.toStdString() << "\n";
+      std::cerr << "Cannot read " << file.toStdString() << "\n";
       continue;
     }
     const QString base = QDir(outDir).filePath(QFileInfo(file).completeBaseName());
@@ -86,7 +86,7 @@ int diff(const QString& beforeDir, const QString& afterDir, const QString& outDi
     const QImage before(QDir(beforeDir).filePath(file));
     const QImage after(QDir(afterDir).filePath(file));
     if (bin.isNull() || (before.size() != after.size()) || (bin.size() != after.size())) {
-      std::cerr << "skipping " << file.toStdString() << "\n";
+      std::cerr << "Skipping " << file.toStdString() << "\n";
       continue;
     }
     QImage out(after.size(), QImage::Format_RGB32);
@@ -127,7 +127,7 @@ int content(const QString& inDir, const int dpi) {
   for (const QString& file : files) {
     const QImage image = ImageLoader::load(QDir(inDir).filePath(file));
     if (image.isNull()) {
-      std::cerr << "cannot read " << file.toStdString() << "\n";
+      std::cerr << "Cannot read " << file.toStdString() << "\n";
       continue;
     }
     const ImageTransformation xform(QRectF(image.rect()), Dpi(dpi, dpi));
@@ -181,7 +181,7 @@ int runMain(int argc, char** argv) {
   if ((args.size() == 5) && (args[1] == "diff")) {
     return diff(args[2], args[3], args[4]);
   }
-  std::cerr << "usage: despeckle_compare run <input folder> <output folder> [--dpi=200]\n"
+  std::cerr << "Usage: despeckle_compare run <input folder> <output folder> [--dpi=200]\n"
                "       despeckle_compare diff <before folder> <after folder> <output folder>\n"
                "       despeckle_compare bench <output folder> [--images]\n"
                "       despeckle_compare content <input folder> [--dpi=200]\n";

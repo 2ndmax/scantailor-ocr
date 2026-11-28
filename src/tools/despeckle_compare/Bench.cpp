@@ -43,7 +43,7 @@ const char* const kTextClassNames[kTextClasses]
 
 enum NoiseClass : uint8_t { kNoNoise, kSalt, kDust, kFibre, kBorder, kNearText, kShowThrough, kNoiseClasses };
 const char* const kNoiseClassNames[kNoiseClasses]
-    = {"", "salt", "dust", "fibre", "border", "near text", "show-through"};
+    = {"", "salt", "dust", "fiber", "border", "near text", "show-through"};
 
 // A class code per pixel, 0 = white.
 struct Layer {
@@ -782,7 +782,7 @@ int bench(const QString& outDir, const bool images) {
   QDir().mkpath(outDir);
   QFile csvFile(QDir(outDir).filePath("bench.csv"));
   if (!csvFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-    std::cerr << "cannot write " << csvFile.fileName().toStdString() << "\n";
+    std::cerr << "Cannot write " << csvFile.fileName().toStdString() << "\n";
     return 1;
   }
   QTextStream csv(&csvFile);
@@ -897,7 +897,7 @@ int bench(const QString& outDir, const bool images) {
   }
   csv.flush();
   if ((csv.status() != QTextStream::Ok) || !csvFile.flush() || (csvFile.error() != QFileDevice::NoError)) {
-    std::cerr << "cannot write " << csvFile.fileName().toStdString() << ": " << csvFile.errorString().toStdString()
+    std::cerr << "Cannot write " << csvFile.fileName().toStdString() << ": " << csvFile.errorString().toStdString()
               << "\n";
     return 1;
   }

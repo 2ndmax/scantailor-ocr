@@ -42,6 +42,8 @@ CANCEL_WAIT_TIMEOUT = 30.0
 
 
 def _tool_error(message: str) -> NoReturn:
+    if message and not message.endswith((".", "!", "?")):
+        message = f"{message}."
     raise ToolError(message)
 
 
@@ -206,7 +208,7 @@ class Job:
         try:
             if self.process is None:
                 self.state = "crashed"
-                self.message = "CLI process was not started"
+                self.message = "CLI process was not started."
                 return
             try:
                 await self.process.wait()
@@ -222,10 +224,10 @@ class Job:
                 await self.process.aclose()
             try:
                 await self._finalize()
-            except Exception as exc:
+            except Exception as exc:  # pragma: no cover - defensive
                 logger.exception("finalizing CLI job %s failed: %s", self.id, exc)
                 self.state = "crashed"
-                self.message = str(exc) or "Failed to finalize CLI run"
+                self.message = str(exc) or "Failed to finalize CLI run."
         finally:
             self.finished.set()
 
@@ -258,9 +260,9 @@ class Job:
             self.state = "crashed"
 
         if self.state == "crashed":
-            self.message = stderr or f"CLI exited with code {rc} without a report"
+            self.message = stderr or f"CLI exited with code {rc} without a report."
         elif self.state == "refused":
-            self.message = stderr or f"CLI refused inputs with exit code {rc}"
+            self.message = stderr or f"CLI refused inputs with exit code {rc}."
 
     async def _send_cancel(self) -> None:
         if self.process is None:
@@ -325,7 +327,7 @@ class Job:
         finally:
             if self.state == "running":
                 self.state = "crashed"
-                self.message = self.message or "CLI process was killed"
+                self.message = self.message or "CLI process was killed."
             self.finished.set()
 
 
@@ -385,14 +387,14 @@ class JobManager:
     ) -> Job:
         self._ensure_capable()
         if self._shutting_down:
-            _tool_error("Server is shutting down")
+            _tool_error("Server is shutting down.")
         self._prune_finished_jobs()
 
         # source check
         has_folder = folder is not None
         has_project = project is not None
         if has_folder == has_project:
-            _tool_error("exactly one of 'folder' or 'project' is required")
+            _tool_error("Exactly one of 'folder' or 'project' is required.")
 
         creation_options_used = (
             profile is not None
@@ -404,31 +406,31 @@ class JobManager:
             or orientation_detect is not None
         )
         if has_project and creation_options_used:
-            _tool_error("creation options cannot be used with 'project'")
+            _tool_error("Creation options cannot be used with 'project'.")
 
         # types
         if last_step is not None and last_step not in LAST_STEPS:
-            _tool_error(f"unknown last_step: {last_step}")
+            _tool_error(f"Unknown last_step: {last_step}.")
         if orientation_detect is not None:
             if not isinstance(orientation_detect, str) or orientation_detect not in (
                 "pages",
                 "book",
             ):
-                _tool_error("orientation_detect must be 'pages' or 'book'")
+                _tool_error("The orientation_detect parameter must be 'pages' or 'book'.")
         if threads is not None:
             if not _is_int(threads) or threads < 1:
-                _tool_error("threads must be an integer >= 1")
+                _tool_error("The threads parameter must be an integer >= 1.")
         if export_formats is not None:
             if not isinstance(export_formats, list) or any(
                 not isinstance(f, str) or f not in EXPORT_FORMATS for f in export_formats
             ):
-                _tool_error("export_formats must be a list of: pdf, txt, hocr, alto")
+                _tool_error("The export_formats parameter must be a list of: pdf, txt, hocr, alto.")
         if dpi is not None:
             if not isinstance(dpi, str) or not parse_dpi_value(dpi):
-                _tool_error(f"invalid dpi value: {dpi}")
+                _tool_error(f"Invalid dpi value: {dpi}.")
         if dpi_fix is not None:
             if not isinstance(dpi_fix, str) or not parse_dpi_value(dpi_fix):
-                _tool_error(f"invalid dpi_fix value: {dpi_fix}")
+                _tool_error(f"Invalid dpi_fix value: {dpi_fix}.")
 
         roots = await allowed_roots(ctx, self.configured_roots)
         if not roots:
@@ -442,7 +444,7 @@ class JobManager:
             folder_resolved = _resolve_allowed(folder, roots)  # type: ignore[arg-type]
         else:
             if not isinstance(project, str) or not project.lower().endswith(".scantailor"):
-                _tool_error("project must end with .ScanTailor")
+                _tool_error("Project path must end with .ScanTailor.")
             project_resolved = _resolve_allowed(project, roots)
 
         # resolve optional paths
@@ -459,7 +461,7 @@ class JobManager:
         profile_value: str | None = None
         if profile is not None:
             if not isinstance(profile, str) or not profile.strip():
-                _tool_error("invalid profile name")
+                _tool_error("Invalid profile name.")
             if profile.lower().endswith(".stp"):
                 profile_value = str(_resolve_allowed(profile, roots))
             else:
@@ -468,7 +470,7 @@ class JobManager:
                     or any(ch in profile for ch in ("/", "\\", ":", "\x00"))
                     or profile.lower().endswith(".xml")
                 ):
-                    _tool_error(f"invalid profile name: {profile}")
+                    _tool_error(f"Invalid profile name: {profile}.")
                 profile_value = profile
 
         # project key
@@ -484,10 +486,10 @@ class JobManager:
         running = [j for j in self.jobs.values() if j.state == "running"]
         if len(running) >= self.max_runs:
             ids = ", ".join(j.id for j in running)
-            _tool_error(f"maximum number of concurrent runs reached ({self.max_runs}): {ids}")
+            _tool_error(f"Maximum number of concurrent runs reached ({self.max_runs}): {ids}.")
         for j in running:
             if j.project_key == project_key:
-                _tool_error(f"a run is already in progress for this project: {j.id}")
+                _tool_error(f"A run is already in progress for this project: {j.id}.")
 
         # build args
         job_id = uuid.uuid4().hex
@@ -551,7 +553,7 @@ class JobManager:
         except OSError as exc:
             del self.jobs[job_id]
             shutil.rmtree(report_dir, ignore_errors=True)
-            _tool_error(f"Could not start CLI process: {exc}")
+            _tool_error(f"Could not start CLI process: {exc}.")
         except BaseException:
             del self.jobs[job_id]
             shutil.rmtree(report_dir, ignore_errors=True)
@@ -565,7 +567,7 @@ class JobManager:
                 await job.process.aclose()
             del self.jobs[job_id]
             shutil.rmtree(report_dir, ignore_errors=True)
-            _tool_error("Server is shutting down")
+            _tool_error("Server is shutting down.")
 
         job.stdout_task = asyncio.create_task(job._read_stdout())
         job.stderr_task = asyncio.create_task(job._read_stderr())
@@ -577,7 +579,7 @@ class JobManager:
     def get_job(self, job_id: str) -> Job:
         job = self.jobs.get(job_id)
         if job is None:
-            _tool_error(f"unknown job_id: {job_id}")
+            _tool_error(f"Unknown job_id: {job_id}.")
         return job
 
     async def shutdown(self) -> None:

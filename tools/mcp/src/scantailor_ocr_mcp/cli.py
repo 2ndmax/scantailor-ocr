@@ -21,7 +21,7 @@ def find_cli() -> Path | None:
     """Find the CLI in the documented order: env, standard location, PATH.
 
     There is no single standard install location (the installers put the binary
-    in the platform's usual bin directory, which differs by packager), so that
+    in the platform's usual bin folder, which differs by packager), so that
     step is intentionally skipped and reported in the project notes.
     """
     env = os.environ.get(ENV_VAR)
@@ -71,20 +71,20 @@ def is_capable(cli: Path) -> tuple[bool, str]:
     try:
         rc, out, err = run_cli([str(cli), "--profile-list"], timeout=PROFILE_LIST_TIMEOUT)
     except subprocess.TimeoutExpired as exc:
-        return False, f"CLI timed out while running --profile-list ({cli}): {exc}"
+        return False, f"CLI timed out while running --profile-list ({cli}): {str(exc).rstrip('.')}."
     except OSError as exc:
-        return False, f"Could not launch CLI ({cli}): {exc}"
+        return False, f"Could not launch CLI ({cli}): {str(exc).rstrip('.')}."
     if rc == 1:
         detail = err.strip() or f"exit code {rc}"
         return (
             False,
-            f"The found CLI ({cli}) is too old for this server (--profile-list failed: {detail})",
+            f"The found CLI ({cli}) is too old for this server (--profile-list failed: {detail}).",
         )
     if rc != 0:
-        detail = err.strip() or f"exit code {rc}"
-        return False, f"CLI ({cli}) failed --profile-list with exit code {rc}: {detail}"
+        detail = (err.strip() or f"exit code {rc}").rstrip(".")
+        return False, f"CLI ({cli}) failed --profile-list with exit code {rc}: {detail}."
     try:
         validate_cli_json(out)
     except ValueError as exc:
-        return False, f"CLI ({cli}) returned invalid --profile-list output: {exc}"
+        return False, f"CLI ({cli}) returned invalid --profile-list output: {str(exc).rstrip('.')}."
     return True, ""

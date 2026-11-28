@@ -30,7 +30,14 @@ logger = logging.getLogger(__name__)
 
 
 def _tool_error(message: str) -> NoReturn:
+    if message and not message.endswith((".", "!", "?")):
+        message = f"{message}."
     raise ToolError(message)
+
+
+def _format_cli_error(prefix: str, err: str) -> str:
+    detail = err.strip()
+    return f"{prefix}: {detail}" if detail else prefix
 
 
 def build_server(
@@ -69,8 +76,8 @@ def build_server(
         instructions=(
             "Drives scantailor-ocr-cli. Reads profiles and project information without "
             "side effects, and runs whole books as background jobs. Paths must lie inside "
-            "an allowed folder. A project open in the ScanTailor app must not be processed "
-            "here; reopen it in the app afterwards."
+            "an allowed folder. A project open in ScanTailor OCR must not be processed "
+            "here; reopen it in ScanTailor OCR afterward."
         ),
         lifespan=lifespan,
     )
@@ -84,9 +91,9 @@ def build_server(
         try:
             return await anyio.to_thread.run_sync(run_cli, [str(cli_path), *args], RUN_TIMEOUT)
         except subprocess.TimeoutExpired:
-            _tool_error(f"CLI command timed out after {RUN_TIMEOUT:g}s")
+            _tool_error(f"CLI command timed out after {RUN_TIMEOUT:g}s.")
         except OSError as exc:
-            _tool_error(f"Could not run CLI: {exc}")
+            _tool_error(f"Could not run CLI: {exc}.")
 
     @server.tool(
         description=(
@@ -98,9 +105,9 @@ def build_server(
         await _ensure_capable()
         rc, out, err = await _run_cli(["--profile-list"])
         if rc == 1:
-            _tool_error(f"CLI usage error: {err.strip()}")
+            _tool_error(_format_cli_error("CLI usage error", err))
         if rc != 0:
-            _tool_error(f"CLI failed (exit {rc}): {err.strip()}")
+            _tool_error(_format_cli_error(f"CLI failed (exit {rc})", err))
         try:
             data = validate_cli_json(out)
         except ValueError as exc:
@@ -116,7 +123,7 @@ def build_server(
     async def project_info(project: str, ctx: Context) -> dict[str, Any]:
         await _ensure_capable()
         if not project.lower().endswith(".scantailor"):
-            _tool_error("project must end with .ScanTailor")
+            _tool_error("Project path must end with .ScanTailor.")
         roots = await allowed_roots(ctx, state["configured_roots"])
         if not roots:
             _tool_error(
@@ -129,11 +136,11 @@ def build_server(
             _tool_error(str(exc))
         rc, out, err = await _run_cli(["--project-info", str(resolved)])
         if rc == 1:
-            _tool_error(f"CLI usage error: {err.strip()}")
+            _tool_error(_format_cli_error("CLI usage error", err))
         if rc == 2:
             return {"state": "refused", "exit_code": 2, "message": err.strip()}
         if rc != 0:
-            _tool_error(f"CLI failed (exit {rc}): {err.strip()}")
+            _tool_error(_format_cli_error(f"CLI failed (exit {rc})", err))
         try:
             data = validate_cli_json(out)
         except ValueError as exc:
@@ -145,12 +152,19 @@ def build_server(
             "Start a run of scantailor-ocr-cli and return immediately with a job_id. "
             "Either 'folder' (create a new project) or 'project' (an existing .ScanTailor) "
             "is required, never both. Poll run_status for progress; cancel with run_cancel. "
-            "Do not process a project that is open in the ScanTailor app. Creation option "
-            "'orientation_detect' ('pages' or 'book', folder only) detects page orientation "
-            "before the first step: 'pages' rotates only pages whose orientation is certain, "
-            "'book' also rotates uncertain pages like their neighbors or the majority; the "
-            "report then carries 'rotationDetection' per page ('undecided' pages need a manual "
-            "check)."
+            "Do not process a project that is open in ScanTailor OCR. "
+            "Creation options (folder only): 'orientation_detect' ('pages' or 'book') detects "
+            "page orientation before the first step ('pages' rotates only certain pages; "
+            "'book' also rotates uncertain pages like their neighbors or the majority, and "
+            "the report carries 'rotationDetection' per page where 'undecided' needs a manual "
+            "check); 'color_mode_detect' (bool, requires last_step 'margins' or later) detects "
+            "each page's color mode after the Margins step and reports it per page. "
+            "'last_step' stops after 'fix-orientation', 'split-pages', 'deskew', "
+            "'select-content', 'margins', 'output' (default), or 'export'. "
+            "Export options (require 'export' or omitted 'last_step'): 'export_folder' sets "
+            "the destination folder (instead of the project file's folder), 'export_name' sets "
+            "the output base filename without extension, and 'export_formats' lists formats "
+            "from 'pdf', 'txt', 'hocr', and 'alto'."
         )
     )
     async def run_start(
@@ -229,7 +243,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--max-runs", type=int, default=1, metavar="N", help="Maximum concurrent runs (default 1)."
     )
     parser.add_argument(
-        "--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"]
+        "--log-level",
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Logging level for server diagnostics on stderr (default INFO).",
     )
     return parser.parse_args(argv)
 
