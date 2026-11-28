@@ -290,6 +290,7 @@ void TestEndToEndQt::testMissingImage() {
   QVERIFY(tempDir.isValid());
   const QDir dir(tempDir.path());
   const std::vector<ImageFileInfo> files = saveScans(dir);
+  QVERIFY(allSaved(files));
   const QString missingFile = files[1].fileInfo().absoluteFilePath();
   QVERIFY(QFile::remove(missingFile));
 

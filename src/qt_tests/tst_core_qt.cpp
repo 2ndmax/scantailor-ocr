@@ -376,11 +376,13 @@ void TestCoreQt::testOutputPageSwitchDropsDelayedReload() {
 
   const int thumbnailsBefore = static_cast<int>(thumbnailSpy.count());
   changeSensitivity();
+  QVERIFY(widget.hasPendingReload());
   widget.preUpdateUI(second);
 
+  QVERIFY(!widget.hasPendingReload());
   QCOMPARE(static_cast<int>(thumbnailSpy.count()), thumbnailsBefore + 1);
   QCOMPARE(thumbnailSpy.last().at(0).value<PageId>(), first);
-  QTest::qWait(delay + 250);
+  QCoreApplication::processEvents();
   QCOMPARE(reloadSpy.count(), 1);
 }
 

@@ -19,41 +19,6 @@
 #include "imageproc/GrayImage.h"
 #include "imageproc/Scale.h"
 
-namespace {
-// Leptonica's makeOrientDecision equivalent, recomputed here for comparison.
-int leptAngleFor(float up, float left) {
-  const l_float32 minupconf = 8.0f;
-  const l_float32 minratio = 2.5f;
-  const l_float32 absup = std::fabs(up);
-  const l_float32 absleft = std::fabs(left);
-
-  l_int32 orient = L_TEXT_ORIENT_UNKNOWN;
-  if (up != 0.0f && left != 0.0f) {
-    if (up > minupconf && absup > minratio * absleft) {
-      orient = L_TEXT_ORIENT_UP;
-    } else if (left > minupconf && absleft > minratio * absup) {
-      orient = L_TEXT_ORIENT_LEFT;
-    } else if (up < -minupconf && absup > minratio * absleft) {
-      orient = L_TEXT_ORIENT_DOWN;
-    } else if (left < -minupconf && absleft > minratio * absup) {
-      orient = L_TEXT_ORIENT_RIGHT;
-    }
-  }
-  switch (orient) {
-    case L_TEXT_ORIENT_UP:
-      return 0;
-    case L_TEXT_ORIENT_LEFT:
-      return 90;
-    case L_TEXT_ORIENT_DOWN:
-      return 180;
-    case L_TEXT_ORIENT_RIGHT:
-      return 270;
-    default:
-      return -1;
-  }
-}
-}  // namespace
-
 BOOST_AUTO_TEST_SUITE(OrientationDetectorSuite)
 
 BOOST_AUTO_TEST_CASE(text_page_four_rotations) {

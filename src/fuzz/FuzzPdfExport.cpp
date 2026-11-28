@@ -6,7 +6,7 @@
 //                JPEG 2000), bits 2-3: the same for palette images, bits 4-5: the compression of
 //                1 bit images (none, Deflate, CCITT G4, JBIG2), bit 6: PDF/A, bit 7: split output
 //   byte 1       bits 0-1: the image (1 bit, palette, grayscale, colour); with split output the
-//                background, the foreground is always 1 bit
+//                background, the foreground is always 1 bit; bit 2: 2-page PDF
 //   byte 2, 3    width and height minus 1 (1 to 160 pixels)
 //   byte 4, 5    the DPI of the image (16 bit, big endian)
 //   byte 6       the quality of JPEG and JPEG 2000 (1 to 100)
@@ -228,14 +228,24 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
   }
   // The files in it are written anew by each run. As a static object, it is removed when libFuzzer
   // ends the process with exit(), e.g. after -max_total_time; a crash leaves it behind.
-  static const QTemporaryDir dir;
-  const QString mainFile = dir.filePath("page.tif");
-  const QString foregroundFile = dir.filePath("foreground/page.tif");
-  const QString backgroundFile = dir.filePath("background/page.tif");
-  QDir().mkpath(dir.filePath("foreground"));
-  QDir().mkpath(dir.filePath("background"));
-  QFile::remove(foregroundFile);
-  QFile::remove(backgroundFile);
+  struct FuzzPaths {
+    QTemporaryDir dir;
+    QString mainFile;
+    QString foregroundFile;
+    QString backgroundFile;
+
+    FuzzPaths() {
+      check(dir.isValid(), "the temporary folder can be created");
+      check(QDir().mkpath(dir.filePath("foreground")), "the foreground folder can be created");
+      check(QDir().mkpath(dir.filePath("background")), "the background folder can be created");
+      mainFile = dir.filePath("page.tif");
+      foregroundFile = dir.filePath("foreground/page.tif");
+      backgroundFile = dir.filePath("background/page.tif");
+    }
+  };
+  static const FuzzPaths paths;
+  QFile::remove(paths.foregroundFile);
+  QFile::remove(paths.backgroundFile);
 
   ExportOptions options;
   options.pdf.colorCompression = COLOR_COMPRESSIONS[data[0] & 3];
@@ -244,6 +254,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
   options.pdf.pdfA = (data[0] & 64) != 0;
   const bool splitOutput = (data[0] & 128) != 0;
   const auto kind = static_cast<ImageKind>(data[1] & 3);
+  const bool twoPages = (data[1] & 4) != 0;
   const QSize imageSize(data[2] % 160 + 1, data[3] % 160 + 1);
   const int dpi = (data[4] << 8) | data[5];
   options.pdf.colorQuality = data[6] % 100 + 1;
@@ -263,16 +274,16 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
   const Dpm dpm(Dpi(dpi, dpi));
   image.setDotsPerMeterX(dpm.horizontal());
   image.setDotsPerMeterY(dpm.vertical());
-  writeTiff(mainFile, image);
+  writeTiff(paths.mainFile, image);
   if (splitOutput) {
     QImage foreground = buildImage(MONO, imageSize, palette, in);
     foreground.setDotsPerMeterX(dpm.horizontal());
     foreground.setDotsPerMeterY(dpm.vertical());
-    writeTiff(foregroundFile, foreground);
-    writeTiff(backgroundFile, image);
+    writeTiff(paths.foregroundFile, foreground);
+    writeTiff(paths.backgroundFile, image);
   }
 
-  ExportPage page(mainFile, foregroundFile, backgroundFile, splitOutput);
+  ExportPage page(paths.mainFile, paths.foregroundFile, paths.backgroundFile, splitOutput);
   page.analyze();
   PdfWriter::Page pdfPage;
   QStringList errors;
@@ -289,7 +300,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, const size_t size) {
     PdfWriter writer(buffer);
     writer.setProducer(QStringLiteral("ScanTailor OCR"));
     writer.setPdfA(options.pdf.pdfA);
-    check(writer.begin() && writer.addPage(pdfPage) && writer.finish(), "the PDF can be written");
+    check(writer.begin() && writer.addPage(pdfPage) && (!twoPages || writer.addPage(pdfPage)) && writer.finish(),
+          "the PDF can be written");
     checkCrossReferences(buffer.data());
   } catch (const std::bad_alloc&) {
     // The program hands it to its out-of-memory handler.

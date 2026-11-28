@@ -14,6 +14,7 @@
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 #include "TestHelpers.h"
@@ -302,6 +303,15 @@ PdfWriter::Image makePdfImage(const QImage& image, const PdfWriter::Image::Encod
   result.rect = QRectF(0, 0, image.width(), image.height());
   return result;
 }
+
+boost::test_tools::assertion_result hasPdftoppm(boost::unit_test::test_unit_id /*id*/) {
+  if (!QStandardPaths::findExecutable("pdftoppm").isEmpty()) {
+    return true;
+  }
+  boost::test_tools::assertion_result result(false);
+  result.message() << "pdftoppm not found";
+  return result;
+}
 }  // namespace
 
 BOOST_AUTO_TEST_SUITE(Jbig2TestSuite)
@@ -348,14 +358,26 @@ BOOST_AUTO_TEST_CASE(test_jbig2_large_output) {
   checkRoundTrip(noise);
 }
 
+BOOST_AUTO_TEST_CASE(test_jbig2_mono_lsb) {
+  const QImage monoLsb = makePattern(65, 29, 17u).convertToFormat(QImage::Format_MonoLSB);
+  BOOST_REQUIRE(monoLsb.format() == QImage::Format_MonoLSB);
+  checkRoundTrip(monoLsb);
+}
+
+BOOST_AUTO_TEST_CASE(test_jbig2_argb32) {
+  const QImage argb32 = makePattern(65, 29, 23u).convertToFormat(QImage::Format_ARGB32);
+  BOOST_REQUIRE(argb32.format() == QImage::Format_ARGB32);
+  checkRoundTrip(argb32);
+}
+
 BOOST_AUTO_TEST_CASE(test_jbig2_bitimage_without_pixels) {
   // Without pixels there is nothing to read, not even the first word of the data.
-  jbig2enc_ctx ctx;
-  jbig2enc_init(&ctx);
-  jbig2enc_bitimage(&ctx, nullptr, 0, 5, true);
-  jbig2enc_bitimage(&ctx, nullptr, 5, 0, true);
-  jbig2enc_final(&ctx);
-  BOOST_CHECK_GT(jbig2enc_datasize(&ctx), 0u);
+  const auto ctx = std::make_unique<jbig2enc_ctx>();
+  jbig2enc_init(ctx.get());
+  jbig2enc_bitimage(ctx.get(), nullptr, 0, 5, true);
+  jbig2enc_bitimage(ctx.get(), nullptr, 5, 0, true);
+  jbig2enc_final(ctx.get());
+  BOOST_CHECK_GT(jbig2enc_datasize(ctx.get()), 0u);
 }
 
 BOOST_AUTO_TEST_CASE(test_jbig2_colour_table) {
@@ -382,12 +404,9 @@ BOOST_AUTO_TEST_CASE(test_jbig2_in_pdf) {
  * a PDF with JBIG2 and G4 pages, and the result has to match the original pixels.
  * Skipped if Poppler's pdftoppm isn't installed (CI installs it on Linux).
  */
-BOOST_AUTO_TEST_CASE(test_jbig2_rendered_by_poppler) {
+BOOST_AUTO_TEST_CASE(test_jbig2_rendered_by_poppler, *boost::unit_test::precondition(hasPdftoppm)) {
   const QString pdftoppm = QStandardPaths::findExecutable("pdftoppm");
-  if (pdftoppm.isEmpty()) {
-    BOOST_TEST_MESSAGE("pdftoppm not found, skipping the check with Poppler.");
-    return;
-  }
+  BOOST_REQUIRE(!pdftoppm.isEmpty());
 
   const QImage image = makePattern(333, 211, 99u);
   const std::vector<PdfWriter::Image> pages = {makePdfImage(image, PdfWriter::Image::Encoding::JBIG2, false),
@@ -412,7 +431,9 @@ BOOST_AUTO_TEST_CASE(test_jbig2_rendered_by_poppler) {
   process.start(pdftoppm, {"-r", QString::number(72 * scale), "-gray", "-aa", "no", "-aaVector", "no",
                            pdfFile.fileName(), dir.filePath("page")});
   BOOST_REQUIRE(process.waitForFinished(60000));
-  BOOST_REQUIRE_MESSAGE(process.exitCode() == 0, process.readAllStandardError().toStdString());
+  BOOST_TEST_INFO(process.readAllStandardError().toStdString());
+  BOOST_REQUIRE(process.exitStatus() == QProcess::NormalExit);
+  BOOST_REQUIRE_EQUAL(process.exitCode(), 0);
 
   const char* names[] = {"JBIG2 image", "JBIG2 mask", "G4 image", "G4 mask"};
   for (int i = 0; i < 4; ++i) {

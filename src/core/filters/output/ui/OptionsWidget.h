@@ -62,6 +62,8 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   const DepthPerception& depthPerception() const;
 
+  bool hasPendingReload() const { return m_delayedReloadRequest.isActive(); }
+
  signals:
 
   void despeckleLevelChanged(double level, bool* handled);

@@ -111,6 +111,7 @@ void TestDeskewQt::testApplyAutoObliqueMeasuresOtherPages() {
   widget.preUpdateUI(current);
   widget.postUpdateUI(uiData(MODE_MANUAL, MODE_AUTO));
 
+  // appliedTo is a private slot on OptionsWidget; invoke it directly without exposing it publicly.
   QVERIFY(QMetaObject::invokeMethod(&widget, "appliedTo", Qt::DirectConnection,
                                     Q_ARG(std::set<PageId>, std::set<PageId>{other}), Q_ARG(bool, false),
                                     Q_ARG(bool, true)));

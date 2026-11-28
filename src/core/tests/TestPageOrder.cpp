@@ -17,8 +17,10 @@
 #include <QDir>
 #include <QDomDocument>
 #include <QFile>
+#include <QFileDevice>
 #include <QFileInfo>
 #include <QTemporaryDir>
+#include <QTimeZone>
 #include <boost/test/unit_test.hpp>
 #include <memory>
 #include <vector>
@@ -92,7 +94,19 @@ BOOST_AUTO_TEST_CASE(switching_renames_the_output_files) {
   BOOST_REQUIRE(Tests::writeFile(foregroundDir.filePath("scan_1L.tif"), "left foreground"));
   // Left over from earlier, to be replaced.
   BOOST_REQUIRE(Tests::writeFile(outDir.filePath("scan_2L.tif"), "stale"));
-  const QDateTime leftModified = QFileInfo(outDir.filePath("scan_1L.tif")).lastModified();
+  const QDateTime leftModified = QDateTime::fromSecsSinceEpoch(1700000000, QTimeZone::utc());
+  const QDateTime staleModified = QDateTime::fromSecsSinceEpoch(1700003600, QTimeZone::utc());
+  {
+    QFile leftFile(outDir.filePath("scan_1L.tif"));
+    BOOST_REQUIRE(leftFile.open(QIODevice::ReadWrite));
+    BOOST_REQUIRE(leftFile.setFileTime(leftModified, QFileDevice::FileModificationTime));
+  }
+  {
+    QFile staleFile(outDir.filePath("scan_2L.tif"));
+    BOOST_REQUIRE(staleFile.open(QIODevice::ReadWrite));
+    BOOST_REQUIRE(staleFile.setFileTime(staleModified, QFileDevice::FileModificationTime));
+  }
+  BOOST_REQUIRE(QFileInfo(outDir.filePath("scan_1L.tif")).lastModified() == leftModified);
 
   OutputFileNameGenerator generator(std::make_shared<FileNameDisambiguator>(), outDir.path(), Qt::LeftToRight);
   const std::vector<ImageId> images{ImageId(outDir.filePath("scan.png"))};

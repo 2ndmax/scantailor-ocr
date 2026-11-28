@@ -167,7 +167,9 @@ BOOST_AUTO_TEST_CASE(large_photo_with_caption_is_mixed) {
 BOOST_AUTO_TEST_CASE(dark_page_is_not_mixed) {
   QImage page = blankPage();
   page.fill(QColor(15, 15, 15));
-  BOOST_CHECK(detect(page) != ColorModeDetector::Mode::Mixed);
+  const auto mode = detect(page);
+  BOOST_CHECK(mode != ColorModeDetector::Mode::Mixed);
+  BOOST_CHECK(mode != ColorModeDetector::Mode::Color);
 }
 
 BOOST_AUTO_TEST_CASE(nearly_empty_page_stays_black_and_white) {

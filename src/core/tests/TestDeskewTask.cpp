@@ -45,9 +45,10 @@ const int DPM_300 = Dpm(Dpi(300, 300)).horizontal();
 // Runs the deskew task of PAGE on the image as if it came from "Split Pages".
 std::unique_ptr<Params> runTask(const std::shared_ptr<Settings>& settings,
                                 const FilterData& data,
-                                const bool autoObliqueByDefault) {
-  Task task(nullptr, settings, std::make_shared<ImageSettings>(), nullptr, PAGE, false, autoObliqueByDefault,
-            DETECT_CONTENT, true, false);
+                                const bool autoObliqueByDefault,
+                                const SkewDetection detection = DETECT_CONTENT) {
+  Task task(nullptr, settings, std::make_shared<ImageSettings>(), nullptr, PAGE, false, autoObliqueByDefault, detection,
+            true, false);
   task.process(NullTaskStatus(), data);
   return settings->getPageParams(PAGE);
 }
@@ -107,6 +108,45 @@ BOOST_AUTO_TEST_CASE(empty_image_area_preserves_manual_deskew_angle) {
   BOOST_REQUIRE(params);
   BOOST_CHECK(params->mode() == MODE_MANUAL);
   BOOST_CHECK_CLOSE(params->deskewAngle(), 3.5, 1e-9);
+  BOOST_CHECK(params->obliqueMode() == MODE_AUTO);
+}
+
+BOOST_AUTO_TEST_CASE(detect_top_edge_measures_slanted_top_border) {
+  QImage page(600, 800, QImage::Format_RGB32);
+  page.fill(Qt::white);
+  QPainter painter(&page);
+  QPolygonF topBorder;
+  // Leave narrow white margins at x = 0..3, x = 596..599, and a 4 px notch at (296, 0, 4, 4) so
+  // Task::cleanup's openBrick(200, 14, BLACK) doesn't match y = 0 against the black surroundings.
+  topBorder << QPointF(4, 0) << QPointF(596, 0) << QPointF(596, 24) << QPointF(4, 4);
+  painter.setPen(Qt::NoPen);
+  painter.setBrush(Qt::black);
+  painter.drawPolygon(topBorder);
+  painter.fillRect(QRect(296, 0, 4, 4), Qt::white);
+  painter.end();
+  page.setDotsPerMeterX(DPM_300);
+  page.setDotsPerMeterY(DPM_300);
+
+  auto settings = std::make_shared<Settings>();
+  const std::unique_ptr<Params> params(runTask(settings, FilterData(page), false, DETECT_TOP_EDGE));
+  BOOST_REQUIRE(params);
+  BOOST_CHECK(params->detection() == DETECT_TOP_EDGE);
+  BOOST_CHECK(params->mode() == MODE_AUTO);
+  // Top edge drops 20 px across 592 px (atan(20 / 592) ~ 1.93 deg).
+  BOOST_CHECK_CLOSE(params->deskewAngle(), std::atan(20.0 / 592.0) * (180.0 / 3.14159265358979323846), 10.0);
+}
+
+BOOST_AUTO_TEST_CASE(valid_image_area_preserves_manual_deskew_when_measured_again) {
+  auto settings = std::make_shared<Settings>();
+  QPolygonF otherOutline;
+  otherOutline << QPointF(0, 0) << QPointF(10, 0) << QPointF(10, 10) << QPointF(0, 10);
+  settings->setPageParams(PAGE,
+                          Params(2.75, 0.0, Dependencies(otherOutline, OrthogonalRotation()), MODE_MANUAL, MODE_AUTO));
+
+  const std::unique_ptr<Params> params(runTask(settings, FilterData(textPage(DPM_300, DPM_300)), true));
+  BOOST_REQUIRE(params);
+  BOOST_CHECK(params->mode() == MODE_MANUAL);
+  BOOST_CHECK_CLOSE(params->deskewAngle(), 2.75, 1e-9);
   BOOST_CHECK(params->obliqueMode() == MODE_AUTO);
 }
 

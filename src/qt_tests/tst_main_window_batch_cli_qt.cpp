@@ -157,6 +157,7 @@ class ModalDialogWatchdog : public QObject {
     return false;
   }
 
+  // startBatchProcessing is a private slot on MainWindow; invoke it directly without exposing it publicly.
   if (!checkOrFail(QMetaObject::invokeMethod(&mw, "startBatchProcessing", Qt::DirectConnection),
                    "Failed to invoke startBatchProcessing for Margins", __FILE__, __LINE__)) {
     return false;
@@ -182,6 +183,7 @@ class ModalDialogWatchdog : public QObject {
     return false;
   }
 
+  // startBatchProcessing is a private slot on MainWindow; invoke it directly without exposing it publicly.
   if (!checkOrFail(QMetaObject::invokeMethod(&mw, "startBatchProcessing", Qt::DirectConnection),
                    "Failed to invoke startBatchProcessing for Output", __FILE__, __LINE__)) {
     return false;

@@ -28,6 +28,7 @@
 #include <cstring>
 #include <functional>
 #include <limits>
+#include <memory>
 #include <vector>
 
 extern "C" {
@@ -301,20 +302,20 @@ bool writeJp2(const QString& path,
     }
   }
 
-  opj_cparameters_t cparams;
-  opj_set_default_encoder_parameters(&cparams);
-  cparams.tcp_numlayers = 1;
-  cparams.tcp_rates[0] = 0;  // Lossless.
-  cparams.cp_disto_alloc = 1;
-  cparams.numresolution = 4;
+  auto cparams = std::make_unique<opj_cparameters_t>();
+  opj_set_default_encoder_parameters(cparams.get());
+  cparams->tcp_numlayers = 1;
+  cparams->tcp_rates[0] = 0;  // Lossless.
+  cparams->cp_disto_alloc = 1;
+  cparams->numresolution = 4;
   if (tileSize > 0) {
-    cparams.tile_size_on = OPJ_TRUE;
-    cparams.cp_tdx = tileSize;
-    cparams.cp_tdy = tileSize;
+    cparams->tile_size_on = OPJ_TRUE;
+    cparams->cp_tdx = tileSize;
+    cparams->cp_tdy = tileSize;
   }
 
   opj_codec_t* codec = opj_create_compress(codestream ? OPJ_CODEC_J2K : OPJ_CODEC_JP2);
-  bool ok = codec && opj_setup_encoder(codec, &cparams, image);
+  bool ok = codec && opj_setup_encoder(codec, cparams.get(), image);
   // REVIEW-NOTE (2026-10): OpenJPEG opens the file in the ANSI code page -> with a temporary folder
   // outside it (e.g. a Cyrillic user name on a German Windows) the JPEG 2000 tests fail. Not fixed
   // because only the test setup is affected (Jp2Reader reads through QIODevice) and a memory stream
@@ -375,10 +376,11 @@ void writeGrayJpeg(const QString& path,
   }
   jpeg_finish_compress(&cinfo);
   jpeg_destroy_compress(&cinfo);
+  std::unique_ptr<unsigned char, decltype(&std::free)> bufferGuard(buffer, &std::free);
   QFile file(path);
   BOOST_REQUIRE(file.open(QIODevice::WriteOnly));
-  file.write(reinterpret_cast<const char*>(buffer), static_cast<qint64>(size));
-  free(buffer);
+  BOOST_REQUIRE_EQUAL(file.write(reinterpret_cast<const char*>(buffer), static_cast<qint64>(size)),
+                      static_cast<qint64>(size));
 }
 }  // namespace
 

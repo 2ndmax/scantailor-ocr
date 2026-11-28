@@ -4,7 +4,6 @@
 #include <ExportJob.h>
 #include <ExportPage.h>
 #include <GlyphLessFont.h>
-#include <ImageLoadErrors.h>
 #include <Jp2Reader.h>
 #include <PdfImageEncoder.h>
 #include <PdfWriter.h>
@@ -254,7 +253,6 @@ BOOST_AUTO_TEST_CASE(test_format_number) {
 
 BOOST_AUTO_TEST_CASE(test_g4_round_trip) {
   const QImage original = makeBitonal(333, 211, 300);
-  ImageLoadErrorCapture capture;
   const QByteArray g4 = PdfImageEncoder::encodeG4(original);
   BOOST_REQUIRE(!g4.isEmpty());
 
@@ -636,6 +634,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   PdfWriter::Page result;
   QStringList errors;
   BOOST_REQUIRE(ExportJob::preparePage(page, options, &result, &errors));
+  BOOST_CHECK(errors.isEmpty());
   BOOST_CHECK(std::abs(result.size.width() - 48.0) < 0.01);
   BOOST_CHECK(std::abs(result.size.height() - 72.0) < 0.01);
   BOOST_REQUIRE_EQUAL(result.images.size(), 2u);
@@ -657,6 +656,7 @@ BOOST_AUTO_TEST_CASE(test_prepare_split_page) {
   options.pdf.bitonalCompression = PdfCompression::CCITT_G4;
   PdfWriter::Page g4Result;
   BOOST_REQUIRE(ExportJob::preparePage(page, options, &g4Result, &errors));
+  BOOST_CHECK(errors.isEmpty());
   BOOST_REQUIRE_EQUAL(g4Result.images.size(), 2u);
   BOOST_CHECK(g4Result.images[1].encoding == PdfWriter::Image::Encoding::CCITT_G4);
   BOOST_CHECK(g4Result.images[1].isMask);
@@ -1148,7 +1148,7 @@ BOOST_AUTO_TEST_CASE(a_tiff_wider_than_int_is_not_read_as_a_negative_size) {
   QSize size;
   int bitsPerPixel = 0;
   const bool read = PdfImageEncoder::readTiffInfo(path, &size, &bitsPerPixel);
-  BOOST_CHECK_MESSAGE(!read || (size.width() > 0), "size " << size.width() << " x " << size.height());
+  BOOST_CHECK(!read);
 }
 
 BOOST_AUTO_TEST_CASE(test_empty_page_writes_uncompressed_content_stream) {

@@ -103,5 +103,12 @@ BOOST_AUTO_TEST_CASE(test_relinking_to_a_name_with_the_same_label) {
   BOOST_TEST(disambiguator->getLabel("/c/scan_new.tif") == 0);
 }
 
+BOOST_AUTO_TEST_CASE(test_right_to_left_page_order_names) {
+  const auto disambiguator = std::make_shared<FileNameDisambiguator>();
+  const OutputFileNameGenerator generator(disambiguator, "/out", Qt::RightToLeft);
+  BOOST_CHECK_EQUAL(generator.fileNameFor(page("/in/scan.tif", 0, PageId::LEFT_PAGE)).toStdString(), "scan_2L.tif");
+  BOOST_CHECK_EQUAL(generator.fileNameFor(page("/in/scan.tif", 0, PageId::RIGHT_PAGE)).toStdString(), "scan_1R.tif");
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests

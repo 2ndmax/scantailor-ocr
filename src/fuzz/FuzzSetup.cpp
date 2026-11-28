@@ -4,8 +4,7 @@
 #include "FuzzSetup.h"
 
 #include <QCoreApplication>
-
-#include "ImageSizeLimit.h"
+#include <QImageReader>
 
 namespace {
 void dropMessage(QtMsgType, const QMessageLogContext&, const QString&) {}
@@ -15,8 +14,9 @@ extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv) {
   // Lives until the process ends; libFuzzer never returns from its main loop.
   static QCoreApplication* const app = new QCoreApplication(*argc, *argv);
   (void) app;
-  // As in the program's main().
-  ImageSizeLimit::applyQtAllocationLimit();
+  // Cap Qt image allocation at 256 MB (well below 10-fuzz.ps1's -RssLimitMb 2048 and ample for
+  // MAX_FUZZ_PIXELS = 16 MP).
+  QImageReader::setAllocationLimit(256);
   qInstallMessageHandler(&dropMessage);
   return 0;
 }

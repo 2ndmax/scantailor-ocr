@@ -6,9 +6,32 @@
 #include <QChar>
 #include <QDir>
 #include <QFile>
+#include <QFileDevice>
 #include <QStringList>
 #include <QTemporaryDir>
 #include <boost/test/unit_test.hpp>
+#include <utility>
+
+namespace {
+struct ScopedReadOnlyFile {
+  QString path;
+  bool applied = false;
+
+  explicit ScopedReadOnlyFile(QString p)
+      : path(std::move(p)), applied(QFile::setPermissions(path, QFileDevice::ReadOwner)) {}
+
+  ~ScopedReadOnlyFile() {
+    if (applied) {
+      QFile::setPermissions(path, QFileDevice::ReadOwner | QFileDevice::WriteOwner);
+    }
+  }
+
+  bool ok() const { return applied; }
+
+  ScopedReadOnlyFile(const ScopedReadOnlyFile&) = delete;
+  ScopedReadOnlyFile& operator=(const ScopedReadOnlyFile&) = delete;
+};
+}  // namespace
 
 using path_names::canCreateOrWriteDir;
 using path_names::canWriteFile;
@@ -147,9 +170,9 @@ BOOST_AUTO_TEST_CASE(test_canWriteFile) {
   BOOST_CHECK(!canWriteFile(file + "/new.txt"));
   BOOST_CHECK(!canWriteFile(dir.path()));
   // A read-only file.
-  BOOST_REQUIRE(QFile::setPermissions(file, QFileDevice::ReadOwner));
+  const ScopedReadOnlyFile readOnly(file);
+  BOOST_REQUIRE(readOnly.ok());
   BOOST_CHECK(!canWriteFile(file));
-  QFile::setPermissions(file, QFileDevice::ReadOwner | QFileDevice::WriteOwner);
 }
 
 // Windows calls "plain." existing if "plain" exists, but the name is still not in the folder.

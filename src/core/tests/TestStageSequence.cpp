@@ -222,11 +222,15 @@ BOOST_AUTO_TEST_CASE(test_progress_names_the_page_and_its_result) {
   BOOST_REQUIRE(Tests::writeFile(dir.filePath(QStringLiteral("broken.png")), "not an image"));
 
   std::vector<StageSequence::PageProgress> calls;
-  session.stages->processAll(nullptr, session.outFileNameGen, session.stages->pageLayoutFilterIdx(),
-                             [&](const StageSequence::PageProgress& progress) {
-                               calls.push_back(progress);
-                               return true;
-                             });
+  const StageSequence::ProcessAllResult result
+      = session.stages->processAll(nullptr, session.outFileNameGen, session.stages->pageLayoutFilterIdx(),
+                                   [&](const StageSequence::PageProgress& progress) {
+                                     calls.push_back(progress);
+                                     return true;
+                                   });
+  BOOST_CHECK(!result.cancelled);
+  BOOST_REQUIRE_EQUAL(result.failures.size(), 1u);
+  BOOST_CHECK(result.failures[0].kind == StageSequence::PageFailure::LOAD_FAILED);
 
   // The result of each page by pass, file and half.
   std::map<std::tuple<int, QString, PageId::SubPage>, StageSequence::PageProgress> byPage;
@@ -251,11 +255,14 @@ BOOST_AUTO_TEST_CASE(test_progress_names_the_page_and_its_result) {
 
   BOOST_CHECK(status(marginsIdx, "book.png", PageId::LEFT_PAGE).status == StageSequence::PageProgress::OK);
   BOOST_CHECK(status(marginsIdx, "book.png", PageId::RIGHT_PAGE).status == StageSequence::PageProgress::OK);
+  int brokenSkippedCount = 0;
   for (const StageSequence::PageProgress& progress : calls) {
     if ((progress.lastFilterIdx == marginsIdx) && progress.page.imageId().filePath().endsWith("broken.png")) {
       BOOST_CHECK(progress.status == StageSequence::PageProgress::SKIPPED);
+      ++brokenSkippedCount;
     }
   }
+  BOOST_CHECK_EQUAL(brokenSkippedCount, 1);
   // Split: two images; Margins: the two halves of book.png and what broken.png has.
   BOOST_CHECK_EQUAL(std::count_if(calls.begin(), calls.end(),
                                   [&](const StageSequence::PageProgress& p) { return p.lastFilterIdx == splitIdx; }),

@@ -55,15 +55,15 @@ class RecordingUi : public FilterUiInterface {
   void setOptionsWidget(FilterOptionsWidget* widget, const Ownership ownership) override {
     optionsWidget = widget;
     optionsWidgetOwnership = ownership;
+    ownedOptionsWidget.reset(ownership == TRANSFER_OWNERSHIP ? widget : nullptr);
   }
 
   void setImageWidget(QWidget* widget,
                       const Ownership ownership,
                       DebugImages* /*debugImages*/,
                       bool /*overlay*/) override {
-    if (ownership == TRANSFER_OWNERSHIP) {
-      imageWidget.reset(widget);
-    }
+    imageWidgetPtr = widget;
+    imageWidget.reset(ownership == TRANSFER_OWNERSHIP ? widget : nullptr);
   }
 
   void invalidateThumbnail(const PageId& pageId) override { invalidatedThumbnails.push_back(pageId); }
@@ -74,7 +74,9 @@ class RecordingUi : public FilterUiInterface {
 
   FilterOptionsWidget* optionsWidget = nullptr;
   Ownership optionsWidgetOwnership = TRANSFER_OWNERSHIP;
+  std::unique_ptr<QWidget> ownedOptionsWidget;
   std::unique_ptr<QWidget> imageWidget;
+  QWidget* imageWidgetPtr = nullptr;
   std::vector<PageId> invalidatedThumbnails;
   int allThumbnailsInvalidated = 0;
 };
@@ -91,7 +93,9 @@ class RecordingThumbnails : public ThumbnailCollector {
 class OnePageProject {
  public:
   explicit OnePageProject(const DefaultParams& startValues = DefaultParams())
-      : m_files({test_pages::saveScan(test_pages::skewedPage(), m_dir.filePath("page.png"))}),
+      : m_files(m_dir.isValid() ? std::vector<ImageFileInfo>{test_pages::saveScan(test_pages::skewedPage(),
+                                                                                  m_dir.filePath("page.png"))}
+                                : std::vector<ImageFileInfo>{}),
         project(m_files, m_dir.filePath("out"), startValues),
         filterUis(project.stages, PageSelectionAccessor(nullptr)) {}
 

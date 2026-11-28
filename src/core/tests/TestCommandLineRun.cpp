@@ -22,6 +22,8 @@
 
 #include <QDir>
 #include <QDomDocument>
+#include <QFile>
+#include <QFileDevice>
 #include <QFileInfo>
 #include <QIODevice>
 #include <QImage>
@@ -313,6 +315,25 @@ class ScopedDefaultProfile {
   QString m_savedProfile;
   DefaultParams m_savedParams;
   QString m_savedName;
+};
+
+struct ScopedReadOnlyFile {
+  QString path;
+  bool applied = false;
+
+  explicit ScopedReadOnlyFile(QString p)
+      : path(std::move(p)), applied(QFile::setPermissions(path, QFileDevice::ReadOwner)) {}
+
+  ~ScopedReadOnlyFile() {
+    if (applied) {
+      QFile::setPermissions(path, QFileDevice::ReadOwner | QFileDevice::WriteOwner);
+    }
+  }
+
+  bool ok() const { return applied; }
+
+  ScopedReadOnlyFile(const ScopedReadOnlyFile&) = delete;
+  ScopedReadOnlyFile& operator=(const ScopedReadOnlyFile&) = delete;
 };
 }  // namespace
 
@@ -663,14 +684,14 @@ BOOST_AUTO_TEST_CASE(test_read_only_project_file_is_refused_before_processing) {
   BOOST_REQUIRE(dir.isValid());
   const QString projectFile = createProject(dir, 300);
   BOOST_REQUIRE(!projectFile.isEmpty());
-  BOOST_REQUIRE(QFile::setPermissions(projectFile, QFileDevice::ReadOwner));
+  const ScopedReadOnlyFile readOnly(projectFile);
+  BOOST_REQUIRE(readOnly.ok());
 
   QString out;
   QString err;
   BOOST_CHECK_EQUAL(run(projectFile, &out, &err), CommandLineRun::PROJECT_UNUSABLE);
   BOOST_CHECK(err.contains(QDir::toNativeSeparators(projectFile)));
   BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
-  QFile::setPermissions(projectFile, QFileDevice::ReadOwner | QFileDevice::WriteOwner);
 }
 
 // The input folder is checked before the project file in it, so the message names the folder.
@@ -739,7 +760,8 @@ BOOST_AUTO_TEST_CASE(test_report_file_that_cant_be_written_is_refused_before_pro
   BOOST_REQUIRE(Tests::writeFile(blocker, "file"));
   const QString readOnlyReport = dir.filePath("report.json");
   BOOST_REQUIRE(Tests::writeFile(readOnlyReport, "{}"));
-  BOOST_REQUIRE(QFile::setPermissions(readOnlyReport, QFileDevice::ReadOwner));
+  const ScopedReadOnlyFile readOnly(readOnlyReport);
+  BOOST_REQUIRE(readOnly.ok());
 
   for (const QString& reportFile : {blocker + QStringLiteral("/report.json"), readOnlyReport}) {
     QString out;
@@ -750,7 +772,6 @@ BOOST_AUTO_TEST_CASE(test_report_file_that_cant_be_written_is_refused_before_pro
     BOOST_CHECK(!err.isEmpty());
     BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
   }
-  QFile::setPermissions(readOnlyReport, QFileDevice::ReadOwner | QFileDevice::WriteOwner);
 }
 
 // A refused project must not leave the output folder it asked for behind.
@@ -2325,6 +2346,8 @@ BOOST_AUTO_TEST_CASE(test_profile_list_profile_matches_run) {
   const QString inputDir = dir.filePath("in");
   BOOST_REQUIRE(QDir().mkpath(inputDir));
   BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/page.png"), 300).imageInfo().empty());
+  const QString profileDir = dir.filePath("profiles");
+  BOOST_REQUIRE(QDir().mkpath(profileDir));
 
   const QString reportFile = dir.filePath("report.json");
   QString out;
@@ -2335,26 +2358,29 @@ BOOST_AUTO_TEST_CASE(test_profile_list_profile_matches_run) {
 
   const QJsonObject report = readReport(reportFile);
   const QString runProfile = report["run"].toObject()["profile"].toString();
+  BOOST_CHECK(runProfile == QStringLiteral("Default"));
 
   QString listOut;
   QString listErr;
   QTextStream listOutStream(&listOut);
   QTextStream listErrStream(&listErr);
-  BOOST_CHECK_EQUAL(CommandLineRun::profileList(listOutStream, listErrStream), CommandLineRun::SUCCESS);
+  BOOST_CHECK_EQUAL(CommandLineRun::profileList(listOutStream, listErrStream, profileDir), CommandLineRun::SUCCESS);
   const QJsonObject root = QJsonDocument::fromJson(listOut.toUtf8()).object();
   BOOST_CHECK(root["profile"].toString() == runProfile);
 }
 
 // --profile-list: an unreadable program profile omits "profile" but keeps "profiles".
 BOOST_AUTO_TEST_CASE(test_profile_list_unreadable_program_profile) {
-  const QString missingName = QStringLiteral("MissingSettingsProfile_xyz");
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString missingName = QStringLiteral("MissingSettingsProfile_") + QFileInfo(dir.path()).baseName();
   ApplicationSettings::getInstance().setCurrentProfile(missingName);
 
   QString out;
   QString err;
   QTextStream outStream(&out);
   QTextStream errStream(&err);
-  BOOST_CHECK_EQUAL(CommandLineRun::profileList(outStream, errStream), CommandLineRun::SUCCESS);
+  BOOST_CHECK_EQUAL(CommandLineRun::profileList(outStream, errStream, dir.path()), CommandLineRun::SUCCESS);
   BOOST_CHECK(err.isEmpty());
 
   const QJsonObject root = QJsonDocument::fromJson(out.toUtf8()).object();

@@ -2,6 +2,7 @@
 // Use of this source code is governed by the GNU GPL v3 license that can be found in the LICENSE file.
 
 #include <BinaryImage.h>
+#include <Constants.h>
 #include <Dpi.h>
 #include <ImageTransformation.h>
 #include <NullTaskStatus.h>
@@ -26,7 +27,7 @@ using namespace imageproc;
 namespace {
 const int WIDTH = 800;
 const int HEIGHT = 600;
-const double DEG2RAD = M_PI / 180.0;
+constexpr double DEG2RAD = constants::DEG2RAD;
 
 /**
  * Lines of "text" in the block from (100, 100) to (700, 500). Each line drops by \p skewDeg from
