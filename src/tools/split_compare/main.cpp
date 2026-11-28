@@ -138,14 +138,16 @@ bool toOrthogonalRotation(const int degrees, OrthogonalRotation* rotation) {
   }
   return true;
 }
-int runMain(int argc, char** argv) {
-  QGuiApplication app(argc, argv);
-  ImageSizeLimit::applyQtAllocationLimit();
-  const QStringList args = app.arguments();
-  QStringList positional;
+struct Options {
+  QString inDir;
+  QString outDir;
   OrthogonalRotation rotation;
   QString only;
   QString projectPath;
+};
+
+bool parseArgs(const QStringList& args, Options& options) {
+  QStringList positional;
   const char* const usage
       = "Usage: split_compare <input folder> <output folder> [--rotate=<degrees>] "
         "[--only=<name part>] [--project=<file>]\n";
@@ -154,163 +156,199 @@ int runMain(int argc, char** argv) {
     if (arg.startsWith("--rotate=")) {
       bool ok = false;
       const int degrees = arg.mid(9).toInt(&ok);
-      if (!ok || !toOrthogonalRotation(degrees, &rotation)) {
+      if (!ok || !toOrthogonalRotation(degrees, &options.rotation)) {
         std::cerr << "--rotate must be 0, 90, 180 or 270\n";
-        return 1;
+        return false;
       }
     } else if (arg.startsWith("--only=")) {
-      only = arg.mid(7);
+      options.only = arg.mid(7);
     } else if (arg.startsWith("--project=")) {
-      projectPath = arg.mid(10);
-      if (projectPath.isEmpty()) {
+      options.projectPath = arg.mid(10);
+      if (options.projectPath.isEmpty()) {
         std::cerr << "--project requires a file path\n";
-        return 1;
+        return false;
       }
     } else if (arg.startsWith('-')) {
       std::cerr << "Unknown option: " << arg.toStdString() << "\n" << usage;
-      return 1;
+      return false;
     } else {
       positional << arg;
     }
   }
   if (positional.size() != 2) {
     std::cerr << usage;
+    return false;
+  }
+  options.inDir = positional[0];
+  options.outDir = positional[1];
+  return true;
+}
+
+double secondBestScore(const std::vector<double>& profile) {
+  // An empty profile is fine: max_element() then returns end(), bestX is 0 and second stays 0.
+  const auto bestIt = std::max_element(profile.begin(), profile.end());
+  const double bestX = static_cast<double>(bestIt - profile.begin());
+  double second = 0.0;
+  for (size_t x = 0; x < profile.size(); ++x) {
+    if (std::fabs(x - bestX) > 25) {
+      second = std::max(second, profile[x]);
+    }
+  }
+  return second;
+}
+
+QImage renderComparisonImage(const imageproc::GrayImage& gray100,
+                             const QTransform& outToDs,
+                             const QRectF& virtualRect,
+                             const std::vector<QLineF>& lines,
+                             const PageLayout& edges,
+                             const PageLayout& spine,
+                             const std::vector<double>& profile) {
+  // The picture: the 100 dpi image above, the column darkness and the spine score below.
+  const int plotHeight = 160;
+  const QImage base = gray100.toQImage();
+  QImage visual(base.width(), base.height() + plotHeight, QImage::Format_RGB32);
+  visual.fill(Qt::white);
+  QPainter painter(&visual);
+  painter.drawImage(0, 0, base);
+  painter.setRenderHint(QPainter::Antialiasing);
+
+  const auto toDs = [&](const QLineF& line) { return outToDs.map(line); };
+  const QLineF centerLine(virtualRect.center().x(), virtualRect.top(), virtualRect.center().x(), virtualRect.bottom());
+  const double centerDs = toDs(centerLine).center().x();
+  const double halfWindowDs = SpineLineFinder::CENTER_WINDOW_FRACTION * gray100.width();
+
+  painter.setPen(QPen(QColor(255, 200, 0, 140), 1.0));
+  painter.drawLine(QLineF(centerDs - halfWindowDs, 0, centerDs - halfWindowDs, base.height()));
+  painter.drawLine(QLineF(centerDs + halfWindowDs, 0, centerDs + halfWindowDs, base.height()));
+  painter.setPen(QPen(QColor(128, 128, 128, 160), 1.0, Qt::DashLine));
+  painter.drawLine(toDs(centerLine));
+  painter.setPen(QPen(QColor(0, 90, 255, 200), 1.0));
+  for (const QLineF& line : lines) {
+    painter.drawLine(toDs(line));
+  }
+  if (hasSplitLine(edges)) {
+    painter.setPen(QPen(QColor(255, 0, 0, 200), 3.0));
+    painter.drawLine(toDs(edges.cutterLine(0)));
+  }
+  if (hasSplitLine(spine)) {
+    painter.setPen(QPen(QColor(0, 200, 0, 200), 2.0));
+    painter.drawLine(toDs(spine.cutterLine(0)));
+  }
+
+  const int plotTop = base.height();
+  painter.fillRect(0, plotTop, visual.width(), plotHeight, QColor(245, 245, 245));
+  painter.setPen(QPen(QColor(200, 200, 200), 1.0));
+  for (int level = 50; level < 255; level += 50) {
+    const double y = plotTop + plotHeight - level * plotHeight / 255.0;
+    painter.drawLine(QLineF(0, y, visual.width(), y));
+  }
+  const std::vector<double> darkness = columnDarkness(gray100);
+  painter.setPen(QPen(Qt::black, 1.0));
+  for (size_t x = 1; x < darkness.size(); ++x) {
+    painter.drawLine(QLineF(x - 1, plotTop + plotHeight - darkness[x - 1] * plotHeight / 255.0, x,
+                            plotTop + plotHeight - darkness[x] * plotHeight / 255.0));
+  }
+  painter.setPen(QPen(QColor(220, 0, 220), 1.0));
+  for (size_t x = 1; x < profile.size(); ++x) {
+    painter.drawLine(QLineF(x - 1, plotTop + plotHeight - profile[x - 1] * plotHeight, x,
+                            plotTop + plotHeight - profile[x] * plotHeight));
+  }
+  painter.end();
+  return visual;
+}
+
+void processFile(const QDir& inDir,
+                 const QDir& outDir,
+                 const QString& file,
+                 const OrthogonalRotation defaultRotation,
+                 const std::map<QString, int>& projectRotations) {
+  OrthogonalRotation rot = defaultRotation;
+  const QString path = QFileInfo(inDir.filePath(file)).canonicalFilePath();
+  const auto projectRotation = projectRotations.find(path);
+  if ((projectRotation != projectRotations.end()) && !toOrthogonalRotation(projectRotation->second, &rot)) {
+    std::cerr << "Skipped " << file.toStdString() << ": the project has the rotation " << projectRotation->second
+              << "\n";
+    return;
+  }
+  const QImage image = ImageLoader::load(inDir.filePath(file));
+  if (image.isNull()) {
+    std::cerr << "Cannot load " << file.toStdString() << "\n";
+    return;
+  }
+  // As the program does (FilterData): other gray formats are not handled everywhere.
+  const QImage gray = imageproc::toGrayscale(image);
+
+  ImageTransformation xform(QRectF(gray.rect()), tools::dpiOrDefault(image));
+  xform.setPreRotation(rot);
+
+  imageproc::GrayImage gray100;
+  QTransform outToDs;
+  const std::vector<QLineF> lines = VertLineFinder::findLines(gray, xform, 8, nullptr, &gray100, &outToDs);
+
+  const imageproc::BinaryThreshold threshold = imageproc::BinaryThreshold::otsuThreshold(gray);
+  const PageLayout edges = PageLayoutEstimator::estimatePageLayout(TWO_PAGES, EDGES_DETECTION, gray, xform, threshold);
+  const PageLayout spine
+      = PageLayoutEstimator::estimatePageLayout(TWO_PAGES, SPINE_LINE_DETECTION, gray, xform, threshold);
+
+  const QRectF virtualRect = xform.resultingRect();
+  std::vector<double> profile;
+  double score = 0.0;
+  SpineLineFinder::findSpine(gray100, outToDs, virtualRect, nullptr, &profile, &score);
+  const double second = secondBestScore(profile);
+
+  std::cout << file.toStdString() << ";" << virtualRect.width() << ";" << splitX(edges) << ";" << splitX(spine) << ";"
+            << score << ";" << second << ";";
+  for (const QLineF& line : lines) {
+    std::cout << std::lround(xAtMiddle(line)) << " ";
+  }
+  std::cout << "\n";
+
+  const QImage visual = renderComparisonImage(gray100, outToDs, virtualRect, lines, edges, spine, profile);
+  QString outName = file;
+  outName.truncate(outName.lastIndexOf('.'));
+  tools::saveImage(visual, outDir.filePath(outName + ".png"));
+}
+
+int runMain(int argc, char** argv) {
+  QGuiApplication app(argc, argv);
+  ImageSizeLimit::applyQtAllocationLimit();
+  Options options;
+  if (!parseArgs(app.arguments(), options)) {
     return 1;
   }
-  const QDir inDir(positional[0]);
+  const QDir inDir(options.inDir);
   if (!inDir.exists()) {
     std::cerr << "Input folder not found: " << inDir.path().toStdString() << "\n";
     return 1;
   }
-  const QDir outDir(positional[1]);
+  const QDir outDir(options.outDir);
   if (!QDir().mkpath(outDir.path())) {
     std::cerr << "Cannot create " << outDir.path().toStdString() << "\n";
     return 1;
   }
 
-  const auto canonicalPath = [&](const QString& file) { return QFileInfo(inDir.filePath(file)).canonicalFilePath(); };
   QStringList files = inDir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg"}, QDir::Files, QDir::Name);
   std::map<QString, int> projectRotations;
-  if (!projectPath.isEmpty()) {
-    const std::optional<std::map<QString, int>> rotations = rotationsFromProject(projectPath);
+  if (!options.projectPath.isEmpty()) {
+    const std::optional<std::map<QString, int>> rotations = rotationsFromProject(options.projectPath);
     if (!rotations) {
       return 1;
     }
     projectRotations = *rotations;
     files.erase(std::remove_if(files.begin(), files.end(),
-                               [&](const QString& file) { return projectRotations.count(canonicalPath(file)) == 0; }),
+                               [&](const QString& file) {
+                                 return projectRotations.count(QFileInfo(inDir.filePath(file)).canonicalFilePath())
+                                        == 0;
+                               }),
                 files.end());
   }
   std::cout << "file;width;edges_x;spine_x;spine_score;second_score;lines_x\n";
   for (const QString& file : files) {
-    if (!only.isEmpty() && !file.contains(only)) {
+    if (!options.only.isEmpty() && !file.contains(options.only)) {
       continue;
     }
-    OrthogonalRotation rot = rotation;
-    const auto projectRotation = projectRotations.find(canonicalPath(file));
-    if ((projectRotation != projectRotations.end()) && !toOrthogonalRotation(projectRotation->second, &rot)) {
-      std::cerr << "Skipped " << file.toStdString() << ": the project has the rotation " << projectRotation->second
-                << "\n";
-      continue;
-    }
-    const QImage image = ImageLoader::load(inDir.filePath(file));
-    if (image.isNull()) {
-      std::cerr << "Cannot load " << file.toStdString() << "\n";
-      continue;
-    }
-    // As the program does (FilterData): other gray formats are not handled everywhere.
-    const QImage gray = imageproc::toGrayscale(image);
-
-    ImageTransformation xform(QRectF(gray.rect()), tools::dpiOrDefault(image));
-    xform.setPreRotation(rot);
-
-    imageproc::GrayImage gray100;
-    QTransform outToDs;
-    const std::vector<QLineF> lines = VertLineFinder::findLines(gray, xform, 8, nullptr, &gray100, &outToDs);
-
-    const imageproc::BinaryThreshold threshold = imageproc::BinaryThreshold::otsuThreshold(gray);
-    const PageLayout edges
-        = PageLayoutEstimator::estimatePageLayout(TWO_PAGES, EDGES_DETECTION, gray, xform, threshold);
-    const PageLayout spine
-        = PageLayoutEstimator::estimatePageLayout(TWO_PAGES, SPINE_LINE_DETECTION, gray, xform, threshold);
-
-    const QRectF virtualRect = xform.resultingRect();
-    std::vector<double> profile;
-    double score = 0.0;
-    SpineLineFinder::findSpine(gray100, outToDs, virtualRect, nullptr, &profile, &score);
-    // An empty profile is fine: max_element() then returns end(), bestX is 0 and second stays 0.
-    const auto bestIt = std::max_element(profile.begin(), profile.end());
-    const double bestX = static_cast<double>(bestIt - profile.begin());
-    double second = 0.0;
-    for (size_t x = 0; x < profile.size(); ++x) {
-      if (std::fabs(x - bestX) > 25) {
-        second = std::max(second, profile[x]);
-      }
-    }
-
-    std::cout << file.toStdString() << ";" << virtualRect.width() << ";" << splitX(edges) << ";" << splitX(spine) << ";"
-              << score << ";" << second << ";";
-    for (const QLineF& line : lines) {
-      std::cout << std::lround(xAtMiddle(line)) << " ";
-    }
-    std::cout << "\n";
-
-    // The picture: the 100 dpi image above, the column darkness and the spine score below.
-    const int plotHeight = 160;
-    const QImage base = gray100.toQImage();
-    QImage visual(base.width(), base.height() + plotHeight, QImage::Format_RGB32);
-    visual.fill(Qt::white);
-    QPainter painter(&visual);
-    painter.drawImage(0, 0, base);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    const auto toDs = [&](const QLineF& line) { return outToDs.map(line); };
-    const QLineF centerLine(virtualRect.center().x(), virtualRect.top(), virtualRect.center().x(),
-                            virtualRect.bottom());
-    const double centerDs = toDs(centerLine).center().x();
-    const double halfWindowDs = SpineLineFinder::CENTER_WINDOW_FRACTION * gray100.width();
-
-    painter.setPen(QPen(QColor(255, 200, 0, 140), 1.0));
-    painter.drawLine(QLineF(centerDs - halfWindowDs, 0, centerDs - halfWindowDs, base.height()));
-    painter.drawLine(QLineF(centerDs + halfWindowDs, 0, centerDs + halfWindowDs, base.height()));
-    painter.setPen(QPen(QColor(128, 128, 128, 160), 1.0, Qt::DashLine));
-    painter.drawLine(toDs(centerLine));
-    painter.setPen(QPen(QColor(0, 90, 255, 200), 1.0));
-    for (const QLineF& line : lines) {
-      painter.drawLine(toDs(line));
-    }
-    if (hasSplitLine(edges)) {
-      painter.setPen(QPen(QColor(255, 0, 0, 200), 3.0));
-      painter.drawLine(toDs(edges.cutterLine(0)));
-    }
-    if (hasSplitLine(spine)) {
-      painter.setPen(QPen(QColor(0, 200, 0, 200), 2.0));
-      painter.drawLine(toDs(spine.cutterLine(0)));
-    }
-
-    const int plotTop = base.height();
-    painter.fillRect(0, plotTop, visual.width(), plotHeight, QColor(245, 245, 245));
-    painter.setPen(QPen(QColor(200, 200, 200), 1.0));
-    for (int level = 50; level < 255; level += 50) {
-      const double y = plotTop + plotHeight - level * plotHeight / 255.0;
-      painter.drawLine(QLineF(0, y, visual.width(), y));
-    }
-    const std::vector<double> darkness = columnDarkness(gray100);
-    painter.setPen(QPen(Qt::black, 1.0));
-    for (size_t x = 1; x < darkness.size(); ++x) {
-      painter.drawLine(QLineF(x - 1, plotTop + plotHeight - darkness[x - 1] * plotHeight / 255.0, x,
-                              plotTop + plotHeight - darkness[x] * plotHeight / 255.0));
-    }
-    painter.setPen(QPen(QColor(220, 0, 220), 1.0));
-    for (size_t x = 1; x < profile.size(); ++x) {
-      painter.drawLine(QLineF(x - 1, plotTop + plotHeight - profile[x - 1] * plotHeight, x,
-                              plotTop + plotHeight - profile[x] * plotHeight));
-    }
-    painter.end();
-
-    QString outName = file;
-    outName.truncate(outName.lastIndexOf('.'));
-    tools::saveImage(visual, outDir.filePath(outName + ".png"));
+    processFile(inDir, outDir, file, options.rotation, projectRotations);
   }
   return tools::exitCodeOfSaves();
 }

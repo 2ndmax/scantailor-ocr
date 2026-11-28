@@ -673,6 +673,83 @@ QImage dewarpedPage(const QImage& page,
   return RasterDewarper::dewarp(page, outRect.size(), dewarper, modelDomain, Qt::white);
 }
 
+bool writeTextFile(const QString& path, const QString& content) {
+  QFile file(path);
+  const QByteArray bytes = content.toUtf8();
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text) || (file.write(bytes) != bytes.size()) || !file.flush()
+      || (file.error() != QFileDevice::NoError)) {
+    std::cerr << "Cannot write " << file.fileName().toStdString() << ": " << file.errorString().toStdString()
+              << std::endl;
+    return false;
+  }
+  return true;
+}
+
+DistortionModel tryBuildModel(const Method method,
+                              const QImage& image,
+                              const Dpi& dpi,
+                              DebugImages* dbg,
+                              bool* heldForFlat = nullptr) {
+  try {
+    return modelOf(method, image, dpi, dbg, heldForFlat);
+  } catch (const std::runtime_error&) {
+    return DistortionModel();
+  }
+}
+
+void evaluateRealPageMethod(const QString& prefix,
+                            const QImage& image,
+                            const Dpi& dpi,
+                            const std::vector<std::vector<QPointF>>& lines,
+                            const double to200Dpi,
+                            const Method method,
+                            const QStringList& keptLabels,
+                            QString& row,
+                            QString& times) {
+  const char* const methodName = nameOf(method);
+  // Timed without the debug images, then once more for them.
+  Stopwatch watch;
+  bool heldForFlat = false;
+  DistortionModel model = tryBuildModel(method, image, dpi, nullptr, &heldForFlat);
+  const double modelMs = watch.restartMs();
+
+  QString result = QStringLiteral("no model");
+  double rasterMs = 0;
+  if (model.isValid()) {
+    try {
+      const CylindricalSurfaceDewarper dewarper(model.topCurve().polyline(), model.bottomCurve().polyline(),
+                                                output::DepthPerception::defaultValue());
+      result = shapeText(shapeAfter(lines, dewarper, to200Dpi));
+      watch.restartMs();
+      const QImage dewarped = dewarpedPage(image, model, dewarper, kOutputDpi / dpi.vertical());
+      rasterMs = watch.restartMs();
+      if (!dewarped.isNull()) {
+        tools::saveImage(dewarped, prefix + QLatin1String("_dewarped.png"));
+      } else {
+        result += QStringLiteral(" (empty domain)");
+      }
+    } catch (const std::runtime_error&) {
+      result = QStringLiteral("unusable model");
+    }
+  }
+  row += QStringLiteral(" | %1%2 %3")
+             .arg(QLatin1String(methodName),
+                  QLatin1String((method == Method::Auto) ? (heldForFlat ? " (flat)" : " (curved)") : ""), result);
+  times += QStringLiteral(", %1 %2 + raster %3")
+               .arg(QLatin1String(methodName))
+               .arg(modelMs, 0, 'f', 0)
+               .arg(rasterMs, 0, 'f', 0);
+
+  KeptDebugImages dbg;
+  model = tryBuildModel(method, image, dpi, &dbg);
+  tools::saveImage(withModel(image, model), prefix + QLatin1String("_model.png"));
+  for (const auto& [label, debugImage] : dbg.images) {
+    if (keptLabels.contains(label)) {
+      tools::saveImage(debugImage, prefix + QLatin1Char('_') + label + QLatin1String(".png"));
+    }
+  }
+}
+
 /**
  * Real pages have no known distortion, so nothing is measured: for every image of the folder, the model of each
  * method drawn on the page, and the steps of the tracing that show where a model comes from.
@@ -728,70 +805,15 @@ int showModelsOfRealPages(const Options& options) {
                       .arg(shapeText(before));
     QString times = QStringLiteral("  ms: trace %1").arg(traceMs, 0, 'f', 0);
     for (const Method method : {Method::Auto, Method::Trapezoid, Method::Curved}) {
-      const char* const methodName = nameOf(method);
       const QString prefix
-          = QDir(options.outDir).filePath(QFileInfo(name).completeBaseName() + QLatin1Char('_') + methodName);
-      // Timed without the debug images, then once more for them.
-      DistortionModel model;
-      bool heldForFlat = false;
-      watch.restartMs();
-      try {
-        model = modelOf(method, image, dpi, nullptr, &heldForFlat);
-      } catch (const std::runtime_error&) {
-        // No model, as below.
-      }
-      const double modelMs = watch.restartMs();
-
-      QString result = QStringLiteral("no model");
-      double rasterMs = 0;
-      if (model.isValid()) {
-        try {
-          const CylindricalSurfaceDewarper dewarper(model.topCurve().polyline(), model.bottomCurve().polyline(),
-                                                    output::DepthPerception::defaultValue());
-          result = shapeText(shapeAfter(lines, dewarper, to200Dpi));
-          watch.restartMs();
-          const QImage dewarped = dewarpedPage(image, model, dewarper, kOutputDpi / dpi.vertical());
-          rasterMs = watch.restartMs();
-          if (!dewarped.isNull()) {
-            tools::saveImage(dewarped, prefix + QLatin1String("_dewarped.png"));
-          } else {
-            result += QStringLiteral(" (empty domain)");
-          }
-        } catch (const std::runtime_error&) {
-          result = QStringLiteral("unusable model");
-        }
-      }
-      row += QStringLiteral(" | %1%2 %3")
-                 .arg(QLatin1String(methodName),
-                      QLatin1String((method == Method::Auto) ? (heldForFlat ? " (flat)" : " (curved)") : ""), result);
-      times += QStringLiteral(", %1 %2 + raster %3")
-                   .arg(QLatin1String(methodName))
-                   .arg(modelMs, 0, 'f', 0)
-                   .arg(rasterMs, 0, 'f', 0);
-
-      KeptDebugImages dbg;
-      try {
-        model = modelOf(method, image, dpi, &dbg);
-      } catch (const std::runtime_error&) {
-        model = DistortionModel();
-      }
-      tools::saveImage(withModel(image, model), prefix + QLatin1String("_model.png"));
-      for (const auto& [label, debugImage] : dbg.images) {
-        if (keptLabels.contains(label)) {
-          tools::saveImage(debugImage, prefix + QLatin1Char('_') + label + QLatin1String(".png"));
-        }
-      }
+          = QDir(options.outDir).filePath(QFileInfo(name).completeBaseName() + QLatin1Char('_') + nameOf(method));
+      evaluateRealPageMethod(prefix, image, dpi, lines, to200Dpi, method, keptLabels, row, times);
     }
     report += row + QLatin1Char('\n') + times + QLatin1Char('\n');
     std::cout << row.toStdString() << "\n" << times.toStdString() << std::endl;
   }
 
-  QFile reportFile(QDir(options.outDir).filePath("real-pages.txt"));
-  const QByteArray reportBytes = report.toUtf8();
-  if (!reportFile.open(QIODevice::WriteOnly | QIODevice::Text) || (reportFile.write(reportBytes) != reportBytes.size())
-      || !reportFile.flush() || (reportFile.error() != QFileDevice::NoError)) {
-    std::cerr << "Cannot write " << reportFile.fileName().toStdString() << ": "
-              << reportFile.errorString().toStdString() << std::endl;
+  if (!writeTextFile(QDir(options.outDir).filePath("real-pages.txt"), report)) {
     return 1;
   }
   return (failed == 0) ? tools::exitCodeOfSaves() : 1;
@@ -836,25 +858,19 @@ struct Case {
   Method method;
   QString name;
 };
-int runMain(int argc, char** argv) {
-  QGuiApplication app(argc, argv);
-  ImageSizeLimit::applyQtAllocationLimit();
-  Options options;
-  if (!parseArgs(app.arguments(), options)) {
-    std::cerr << "Usage: dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]\n"
-                 "       dewarp_compare <output folder> --images=<folder>\n"
-                 "Defaults: 10 seeds, half of the processor cores (at most 6)."
-              << std::endl;
-    return 2;
-  }
-  if (!QDir().mkpath(options.outDir)) {
-    std::cerr << "Cannot create " << options.outDir.toStdString() << std::endl;
-    return 1;
-  }
-  if (!options.imagesDir.isEmpty()) {
-    return showModelsOfRealPages(options);
-  }
 
+struct ThreadJoiner {
+  std::vector<std::thread>& workers;
+  ~ThreadJoiner() {
+    for (std::thread& worker : workers) {
+      if (worker.joinable()) {
+        worker.join();
+      }
+    }
+  }
+};
+
+std::vector<Case> buildCases(const QString& only) {
   std::vector<Case> cases;
   for (const auto& [layout, layoutName] : kLayouts) {
     for (const Distortion& distortion : kDistortions) {
@@ -862,34 +878,26 @@ int runMain(int argc, char** argv) {
         const QString name
             = QStringLiteral("%1_%2_%3")
                   .arg(QLatin1String(layoutName), QLatin1String(distortion.name), QLatin1String(nameOf(method)));
-        if (name.contains(options.only)) {
+        if (name.contains(only)) {
           cases.push_back(Case{layout, &distortion, method, name});
         }
       }
     }
   }
+  return cases;
+}
 
-  const auto numSeeds = static_cast<size_t>(options.seeds);
+std::vector<Measured> measureAllCases(const std::vector<Case>& cases, const size_t numSeeds, const int jobs) {
   std::vector<Measured> results(cases.size() * numSeeds);
   std::atomic<size_t> next{0};
   std::atomic<bool> failed{false};
   std::mutex exceptionMutex;
   std::exception_ptr workerException;
-  struct ThreadJoiner {
-    std::vector<std::thread>& workers;
-    ~ThreadJoiner() {
-      for (std::thread& worker : workers) {
-        if (worker.joinable()) {
-          worker.join();
-        }
-      }
-    }
-  };
   std::vector<std::thread> workers;
-  workers.reserve(static_cast<size_t>(options.jobs));
+  workers.reserve(static_cast<size_t>(jobs));
   {
     ThreadJoiner joiner{workers};
-    for (int j = 0; j < options.jobs; ++j) {
+    for (int j = 0; j < jobs; ++j) {
       workers.emplace_back([&]() {
         try {
           for (size_t i = next++; i < results.size(); i = next++) {
@@ -913,6 +921,83 @@ int runMain(int argc, char** argv) {
   if (workerException) {
     std::rethrow_exception(workerException);
   }
+  return results;
+}
+
+QString summarizeCase(const Case& oneCase, const Measured* caseResults, const size_t numSeeds, const QString& outDir) {
+  std::vector<double> linesBefore;
+  std::vector<double> linesAfter;
+  std::vector<double> columnsBefore;
+  std::vector<double> columnsAfter;
+  int madeWorse = 0;
+  size_t worstSeed = 0;
+  double worstError = -1;
+  bool hasWorst = false;
+  for (size_t s = 0; s < numSeeds; ++s) {
+    const Measured& measured = caseResults[s];
+    if (!measured.hasModel) {
+      continue;
+    }
+    linesBefore.push_back(measured.before.lines);
+    linesAfter.push_back(measured.after.lines);
+    columnsBefore.push_back(measured.before.columns);
+    columnsAfter.push_back(measured.after.columns);
+    const bool worse = (measured.after.lines > measured.before.lines + kWorseBy)
+                       || (measured.after.columns > measured.before.columns + kWorseBy);
+    madeWorse += worse ? 1 : 0;
+    const double error = std::max(measured.after.lines, measured.after.columns);
+    if (!hasWorst || (std::isfinite(error) && (error > worstError))) {
+      worstError = error;
+      worstSeed = s;
+      hasWorst = true;
+    }
+  }
+
+  const size_t numWithModel = linesAfter.size();
+  QString row = QStringLiteral("%1 %2")
+                    .arg(oneCase.name, -38)
+                    .arg(QStringLiteral("%1/%2").arg(numSeeds - numWithModel).arg(numSeeds), 8);
+  if (numWithModel > 0) {
+    const auto px = [](const double value) { return QString::number(value, 'f', 1); };
+    row += QStringLiteral(" %1 %2 %3 %4  %5/%6")
+               .arg(px(medianOf(linesBefore)) + " -> " + px(medianOf(linesAfter)), 22)
+               .arg(px(*std::max_element(linesAfter.begin(), linesAfter.end())), 6)
+               .arg(px(medianOf(columnsBefore)) + " -> " + px(medianOf(columnsAfter)), 24)
+               .arg(px(*std::max_element(columnsAfter.begin(), columnsAfter.end())), 6)
+               .arg(madeWorse)
+               .arg(numWithModel);
+
+    const auto seed = static_cast<unsigned>(worstSeed) + 1;
+    const Page page = drawPage(oneCase.layout, *oneCase.distortion, seed);
+    tools::saveImage(withModel(page.image, caseResults[worstSeed].model),
+                     QDir(outDir).filePath(QStringLiteral("%1_seed%2.png").arg(oneCase.name).arg(seed)));
+  }
+  row += QLatin1Char('\n');
+  return row;
+}
+
+int runMain(int argc, char** argv) {
+  QGuiApplication app(argc, argv);
+  ImageSizeLimit::applyQtAllocationLimit();
+  Options options;
+  if (!parseArgs(app.arguments(), options)) {
+    std::cerr << "Usage: dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]\n"
+                 "       dewarp_compare <output folder> --images=<folder>\n"
+                 "Defaults: 10 seeds, half of the processor cores (at most 6)."
+              << std::endl;
+    return 2;
+  }
+  if (!QDir().mkpath(options.outDir)) {
+    std::cerr << "Cannot create " << options.outDir.toStdString() << std::endl;
+    return 1;
+  }
+  if (!options.imagesDir.isEmpty()) {
+    return showModelsOfRealPages(options);
+  }
+
+  const std::vector<Case> cases = buildCases(options.only);
+  const auto numSeeds = static_cast<size_t>(options.seeds);
+  const std::vector<Measured> results = measureAllCases(cases, numSeeds, options.jobs);
 
   QString summary
       = QStringLiteral("%1 %2 %3 %4 %5 %6\n")
@@ -924,63 +1009,11 @@ int runMain(int argc, char** argv) {
             .arg(QStringLiteral("worst"), 6)
         + QStringLiteral("%1 (px; median and worst of the pages with a model)  made worse\n").arg(QString(), 38);
   for (size_t c = 0; c < cases.size(); ++c) {
-    std::vector<double> linesBefore;
-    std::vector<double> linesAfter;
-    std::vector<double> columnsBefore;
-    std::vector<double> columnsAfter;
-    int madeWorse = 0;
-    size_t worstSeed = 0;
-    double worstError = -1;
-    bool hasWorst = false;
-    for (size_t s = 0; s < numSeeds; ++s) {
-      const Measured& measured = results[c * numSeeds + s];
-      if (!measured.hasModel) {
-        continue;
-      }
-      linesBefore.push_back(measured.before.lines);
-      linesAfter.push_back(measured.after.lines);
-      columnsBefore.push_back(measured.before.columns);
-      columnsAfter.push_back(measured.after.columns);
-      const bool worse = (measured.after.lines > measured.before.lines + kWorseBy)
-                         || (measured.after.columns > measured.before.columns + kWorseBy);
-      madeWorse += worse ? 1 : 0;
-      const double error = std::max(measured.after.lines, measured.after.columns);
-      if (!hasWorst || (std::isfinite(error) && (error > worstError))) {
-        worstError = error;
-        worstSeed = s;
-        hasWorst = true;
-      }
-    }
-
-    const size_t numWithModel = linesAfter.size();
-    summary += QStringLiteral("%1 %2")
-                   .arg(cases[c].name, -38)
-                   .arg(QStringLiteral("%1/%2").arg(numSeeds - numWithModel).arg(numSeeds), 8);
-    if (numWithModel > 0) {
-      const auto px = [](const double value) { return QString::number(value, 'f', 1); };
-      summary += QStringLiteral(" %1 %2 %3 %4  %5/%6")
-                     .arg(px(medianOf(linesBefore)) + " -> " + px(medianOf(linesAfter)), 22)
-                     .arg(px(*std::max_element(linesAfter.begin(), linesAfter.end())), 6)
-                     .arg(px(medianOf(columnsBefore)) + " -> " + px(medianOf(columnsAfter)), 24)
-                     .arg(px(*std::max_element(columnsAfter.begin(), columnsAfter.end())), 6)
-                     .arg(madeWorse)
-                     .arg(numWithModel);
-
-      const auto seed = static_cast<unsigned>(worstSeed) + 1;
-      const Page page = drawPage(cases[c].layout, *cases[c].distortion, seed);
-      tools::saveImage(withModel(page.image, results[c * numSeeds + worstSeed].model),
-                       QDir(options.outDir).filePath(QStringLiteral("%1_seed%2.png").arg(cases[c].name).arg(seed)));
-    }
-    summary += QLatin1Char('\n');
+    summary += summarizeCase(cases[c], results.data() + c * numSeeds, numSeeds, options.outDir);
   }
 
   std::cout << summary.toStdString() << std::flush;
-  QFile file(QDir(options.outDir).filePath(QStringLiteral("summary.txt")));
-  const QByteArray summaryBytes = summary.toUtf8();
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text) || (file.write(summaryBytes) != summaryBytes.size())
-      || !file.flush() || (file.error() != QFileDevice::NoError)) {
-    std::cerr << "Cannot write " << file.fileName().toStdString() << ": " << file.errorString().toStdString()
-              << std::endl;
+  if (!writeTextFile(QDir(options.outDir).filePath(QStringLiteral("summary.txt")), summary)) {
     return 1;
   }
   return tools::exitCodeOfSaves();

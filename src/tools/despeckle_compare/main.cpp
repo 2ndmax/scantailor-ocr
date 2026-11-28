@@ -76,6 +76,46 @@ bool isBlack(const QImage& image, int x, int y) {
   return qGray(image.pixel(x, y)) < 128;
 }
 
+QString stripLevelSuffix(const QString& name) {
+  for (const LevelName& level : kLevels) {
+    const QString suffix = QLatin1Char('_') + QLatin1String(level.name);
+    if (name.endsWith(suffix)) {
+      return name.left(name.size() - suffix.size());
+    }
+  }
+  return QString();
+}
+
+QImage buildDiffImage(const QImage& bin,
+                      const QImage& before,
+                      const QImage& after,
+                      int& newlyRemoved,
+                      int& newlyKept,
+                      std::vector<QPoint>& changes) {
+  QImage out(after.size(), QImage::Format_RGB32);
+  out.fill(Qt::white);
+  for (int y = 0; y < after.height(); ++y) {
+    for (int x = 0; x < after.width(); ++x) {
+      const bool b = isBlack(before, x, y);
+      const bool a = isBlack(after, x, y);
+      if (b && a) {
+        out.setPixel(x, y, qRgb(0, 0, 0));
+      } else if (b) {
+        out.setPixel(x, y, qRgb(230, 0, 0));
+        ++newlyRemoved;
+        changes.emplace_back(x, y);
+      } else if (a) {
+        out.setPixel(x, y, qRgb(0, 170, 0));
+        ++newlyKept;
+        changes.emplace_back(x, y);
+      } else if (isBlack(bin, x, y)) {
+        out.setPixel(x, y, qRgb(200, 200, 200));
+      }
+    }
+  }
+  return out;
+}
+
 int diff(const QString& beforeDir, const QString& afterDir, const QString& outDir) {
   if (!QDir(beforeDir).exists()) {
     std::cerr << "Before folder not found: " << beforeDir.toStdString() << "\n";
@@ -92,14 +132,7 @@ int diff(const QString& beforeDir, const QString& afterDir, const QString& outDi
   const QStringList files = QDir(afterDir).entryList({"*.png"}, QDir::Files, QDir::Name);
   for (const QString& file : files) {
     const QString name = QFileInfo(file).completeBaseName();
-    QString baseName;
-    for (const LevelName& level : kLevels) {
-      const QString suffix = QLatin1Char('_') + QLatin1String(level.name);
-      if (name.endsWith(suffix)) {
-        baseName = name.left(name.size() - suffix.size());
-        break;
-      }
-    }
+    const QString baseName = stripLevelSuffix(name);
     if (baseName.isEmpty() || !QFileInfo::exists(QDir(beforeDir).filePath(file))) {
       continue;
     }
@@ -111,30 +144,10 @@ int diff(const QString& beforeDir, const QString& afterDir, const QString& outDi
       std::cerr << "Skipping " << file.toStdString() << "\n";
       continue;
     }
-    QImage out(after.size(), QImage::Format_RGB32);
-    out.fill(Qt::white);
     int newlyRemoved = 0;
     int newlyKept = 0;
     std::vector<QPoint> changes;
-    for (int y = 0; y < after.height(); ++y) {
-      for (int x = 0; x < after.width(); ++x) {
-        const bool b = isBlack(before, x, y);
-        const bool a = isBlack(after, x, y);
-        if (b && a) {
-          out.setPixel(x, y, qRgb(0, 0, 0));
-        } else if (b) {
-          out.setPixel(x, y, qRgb(230, 0, 0));
-          ++newlyRemoved;
-          changes.emplace_back(x, y);
-        } else if (a) {
-          out.setPixel(x, y, qRgb(0, 170, 0));
-          ++newlyKept;
-          changes.emplace_back(x, y);
-        } else if (isBlack(bin, x, y)) {
-          out.setPixel(x, y, qRgb(200, 200, 200));
-        }
-      }
-    }
+    const QImage out = buildDiffImage(bin, before, after, newlyRemoved, newlyKept, changes);
     tools::saveImage(out, QDir(outDir).filePath(name + "_diff.png"));
     std::cout << name.toStdString() << ": newly removed " << newlyRemoved << " px, newly kept " << newlyKept << " px\n";
 

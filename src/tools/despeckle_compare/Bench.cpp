@@ -132,6 +132,54 @@ int inkAt(const QImage& image, const int x, const int y) {
   return 255 - qGray(image.pixel(x, y));
 }
 
+// 8-connected flood fill of pixels with ink >= kMinInk starting at (startX, startY).
+std::vector<QPoint> floodFillGlyphComponent(const QImage& image,
+                                            const int startX,
+                                            const int startY,
+                                            const int id,
+                                            std::vector<int>& label) {
+  const int w = image.width();
+  const int h = image.height();
+  std::vector<QPoint> component;
+  std::vector<QPoint> stack{{startX, startY}};
+  label[size_t(startY) * w + startX] = id;
+  while (!stack.empty()) {
+    const QPoint p = stack.back();
+    stack.pop_back();
+    component.push_back(p);
+    for (int dy = -1; dy <= 1; ++dy) {
+      for (int dx = -1; dx <= 1; ++dx) {
+        const int nx = p.x() + dx;
+        const int ny = p.y() + dy;
+        if ((nx < 0) || (ny < 0) || (nx >= w) || (ny >= h) || (label[size_t(ny) * w + nx] >= 0)
+            || (inkAt(image, nx, ny) < kMinInk)) {
+          continue;
+        }
+        label[size_t(ny) * w + nx] = id;
+        stack.emplace_back(nx, ny);
+      }
+    }
+  }
+  return component;
+}
+
+std::vector<std::vector<QPoint>> extractGlyphComponents(const QImage& image) {
+  const int w = image.width();
+  const int h = image.height();
+  std::vector<int> label(size_t(w) * h, -1);
+  std::vector<std::vector<QPoint>> components;
+  for (int y = 0; y < h; ++y) {
+    for (int x = 0; x < w; ++x) {
+      if ((inkAt(image, x, y) < kMinInk) || (label[size_t(y) * w + x] >= 0)) {
+        continue;
+      }
+      const int id = int(components.size());
+      components.push_back(floodFillGlyphComponent(image, x, y, id, label));
+    }
+  }
+  return components;
+}
+
 Glyph GlyphCache::render(const QChar c, const RunKind kind) const {
   Glyph glyph;
   glyph.advance = m_metrics.horizontalAdvance(c);
@@ -146,39 +194,7 @@ Glyph GlyphCache::render(const QChar c, const RunKind kind) const {
     painter.drawText(origin, QString(c));
   }
 
-  const int w = image.width();
-  const int h = image.height();
-  std::vector<int> label(size_t(w) * h, -1);
-  std::vector<std::vector<QPoint>> components;
-  for (int y = 0; y < h; ++y) {
-    for (int x = 0; x < w; ++x) {
-      if ((inkAt(image, x, y) < kMinInk) || (label[size_t(y) * w + x] >= 0)) {
-        continue;
-      }
-      const int id = int(components.size());
-      components.emplace_back();
-      std::vector<QPoint> stack{{x, y}};
-      label[size_t(y) * w + x] = id;
-      while (!stack.empty()) {
-        const QPoint p = stack.back();
-        stack.pop_back();
-        components[id].push_back(p);
-        for (int dy = -1; dy <= 1; ++dy) {
-          for (int dx = -1; dx <= 1; ++dx) {
-            const int nx = p.x() + dx;
-            const int ny = p.y() + dy;
-            if ((nx < 0) || (ny < 0) || (nx >= w) || (ny >= h) || (label[size_t(ny) * w + nx] >= 0)
-                || (inkAt(image, nx, ny) < kMinInk)) {
-              continue;
-            }
-            label[size_t(ny) * w + nx] = id;
-            stack.emplace_back(nx, ny);
-          }
-        }
-      }
-    }
-  }
-
+  const std::vector<std::vector<QPoint>> components = extractGlyphComponents(image);
   glyph.parts = int(components.size());
   size_t largest = 0;
   for (size_t i = 0; i < components.size(); ++i) {
@@ -644,35 +660,45 @@ struct Stats {
   }
 };
 
-// Counts the text lost by glyph parts and the noise removed by components of the page. A component
-// with any text pixel counts as text, any other one as noise of the kind of most of its pixels.
-Stats measure(const Page& page,
-              const BinaryImage& input,
-              const BinaryImage& output,
-              QImage* picture,
-              std::vector<QPoint>* lostText) {
-  const ConnectivityMap cmap(input, CONN8);
-  const size_t count = cmap.maxLabel() + 1;
-  std::vector<std::array<int, kTextClasses>> textPixels(count);
-  std::vector<std::array<int, kNoiseClasses>> noisePixels(count);
-  std::vector<int> kept(count, 0);
+struct ComponentCounts {
+  size_t count = 0;
+  std::vector<std::array<int, kTextClasses>> textPixels;
+  std::vector<std::array<int, kNoiseClasses>> noisePixels;
+  std::vector<int> kept;
+};
+
+ComponentCounts collectComponentCounts(const Page& page,
+                                       const ConnectivityMap& cmap,
+                                       const BinaryImage& output,
+                                       const int width,
+                                       const int height) {
+  ComponentCounts counts;
+  counts.count = cmap.maxLabel() + 1;
+  counts.textPixels.resize(counts.count);
+  counts.noisePixels.resize(counts.count);
+  counts.kept.assign(counts.count, 0);
   const uint32_t* line = cmap.data();
-  for (int y = 0; y < input.height(); ++y, line += cmap.stride()) {
-    for (int x = 0; x < input.width(); ++x) {
+  for (int y = 0; y < height; ++y, line += cmap.stride()) {
+    for (int x = 0; x < width; ++x) {
       const uint32_t label = line[x];
       if (label == 0) {
         continue;
       }
-      ++textPixels[label][page.text.at(x, y)];
-      ++noisePixels[label][page.noise.at(x, y)];
+      ++counts.textPixels[label][page.text.at(x, y)];
+      ++counts.noisePixels[label][page.noise.at(x, y)];
       if (output.getPixel(x, y) == BLACK) {
-        ++kept[label];
+        ++counts.kept[label];
       }
     }
   }
+  return counts;
+}
 
-  Stats stats;
-
+void accumulateTextStats(const Page& page,
+                         const BinaryImage& input,
+                         const BinaryImage& output,
+                         Stats& stats,
+                         std::vector<QPoint>* lostText) {
   // Text by glyph parts: a part is lost when more than half of its pixels are. Thresholding may
   // break a letter into pieces; losing a one-pixel splinter of it does not count as losing it.
   struct Part {
@@ -711,26 +737,28 @@ Stats measure(const Page& page,
       }
     }
   }
+}
 
+std::vector<uint8_t> classifyAndTallyNoise(const ComponentCounts& counts, Stats& stats) {
   // Noise by components of the page; a component with any text pixel is text.
-  std::vector<uint8_t> textClass(count, kNoText);
-  for (size_t label = 1; label < count; ++label) {
+  std::vector<uint8_t> textClass(counts.count, kNoText);
+  for (size_t label = 1; label < counts.count; ++label) {
     int size = 0;
     int best = 0;
     for (int c = 1; c < kTextClasses; ++c) {
-      size += textPixels[label][c];
-      if (textPixels[label][c] > textPixels[label][best]) {
+      size += counts.textPixels[label][c];
+      if (counts.textPixels[label][c] > counts.textPixels[label][best]) {
         best = c;
       }
     }
-    const bool removed = kept[label] == 0;
+    const bool removed = counts.kept[label] == 0;
     if (size > 0) {
       textClass[label] = uint8_t(best);
       continue;
     }
     for (int c = 1; c < kNoiseClasses; ++c) {
-      size += noisePixels[label][c];
-      if (noisePixels[label][c] > noisePixels[label][best]) {
+      size += counts.noisePixels[label][c];
+      if (counts.noisePixels[label][c] > counts.noisePixels[label][best]) {
         best = c;
       }
     }
@@ -741,25 +769,50 @@ Stats measure(const Page& page,
       stats.noisePixelsRemoved += size;
     }
   }
+  return textClass;
+}
 
-  if (picture) {
-    *picture = QImage(input.width(), input.height(), QImage::Format_RGB32);
-    picture->fill(Qt::white);
-    line = cmap.data();
-    for (int y = 0; y < input.height(); ++y, line += cmap.stride()) {
-      for (int x = 0; x < input.width(); ++x) {
-        const uint32_t label = line[x];
-        if (label == 0) {
-          continue;
-        }
-        const bool isKept = kept[label] > 0;
-        if (textClass[label] != kNoText) {
-          picture->setPixel(x, y, isKept ? qRgb(0, 0, 0) : qRgb(0, 90, 255));
-        } else {
-          picture->setPixel(x, y, isKept ? qRgb(230, 0, 0) : qRgb(205, 205, 205));
-        }
+QRgb measurePixelColor(const bool isText, const bool isKept) {
+  if (isText) {
+    return isKept ? qRgb(0, 0, 0) : qRgb(0, 90, 255);
+  }
+  return isKept ? qRgb(230, 0, 0) : qRgb(205, 205, 205);
+}
+
+QImage renderMeasurePicture(const ConnectivityMap& cmap,
+                            const int width,
+                            const int height,
+                            const std::vector<int>& kept,
+                            const std::vector<uint8_t>& textClass) {
+  QImage picture(width, height, QImage::Format_RGB32);
+  picture.fill(Qt::white);
+  const uint32_t* line = cmap.data();
+  for (int y = 0; y < height; ++y, line += cmap.stride()) {
+    for (int x = 0; x < width; ++x) {
+      const uint32_t label = line[x];
+      if (label == 0) {
+        continue;
       }
+      picture.setPixel(x, y, measurePixelColor(textClass[label] != kNoText, kept[label] > 0));
     }
+  }
+  return picture;
+}
+
+// Counts the text lost by glyph parts and the noise removed by components of the page. A component
+// with any text pixel counts as text, any other one as noise of the kind of most of its pixels.
+Stats measure(const Page& page,
+              const BinaryImage& input,
+              const BinaryImage& output,
+              QImage* picture,
+              std::vector<QPoint>* lostText) {
+  const ConnectivityMap cmap(input, CONN8);
+  const ComponentCounts counts = collectComponentCounts(page, cmap, output, input.width(), input.height());
+  Stats stats;
+  accumulateTextStats(page, input, output, stats, lostText);
+  const std::vector<uint8_t> textClass = classifyAndTallyNoise(counts, stats);
+  if (picture) {
+    *picture = renderMeasurePicture(cmap, input.width(), input.height(), counts.kept, textClass);
   }
   return stats;
 }
@@ -776,6 +829,144 @@ struct FontChoice {
   const char* family;
   const char* name;
 };
+
+void writeCsvHeader(QTextStream& csv) {
+  csv << "font,pt,dpi,level,ms";
+  for (int c = 1; c < kTextClasses; ++c) {
+    csv << ",text " << kTextClassNames[c] << ",lost";
+  }
+  csv << ",text px,text px lost";
+  for (int c = 1; c < kNoiseClasses; ++c) {
+    csv << ",noise " << kNoiseClassNames[c] << ",removed";
+  }
+  csv << ",noise px,noise px removed\n";
+}
+
+void writeCsvRow(QTextStream& csv,
+                 const char* const fontName,
+                 const int pointSize,
+                 const int dpi,
+                 const char* const levelName,
+                 const Stats& stats) {
+  csv << fontName << ',' << pointSize << ',' << dpi << ',' << levelName << ','
+      << QString::number(stats.milliseconds, 'f', 1);
+  for (int c = 1; c < kTextClasses; ++c) {
+    csv << ',' << stats.textComponents[c] << ',' << stats.textLost[c];
+  }
+  csv << ',' << stats.textPixels << ',' << stats.textPixelsLost;
+  for (int c = 1; c < kNoiseClasses; ++c) {
+    csv << ',' << stats.noiseComponents[c] << ',' << stats.noiseRemoved[c];
+  }
+  csv << ',' << stats.noisePixels << ',' << stats.noisePixelsRemoved << '\n';
+}
+
+void benchLevel(const QString& outDir,
+                const bool images,
+                const QString& pageName,
+                const char* const fontName,
+                const int pointSize,
+                const int dpi,
+                const int level,
+                const Page& page,
+                const BinaryImage& input,
+                QTextStream& csv,
+                std::map<std::pair<int, int>, Stats>& byLevelAndDpi,
+                std::array<Stats, 3>& byLevel) {
+  QElapsedTimer timer;
+  timer.start();
+  const BinaryImage output = Despeckle::despeckle(input, Dpi(dpi, dpi), kLevels[level].level, NullTaskStatus());
+  const double milliseconds = timer.nsecsElapsed() / 1e6;
+
+  QImage picture;
+  std::vector<QPoint> lostText;
+  Stats stats = measure(page, input, output, images ? &picture : nullptr, images ? &lostText : nullptr);
+  stats.milliseconds = milliseconds;
+  stats.pages = 1;
+  byLevelAndDpi[{level, dpi}].add(stats);
+  byLevel[level].add(stats);
+
+  writeCsvRow(csv, fontName, pointSize, dpi, kLevels[level].name, stats);
+
+  if (images) {
+    const QString base = QDir(outDir).filePath(pageName + "_" + kLevels[level].name);
+    if (kLevels[level].level == Despeckle::NORMAL) {
+      tools::saveImage(picture, base + ".png");
+    }
+    saveSpotSheet(picture, lostText, base + "_lost.png");
+  }
+}
+
+void benchPage(const QString& outDir,
+               const bool images,
+               const QFont& font,
+               const char* const fontName,
+               const int pointSize,
+               const int dpi,
+               const uint32_t seed,
+               QTextStream& csv,
+               std::map<std::pair<int, int>, Stats>& byLevelAndDpi,
+               std::array<Stats, 3>& byLevel) {
+  const Page page = makePage(font, pointSize, dpi, seed);
+  const BinaryImage input = toBinary(page);
+  const QString pageName = QStringLiteral("%1_%2pt_%3dpi").arg(fontName).arg(pointSize).arg(dpi);
+  if (images) {
+    tools::saveImage(input.toQImage(), QDir(outDir).filePath("pages/" + pageName + ".png"));
+  }
+  for (int level = 0; level < 3; ++level) {
+    benchLevel(outDir, images, pageName, fontName, pointSize, dpi, level, page, input, csv, byLevelAndDpi, byLevel);
+  }
+  std::cout << pageName.toStdString() << " done" << std::endl;
+}
+
+void printTextSummaryRow(const char* const levelName, const QString& dpi, const Stats& s) {
+  QString row = QStringLiteral("%1 %2  %3  %4")
+                    .arg(QString::fromLatin1(levelName), -10)
+                    .arg(dpi, 4)
+                    .arg(percent(s.allNoiseRemoved(), s.allNoise()), 13)
+                    .arg(percent(s.noisePixelsRemoved, s.noisePixels), 16);
+  for (int c = 1; c < kTextClasses; ++c) {
+    row += QStringLiteral(" | %1").arg(lostOf(s.textLost[c], s.textComponents[c]),
+                                       int(std::strlen(kTextClassNames[c])));
+  }
+  row += QStringLiteral(" | %1 | %2")
+             .arg(percent(s.textPixelsLost, s.textPixels), 12)
+             .arg(s.milliseconds / std::max(1, s.pages), 7, 'f', 0);
+  std::cout << row.toStdString() << "\n";
+}
+
+void printSummaryTables(const std::array<int, 4>& resolutions,
+                        const std::map<std::pair<int, int>, Stats>& byLevelAndDpi,
+                        const std::array<Stats, 3>& byLevel) {
+  std::cout << "\nText components lost (lost/total) and noise components removed, summed over fonts and sizes\n";
+  std::cout << "level       dpi  noise removed  noise px removed";
+  for (int c = 1; c < kTextClasses; ++c) {
+    std::cout << " | " << kTextClassNames[c];
+  }
+  std::cout << " | text px lost | ms/page\n";
+  const Stats emptyStats;
+  for (int level = 0; level < 3; ++level) {
+    for (const int dpi : resolutions) {
+      const auto it = byLevelAndDpi.find({level, dpi});
+      printTextSummaryRow(kLevels[level].name, QString::number(dpi),
+                          (it != byLevelAndDpi.end()) ? it->second : emptyStats);
+    }
+    printTextSummaryRow(kLevels[level].name, QStringLiteral("all"), byLevel[level]);
+  }
+
+  std::cout << "\nNoise components removed by kind\nlevel     ";
+  for (int c = 1; c < kNoiseClasses; ++c) {
+    std::cout << " | " << kNoiseClassNames[c];
+  }
+  std::cout << "\n";
+  for (int level = 0; level < 3; ++level) {
+    QString row = QString::fromLatin1(kLevels[level].name).leftJustified(10);
+    for (int c = 1; c < kNoiseClasses; ++c) {
+      row += QStringLiteral(" | %1").arg(percent(byLevel[level].noiseRemoved[c], byLevel[level].noiseComponents[c]),
+                                         std::max(6, int(std::strlen(kNoiseClassNames[c]))));
+    }
+    std::cout << row.toStdString() << "\n";
+  }
+}
 }  // namespace
 
 int bench(const QString& outDir, const bool images) {
@@ -793,19 +984,11 @@ int bench(const QString& outDir, const bool images) {
     return 1;
   }
   QTextStream csv(&csvFile);
-  csv << "font,pt,dpi,level,ms";
-  for (int c = 1; c < kTextClasses; ++c) {
-    csv << ",text " << kTextClassNames[c] << ",lost";
-  }
-  csv << ",text px,text px lost";
-  for (int c = 1; c < kNoiseClasses; ++c) {
-    csv << ",noise " << kNoiseClassNames[c] << ",removed";
-  }
-  csv << ",noise px,noise px removed\n";
+  writeCsvHeader(csv);
 
   const FontChoice fonts[] = {{"Times New Roman", "serif"}, {"Arial", "sans"}};
   const int pointSizes[] = {6, 8, 10, 12, 14};
-  const int resolutions[] = {200, 300, 400, 600};
+  const std::array<int, 4> resolutions = {200, 300, 400, 600};
 
   std::map<std::pair<int, int>, Stats> byLevelAndDpi;  // (level index, dpi)
   std::array<Stats, 3> byLevel;
@@ -816,91 +999,12 @@ int bench(const QString& outDir, const bool images) {
     for (const int pointSize : pointSizes) {
       for (const int dpi : resolutions) {
         const uint32_t seed = uint32_t(pointSize * 1000 + dpi) + fontSeed;
-        const Page page = makePage(font, pointSize, dpi, seed);
-        const BinaryImage input = toBinary(page);
-        const QString pageName = QStringLiteral("%1_%2pt_%3dpi").arg(choice.name).arg(pointSize).arg(dpi);
-        if (images) {
-          tools::saveImage(input.toQImage(), QDir(outDir).filePath("pages/" + pageName + ".png"));
-        }
-        for (int level = 0; level < 3; ++level) {
-          QElapsedTimer timer;
-          timer.start();
-          const BinaryImage output = Despeckle::despeckle(input, Dpi(dpi, dpi), kLevels[level].level, NullTaskStatus());
-          const double milliseconds = timer.nsecsElapsed() / 1e6;
-
-          QImage picture;
-          std::vector<QPoint> lostText;
-          Stats stats = measure(page, input, output, images ? &picture : nullptr, images ? &lostText : nullptr);
-          stats.milliseconds = milliseconds;
-          stats.pages = 1;
-          byLevelAndDpi[{level, dpi}].add(stats);
-          byLevel[level].add(stats);
-
-          csv << choice.name << ',' << pointSize << ',' << dpi << ',' << kLevels[level].name << ','
-              << QString::number(milliseconds, 'f', 1);
-          for (int c = 1; c < kTextClasses; ++c) {
-            csv << ',' << stats.textComponents[c] << ',' << stats.textLost[c];
-          }
-          csv << ',' << stats.textPixels << ',' << stats.textPixelsLost;
-          for (int c = 1; c < kNoiseClasses; ++c) {
-            csv << ',' << stats.noiseComponents[c] << ',' << stats.noiseRemoved[c];
-          }
-          csv << ',' << stats.noisePixels << ',' << stats.noisePixelsRemoved << '\n';
-
-          if (images) {
-            const QString base = QDir(outDir).filePath(pageName + "_" + kLevels[level].name);
-            if (kLevels[level].level == Despeckle::NORMAL) {
-              tools::saveImage(picture, base + ".png");
-            }
-            saveSpotSheet(picture, lostText, base + "_lost.png");
-          }
-        }
-        std::cout << pageName.toStdString() << " done" << std::endl;
+        benchPage(outDir, images, font, choice.name, pointSize, dpi, seed, csv, byLevelAndDpi, byLevel);
       }
     }
   }
 
-  std::cout << "\nText components lost (lost/total) and noise components removed, summed over fonts and sizes\n";
-  std::cout << "level       dpi  noise removed  noise px removed";
-  for (int c = 1; c < kTextClasses; ++c) {
-    std::cout << " | " << kTextClassNames[c];
-  }
-  std::cout << " | text px lost | ms/page\n";
-  for (int level = 0; level < 3; ++level) {
-    const auto printRow = [&](const QString& dpi, const Stats& s) {
-      QString row = QStringLiteral("%1 %2  %3  %4")
-                        .arg(QString::fromLatin1(kLevels[level].name), -10)
-                        .arg(dpi, 4)
-                        .arg(percent(s.allNoiseRemoved(), s.allNoise()), 13)
-                        .arg(percent(s.noisePixelsRemoved, s.noisePixels), 16);
-      for (int c = 1; c < kTextClasses; ++c) {
-        row += QStringLiteral(" | %1").arg(lostOf(s.textLost[c], s.textComponents[c]),
-                                           int(std::strlen(kTextClassNames[c])));
-      }
-      row += QStringLiteral(" | %1 | %2")
-                 .arg(percent(s.textPixelsLost, s.textPixels), 12)
-                 .arg(s.milliseconds / std::max(1, s.pages), 7, 'f', 0);
-      std::cout << row.toStdString() << "\n";
-    };
-    for (const int dpi : resolutions) {
-      printRow(QString::number(dpi), byLevelAndDpi[{level, dpi}]);
-    }
-    printRow(QStringLiteral("all"), byLevel[level]);
-  }
-
-  std::cout << "\nNoise components removed by kind\nlevel     ";
-  for (int c = 1; c < kNoiseClasses; ++c) {
-    std::cout << " | " << kNoiseClassNames[c];
-  }
-  std::cout << "\n";
-  for (int level = 0; level < 3; ++level) {
-    QString row = QString::fromLatin1(kLevels[level].name).leftJustified(10);
-    for (int c = 1; c < kNoiseClasses; ++c) {
-      row += QStringLiteral(" | %1").arg(percent(byLevel[level].noiseRemoved[c], byLevel[level].noiseComponents[c]),
-                                         std::max(6, int(std::strlen(kNoiseClassNames[c]))));
-    }
-    std::cout << row.toStdString() << "\n";
-  }
+  printSummaryTables(resolutions, byLevelAndDpi, byLevel);
   csv.flush();
   if ((csv.status() != QTextStream::Ok) || !csvFile.flush() || (csvFile.error() != QFileDevice::NoError)) {
     std::cerr << "Cannot write " << csvFile.fileName().toStdString() << ": " << csvFile.errorString().toStdString()

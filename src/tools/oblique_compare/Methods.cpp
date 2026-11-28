@@ -80,24 +80,24 @@ struct StrokeMeasurement {
   double secondPeak = 0;
 };
 
-std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page, const int dpi) {
+struct StrokePeak {
+  double tangent = 0;
+  double secondPeak = 0;
+};
+
+// Sobel; a full black-white step gives 1020.
+int sobelX(const uint8_t* data, const int stride, const int x, const int y) {
+  const uint8_t* above = data + (y - 1) * stride;
+  const uint8_t* line = data + y * stride;
+  const uint8_t* below = data + (y + 1) * stride;
+  return (above[x + 1] + 2 * line[x + 1] + below[x + 1]) - (above[x - 1] + 2 * line[x - 1] + below[x - 1]);
+}
+
+std::vector<std::pair<float, float>> collectStrokeGradients(const GrayImage& page, const int reach) {
   const int w = page.width();
-  // A stem counts only where its edge goes on about a third of a millimetre above and below; that
-  // leaves out the brackets of serifs and the curves of round letters.
-  const int reach = std::max(2, static_cast<int>(std::lround(dpi / 76.2)));
   const int h = page.height();
-  if ((w < 3) || (h < 2 * reach + 3)) {
-    return std::nullopt;
-  }
   const uint8_t* data = page.data();
   const int stride = page.stride();
-  // Sobel; a full black-white step gives 1020.
-  const auto gradientX = [&](const int x, const int y) {
-    const uint8_t* above = data + (y - 1) * stride;
-    const uint8_t* line = data + y * stride;
-    const uint8_t* below = data + (y + 1) * stride;
-    return (above[x + 1] + 2 * line[x + 1] + below[x + 1]) - (above[x - 1] + 2 * line[x - 1] + below[x - 1]);
-  };
   const int minMagnitude = 250;
   const double preWindow = std::tan(STROKE_RANGE_DEG * DEG2RAD);
   std::vector<std::pair<float, float>> gradients;
@@ -105,7 +105,7 @@ std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page, const int
     const uint8_t* above = data + (y - 1) * stride;
     const uint8_t* below = data + (y + 1) * stride;
     for (int x = 1; x < w - 1; ++x) {
-      const int gx = gradientX(x, y);
+      const int gx = sobelX(data, stride, x, y);
       if (std::abs(gx) < minMagnitude) {
         continue;
       }
@@ -113,8 +113,8 @@ std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page, const int
       if (std::abs(gy) > preWindow * std::abs(gx)) {
         continue;
       }
-      const int up = gradientX(x, y - reach);
-      const int down = gradientX(x, y + reach);
+      const int up = sobelX(data, stride, x, y - reach);
+      const int down = sobelX(data, stride, x, y + reach);
       const bool straight = (std::abs(up) >= minMagnitude) && (std::abs(down) >= minMagnitude) && ((up > 0) == (gx > 0))
                             && ((down > 0) == (gx > 0));
       if (straight) {
@@ -122,7 +122,10 @@ std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page, const int
       }
     }
   }
+  return gradients;
+}
 
+std::optional<StrokePeak> findDominantStroke(const std::vector<std::pair<float, float>>& gradients) {
   // The most frequent direction first: a histogram of the edge directions, smoothed. On a page
   // in italics, that is the slant of the italics, not the shear.
   const int bins = static_cast<int>(std::lround(2 * STROKE_RANGE_DEG / STROKE_BIN_DEG)) + 1;
@@ -144,7 +147,6 @@ std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page, const int
   if (smoothed[peak] <= 0) {
     return std::nullopt;
   }
-  StrokeMeasurement m;
   // A second direction of similar weight well away from the first: italics among upright type.
   double second = 0;
   for (int b = 0; b < bins; ++b) {
@@ -152,11 +154,16 @@ std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page, const int
       second = std::max(second, smoothed[b]);
     }
   }
-  m.secondPeak = second / smoothed[peak];
+  return StrokePeak{std::tan((peak * STROKE_BIN_DEG - STROKE_RANGE_DEG) * DEG2RAD), second / smoothed[peak]};
+}
 
+std::optional<StrokeMeasurement> refineStrokeTangent(const std::vector<std::pair<float, float>>& gradients,
+                                                     const StrokePeak& peak) {
+  StrokeMeasurement m;
+  m.secondPeak = peak.secondPeak;
   // Then least squares around it. An edge sheared by s has the gradient (1, -tan s): gy = -t * gx
   // over the edges within a window around the estimate, the window narrowing step by step.
-  m.tangent = std::tan((peak * STROKE_BIN_DEG - STROKE_RANGE_DEG) * DEG2RAD);
+  m.tangent = peak.tangent;
   for (const double windowDeg : STROKE_WINDOW_DEG) {
     const double window = std::tan(windowDeg * DEG2RAD);
     double sxx = 0;
@@ -175,6 +182,21 @@ std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page, const int
     m.tangent = -sxy / sxx;
   }
   return m;
+}
+
+std::optional<StrokeMeasurement> measureStrokes(const GrayImage& page, const int dpi) {
+  // A stem counts only where its edge goes on about a third of a millimetre above and below; that
+  // leaves out the brackets of serifs and the curves of round letters.
+  const int reach = std::max(2, static_cast<int>(std::lround(dpi / 76.2)));
+  if ((page.width() < 3) || (page.height() < 2 * reach + 3)) {
+    return std::nullopt;
+  }
+  const std::vector<std::pair<float, float>> gradients(collectStrokeGradients(page, reach));
+  const std::optional<StrokePeak> peak(findDominantStroke(gradients));
+  if (!peak) {
+    return std::nullopt;
+  }
+  return refineStrokeTangent(gradients, *peak);
 }
 
 /** The page with x - tangent * (y - middle) in place of x: undoes a shear by \p tangent. */

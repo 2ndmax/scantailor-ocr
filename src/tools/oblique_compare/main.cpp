@@ -381,15 +381,11 @@ QImage comparisonImage(const QString& path, const RealPage& page) {
   return result;
 }
 
-bool writeRealReport(const Options& options,
-                     const std::vector<QString>& paths,
-                     const std::vector<RealPage>& pages,
-                     QString* error) {
-  QString text;
-  QTextStream out(&text);
-  QString csv;
-  QTextStream csvOut(&csv);
-  csvOut << "file;dpi;method;added;detected;detected_without_added;error\n";
+QString csvOptional(const std::optional<double>& value) {
+  return value ? number(*value, 4) : QString();
+}
+
+void appendAsIsRealScansSummary(QTextStream& out, const Options& options, const std::vector<RealPage>& pages) {
   out << "Real scans: " << pages.size() << " pages from " << options.imagesDir << "\n";
   out << "Detected as supplied (the angle that straightens the page; rotation detected):\n";
   for (const RealPage& page : pages) {
@@ -404,42 +400,66 @@ bool writeRealReport(const Options& options,
     }
     out << "\n";
   }
+}
+
+void appendAddedShearMethodSummary(QTextStream& out,
+                                   QTextStream& csvOut,
+                                   const std::vector<RealPage>& pages,
+                                   const size_t methodIndex) {
+  double sum = 0;
+  double worst = 0;
+  int count = 0;
+  int missing = 0;
+  for (const RealPage& page : pages) {
+    const std::optional<double>& base = page.asIs.findings[methodIndex].angle;
+    for (size_t s = 0; s < page.added.size(); ++s) {
+      const std::optional<double>& found = page.added[s].findings[methodIndex].angle;
+      std::optional<double> err;
+      if (base && found) {
+        err = (*found - *base) - ADDED_SHEARS_DEG[s];
+        sum += std::abs(*err);
+        worst = std::max(worst, std::abs(*err));
+        ++count;
+      } else {
+        ++missing;
+      }
+      csvOut << page.name << ";" << page.dpi << ";" << methods()[methodIndex].name << ";"
+             << number(ADDED_SHEARS_DEG[s], 1) << ";" << csvOptional(found) << ";" << csvOptional(base) << ";"
+             << csvOptional(err) << "\n";
+    }
+  }
+  out << "- " << methods()[methodIndex].name << ": ";
+  if (count > 0) {
+    out << "mean error " << number(sum / count) << "°, worst " << number(worst) << "°";
+  } else {
+    out << "no values";
+  }
+  out << "; no angle (before or after) " << missing << " of " << (count + missing) << "\n";
+}
+
+void appendAddedShearSummary(QTextStream& out, QTextStream& csvOut, const std::vector<RealPage>& pages) {
   out << "\nAdded shear (" << std::size(ADDED_SHEARS_DEG)
       << " angles per page): error = (detected with added - detected without) - added\n";
   for (size_t m = 0; m < methods().size(); ++m) {
-    double sum = 0;
-    double worst = 0;
-    int count = 0;
-    int missing = 0;
-    for (const RealPage& page : pages) {
-      const std::optional<double>& base = page.asIs.findings[m].angle;
-      for (size_t s = 0; s < page.added.size(); ++s) {
-        const std::optional<double>& found = page.added[s].findings[m].angle;
-        std::optional<double> err;
-        if (base && found) {
-          err = (*found - *base) - ADDED_SHEARS_DEG[s];
-          sum += std::abs(*err);
-          worst = std::max(worst, std::abs(*err));
-          ++count;
-        } else {
-          ++missing;
-        }
-        csvOut << page.name << ";" << page.dpi << ";" << methods()[m].name << ";" << number(ADDED_SHEARS_DEG[s], 1)
-               << ";" << (found ? number(*found, 4) : QString()) << ";" << (base ? number(*base, 4) : QString()) << ";"
-               << (err ? number(*err, 4) : QString()) << "\n";
-      }
-    }
-    out << "- " << methods()[m].name << ": ";
-    if (count > 0) {
-      out << "mean error " << number(sum / count) << "°, worst " << number(worst) << "°";
-    } else {
-      out << "no values";
-    }
-    out << "; no angle (before or after) " << missing << " of " << (count + missing) << "\n";
+    appendAddedShearMethodSummary(out, csvOut, pages, m);
   }
+}
 
-  QString html;
-  QTextStream htmlOut(&html);
+bool saveRealImage(const QImage& image, const QString& outDir, const QString& relativeFile, QString* error) {
+  if (image.isNull() || !image.save(outDir + QLatin1Char('/') + relativeFile)) {
+    *error = QStringLiteral("Cannot write ") + relativeFile;
+    return false;
+  }
+  return true;
+}
+
+bool buildRealHtml(const Options& options,
+                   const std::vector<QString>& paths,
+                   const std::vector<RealPage>& pages,
+                   const QString& text,
+                   QString* html,
+                   QString* error) {
+  QTextStream htmlOut(html);
   htmlOut << "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><title>Shear on Real Scans"
              "</title><style>body{font-family:sans-serif;margin:24px;color:#222;background:#fff}pre{font-size:13px;"
              "white-space:pre-wrap}figure{display:inline-block;margin:8px;vertical-align:top}figure img{border:1px "
@@ -451,9 +471,7 @@ bool writeRealReport(const Options& options,
           << text.toHtmlEscaped() << "</pre>\n";
   for (size_t i = 0; i < pages.size(); ++i) {
     const QString file(QStringLiteral("images/real_%1.png").arg(i + 1));
-    const QImage realImg(realPageImage(paths[i], pages[i]));
-    if (realImg.isNull() || !realImg.save(options.outDir + QLatin1Char('/') + file)) {
-      *error = QStringLiteral("Cannot write ") + file;
+    if (!saveRealImage(realPageImage(paths[i], pages[i]), options.outDir, file, error)) {
       return false;
     }
     htmlOut << "<figure><img src=\"" << file << "\" alt=\"\"><figcaption>" << pages[i].name.toHtmlEscaped()
@@ -465,9 +483,7 @@ bool writeRealReport(const Options& options,
   const int combined = static_cast<int>(methods().size()) - 1;
   for (size_t i = 0; i < pages.size(); ++i) {
     const QString file(QStringLiteral("images/comparison_%1.png").arg(i + 1));
-    const QImage compImg(comparisonImage(paths[i], pages[i]));
-    if (compImg.isNull() || !compImg.save(options.outDir + QLatin1Char('/') + file)) {
-      *error = QStringLiteral("Cannot write ") + file;
+    if (!saveRealImage(comparisonImage(paths[i], pages[i]), options.outDir, file, error)) {
       return false;
     }
     htmlOut << "<figure><a href=\"" << file << "\"><img src=\"" << file << "\" alt=\"\"></a><figcaption>"
@@ -475,12 +491,19 @@ bool writeRealReport(const Options& options,
             << angleText(pages[i].asIs.findings[combined].angle) << "</figcaption></figure>\n";
   }
   htmlOut << "</body></html>\n";
+  return true;
+}
 
+bool writeRealOutputFiles(const QString& outDir,
+                          const QString& text,
+                          const QString& csv,
+                          const QString& html,
+                          QString* error) {
   const std::pair<QString, const QString*> files[] = {{QStringLiteral("real_scans.txt"), &text},
                                                       {QStringLiteral("real_scans.csv"), &csv},
                                                       {QStringLiteral("real_scans.html"), &html}};
   for (const auto& [name, content] : files) {
-    QFile file(options.outDir + QLatin1Char('/') + name);
+    QFile file(outDir + QLatin1Char('/') + name);
     const QByteArray bytes = content->toUtf8();
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate) || (file.write(bytes) != bytes.size()) || !file.flush()
         || (file.error() != QFileDevice::NoError)) {
@@ -489,6 +512,25 @@ bool writeRealReport(const Options& options,
     }
   }
   return true;
+}
+
+bool writeRealReport(const Options& options,
+                     const std::vector<QString>& paths,
+                     const std::vector<RealPage>& pages,
+                     QString* error) {
+  QString text;
+  QTextStream out(&text);
+  QString csv;
+  QTextStream csvOut(&csv);
+  csvOut << "file;dpi;method;added;detected;detected_without_added;error\n";
+  appendAsIsRealScansSummary(out, options, pages);
+  appendAddedShearSummary(out, csvOut, pages);
+
+  QString html;
+  if (!buildRealHtml(options, paths, pages, text, &html, error)) {
+    return false;
+  }
+  return writeRealOutputFiles(options.outDir, text, csv, html, error);
 }
 
 struct ThreadJoiner {

@@ -140,67 +140,177 @@ bool readPercent(const QString& value, double& fraction) {
   fraction = percent / 100.0;
   return true;
 }
-int runMain(int argc, char** argv) {
-  QGuiApplication app(argc, argv);  // QPainter needs fonts.
-  ImageSizeLimit::applyQtAllocationLimit();
-  const QStringList args = app.arguments();
+struct CliOptions {
+  QString inDir;
+  QString outDir;
+  bool noSplit = false;
+  QString only;            // Only files whose name contains this.
+  int insetOverride = -1;  // Share of each edge left out, in percent.
+  ColorModeDetector::Options detectorOptions;
+};
+
+bool parseOption(const QString& arg, CliOptions& cli, const char* const usage) {
+  if (arg == "--nosplit") {
+    cli.noSplit = true;
+  } else if (arg == "--zones") {
+    cli.detectorOptions.usePictureZones = true;
+  } else if (arg.startsWith("--only=")) {
+    cli.only = arg.mid(7);
+  } else if (arg.startsWith("--inset=")) {
+    // From 50 % on, the edges left out meet and no content is left.
+    bool ok = false;
+    cli.insetOverride = arg.mid(8).toInt(&ok);
+    if (!ok || (cli.insetOverride < 0) || (cli.insetOverride >= 50)) {
+      std::cerr << "--inset must be a whole number from 0 to 49\n";
+      return false;
+    }
+  } else if (arg.startsWith("--minpicture=")) {
+    if (!readPercent(arg.mid(13), cli.detectorOptions.minPictureShare)) {
+      std::cerr << "--minpicture must be a number from 0 to 100\n";
+      return false;
+    }
+  } else if (arg.startsWith("--mincolor=")) {
+    if (!readPercent(arg.mid(11), cli.detectorOptions.minColorShare)) {
+      std::cerr << "--mincolor must be a number from 0 to 100\n";
+      return false;
+    }
+  } else {
+    // A mistyped option would otherwise run with the default silently.
+    std::cerr << "Unknown option: " << arg.toStdString() << "\n" << usage;
+    return false;
+  }
+  return true;
+}
+
+bool parseCliArgs(const QStringList& args, CliOptions& cli) {
   const char* const usage
       = "Usage: color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3] "
         "[--minpicture=10] [--only=<name part>] [--inset=<percent>]\n";
   QStringList positional;
-  bool noSplit = false;
-  QString only;            // Only files whose name contains this.
-  int insetOverride = -1;  // Share of each edge left out, in percent.
-  ColorModeDetector::Options options;
   for (const QString& arg : args.mid(1)) {
-    if (arg == "--nosplit") {
-      noSplit = true;
-    } else if (arg == "--zones") {
-      options.usePictureZones = true;
-    } else if (arg.startsWith("--only=")) {
-      only = arg.mid(7);
-    } else if (arg.startsWith("--inset=")) {
-      // From 50 % on, the edges left out meet and no content is left.
-      bool ok = false;
-      insetOverride = arg.mid(8).toInt(&ok);
-      if (!ok || (insetOverride < 0) || (insetOverride >= 50)) {
-        std::cerr << "--inset must be a whole number from 0 to 49\n";
-        return 1;
+    if (arg.startsWith('-')) {
+      if (!parseOption(arg, cli, usage)) {
+        return false;
       }
-    } else if (arg.startsWith("--minpicture=")) {
-      if (!readPercent(arg.mid(13), options.minPictureShare)) {
-        std::cerr << "--minpicture must be a number from 0 to 100\n";
-        return 1;
-      }
-    } else if (arg.startsWith("--mincolor=")) {
-      if (!readPercent(arg.mid(11), options.minColorShare)) {
-        std::cerr << "--mincolor must be a number from 0 to 100\n";
-        return 1;
-      }
-    } else if (arg.startsWith('-')) {
-      // A mistyped option would otherwise run with the default silently.
-      std::cerr << "Unknown option: " << arg.toStdString() << "\n" << usage;
-      return 1;
     } else {
       positional << arg;
     }
   }
   if (positional.size() != 2) {
     std::cerr << usage;
+    return false;
+  }
+  cli.inDir = positional[0];
+  cli.outDir = positional[1];
+  return true;
+}
+
+std::vector<std::pair<QString, QRect>> splitParts(const QRect& area, const bool noSplit) {
+  std::vector<std::pair<QString, QRect>> parts;
+  if (noSplit) {
+    parts.emplace_back("page", area);
+  } else if (area.width() >= area.height()) {
+    const int half = area.width() / 2;
+    parts.emplace_back("left", QRect(area.left(), area.top(), half, area.height()));
+    parts.emplace_back("right", QRect(area.left() + half, area.top(), area.width() - half, area.height()));
+  } else {
+    const int half = area.height() / 2;
+    parts.emplace_back("top", QRect(area.left(), area.top(), area.width(), half));
+    parts.emplace_back("bottom", QRect(area.left(), area.top() + half, area.width(), area.height() - half));
+  }
+  return parts;
+}
+
+void writeCsvRow(QTextStream& csv,
+                 const QString& name,
+                 const QString& partName,
+                 const Mode mode,
+                 const ColorModeDetector::Evidence& ev) {
+  csv << name << ';' << partName << ';' << ColorModeDetector::modeToString(mode) << ';' << ev.reason << ';'
+      << LeptonicaDetector::colorTypeToString(ev.spectreVerdict) << ';' << ev.spectre.darkRatio << ';'
+      << ev.spectre.midtoneRatio << ';' << ev.spectre.lightRatio << ';' << ev.spectre.colorFraction << ';'
+      << ev.spectre.continuousToneTileCount << ';' << ev.spectre.largestRegionCoverage << ';' << ev.pictureShare << ';'
+      << ev.largestPicture << ';' << ev.colorInPictures << ';' << ev.colorOutside << ';' << ev.textOutside << ';'
+      << ev.largestPictureMean << ';' << ev.largestPictureStdDev << ';' << ev.largestPictureDark << '\n';
+}
+
+void processPart(const QImage& image,
+                 const QString& name,
+                 const int fileNo,
+                 const QString& partName,
+                 const QRect& rect,
+                 const CliOptions& cli,
+                 const NullTaskStatus& status,
+                 QTextStream& csv,
+                 std::vector<Result>& results,
+                 int& sheetNo) {
+  const QImage part = image.copy(rect);
+  const int inset = (cli.insetOverride >= 0) ? cli.insetOverride : (cli.noSplit ? 3 : 8);
+  const QImage content = part.copy(part.rect().adjusted(part.width() * inset / 100, part.height() * inset / 100,
+                                                        -part.width() * inset / 100, -part.height() * inset / 100));
+  if (content.isNull()) {
+    // A scan only a pixel or two wide (or nearly all dark border) leaves no content to analyze.
+    std::cerr << name.toStdString() << " " << partName.toStdString() << ": no content left, skipped\n";
+    return;
+  }
+  ColorModeDetector::Evidence ev;
+  const Mode mode = ColorModeDetector::detect(content, cli.detectorOptions, status, &ev);
+  writeCsvRow(csv, name, partName, mode, ev);
+  results.push_back({QStringLiteral("%1 %2 (%3)")
+                         .arg(fileNo)
+                         .arg(partName)
+                         .arg(QString::fromLatin1(LeptonicaDetector::colorTypeToString(ev.spectreVerdict))),
+                     // Already the size of a cell of the sheet.
+                     part.scaled(CELL_WIDTH - 8, CELL_HEIGHT - 34, Qt::KeepAspectRatio, Qt::SmoothTransformation),
+                     mode});
+  if (results.size() == PER_SHEET) {
+    writeSheet(results, ++sheetNo, cli.outDir);
+    results.clear();
+  }
+}
+
+bool processScanFile(const QDir& inDir,
+                     const QString& name,
+                     const int fileNo,
+                     const CliOptions& cli,
+                     const NullTaskStatus& status,
+                     QTextStream& csv,
+                     std::vector<Result>& results,
+                     int& sheetNo) {
+  const QImage image = ImageLoader::load(inDir.filePath(name));
+  if (image.isNull()) {
+    std::cerr << "Cannot load " << name.toStdString() << "\n";
+    return false;
+  }
+  const QRect area = brightArea(image);
+  if (area.isEmpty()) {
+    std::cerr << name.toStdString() << ": no bright area, skipped\n";
+    return false;
+  }
+  for (const auto& [partName, rect] : splitParts(area, cli.noSplit)) {
+    processPart(image, name, fileNo, partName, rect, cli, status, csv, results, sheetNo);
+  }
+  return true;
+}
+
+int runMain(int argc, char** argv) {
+  QGuiApplication app(argc, argv);  // QPainter needs fonts.
+  ImageSizeLimit::applyQtAllocationLimit();
+  CliOptions cli;
+  if (!parseCliArgs(app.arguments(), cli)) {
     return 1;
   }
-  const QDir inDir(positional[0]);
+  const QDir inDir(cli.inDir);
   if (!inDir.exists()) {
     std::cerr << "Input folder not found: " << inDir.path().toStdString() << "\n";
     return 1;
   }
-  const QString& outDir = positional[1];
-  if (!QDir().mkpath(outDir)) {
-    std::cerr << "Cannot create " << outDir.toStdString() << "\n";
+  if (!QDir().mkpath(cli.outDir)) {
+    std::cerr << "Cannot create " << cli.outDir.toStdString() << "\n";
     return 1;
   }
 
-  QFile csvFile(outDir + "/color_detect.csv");
+  QFile csvFile(cli.outDir + "/color_detect.csv");
   if (!csvFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
     std::cerr << "Cannot write " << csvFile.fileName().toStdString() << "\n";
     return 1;
@@ -214,67 +324,16 @@ int runMain(int argc, char** argv) {
   std::vector<Result> results;
   QStringList files
       = inDir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg", "*.jp2", "*.j2k"}, QDir::Files, QDir::Name);
-  if (!only.isEmpty()) {
-    files = files.filter(only);
+  if (!cli.only.isEmpty()) {
+    files = files.filter(cli.only);
   }
   int fileNo = 0;
   int sheetNo = 0;
   for (const QString& name : files) {
     ++fileNo;
-    const QImage image = ImageLoader::load(inDir.filePath(name));
-    if (image.isNull()) {
-      std::cerr << "Cannot load " << name.toStdString() << "\n";
-      continue;
+    if (processScanFile(inDir, name, fileNo, cli, status, csv, results, sheetNo)) {
+      std::cout << fileNo << "/" << files.size() << " " << name.toStdString() << "\n" << std::flush;
     }
-    const QRect area = brightArea(image);
-    if (area.isEmpty()) {
-      std::cerr << name.toStdString() << ": no bright area, skipped\n";
-      continue;
-    }
-    std::vector<std::pair<QString, QRect>> parts;
-    if (noSplit) {
-      parts.emplace_back("page", area);
-    } else if (area.width() >= area.height()) {
-      const int half = area.width() / 2;
-      parts.emplace_back("left", QRect(area.left(), area.top(), half, area.height()));
-      parts.emplace_back("right", QRect(area.left() + half, area.top(), area.width() - half, area.height()));
-    } else {
-      const int half = area.height() / 2;
-      parts.emplace_back("top", QRect(area.left(), area.top(), area.width(), half));
-      parts.emplace_back("bottom", QRect(area.left(), area.top() + half, area.width(), area.height() - half));
-    }
-
-    for (const auto& [partName, rect] : parts) {
-      const QImage part = image.copy(rect);
-      const int inset = (insetOverride >= 0) ? insetOverride : (noSplit ? 3 : 8);
-      const QImage content = part.copy(part.rect().adjusted(part.width() * inset / 100, part.height() * inset / 100,
-                                                            -part.width() * inset / 100, -part.height() * inset / 100));
-      if (content.isNull()) {
-        // A scan only a pixel or two wide (or nearly all dark border) leaves no content to analyze.
-        std::cerr << name.toStdString() << " " << partName.toStdString() << ": no content left, skipped\n";
-        continue;
-      }
-      ColorModeDetector::Evidence ev;
-      const Mode mode = ColorModeDetector::detect(content, options, status, &ev);
-      csv << name << ';' << partName << ';' << ColorModeDetector::modeToString(mode) << ';' << ev.reason << ';'
-          << LeptonicaDetector::colorTypeToString(ev.spectreVerdict) << ';' << ev.spectre.darkRatio << ';'
-          << ev.spectre.midtoneRatio << ';' << ev.spectre.lightRatio << ';' << ev.spectre.colorFraction << ';'
-          << ev.spectre.continuousToneTileCount << ';' << ev.spectre.largestRegionCoverage << ';' << ev.pictureShare
-          << ';' << ev.largestPicture << ';' << ev.colorInPictures << ';' << ev.colorOutside << ';' << ev.textOutside
-          << ';' << ev.largestPictureMean << ';' << ev.largestPictureStdDev << ';' << ev.largestPictureDark << '\n';
-      results.push_back({QStringLiteral("%1 %2 (%3)")
-                             .arg(fileNo)
-                             .arg(partName)
-                             .arg(QString::fromLatin1(LeptonicaDetector::colorTypeToString(ev.spectreVerdict))),
-                         // Already the size of a cell of the sheet.
-                         part.scaled(CELL_WIDTH - 8, CELL_HEIGHT - 34, Qt::KeepAspectRatio, Qt::SmoothTransformation),
-                         mode});
-      if (results.size() == PER_SHEET) {
-        writeSheet(results, ++sheetNo, outDir);
-        results.clear();
-      }
-    }
-    std::cout << fileNo << "/" << files.size() << " " << name.toStdString() << "\n" << std::flush;
   }
   csv.flush();
   if ((csv.status() != QTextStream::Ok) || !csvFile.flush() || (csvFile.error() != QFileDevice::NoError)) {
@@ -283,7 +342,7 @@ int runMain(int argc, char** argv) {
     return 1;
   }
   if (!results.empty()) {
-    writeSheet(results, ++sheetNo, outDir);
+    writeSheet(results, ++sheetNo, cli.outDir);
   }
   return tools::exitCodeOfSaves();
 }

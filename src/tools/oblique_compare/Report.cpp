@@ -241,41 +241,57 @@ QString hint(const RunInfo& info) {
       .arg(number(info.shift.x(), 2), number(info.shift.y(), 2));
 }
 
+void writeMethodTable(QTextStream& out,
+                      const std::vector<PageResult>& results,
+                      const std::vector<Group>& allGroups,
+                      const QString& methodName,
+                      const int methodIndex) {
+  static const int WIDTHS[] = {24, 7, 26, 30, 30, 34, 30, 6};
+  out << "\nMethod: " << methodName << "\n";
+  for (int c = 0; c < NUM_COLUMNS; ++c) {
+    out << QString::fromUtf8(COLUMNS[c]).left(WIDTHS[c]).leftJustified(WIDTHS[c])
+        << (c + 1 < NUM_COLUMNS ? " | " : "\n");
+  }
+  for (const Group& group : allGroups) {
+    const std::vector<QString> cells(row(group.name, figures(results, methodIndex, group.matches)));
+    for (int c = 0; c < NUM_COLUMNS; ++c) {
+      out << cells[c].leftJustified(WIDTHS[c]) << (c + 1 < NUM_COLUMNS ? " | " : "\n");
+    }
+  }
+}
+
+QString meanMillisecondsText(const std::vector<PageResult>& results, const size_t methodIndex, const int dpi) {
+  double sum = 0;
+  int count = 0;
+  for (const PageResult& r : results) {
+    if (r.spec.dpi == dpi) {
+      sum += r.methods[methodIndex].milliseconds;
+      ++count;
+    }
+  }
+  return (count > 0) ? QString::number(std::lround(sum / count)) : QStringLiteral("–");
+}
+
+void writeTimingSummary(QTextStream& out, const std::vector<PageResult>& results, const RunInfo& info) {
+  out << "\nComputing time per page (mean, milliseconds; parallel runs slow each other down a little)\n";
+  for (const int dpi : {150, 300, 600}) {
+    out << dpi << " dpi:";
+    for (size_t m = 0; m < info.methods.size(); ++m) {
+      out << " | " << info.methods[m] << " " << meanMillisecondsText(results, m, dpi);
+    }
+    out << "\n";
+  }
+}
+
 QString textSummary(const std::vector<PageResult>& results, const RunInfo& info) {
   QString text;
   QTextStream out(&text);
   out << "Shear Detection Comparison\n" << hint(info) << "\n";
   const std::vector<Group> allGroups(groups());
-  static const int WIDTHS[] = {24, 7, 26, 30, 30, 34, 30, 6};
   for (size_t m = 0; m < info.methods.size(); ++m) {
-    out << "\nMethod: " << info.methods[m] << "\n";
-    for (int c = 0; c < NUM_COLUMNS; ++c) {
-      out << QString::fromUtf8(COLUMNS[c]).left(WIDTHS[c]).leftJustified(WIDTHS[c])
-          << (c + 1 < NUM_COLUMNS ? " | " : "\n");
-    }
-    for (const Group& group : allGroups) {
-      const std::vector<QString> cells(row(group.name, figures(results, static_cast<int>(m), group.matches)));
-      for (int c = 0; c < NUM_COLUMNS; ++c) {
-        out << cells[c].leftJustified(WIDTHS[c]) << (c + 1 < NUM_COLUMNS ? " | " : "\n");
-      }
-    }
+    writeMethodTable(out, results, allGroups, info.methods[m], static_cast<int>(m));
   }
-  out << "\nComputing time per page (mean, milliseconds; parallel runs slow each other down a little)\n";
-  for (const int dpi : {150, 300, 600}) {
-    out << dpi << " dpi:";
-    for (size_t m = 0; m < info.methods.size(); ++m) {
-      double sum = 0;
-      int count = 0;
-      for (const PageResult& r : results) {
-        if (r.spec.dpi == dpi) {
-          sum += r.methods[m].milliseconds;
-          ++count;
-        }
-      }
-      out << " | " << info.methods[m] << " " << ((count > 0) ? QString::number(std::lround(sum / count)) : "–");
-    }
-    out << "\n";
-  }
+  writeTimingSummary(out, results, info);
   out << "\nConclusions\n";
   for (const QString& line : conclusions(results, info)) {
     out << "- " << line << "\n";
