@@ -25,6 +25,7 @@ set(app_lib_sources
     ThumbnailSequence.cpp ThumbnailSequence.h
     ProjectFilesDialog.cpp ProjectFilesDialog.h
     AutoImportPanel.cpp AutoImportPanel.h
+    AutoImportUtils.cpp AutoImportUtils.h
     ScanFolderWatcher.cpp ScanFolderWatcher.h
     NewOpenProjectPanel.cpp NewOpenProjectPanel.h
     MainWindow.cpp MainWindow.h

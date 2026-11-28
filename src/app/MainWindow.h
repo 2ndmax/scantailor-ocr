@@ -71,11 +71,14 @@ class ScanFolderWatcher;
 class QLineF;
 class QRectF;
 class QLayout;
+class TestAppUiQt;
 
 class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::MainWindow {
   DECLARE_NON_COPYABLE(MainWindow)
 
   Q_OBJECT
+  friend class TestAppUiQt;
+
  public:
   MainWindow();
 
@@ -332,7 +335,7 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void updateWindowTitle();
 
-  bool closeProjectInteractive();
+  bool closeProjectInteractive(QString* closedProjectFile = nullptr);
 
   void closeProjectWithoutSaving();
 
@@ -502,7 +505,10 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   std::vector<ImageFileInfo> m_deferredScans;
   /** Whether importScan() is running; its questions run a nested event loop in which more scans may arrive. */
   bool m_importingScan = false;
-  int m_scansWithoutDpi = 0;
+  /** Whether closeProjectInteractive() is showing a prompt (pauses auto-import / auto-save). */
+  bool m_closingPrompt = false;
+  /** Whether showInsertFileDialog() is running modal dialogs (defers auto-import until done). */
+  bool m_insertingFiles = false;
   AutoImportPanel::Mode m_importMode = AutoImportPanel::APPEND;
   ScanInsertionAnchor m_insertAnchor;
   /** While non-zero, page selections don't move the anchor, e.g. while removing pages. */

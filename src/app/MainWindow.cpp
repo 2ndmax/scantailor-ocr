@@ -32,6 +32,7 @@
 #include "AbstractRelinker.h"
 #include "Application.h"
 #include "AutoImportPanel.h"
+#include "AutoImportUtils.h"
 #include "AutoRemovingFile.h"
 #include "BasicImageView.h"
 #include "CompositeCacheDrivenTask.h"
@@ -355,7 +356,6 @@ void MainWindow::switchToNewProject(const ProjectSession& project,
     m_scanWatcher->stop();
   }
   m_deferredScans.clear();
-  m_scansWithoutDpi = 0;
   resetImportMode();
 
   m_emptyProjectInputDir = project.emptyProjectInputDir;
@@ -693,6 +693,7 @@ void MainWindow::setOptionsWidget(FilterOptionsWidget* widget, const Ownership o
     disconnect(m_optionsWidget, nullptr, this, nullptr);
   }
 
+  widget->show();
   m_optionsFrameLayout->addWidget(widget);
   m_optionsWidget = widget;
 
@@ -799,6 +800,7 @@ void MainWindow::setImageWidget(QWidget* widget, const Ownership ownership, Debu
 
   if (!debugImages || debugImages->empty()) {
     if (widget != m_imageFrameLayout->currentWidget()) {
+      widget->show();
       m_imageFrameLayout->addWidget(widget);
       if (overlay) {
         m_imageFrameLayout->setCurrentWidget(widget);
@@ -816,6 +818,7 @@ void MainWindow::setImageWidget(QWidget* widget, const Ownership ownership, Debu
       m_imageWidgetCleanup.add(view);
       m_tabbedDebugImages->addTab(view, label);
     }
+    m_tabbedDebugImages->show();
     m_imageFrameLayout->addWidget(m_tabbedDebugImages.get());
   }
 }
@@ -1620,6 +1623,7 @@ void MainWindow::fixedDpiSubmitted() {
       || (selectedPageBefore.metadata() != selectedPageAfter.metadata())) {
     reloadRequested();
   }
+  updateAutoImportPanel();
 }
 
 void MainWindow::sourceDpiChanged() {
@@ -1627,6 +1631,7 @@ void MainWindow::sourceDpiChanged() {
   m_thumbSequence->reset(currentPageSequence(), ThumbnailSequence::KEEP_SELECTION,
                          m_thumbSequence->pageOrderProvider());
   reloadRequested();
+  updateAutoImportPanel();
 }
 
 void MainWindow::enterPdfStage() {
@@ -1940,17 +1945,11 @@ void MainWindow::onSettingsChanged(const bool needsRestart) {
 // REVIEW-NOTE (2026-11): no regression test for the restart dialog and restartProgram(), because qt_tests does
 // not link the app library and so can't create a MainWindow or a SettingsDialog.
 void MainWindow::restartProgram() {
-  // Taken before closing: closeProjectInteractive() ends by clearing the project, through
-  // closeProjectWithoutSaving(), so m_projectFile and m_curFilter no longer name it afterwards.
-  // REVIEW-NOTE (2026-11): a project never saved before (m_projectFile empty here) that the user
-  // saves under a new name while this closes is not reopened -> the restart loses an unsaved new
-  // project the user just gave a name to. Not fixed because it needs closeProjectInteractive() to
-  // report the file it saved, which the "X" close and "New/Open Project" also call and don't need.
-  const QString projectFile = m_projectFile;
+  QString projectFile;
   // The Export step is no filter: while it is shown, m_curFilter still names the step before it.
   // Fixed without a test: a restart from Export reopened the step before it; no test drives the MainWindow.
   const int step = m_pdfStage ? filterList->pdfRow() : m_curFilter;
-  if (!closeProjectInteractive()) {
+  if (!closeProjectInteractive(&projectFile)) {
     return;
   }
 
@@ -2017,6 +2016,9 @@ void MainWindow::handleOutOfMemorySituation() {
 void MainWindow::removeWidgetsFromLayout(QLayout* layout) {
   QLayoutItem* child;
   while ((child = layout->takeAt(0))) {
+    if (QWidget* widget = child->widget()) {
+      widget->hide();
+    }
     delete child;
   }
 }
@@ -2177,10 +2179,24 @@ void MainWindow::updateWindowTitle() {
  *
  * \return true if the project was closed, false if the user cancelled the process.
  */
-bool MainWindow::closeProjectInteractive() {
+bool MainWindow::closeProjectInteractive(QString* closedProjectFile) {
   if (!isProjectLoaded()) {
     return true;
   }
+
+  const bool autoSaveWasActive = m_autoSaveTimer.isActive();
+  m_autoSaveTimer.stop();
+  m_closingPrompt = true;
+  bool closed = false;
+  const auto promptGuard = qScopeGuard([this, autoSaveWasActive, &closed]() {
+    m_closingPrompt = false;
+    if (!closed) {
+      if (autoSaveWasActive) {
+        updateAutoSaveTimer();
+      }
+      QTimer::singleShot(0, this, [this]() { importDeferredScans(); });
+    }
+  });
 
   if (m_pdfView && m_pdfView->isRunning()) {
     const QMessageBox::StandardButton answer
@@ -2205,6 +2221,10 @@ bool MainWindow::closeProjectInteractive() {
       case CANCEL:
         return false;
     }
+    if (closedProjectFile != nullptr) {
+      *closedProjectFile = m_projectFile;
+    }
+    closed = true;
     closeProjectWithoutSaving();
     return true;
   }
@@ -2229,6 +2249,10 @@ bool MainWindow::closeProjectInteractive() {
       case CANCEL:
         return false;
     }
+    if (closedProjectFile != nullptr) {
+      *closedProjectFile = m_projectFile;
+    }
+    closed = true;
     closeProjectWithoutSaving();
     return true;
   }
@@ -2236,6 +2260,10 @@ bool MainWindow::closeProjectInteractive() {
   if (compareFiles(m_projectFile, backupFilePath)) {
     // The project hasn't really changed.
     QFile::remove(backupFilePath);
+    if (closedProjectFile != nullptr) {
+      *closedProjectFile = m_projectFile;
+    }
+    closed = true;
     closeProjectWithoutSaving();
     return true;
   }
@@ -2257,6 +2285,10 @@ bool MainWindow::closeProjectInteractive() {
       return false;
   }
 
+  if (closedProjectFile != nullptr) {
+    *closedProjectFile = m_projectFile;
+  }
+  closed = true;
   closeProjectWithoutSaving();
   return true;
 }  // MainWindow::closeProjectInteractive
@@ -2282,6 +2314,11 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
   if (isBatchProcessingInProgress() || !isProjectLoaded()) {
     return;
   }
+  m_insertingFiles = true;
+  const auto insertGuard = qScopeGuard([this]() {
+    m_insertingFiles = false;
+    importDeferredScans();
+  });
   // We need to filter out files already in project (issue #88: use normalized paths so
   // dialog and project paths compare correctly when project already has images).
   class ProxyModel : public QSortFilterProxyModel {
@@ -2395,6 +2432,12 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
       insertionPoint = inserted.back().imageId();
     }
   }
+  if (!newFiles.empty()) {
+    if (m_thumbSequence->selectionLeader().isNull()) {
+      goToPage(m_thumbSequence->firstPage().id());
+    }
+    updateAutoImportPanel();
+  }
   PartlyAddedFilesMessage::showIfNeeded(this, newFiles);
 }  // MainWindow::showInsertFileDialog
 
@@ -2488,7 +2531,7 @@ void MainWindow::updateAutoImportPanel() {
   m_autoImportPanel->setImportPossible(!m_projectFile.isEmpty());
   m_autoImportPanel->setImporting(m_scanWatcher->isWatching());
   m_autoImportPanel->setDirectory(m_importDir);
-  m_autoImportPanel->setScansWithoutDpi(m_scansWithoutDpi);
+  m_autoImportPanel->setScansWithoutDpi(auto_import_utils::countImagesWithoutDpi(*m_pages));
   m_autoImportPanel->setInsertingPossible(m_pages->numImages() > 0);
   m_autoImportPanel->setMode(m_importMode);
   updateReplaceSelection();
@@ -2564,35 +2607,15 @@ bool MainWindow::isImageInProject(const QString& filePath) const {
 }
 
 QString MainWindow::imagePathKey(const QString& filePath) {
-  const QString path(QDir::cleanPath(QFileInfo(filePath).absoluteFilePath()));
-#ifdef Q_OS_WIN
-  return path.toCaseFolded();
-#else
-  return path;
-#endif
+  return auto_import_utils::imagePathKey(filePath);
 }
 
 QSet<QString> MainWindow::projectImagePathKeys() const {
-  QSet<QString> keys;
-  for (const PageInfo& page : m_pages->toPageSequence(IMAGE_VIEW)) {
-    if (!page.imageId().filePath().isEmpty()) {
-      keys.insert(imagePathKey(page.imageId().filePath()));
-    }
-  }
-  return keys;
+  return auto_import_utils::projectImagePathKeys(*m_pages);
 }
 
-// REVIEW-NOTE (2026-10): if renaming fails, the window waits here -> up to 0.5 s without response.
-// Not fixed because it happens rarely and retrying with a timer would split the import into steps.
-// No test: waiting for a locked file can't be checked without the test depending on the machine.
 bool MainWindow::renameRetrying(const QString& from, const QString& to) {
-  for (int attempt = 0; attempt < 5; ++attempt) {
-    if (QFile::rename(from, to)) {
-      return true;
-    }
-    QThread::msleep(100);
-  }
-  return false;
+  return auto_import_utils::renameRetrying(from, to);
 }
 
 ImageFileInfo MainWindow::renameScan(const ImageFileInfo& file, const QString& newName) {
@@ -2635,20 +2658,7 @@ void MainWindow::moveReplacedImage(const QString& filePath) {
 }
 
 QString MainWindow::suggestedImportDirectory() const {
-  if (m_pages->numImages() == 0) {
-    return m_emptyProjectInputDir;
-  }
-  // The folder with the most images; the first of them on a tie.
-  std::map<QString, int> counts;
-  QString best;
-  for (const PageInfo& page : m_pages->toPageSequence(IMAGE_VIEW)) {
-    const QString dir = QFileInfo(page.imageId().filePath()).absolutePath();
-    const int count = ++counts[dir];
-    if (best.isEmpty() || (count > counts[best])) {
-      best = dir;
-    }
-  }
-  return best;
+  return auto_import_utils::suggestedImportDirectory(*m_pages, m_emptyProjectInputDir);
 }
 
 bool MainWindow::startAutoImport(const QString& dir, const bool chooseExistingImages) {
@@ -2675,9 +2685,6 @@ bool MainWindow::startAutoImport(const QString& dir, const bool chooseExistingIm
       }
       const std::vector<ImageFileInfo> chosen = dialog.inProjectFiles();
       for (const ImageFileInfo& file : chosen) {
-        if (!file.isDpiOK()) {
-          ++m_scansWithoutDpi;
-        }
         insertImageFile(file, BEFORE, ImageId());
       }
       if (!chosen.empty()) {
@@ -2691,6 +2698,7 @@ bool MainWindow::startAutoImport(const QString& dir, const bool chooseExistingIm
   }
 
   m_scanWatcher->start(dir);
+  updateAutoImportPanel();
   return true;
 }
 
@@ -2729,10 +2737,11 @@ void MainWindow::changeAutoImportDirectory() {
 bool MainWindow::canImportScansNow() const {
   // In the Export step the page list shown there would go stale (a replaced page even
   // loses its output files), so new scans wait until the step is left.
-  // While a scan is imported or the question about canceling a multi-page selection is open, a nested
-  // event loop runs; a scan imported in it would change the project before the first one is saved.
+  // While a scan is imported, closing prompts run, files are inserted interactively, or the
+  // question about canceling a multi-page selection is open, a nested event loop runs; a scan
+  // imported in it would change the project mid-operation.
   return !isBatchProcessingInProgress() && !m_pdfStage && !(m_pdfView && m_pdfView->isRunning()) && !m_importingScan
-         && !m_thumbSequence->isSelectionQuestionOpen();
+         && !m_closingPrompt && !m_insertingFiles && !m_thumbSequence->isSelectionQuestionOpen();
 }
 
 void MainWindow::scanReady(const ImageFileInfo& file) {
@@ -2821,12 +2830,6 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
       m_autoImportPanel->setMode(m_importMode);
     }
   }
-  if (!file.isDpiOK()) {
-    ++m_scansWithoutDpi;
-    m_autoImportPanel->setScansWithoutDpi(m_scansWithoutDpi);
-  }
-  // Only the first step shows the new scan. Elsewhere it would be processed right away,
-  // with automatic settings.
   if (!pages.empty() && !m_pdfStage && (m_curFilter == m_stages->fixOrientationFilterIdx())) {
     goToPage(pages.front().id());
     thumbView->ensureVisible(m_thumbSequence->selectionLeaderSceneRect(), 20, 20);
@@ -2911,6 +2914,7 @@ void MainWindow::removeFromProject(const std::set<PageId>& pages) {
     resetImportMode();
   }
 
+  updateAutoImportPanel();
   updateMainArea();
 }  // MainWindow::removeFromProject
 
