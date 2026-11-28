@@ -14,6 +14,7 @@
 #include "ImageFileInfo.h"
 #include "ui_ProjectFilesDialog.h"
 
+class QDir;
 class TestAppUiQt;
 
 class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
@@ -80,6 +81,12 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
 
   /** Asks before overwriting. Returns false if the dialog should stay open. */
   bool checkProjectFile();
+
+  bool validateFolderName(const QDir& folder);
+
+  bool validateFolders(const QDir& inpDir, const QDir& outDir);
+
+  bool ensureOutputFolder(const QDir& outDir);
 
   void setInputsEnabled(bool enabled);
 

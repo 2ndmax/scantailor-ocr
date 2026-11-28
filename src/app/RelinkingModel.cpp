@@ -263,15 +263,39 @@ void RelinkingModel::addPath(const RelinkablePath& path) {
   requestItemStatusUpdate(itemIdx);
 }
 
-// REVIEW-NOTE (2026-10): 'prefix' and 'replacement' are taken by value -> two QString copies per
-// relink action. Not fixed because the copies are cheap (shared data), and the function emits item
-// signals while it still uses both strings: a slot may change the caller's string (RelinkingDialog's
-// m_nodePath), which a const reference would then see.
-bool RelinkingModel::replacePrefix(const QString prefix,
-                                   const QString replacement,
+bool RelinkingModel::replacePrefix(const QString& prefix,
+                                   const QString& replacement,
                                    const RelinkablePath::Type type,
                                    Merge* merge) {
+  // Keep local copies because signals emitted below can mutate the caller's strings
+  // (e.g. RelinkingDialog's m_nodePath) while these values are still in use.
+  const QString prefixCopy = prefix;
+  const QString replacementCopy = replacement;
+
   // The new paths are worked out first, so a rejected change leaves the model untouched.
+  const std::vector<QString> newPaths = buildReplacedPaths(prefixCopy, replacementCopy, type);
+  if (findMerge(newPaths, merge)) {
+    return false;
+  }
+
+  std::set<int> changedGroups;
+  applyReplacedItemPaths(newPaths, changedGroups);
+
+  if (type == RelinkablePath::Dir) {
+    applyReplacedGroupPrefixes(prefixCopy, replacementCopy, changedGroups);
+  }
+
+  for (const int g : changedGroups) {
+    emitGroupChanged(g);
+  }
+
+  updateRelinker();
+  return true;
+}  // RelinkingModel::replacePrefix
+
+std::vector<QString> RelinkingModel::buildReplacedPaths(const QString& prefix,
+                                                        const QString& replacement,
+                                                        const RelinkablePath::Type type) const {
   std::vector<QString> newPaths;
   newPaths.reserve(m_items.size());
   for (const Item& item : m_items) {
@@ -286,12 +310,10 @@ bool RelinkingModel::replacePrefix(const QString prefix,
     }
     newPaths.push_back(path);
   }
-  if (findMerge(newPaths, merge)) {
-    return false;
-  }
+  return newPaths;
+}
 
-  std::set<int> changedGroups;
-
+void RelinkingModel::applyReplacedItemPaths(const std::vector<QString>& newPaths, std::set<int>& changedGroups) {
   for (int i = 0; i < static_cast<int>(m_items.size()); ++i) {
     Item& item = m_items[i];
     if (newPaths[i] != item.path) {
@@ -303,27 +325,22 @@ bool RelinkingModel::replacePrefix(const QString prefix,
       }
     }
   }
+}
 
-  if (type == RelinkablePath::Dir) {
-    for (int g = 0; g < static_cast<int>(m_groups.size()); ++g) {
-      if (replacePathPrefix(m_groups[g].dir, prefix, replacement)) {
-        requestGroupStatusUpdate(g);
-        changedGroups.insert(g);
-        // The display of files depends on the folder path.
-        for (const int i : m_groups[g].items) {
-          emitItemChanged(i);
-        }
+void RelinkingModel::applyReplacedGroupPrefixes(const QString& prefix,
+                                                const QString& replacement,
+                                                std::set<int>& changedGroups) {
+  for (int g = 0; g < static_cast<int>(m_groups.size()); ++g) {
+    if (replacePathPrefix(m_groups[g].dir, prefix, replacement)) {
+      requestGroupStatusUpdate(g);
+      changedGroups.insert(g);
+      // The display of files depends on the folder path.
+      for (const int i : m_groups[g].items) {
+        emitItemChanged(i);
       }
     }
   }
-
-  for (const int g : changedGroups) {
-    emitGroupChanged(g);
-  }
-
-  updateRelinker();
-  return true;
-}  // RelinkingModel::replacePrefix
+}
 
 bool RelinkingModel::findMerge(const std::vector<QString>& newPaths, Merge* merge) const {
   struct Path {

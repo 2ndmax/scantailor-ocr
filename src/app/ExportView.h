@@ -7,6 +7,7 @@
 #include <QString>
 #include <QStringList>
 #include <QWidget>
+#include <map>
 #include <memory>
 #include <set>
 #include <vector>
@@ -144,6 +145,24 @@ class ExportView : public QWidget {
   /** The chosen outputs that exist already, as they are named in the question about replacing them. */
   QStringList existingOutputs(const ExportPaths& paths, const ProcessingOptions::Formats& formats) const;
 
+  std::vector<ExportPage> collectSelectedExportPages(int* outdatedCount) const;
+
+  bool confirmOutdatedAndExisting(const QString& title,
+                                  const QString& base,
+                                  const ExportPaths& paths,
+                                  const ProcessingOptions::Formats& formats,
+                                  int outdated);
+
+  bool confirmMissingOcrLanguages(const QString& title);
+
+  bool prepareOcrExportOptions(const QString& title, ExportOptions* options);
+
+  int updateSelectionControls(bool running);
+
+  void updateTargetPreview(const ProcessingOptions::Formats& formats,
+                           const QString& base,
+                           const QString& targetProblem);
+
   /** The status after a successful export, with links that open the files and the folder. */
   void showCreatedFiles();
 
@@ -237,6 +256,19 @@ class ExportView : public QWidget {
 
   /** Shows the compressions of the ticked pages in the Quality panel. */
   void updateQualityPanel();
+
+  struct QualitySummary {
+    std::map<int, int> tiffCounts[3] = {};
+    int pdfCounts[3] = {};
+    int pages = 0;
+    int tiffLossyPages = 0;
+    int twiceLossyPages = 0;
+    int posterizedAsJpegPages = 0;
+  };
+
+  QualitySummary collectQualitySummary() const;
+
+  void updateQualityWarnings(const QualitySummary& summary);
 
   /** Greys out the quality fields that the chosen compression doesn't use, and updates the pages. */
   void compressionChanged();

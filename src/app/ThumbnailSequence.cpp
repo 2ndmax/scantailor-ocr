@@ -227,6 +227,17 @@ class ThumbnailSequence::Impl {
 
   int getGraphicsViewWidth() const;
 
+  struct RowMetrics {
+    int itemCount = 0;
+    double sumItemWidths = 0;
+  };
+
+  RowMetrics measureRow(ItemsInOrder::iterator rowBegin, ItemsInOrder::iterator rowEnd, int viewWidth) const;
+
+  double layoutRow(ItemsInOrder::iterator& ordIt, int itemsInRow, double sumItemWidths, int viewWidth, double yOffset);
+
+  void alignThumbnailMarks(bool severalInRow);
+
   void orderItems();
 
   bool cancelingSelectionAccepted();
@@ -659,6 +670,71 @@ void ThumbnailSequence::Impl::orderItems() {
   }
 }
 
+ThumbnailSequence::Impl::RowMetrics ThumbnailSequence::Impl::measureRow(const ItemsInOrder::iterator rowBegin,
+                                                                        const ItemsInOrder::iterator rowEnd,
+                                                                        const int viewWidth) const {
+  if (m_viewMode != MULTI_COLUMN) {
+    return {1, rowBegin->composite->boundingRect().width()};
+  }
+
+  // Determine how many items can fit into the current row.
+  int itemsInRow = 0;
+  double sumItemWidths = 0;
+  double xOffset = SPACING;
+  for (ItemsInOrder::iterator rowIt = rowBegin; rowIt != rowEnd; ++rowIt) {
+    const double itemWidth = rowIt->composite->boundingRect().width();
+    xOffset += itemWidth + SPACING;
+    if (xOffset > viewWidth) {
+      if (itemsInRow == 0) {
+        // At least one page must be in a row.
+        return {1, itemWidth};
+      }
+      break;
+    }
+    ++itemsInRow;
+    sumItemWidths += itemWidth;
+  }
+  return {itemsInRow, sumItemWidths};
+}
+
+double ThumbnailSequence::Impl::layoutRow(ItemsInOrder::iterator& ordIt,
+                                          int itemsInRow,
+                                          const double sumItemWidths,
+                                          const int viewWidth,
+                                          const double yOffset) {
+  // Split free space between the items in the current row.
+  const double adjSpacing = std::floor((viewWidth - sumItemWidths) / (itemsInRow + 1));
+  double xOffset = adjSpacing;
+  double nextYOffset = 0;
+  for (; itemsInRow > 0; --itemsInRow, ++ordIt) {
+    CompositeItem* composite = ordIt->composite;
+    composite->setPos(xOffset, yOffset);
+    composite->updateSceneRect(m_sceneRect);
+    xOffset += composite->boundingRect().width() + adjSpacing;
+    nextYOffset = std::max(composite->boundingRect().height() + SPACING, nextYOffset);
+  }
+  return nextYOffset;
+}
+
+void ThumbnailSequence::Impl::alignThumbnailMarks(const bool severalInRow) {
+  // With one tile in each row, the marks of all thumbnails line up at the right edge of the tiles,
+  // given by the thumbnails and the labels below them. The labels are the same in all steps, so the
+  // marks stay in place when the step changes. With several tiles in a row, each mark stays at its
+  // own thumbnail. Placeholders, as wide as the maximum, don't count.
+  double marksRight = 0;
+  if (!severalInRow) {
+    for (const Item& item : m_itemsInOrder) {
+      if (dynamic_cast<const ThumbnailBase*>(item.composite->thumbnail())) {
+        marksRight = std::max({marksRight, item.composite->thumbnail()->sceneBoundingRect().right(),
+                               item.composite->labelGroup()->sceneBoundingRect().right()});
+      }
+    }
+  }
+  for (const Item& item : m_itemsInOrder) {
+    ThumbnailBase::alignMarks(item.composite->thumbnail(), marksRight);
+  }
+}
+
 void ThumbnailSequence::Impl::updateSceneItemsPos() {
   m_sceneRect = QRectF(0.0, 0.0, 0.0, 0.0);
 
@@ -678,67 +754,15 @@ void ThumbnailSequence::Impl::updateSceneItemsPos() {
   bool severalInRow = false;
 
   while (ordIt != ordEnd) {
-    int itemsInRow = 0;
-    double sumItemWidths = 0;
-    double xOffset = SPACING;
-
-    if (m_viewMode == MULTI_COLUMN) {
-      // Determine how many items can fit into the current row.
-      for (ItemsInOrder::iterator rowIt = ordIt; rowIt != ordEnd; ++rowIt) {
-        const double itemWidth = rowIt->composite->boundingRect().width();
-        xOffset += itemWidth + SPACING;
-        if (xOffset > viewWidth) {
-          if (itemsInRow == 0) {
-            // At least one page must be in a row.
-            itemsInRow = 1;
-            sumItemWidths = itemWidth;
-          }
-          break;
-        }
-        itemsInRow++;
-        sumItemWidths += itemWidth;
-      }
-    } else {
-      itemsInRow = 1;
-      sumItemWidths = ordIt->composite->boundingRect().width();
-    }
-
-    severalInRow = severalInRow || (itemsInRow > 1);
-
-    // Split free space between the items in the current row.
-    const double adjSpacing = std::floor((viewWidth - sumItemWidths) / (itemsInRow + 1));
-    xOffset = adjSpacing;
-    double nextYOffset = 0;
-    for (; itemsInRow > 0; --itemsInRow, ++ordIt) {
-      CompositeItem* composite = ordIt->composite;
-      composite->setPos(xOffset, yOffset);
-      composite->updateSceneRect(m_sceneRect);
-      xOffset += composite->boundingRect().width() + adjSpacing;
-      nextYOffset = std::max(composite->boundingRect().height() + SPACING, nextYOffset);
-    }
-
+    const RowMetrics row = measureRow(ordIt, ordEnd, viewWidth);
+    severalInRow = severalInRow || (row.itemCount > 1);
+    const double nextYOffset = layoutRow(ordIt, row.itemCount, row.sumItemWidths, viewWidth, yOffset);
     if (ordIt != ordEnd) {
       yOffset += nextYOffset;
     }
   }
 
-  // With one tile in each row, the marks of all thumbnails line up at the right edge of the tiles,
-  // given by the thumbnails and the labels below them. The labels are the same in all steps, so the
-  // marks stay in place when the step changes. With several tiles in a row, each mark stays at its
-  // own thumbnail. Placeholders, as wide as the maximum, don't count.
-  double marksRight = 0;
-  if (!severalInRow) {
-    for (const Item& item : m_itemsInOrder) {
-      if (dynamic_cast<const ThumbnailBase*>(item.composite->thumbnail())) {
-        marksRight = std::max({marksRight, item.composite->thumbnail()->sceneBoundingRect().right(),
-                               item.composite->labelGroup()->sceneBoundingRect().right()});
-      }
-    }
-  }
-  for (const Item& item : m_itemsInOrder) {
-    ThumbnailBase::alignMarks(item.composite->thumbnail(), marksRight);
-  }
-
+  alignThumbnailMarks(severalInRow);
   commitSceneRect();
 }
 

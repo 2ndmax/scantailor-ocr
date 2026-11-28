@@ -504,6 +504,54 @@ void ProjectFilesDialog::removeFromProject() {
   selectRowAfterMove(inProjectList, firstRow);
 }
 
+bool ProjectFilesDialog::validateFolderName(const QDir& folder) {
+  // Also for a folder that seems to exist: Windows calls "D:/Books." existing if "D:/Books" exists.
+  const QString invalidNameReason = folder.isAbsolute() ? path_names::invalidNewPathReason(folder.path()) : QString();
+  if (!invalidNameReason.isEmpty()) {
+    QMessageBox::warning(this, tr("Error"), invalidNameReason);
+  }
+  return invalidNameReason.isEmpty();
+}
+
+bool ProjectFilesDialog::validateFolders(const QDir& inpDir, const QDir& outDir) {
+  if (!validateFolderName(inpDir)) {
+    return false;
+  }
+  if (!inpDir.isAbsolute() || !inpDir.exists()) {
+    QMessageBox::warning(this, tr("Error"), tr("Input folder is not set or doesn't exist."));
+    return false;
+  }
+  if (inpDir == outDir) {
+    QMessageBox::warning(this, tr("Error"), tr("Input and output folders can't be the same."));
+    return false;
+  }
+  return validateFolderName(outDir);
+}
+
+bool ProjectFilesDialog::ensureOutputFolder(const QDir& outDir) {
+  if (outDir.isAbsolute() && !outDir.exists()) {
+    // Maybe create it.
+    bool create = m_autoOutDir;
+    if (!m_autoOutDir) {
+      create = QMessageBox::question(this, tr("Create Folder?"), tr("Output folder doesn't exist. Create it?"),
+                                     QMessageBox::Yes | QMessageBox::No)
+               == QMessageBox::Yes;
+      if (!create) {
+        return false;
+      }
+    }
+    if (create && !outDir.mkpath(outDir.path())) {
+      QMessageBox::warning(this, tr("Error"), tr("Unable to create output folder."));
+      return false;
+    }
+  }
+  if (!outDir.isAbsolute() || !outDir.exists()) {
+    QMessageBox::warning(this, tr("Error"), tr("Output folder is not set or doesn't exist."));
+    return false;
+  }
+  return true;
+}
+
 void ProjectFilesDialog::onOK() {
   if (m_existingImagesMode) {
     // Choosing none of them is fine, too.
@@ -515,30 +563,9 @@ void ProjectFilesDialog::onOK() {
     return;
   }
 
-  // Also for a folder that seems to exist: Windows calls "D:/Books." existing if "D:/Books" exists.
-  const auto folderNameIsValid = [this](const QDir& folder) {
-    const QString invalidNameReason = folder.isAbsolute() ? path_names::invalidNewPathReason(folder.path()) : QString();
-    if (!invalidNameReason.isEmpty()) {
-      QMessageBox::warning(this, tr("Error"), invalidNameReason);
-    }
-    return invalidNameReason.isEmpty();
-  };
-
   const QDir inpDir(inputDirectory());
-  if (!folderNameIsValid(inpDir)) {
-    return;
-  }
-  if (!inpDir.isAbsolute() || !inpDir.exists()) {
-    QMessageBox::warning(this, tr("Error"), tr("Input folder is not set or doesn't exist."));
-    return;
-  }
-
   const QDir outDir(outputDirectory());
-  if (inpDir == outDir) {
-    QMessageBox::warning(this, tr("Error"), tr("Input and output folders can't be the same."));
-    return;
-  }
-  if (!folderNameIsValid(outDir)) {
+  if (!validateFolders(inpDir, outDir)) {
     return;
   }
 
@@ -556,30 +583,7 @@ void ProjectFilesDialog::onOK() {
     return;
   }
 
-  if (!checkProjectFile()) {
-    return;
-  }
-
-  if (outDir.isAbsolute() && !outDir.exists()) {
-    // Maybe create it.
-    bool create = m_autoOutDir;
-    if (!m_autoOutDir) {
-      create = QMessageBox::question(this, tr("Create Folder?"), tr("Output folder doesn't exist. Create it?"),
-                                     QMessageBox::Yes | QMessageBox::No)
-               == QMessageBox::Yes;
-      if (!create) {
-        return;
-      }
-    }
-    if (create) {
-      if (!outDir.mkpath(outDir.path())) {
-        QMessageBox::warning(this, tr("Error"), tr("Unable to create output folder."));
-        return;
-      }
-    }
-  }
-  if (!outDir.isAbsolute() || !outDir.exists()) {
-    QMessageBox::warning(this, tr("Error"), tr("Output folder is not set or doesn't exist."));
+  if (!checkProjectFile() || !ensureOutputFolder(outDir)) {
     return;
   }
 

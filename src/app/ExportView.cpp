@@ -787,6 +787,127 @@ QStringList ExportView::existingOutputs(const ExportPaths& paths, const Processi
   return existing;
 }
 
+std::vector<ExportPage> ExportView::collectSelectedExportPages(int* outdatedCount) const {
+  std::vector<ExportPage> pages;
+  int outdated = 0;
+  for (int row = 0; row < m_pageList->count(); ++row) {
+    const QListWidgetItem* item = m_pageList->item(row);
+    if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)) {
+      const ExportPage& page = m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page;
+      pages.push_back(page);
+      if (page.isOutdated()) {
+        ++outdated;
+      }
+    }
+  }
+  *outdatedCount = outdated;
+  return pages;
+}
+
+bool ExportView::confirmOutdatedAndExisting(const QString& title,
+                                            const QString& base,
+                                            const ExportPaths& paths,
+                                            const ProcessingOptions::Formats& formats,
+                                            const int outdated) {
+  // Asked first: whoever goes back to output the pages exports later.
+  if (outdated > 0) {
+    QMessageBox box(QMessageBox::Question, title,
+                    tr("%n selected page(s) changed since the output. The export would show the state of the last "
+                       "output.\n\nDo you want to export anyway? To include the changes, choose \"Back\" "
+                       "and then \"Output missing and changed pages\".",
+                       nullptr, outdated),
+                    QMessageBox::NoButton, this);
+    QPushButton* createButton = box.addButton(tr("Export anyway"), QMessageBox::AcceptRole);
+    QPushButton* backButton = box.addButton(tr("Back"), QMessageBox::RejectRole);
+    box.setDefaultButton(backButton);
+    box.setEscapeButton(backButton);
+    box.exec();
+    if (box.clickedButton() != createButton) {
+      return false;
+    }
+  }
+
+  // Asked each time, even about files this view created: they may have been changed outside the
+  // program since.
+  const QStringList existing = existingOutputs(paths, formats);
+  if (!existing.isEmpty()) {
+    const QMessageBox::StandardButton answer
+        = QMessageBox::question(this, title,
+                                tr("These already exist in %1:\n\n%2\n\nDo you want to replace them?")
+                                    .arg(QDir::toNativeSeparators(QFileInfo(base).path()), existing.join('\n')),
+                                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (answer != QMessageBox::Yes) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool ExportView::confirmMissingOcrLanguages(const QString& title) {
+  if (m_ocrPanel->missingLanguages().isEmpty()) {
+    return true;
+  }
+  const QMessageBox::StandardButton answer = QMessageBox::question(
+      this, title,
+      tr("The languages %1 of the project aren't installed on this computer. Download them now?\n\nWithout "
+         "them, the text is only recognized with the other ticked languages.")
+          .arg(m_ocrPanel->missingLanguageNames()),
+      QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+  if (answer == QMessageBox::Cancel) {
+    return false;
+  }
+  if (answer == QMessageBox::Yes) {
+    m_ocrPanel->downloadMissingLanguages();
+    // The download may have been canceled or failed.
+    if (!m_ocrPanel->missingLanguages().isEmpty()) {
+      const QMessageBox::StandardButton goOn = QMessageBox::question(
+          this, title,
+          tr("The languages %1 still aren't installed. Recognize the text with the other ticked languages "
+             "only?")
+              .arg(m_ocrPanel->missingLanguageNames()),
+          QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Yes);
+      if (goOn != QMessageBox::Yes) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool ExportView::prepareOcrExportOptions(const QString& title, ExportOptions* options) {
+  if (!confirmMissingOcrLanguages(title)) {
+    return false;
+  }
+  const QStringList languages = m_ocrPanel->checkedLanguages();
+  // Only copying the language files into one folder takes noticeable time.
+  const bool copying = !languages.isEmpty() && OcrLanguages::commonDir(languages).isEmpty();
+  if (copying) {
+    showStatus(tr("Copying language files ..."));
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+  }
+  QString error;
+  // REVIEW-NOTE (2026-11): copying the language files runs on the GUI thread -> the window doesn't respond for a
+  // moment. Not fixed because it is short and shown by a wait cursor.
+  const ExportOptions::OcrSetup setup = options->setUpOcr(languages, m_ocrPanel->pageLayout(), &error);
+  if (copying) {
+    QApplication::restoreOverrideCursor();
+    showPreview();
+  }
+  if (setup == ExportOptions::OcrSetup::NO_LANGUAGE) {
+    // Missing languages that were not downloaded leave none.
+    QMessageBox::warning(this, title, tr("Please tick at least one installed language for the text recognition."));
+    return false;
+  }
+  if (setup == ExportOptions::OcrSetup::NOT_GATHERED) {
+    QMessageBox::warning(this, title,
+                         tr("The files of the selected languages are in different folders, and they could "
+                            "not be copied into one folder, which text recognition needs.")
+                             + QStringLiteral("\n\n") + error);
+    return false;
+  }
+  return true;
+}
+
 void ExportView::startExport() {
   if (m_thread || m_starting) {
     return;
@@ -809,112 +930,22 @@ void ExportView::startExport() {
     return;
   }
 
-  std::vector<ExportPage> pages;
   int outdated = 0;
-  for (int row = 0; row < m_pageList->count(); ++row) {
-    const QListWidgetItem* item = m_pageList->item(row);
-    if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)) {
-      const ExportPage& page = m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page;
-      pages.push_back(page);
-      if (page.isOutdated()) {
-        ++outdated;
-      }
-    }
-  }
+  std::vector<ExportPage> pages = collectSelectedExportPages(&outdated);
   if (pages.empty()) {
     QMessageBox::information(this, title, tr("Please tick the pages to include in the export."));
     return;
   }
 
-  // Asked first: whoever goes back to output the pages exports later.
-  if (outdated > 0) {
-    QMessageBox box(QMessageBox::Question, title,
-                    tr("%n selected page(s) changed since the output. The export would show the state of the last "
-                       "output.\n\nDo you want to export anyway? To include the changes, choose \"Back\" "
-                       "and then \"Output missing and changed pages\".",
-                       nullptr, outdated),
-                    QMessageBox::NoButton, this);
-    QPushButton* createButton = box.addButton(tr("Export anyway"), QMessageBox::AcceptRole);
-    QPushButton* backButton = box.addButton(tr("Back"), QMessageBox::RejectRole);
-    box.setDefaultButton(backButton);
-    box.setEscapeButton(backButton);
-    box.exec();
-    if (box.clickedButton() != createButton) {
-      return;
-    }
-  }
-
-  // Asked each time, even about files this view created: they may have been changed outside the
-  // program since.
-  const QStringList existing = existingOutputs(paths, formats);
-  if (!existing.isEmpty()) {
-    const QMessageBox::StandardButton answer
-        = QMessageBox::question(this, title,
-                                tr("These already exist in %1:\n\n%2\n\nDo you want to replace them?")
-                                    .arg(QDir::toNativeSeparators(QFileInfo(base).path()), existing.join('\n')),
-                                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    if (answer != QMessageBox::Yes) {
-      return;
-    }
+  if (!confirmOutdatedAndExisting(title, base, paths, formats, outdated)) {
+    return;
   }
 
   ExportOptions options = ExportOptions::fromProject(*m_processingOptions);
   options.threadCount = ExportJob::defaultThreadCount();
 
-  if (m_processingOptions->needsTextRecognition()) {
-    if (!m_ocrPanel->missingLanguages().isEmpty()) {
-      const QMessageBox::StandardButton answer = QMessageBox::question(
-          this, title,
-          tr("The languages %1 of the project aren't installed on this computer. Download them now?\n\nWithout "
-             "them, the text is only recognized with the other ticked languages.")
-              .arg(m_ocrPanel->missingLanguageNames()),
-          QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
-      if (answer == QMessageBox::Cancel) {
-        return;
-      }
-      if (answer == QMessageBox::Yes) {
-        m_ocrPanel->downloadMissingLanguages();
-        // The download may have been canceled or failed.
-        if (!m_ocrPanel->missingLanguages().isEmpty()) {
-          const QMessageBox::StandardButton goOn = QMessageBox::question(
-              this, title,
-              tr("The languages %1 still aren't installed. Recognize the text with the other ticked languages "
-                 "only?")
-                  .arg(m_ocrPanel->missingLanguageNames()),
-              QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Yes);
-          if (goOn != QMessageBox::Yes) {
-            return;
-          }
-        }
-      }
-    }
-    const QStringList languages = m_ocrPanel->checkedLanguages();
-    // Only copying the language files into one folder takes noticeable time.
-    const bool copying = !languages.isEmpty() && OcrLanguages::commonDir(languages).isEmpty();
-    if (copying) {
-      showStatus(tr("Copying language files ..."));
-      QApplication::setOverrideCursor(Qt::WaitCursor);
-    }
-    QString error;
-    // REVIEW-NOTE (2026-11): copying the language files runs on the GUI thread -> the window doesn't respond for a
-    // moment. Not fixed because it is short and shown by a wait cursor.
-    const ExportOptions::OcrSetup setup = options.setUpOcr(languages, m_ocrPanel->pageLayout(), &error);
-    if (copying) {
-      QApplication::restoreOverrideCursor();
-      showPreview();
-    }
-    if (setup == ExportOptions::OcrSetup::NO_LANGUAGE) {
-      // Missing languages that were not downloaded leave none.
-      QMessageBox::warning(this, title, tr("Please tick at least one installed language for the text recognition."));
-      return;
-    }
-    if (setup == ExportOptions::OcrSetup::NOT_GATHERED) {
-      QMessageBox::warning(this, title,
-                           tr("The files of the selected languages are in different folders, and they could "
-                              "not be copied into one folder, which text recognition needs.")
-                               + QStringLiteral("\n\n") + error);
-      return;
-    }
+  if (m_processingOptions->needsTextRecognition() && !prepareOcrExportOptions(title, &options)) {
+    return;
   }
 
   const int pageCount = static_cast<int>(pages.size());
@@ -1048,8 +1079,7 @@ std::vector<int> ExportView::checkedEntries() const {
   return entries;
 }
 
-void ExportView::updateControls() {
-  const bool running = (m_thread != nullptr);
+int ExportView::updateSelectionControls(const bool running) {
   int available = 0;
   for (int row = 0; row < m_pageList->count(); ++row) {
     if (m_pageList->item(row)->flags().testFlag(Qt::ItemIsUserCheckable)) {
@@ -1077,6 +1107,42 @@ void ExportView::updateControls() {
   const bool hasSelection = !m_pageList->selectedItems().isEmpty();
   m_forwardButton->setEnabled(!running && hasSelection);
   m_backButton->setEnabled(!running && hasSelection);
+  return checked;
+}
+
+void ExportView::updateTargetPreview(const ProcessingOptions::Formats& formats,
+                                     const QString& base,
+                                     const QString& targetProblem) {
+  if (m_showingStatus) {
+    // Left as it is.
+    return;
+  }
+  if (!formats.any()) {
+    showPreviewText(QString());
+    return;
+  }
+  if (base.isEmpty()) {
+    showPreviewText(warningSign() + ' ' + targetProblem);
+    return;
+  }
+  const ExportPaths paths = ExportPaths::fromBase(base);
+  QStringList names;
+  for (const auto& [chosen, file] :
+       {std::pair(formats.pdf, paths.pdf), std::pair(formats.txt, paths.txt), std::pair(formats.hocr, paths.hocr)}) {
+    if (chosen) {
+      names.push_back(QFileInfo(file).fileName().toHtmlEscaped());
+    }
+  }
+  if (formats.alto) {
+    names.push_back((QFileInfo(paths.altoDir).fileName() + QDir::separator()).toHtmlEscaped());
+  }
+  // The folder stands in the field beside it; the result names it, as the field may change.
+  showPreviewText(bulletList(tr("Will be created:"), names), Qt::RichText);
+}
+
+void ExportView::updateControls() {
+  const bool running = (m_thread != nullptr);
+  const int checked = updateSelectionControls(running);
 
   // A message or the result of the last export stands until the ticked pages or their order change;
   // the fields and the options switch back themselves (showPreview()).
@@ -1088,27 +1154,7 @@ void ExportView::updateControls() {
   const ProcessingOptions::Formats& formats = m_processingOptions->formats;
   QString targetProblem;
   const QString base = exportBase(&targetProblem);
-  if (m_showingStatus) {
-    // Left as it is.
-  } else if (!formats.any()) {
-    showPreviewText(QString());
-  } else if (base.isEmpty()) {
-    showPreviewText(warningSign() + ' ' + targetProblem);
-  } else {
-    const ExportPaths paths = ExportPaths::fromBase(base);
-    QStringList names;
-    for (const auto& [chosen, file] :
-         {std::pair(formats.pdf, paths.pdf), std::pair(formats.txt, paths.txt), std::pair(formats.hocr, paths.hocr)}) {
-      if (chosen) {
-        names.push_back(QFileInfo(file).fileName().toHtmlEscaped());
-      }
-    }
-    if (formats.alto) {
-      names.push_back((QFileInfo(paths.altoDir).fileName() + QDir::separator()).toHtmlEscaped());
-    }
-    // The folder stands in the field beside it; the result names it, as the field may change.
-    showPreviewText(bulletList(tr("Will be created:"), names), Qt::RichText);
-  }
+  updateTargetPreview(formats, base, targetProblem);
 
   // The button tells why it can't be used.
   QString blocked;
@@ -1445,17 +1491,8 @@ void ExportView::updatePageSigns() {
   m_pageList->viewport()->update();
 }
 
-void ExportView::updateQualityPanel() {
-  if (!m_qualityLayout) {
-    return;
-  }
-  // Color / grayscale, posterized, black and white: the pages for each TIFF compression, and in the PDF.
-  std::map<int, int> tiffCounts[3] = {};
-  int pdfCounts[3] = {};
-  int pages = 0;
-  int tiffLossyPages = 0;
-  int twiceLossyPages = 0;
-  int posterizedAsJpegPages = 0;
+ExportView::QualitySummary ExportView::collectQualitySummary() const {
+  QualitySummary summary;
   for (int row = 0; row < m_pageList->count(); ++row) {
     const QListWidgetItem* item = m_pageList->item(row);
     if (!item->flags().testFlag(Qt::ItemIsUserCheckable) || (item->checkState() != Qt::Checked)) {
@@ -1463,29 +1500,67 @@ void ExportView::updateQualityPanel() {
     }
     const ExportPage& page = m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page;
     const PageQuality quality = pageQuality(page);
-    ++tiffCounts[quality.part][page.pictureCompression()];
-    ++pdfCounts[quality.part];
+    ++summary.tiffCounts[quality.part][page.pictureCompression()];
+    ++summary.pdfCounts[quality.part];
     if (page.kind() == ExportPage::MRC) {
-      ++tiffCounts[2][page.textCompression()];
-      ++pdfCounts[2];
+      ++summary.tiffCounts[2][page.textCompression()];
+      ++summary.pdfCounts[2];
     }
-    ++pages;
+    ++summary.pages;
     if (quality.tiffPictureLossy || quality.tiffTextLossy) {
-      ++tiffLossyPages;
+      ++summary.tiffLossyPages;
     }
     if (quality.tiffPictureLossy && quality.pdfLossy) {
-      ++twiceLossyPages;
+      ++summary.twiceLossyPages;
     }
     if (quality.posterizedAsJpeg) {
-      ++posterizedAsJpegPages;
+      ++summary.posterizedAsJpegPages;
     }
   }
+  return summary;
+}
+
+void ExportView::updateQualityWarnings(const QualitySummary& summary) {
+  const QString sign = warningSign() + ' ';
+  m_tiffWarning->setText(sign + tr("Stored with lossy compression: %1").arg(summary.tiffLossyPages));
+  m_tiffWarning->setToolTip(
+      tr("The PDF can't undo these losses. A lossless method in the PDF keeps them and makes the file larger than "
+         "necessary. To avoid the losses, choose a lossless method in the TIFF Compression panel of the Output "
+         "step and process the pages again."));
+  m_qualityLayout->setRowVisible(m_tiffWarning, summary.tiffLossyPages > 0);
+
+  QStringList pdfWarnings;
+  QStringList pdfToolTips;
+  if (summary.twiceLossyPages > 0) {
+    pdfWarnings.push_back(sign + tr("Compressed with loss twice: %1").arg(summary.twiceLossyPages));
+    pdfToolTips.push_back(
+        tr("The output files of these pages are stored with lossy compression, and the PDF compresses them with "
+           "loss a second time, so the losses add up. Deflate, or JPEG 2000 at quality 100, avoids the second "
+           "loss."));
+  }
+  if (summary.posterizedAsJpegPages > 0) {
+    pdfWarnings.push_back(sign + tr("Posterized, converted to full color: %1").arg(summary.posterizedAsJpegPages));
+    pdfToolTips.push_back(
+        tr("JPEG and JPEG 2000 convert posterized pictures to full color, which blurs the color areas and often "
+           "makes the file larger. Deflate keeps the colors exactly."));
+  }
+  m_pdfWarning->setText(pdfWarnings.join('\n'));
+  m_pdfWarning->setToolTip(pdfToolTips.join('\n'));
+  m_qualityLayout->setRowVisible(m_pdfWarning, !pdfWarnings.isEmpty());
+}
+
+void ExportView::updateQualityPanel() {
+  if (!m_qualityLayout) {
+    return;
+  }
+  // Color / grayscale, posterized, black and white: the pages for each TIFF compression, and in the PDF.
+  const QualitySummary summary = collectQualitySummary();
 
   const QComboBox* pdfBoxes[3] = {m_colorCompression, m_paletteCompression, m_bitonalCompression};
   const QSpinBox* qualityBoxes[3] = {m_colorQuality, m_paletteQuality, nullptr};
   for (int part = 0; part < 3; ++part) {
     QStringList methods;
-    for (const auto& [compression, count] : tiffCounts[part]) {
+    for (const auto& [compression, count] : summary.tiffCounts[part]) {
       QString method = ExportPage::tiffCompressionName(compression);
       if (ExportPage::isLossyTiffCompression(compression)) {
         method = tr("%1 (lossy)", "short").arg(method);
@@ -1499,40 +1574,15 @@ void ExportView::updateQualityPanel() {
     if (qualityBoxes[part] && isLossyPdfCompression(compression, qualityBoxes[part]->value())) {
       pdfMethod = tr("%1 (lossy)", "short").arg(pdfMethod);
     }
-    m_pdfQuality[part]->setText(QStringLiteral(u"%1 × %2").arg(pdfCounts[part]).arg(pdfMethod));
+    m_pdfQuality[part]->setText(QStringLiteral(u"%1 × %2").arg(summary.pdfCounts[part]).arg(pdfMethod));
 
-    m_qualityLayout->setRowVisible(m_tiffQuality[part], pdfCounts[part] > 0);
-    m_qualityLayout->setRowVisible(m_pdfQuality[part], pdfCounts[part] > 0);
+    m_qualityLayout->setRowVisible(m_tiffQuality[part], summary.pdfCounts[part] > 0);
+    m_qualityLayout->setRowVisible(m_pdfQuality[part], summary.pdfCounts[part] > 0);
   }
-  m_qualityLayout->setRowVisible(m_tiffNoPages, pages == 0);
-  m_qualityLayout->setRowVisible(m_pdfNoPages, pages == 0);
+  m_qualityLayout->setRowVisible(m_tiffNoPages, summary.pages == 0);
+  m_qualityLayout->setRowVisible(m_pdfNoPages, summary.pages == 0);
 
-  const QString sign = warningSign() + ' ';
-  m_tiffWarning->setText(sign + tr("Stored with lossy compression: %1").arg(tiffLossyPages));
-  m_tiffWarning->setToolTip(
-      tr("The PDF can't undo these losses. A lossless method in the PDF keeps them and makes the file larger than "
-         "necessary. To avoid the losses, choose a lossless method in the TIFF Compression panel of the Output "
-         "step and process the pages again."));
-  m_qualityLayout->setRowVisible(m_tiffWarning, tiffLossyPages > 0);
-
-  QStringList pdfWarnings;
-  QStringList pdfToolTips;
-  if (twiceLossyPages > 0) {
-    pdfWarnings.push_back(sign + tr("Compressed with loss twice: %1").arg(twiceLossyPages));
-    pdfToolTips.push_back(
-        tr("The output files of these pages are stored with lossy compression, and the PDF compresses them with "
-           "loss a second time, so the losses add up. Deflate, or JPEG 2000 at quality 100, avoids the second "
-           "loss."));
-  }
-  if (posterizedAsJpegPages > 0) {
-    pdfWarnings.push_back(sign + tr("Posterized, converted to full color: %1").arg(posterizedAsJpegPages));
-    pdfToolTips.push_back(
-        tr("JPEG and JPEG 2000 convert posterized pictures to full color, which blurs the color areas and often "
-           "makes the file larger. Deflate keeps the colors exactly."));
-  }
-  m_pdfWarning->setText(pdfWarnings.join('\n'));
-  m_pdfWarning->setToolTip(pdfToolTips.join('\n'));
-  m_qualityLayout->setRowVisible(m_pdfWarning, !pdfWarnings.isEmpty());
+  updateQualityWarnings(summary);
 }  // ExportView::updateQualityPanel
 
 void ExportView::compressionChanged() {

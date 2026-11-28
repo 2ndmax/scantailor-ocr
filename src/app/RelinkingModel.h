@@ -75,9 +75,10 @@ class RelinkingModel : public QAbstractItemModel {
    * Replaces \p prefix with \p replacement in all paths, taking effect at once.
    * A change that would merge different files into one is not applied:
    * false is returned and \p merge describes it.
-   * The paths are taken by value, as views may change the caller's strings while the model emits its signals.
+   * Takes \p prefix and \p replacement by const reference and copies them locally before emitting
+   * signals, because connected views may change the caller's strings while the model emits its signals.
    */
-  bool replacePrefix(QString prefix, QString replacement, RelinkablePath::Type type, Merge* merge);
+  bool replacePrefix(const QString& prefix, const QString& replacement, RelinkablePath::Type type, Merge* merge);
 
   bool hasOutputDir() const { return m_outputItem >= 0; }
 
@@ -158,6 +159,14 @@ class RelinkingModel : public QAbstractItemModel {
 
   /** Returns true if \p newPaths (one per item) would remap different original paths to the same one. */
   bool findMerge(const std::vector<QString>& newPaths, Merge* merge) const;
+
+  std::vector<QString> buildReplacedPaths(const QString& prefix,
+                                          const QString& replacement,
+                                          RelinkablePath::Type type) const;
+
+  void applyReplacedItemPaths(const std::vector<QString>& newPaths, std::set<int>& changedGroups);
+
+  void applyReplacedGroupPrefixes(const QString& prefix, const QString& replacement, std::set<int>& changedGroups);
 
   /** Gives the relinker the mappings of all items that have been relinked. */
   void updateRelinker();

@@ -245,6 +245,10 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   static void applySavedMainAreaViewState(ImageViewBase* view, const SavedMainAreaViewState& state);
 
+  void saveCurrentMainAreaViewState();
+
+  void showDebugImageTabs(QWidget* widget, DebugImages* debugImages);
+
   void scheduleSavedMainAreaViewStateRestore(const QPointer<ImageViewBase>& view);
 
   void setOptionsWidget(FilterOptionsWidget* widget, Ownership ownership) override;
@@ -277,6 +281,18 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   void showNewOpenProjectPanel();
 
   SavePromptResult promptProjectSave();
+
+  bool confirmCancelRunningExport();
+
+  bool promptAndSaveBeforeClose();
+
+  bool resolveDirtyProjectBeforeClose();
+
+  void applyFilterResult(const FilterResultPtr& result);
+
+  void advanceBatchProcessing();
+
+  void finishBatchProcessing();
 
   static bool compareFiles(const QString& fpath1, const QString& fpath2);
 
@@ -346,6 +362,12 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   void showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId& existing);
 
+  QString insertFileDialogDir(const ImageId& existing) const;
+
+  QStringList selectFilesToInsert(const ImageId& existing);
+
+  bool loadInsertImageFiles(const QStringList& files, std::vector<ImageFileInfo>* newFiles);
+
   void showRemovePagesDialog(const std::set<PageId>& pages);
 
   /** Returns the pages inserted, in order. */
@@ -372,6 +394,14 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
 
   /** Adds a new scan where the import mode says and saves the project. */
   void importScan(const ImageFileInfo& file);
+
+  void prepareScanInsertion(const ImageFileInfo& scan,
+                            ImageFileInfo* file,
+                            BeforeOrAfter* beforeOrAfter,
+                            ImageId* existing,
+                            std::vector<ImageId>* replacedImages);
+
+  void removeReplacedScanImages(const std::vector<ImageId>& replacedImages, const std::vector<PageInfo>& insertedPages);
 
   /** The user chose another mode in the "Automatic import" panel. */
   void importModeChanged(AutoImportPanel::Mode mode);

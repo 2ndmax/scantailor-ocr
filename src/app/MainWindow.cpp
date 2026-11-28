@@ -96,6 +96,58 @@
 
 using namespace core;
 
+namespace {
+
+// Filters out files already in project (issue #88: use normalized paths so
+// dialog and project paths compare correctly when project already has images).
+class InsertFileProxyModel : public QSortFilterProxyModel {
+ public:
+  explicit InsertFileProxyModel(QSet<QString> inProjectPaths) : m_inProjectPaths(std::move(inProjectPaths)) {
+    setDynamicSortFilter(true);
+  }
+
+ protected:
+  bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override {
+    const QModelIndex idx = sourceModel()->index(sourceRow, 0, sourceParent);
+    const QVariant data(idx.data(QFileSystemModel::FilePathRole));
+    if (data.isNull()) {
+      return true;
+    }
+    return !m_inProjectPaths.contains(auto_import_utils::imagePathKey(data.toString()));
+  }
+
+  bool lessThan(const QModelIndex& left, const QModelIndex& right) const override { return left.row() < right.row(); }
+
+ private:
+  QSet<QString> m_inProjectPaths;
+};
+
+void playBatchFinishedSound() {
+#if defined(Q_OS_UNIX)
+  QString extPlayCmd("play /usr/share/sounds/freedesktop/stereo/bell.oga");
+#else
+  QString extPlayCmd;
+#endif
+  // The command runs with the user's own rights, and only the user sets it, in the registry or the
+  // settings file (there is no field for it); whoever can change that can start programs anyway.
+  QSettings settings;
+  const QString cmd = settings.value("main_window/external_alarm_cmd", extPlayCmd).toString();
+  if (cmd.isEmpty()) {
+    QApplication::beep();
+    return;
+  }
+  // Note: started detached rather than through std::system(), which
+  // would block the GUI thread until the sound has finished playing
+  // and would pass the command through a shell.
+  // A command that doesn't start, e.g. "play" without SoX installed, would leave it silent.
+  const QStringList cmdParts = QProcess::splitCommand(cmd);
+  if (cmdParts.isEmpty() || !QProcess::startDetached(cmdParts.first(), cmdParts.mid(1))) {
+    QApplication::beep();
+  }
+}
+
+}  // namespace
+
 class MainWindow::PageSelectionProviderImpl : public PageSelectionProvider {
  public:
   explicit PageSelectionProviderImpl(MainWindow* wnd) : m_wnd(wnd) {}
@@ -758,6 +810,42 @@ void MainWindow::scheduleSavedMainAreaViewStateRestore(const QPointer<ImageViewB
   });
 }
 
+void MainWindow::saveCurrentMainAreaViewState() {
+  if (m_imageFrameLayout->count() <= 0) {
+    return;
+  }
+  QWidget* oldW = m_imageFrameLayout->widget(0);
+  ImageViewBase* const oldView = findPrimaryImageView(oldW);
+  if (!oldView) {
+    return;
+  }
+  m_savedMainAreaViewState.zoom = oldView->zoomLevel();
+  QScrollBar* const h = oldView->horizontalScrollBar();
+  QScrollBar* const v = oldView->verticalScrollBar();
+  const int hr = h->maximum() - h->minimum();
+  const int vr = v->maximum() - v->minimum();
+  if (hr > 0 && vr > 0) {
+    m_savedMainAreaViewState.hasScrollNorm = true;
+    m_savedMainAreaViewState.scrollNormX = double(h->value() - h->minimum()) / hr;
+    m_savedMainAreaViewState.scrollNormY = double(v->value() - v->minimum()) / vr;
+  } else {
+    m_savedMainAreaViewState.hasScrollNorm = false;
+  }
+}
+
+void MainWindow::showDebugImageTabs(QWidget* widget, DebugImages* debugImages) {
+  m_tabbedDebugImages->addTab(widget, "Main");
+  AutoRemovingFile file;
+  QString label;
+  while (!(file = debugImages->retrieveNext(&label)).get().isNull()) {
+    QWidget* view = new DebugImageView(std::move(file));
+    m_imageWidgetCleanup.add(view);
+    m_tabbedDebugImages->addTab(view, label);
+  }
+  m_tabbedDebugImages->show();
+  m_imageFrameLayout->addWidget(m_tabbedDebugImages.get());
+}
+
 void MainWindow::setImageWidget(QWidget* widget, const Ownership ownership, DebugImages* debugImages, bool overlay) {
   if ((isBatchProcessingInProgress() && (widget != m_batchProcessingWidget.get()))
       || (m_pdfStage && (widget != m_pdfView.get()))) {
@@ -767,25 +855,8 @@ void MainWindow::setImageWidget(QWidget* widget, const Ownership ownership, Debu
     return;
   }
 
-  if (!overlay && m_imageFrameLayout->count() > 0) {
-    QWidget* oldW = m_imageFrameLayout->widget(0);
-    if (ImageViewBase* oldView = findPrimaryImageView(oldW)) {
-      m_savedMainAreaViewState.zoom = oldView->zoomLevel();
-      QScrollBar* const h = oldView->horizontalScrollBar();
-      QScrollBar* const v = oldView->verticalScrollBar();
-      const int hr = h->maximum() - h->minimum();
-      const int vr = v->maximum() - v->minimum();
-      if (hr > 0 && vr > 0) {
-        m_savedMainAreaViewState.hasScrollNorm = true;
-        m_savedMainAreaViewState.scrollNormX = double(h->value() - h->minimum()) / hr;
-        m_savedMainAreaViewState.scrollNormY = double(v->value() - v->minimum()) / vr;
-      } else {
-        m_savedMainAreaViewState.hasScrollNorm = false;
-      }
-    }
-  }
-
   if (!overlay) {
+    saveCurrentMainAreaViewState();
     removeImageWidget();
   }
 
@@ -793,28 +864,20 @@ void MainWindow::setImageWidget(QWidget* widget, const Ownership ownership, Debu
     m_imageWidgetCleanup.add(widget);
   }
 
-  if (!debugImages || debugImages->empty()) {
-    if (widget != m_imageFrameLayout->currentWidget()) {
-      widget->show();
-      m_imageFrameLayout->addWidget(widget);
-      if (overlay) {
-        m_imageFrameLayout->setCurrentWidget(widget);
-      }
-      if (ImageViewBase* newView = findPrimaryImageView(widget)) {
-        scheduleSavedMainAreaViewStateRestore(QPointer<ImageViewBase>(newView));
-      }
+  if (debugImages && !debugImages->empty()) {
+    showDebugImageTabs(widget, debugImages);
+    return;
+  }
+
+  if (widget != m_imageFrameLayout->currentWidget()) {
+    widget->show();
+    m_imageFrameLayout->addWidget(widget);
+    if (overlay) {
+      m_imageFrameLayout->setCurrentWidget(widget);
     }
-  } else {
-    m_tabbedDebugImages->addTab(widget, "Main");
-    AutoRemovingFile file;
-    QString label;
-    while (!(file = debugImages->retrieveNext(&label)).get().isNull()) {
-      QWidget* view = new DebugImageView(std::move(file));
-      m_imageWidgetCleanup.add(view);
-      m_tabbedDebugImages->addTab(view, label);
+    if (ImageViewBase* newView = findPrimaryImageView(widget)) {
+      scheduleSavedMainAreaViewStateRestore(QPointer<ImageViewBase>(newView));
     }
-    m_tabbedDebugImages->show();
-    m_imageFrameLayout->addWidget(m_tabbedDebugImages.get());
   }
 }
 
@@ -1344,6 +1407,73 @@ void MainWindow::stopBatchProcessing(MainAreaAction mainArea) {
   importDeferredScans();
 }
 
+void MainWindow::applyFilterResult(const FilterResultPtr& result) {
+  if (!isBatchProcessingInProgress()) {
+    if (!result->filter()) {
+      // Error loading file. No special action is necessary.
+    } else if (result->filter() != m_stages->filterAt(m_curFilter)) {
+      // Error from one of the previous filters.
+      // Tasks of a closed project are cancelled before their result arrives, so the filter is one
+      // of the current stages; a stale one (-1) must not become the current filter.
+      const int idx = m_stages->findFilter(result->filter());
+      if (idx >= 0) {
+        m_curFilter = idx;
+
+        ScopedIncDec<int> selectionGuard(m_ignoreSelectionChanges);
+        filterList->selectRow(idx);
+      }
+    }
+  }
+
+  // This needs to be done even if batch processing is taking place,
+  // for instance because thumbnail invalidation is done from here.
+  result->updateUI(this);
+  m_filterUis->showResult(*result, this);
+
+  // Processing results carry changed page parameters, which should get
+  // auto-saved even if the user stays on the same page.
+  updateAutoSaveTimer();
+}
+
+void MainWindow::finishBatchProcessing() {
+  const bool returnToPdf = m_returnToPdfAfterBatch;
+  stopBatchProcessing();
+
+  QApplication::alert(this);  // Flash the taskbar entry.
+  if (m_checkBeepWhenFinished()) {
+    playBatchFinishedSound();
+  }
+
+  if (m_selectedPage.get(getCurrentView()) == m_thumbSequence->lastPage().id()) {
+    // If batch processing finished at the last page, jump to the first one.
+    goFirstPage();
+  }
+  if (returnToPdf) {
+    // Started from the Export step to output the missing pages.
+    filterList->selectRow(filterList->pdfRow());
+  }
+}
+
+void MainWindow::advanceBatchProcessing() {
+  if (m_batchQueue->allProcessed()) {
+    finishBatchProcessing();
+    return;
+  }
+
+  do {
+    const BackgroundTaskPtr nextTask(m_batchQueue->takeForProcessing());
+    if (!nextTask) {
+      break;
+    }
+    m_workerThreadPool->submitTask(nextTask);
+  } while (m_workerThreadPool->hasSpareCapacity());
+
+  const PageInfo page(m_batchQueue->selectedPage());
+  if (!page.isNull()) {
+    m_thumbSequence->setSelection(page.id());
+  }
+}
+
 void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultPtr& result) {
   // Cancelled or not, we must mark it as finished.
   m_interactiveQueue->processingFinished(task);
@@ -1371,86 +1501,11 @@ void MainWindow::filterResult(const BackgroundTaskPtr& task, const FilterResultP
   // A task that failed with an exception has no result to show (the error is reported already);
   // a batch goes on with the next pages below.
   if (result) {
-    if (!isBatchProcessingInProgress()) {
-      if (!result->filter()) {
-        // Error loading file. No special action is necessary.
-      } else if (result->filter() != m_stages->filterAt(m_curFilter)) {
-        // Error from one of the previous filters.
-        // Tasks of a closed project are cancelled before their result arrives, so the filter is one
-        // of the current stages; a stale one (-1) must not become the current filter.
-        const int idx = m_stages->findFilter(result->filter());
-        if (idx >= 0) {
-          m_curFilter = idx;
-
-          ScopedIncDec<int> selectionGuard(m_ignoreSelectionChanges);
-          filterList->selectRow(idx);
-        }
-      }
-    }
-
-    // This needs to be done even if batch processing is taking place,
-    // for instance because thumbnail invalidation is done from here.
-    result->updateUI(this);
-    m_filterUis->showResult(*result, this);
-
-    // Processing results carry changed page parameters, which should get
-    // auto-saved even if the user stays on the same page.
-    updateAutoSaveTimer();
+    applyFilterResult(result);
   }
 
   if (isBatchProcessingInProgress()) {
-    if (m_batchQueue->allProcessed()) {
-      const bool returnToPdf = m_returnToPdfAfterBatch;
-      stopBatchProcessing();
-
-      QApplication::alert(this);  // Flash the taskbar entry.
-      if (m_checkBeepWhenFinished()) {
-#if defined(Q_OS_UNIX)
-        QString extPlayCmd("play /usr/share/sounds/freedesktop/stereo/bell.oga");
-#else
-        QString extPlayCmd;
-#endif
-        // The command runs with the user's own rights, and only the user sets it, in the registry or the
-        // settings file (there is no field for it); whoever can change that can start programs anyway.
-        QSettings settings;
-        QString cmd = settings.value("main_window/external_alarm_cmd", extPlayCmd).toString();
-        if (cmd.isEmpty()) {
-          QApplication::beep();
-        } else {
-          // Note: started detached rather than through std::system(), which
-          // would block the GUI thread until the sound has finished playing
-          // and would pass the command through a shell.
-          // A command that doesn't start, e.g. "play" without SoX installed, would leave it silent.
-          const QStringList cmdParts = QProcess::splitCommand(cmd);
-          if (cmdParts.isEmpty() || !QProcess::startDetached(cmdParts.first(), cmdParts.mid(1))) {
-            QApplication::beep();
-          }
-        }
-      }
-
-      if (m_selectedPage.get(getCurrentView()) == m_thumbSequence->lastPage().id()) {
-        // If batch processing finished at the last page, jump to the first one.
-        goFirstPage();
-      }
-      if (returnToPdf) {
-        // Started from the Export step to output the missing pages.
-        filterList->selectRow(filterList->pdfRow());
-      }
-      return;
-    }
-
-    do {
-      const BackgroundTaskPtr nextTask(m_batchQueue->takeForProcessing());
-      if (!nextTask) {
-        break;
-      }
-      m_workerThreadPool->submitTask(nextTask);
-    } while (m_workerThreadPool->hasSpareCapacity());
-
-    const PageInfo page(m_batchQueue->selectedPage());
-    if (!page.isNull()) {
-      m_thumbSequence->setSelection(page.id());
-    }
+    advanceBatchProcessing();
   }
 }  // MainWindow::filterResult
 
@@ -2172,6 +2227,77 @@ void MainWindow::updateWindowTitle() {
   setWindowTitle(tr("%2 – ScanTailor OCR %3 [%1-bit]").arg(sizeof(void*) * 8).arg(projectName).arg(version));
 }
 
+bool MainWindow::confirmCancelRunningExport() {
+  if (!m_pdfView || !m_pdfView->isRunning()) {
+    return true;
+  }
+  const QMessageBox::StandardButton answer
+      = QMessageBox::question(this, tr("Export"), tr("An export is running. Do you want to cancel it?"),
+                              QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+  if (answer != QMessageBox::Yes) {
+    return false;
+  }
+  m_pdfView->cancelAndWait();
+  return true;
+}
+
+bool MainWindow::promptAndSaveBeforeClose() {
+  switch (promptProjectSave()) {
+    case SAVE:
+      return saveProjectTriggered();
+    case DONT_SAVE:
+      return true;
+    case CANCEL:
+      return false;
+  }
+  return false;
+}
+
+bool MainWindow::resolveDirtyProjectBeforeClose() {
+  if (m_projectFile.isEmpty()) {
+    return promptAndSaveBeforeClose();
+  }
+
+  const QFileInfo projectFile(m_projectFile);
+  const QFileInfo backupFile(projectFile.absoluteDir(), QString::fromLatin1("Backup.") + projectFile.fileName());
+  const QString backupFilePath(backupFile.absoluteFilePath());
+
+  const ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
+  if (!writer.write(backupFilePath, *m_stages)) {
+    // Backup file could not be written???
+    QFile::remove(backupFilePath);
+    return promptAndSaveBeforeClose();
+  }
+
+  if (compareFiles(m_projectFile, backupFilePath)) {
+    // The project hasn't really changed.
+    QFile::remove(backupFilePath);
+    return true;
+  }
+
+  switch (promptProjectSave()) {
+    case SAVE:
+      if (!CoreUtils::overwritingRename(backupFilePath, m_projectFile)) {
+        QFile::remove(backupFilePath);  // Otherwise it stays next to the project, and is written again at the next try.
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Unable to save the project file \"%1\". Check write permissions and available disk space.")
+                .arg(QDir::toNativeSeparators(m_projectFile)));
+        return false;
+      }
+      QFile::remove(backupFilePath);
+      return true;
+    case DONT_SAVE:
+      QFile::remove(backupFilePath);
+      return true;
+    case CANCEL:
+      // The project stays open; the backup would only be left next to it.
+      QFile::remove(backupFilePath);
+      return false;
+  }
+  return false;
+}
+
 /**
  * \brief Closes the currently project, prompting to save it if necessary.
  *
@@ -2196,94 +2322,8 @@ bool MainWindow::closeProjectInteractive(QString* closedProjectFile) {
     }
   });
 
-  if (m_pdfView && m_pdfView->isRunning()) {
-    const QMessageBox::StandardButton answer
-        = QMessageBox::question(this, tr("Export"), tr("An export is running. Do you want to cancel it?"),
-                                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    if (answer != QMessageBox::Yes) {
-      return false;
-    }
-    m_pdfView->cancelAndWait();
-  }
-
-  if (m_projectFile.isEmpty()) {
-    switch (promptProjectSave()) {
-      case SAVE:
-        if (!saveProjectTriggered()) {
-          // Not saved, so the project stays open.
-          return false;
-        }
-        break;
-      case DONT_SAVE:
-        break;
-      case CANCEL:
-        return false;
-    }
-    if (closedProjectFile != nullptr) {
-      *closedProjectFile = m_projectFile;
-    }
-    closed = true;
-    closeProjectWithoutSaving();
-    return true;
-  }
-
-  const QFileInfo projectFile(m_projectFile);
-  const QFileInfo backupFile(projectFile.absoluteDir(), QString::fromLatin1("Backup.") + projectFile.fileName());
-  const QString backupFilePath(backupFile.absoluteFilePath());
-
-  const ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
-  if (!writer.write(backupFilePath, *m_stages)) {
-    // Backup file could not be written???
-    QFile::remove(backupFilePath);
-    switch (promptProjectSave()) {
-      case SAVE:
-        if (!saveProjectTriggered()) {
-          // Not saved, so the project stays open.
-          return false;
-        }
-        break;
-      case DONT_SAVE:
-        break;
-      case CANCEL:
-        return false;
-    }
-    if (closedProjectFile != nullptr) {
-      *closedProjectFile = m_projectFile;
-    }
-    closed = true;
-    closeProjectWithoutSaving();
-    return true;
-  }
-
-  if (compareFiles(m_projectFile, backupFilePath)) {
-    // The project hasn't really changed.
-    QFile::remove(backupFilePath);
-    if (closedProjectFile != nullptr) {
-      *closedProjectFile = m_projectFile;
-    }
-    closed = true;
-    closeProjectWithoutSaving();
-    return true;
-  }
-
-  switch (promptProjectSave()) {
-    case SAVE:
-      if (!CoreUtils::overwritingRename(backupFilePath, m_projectFile)) {
-        QFile::remove(backupFilePath);  // Otherwise it stays next to the project, and is written again at the next try.
-        QMessageBox::warning(
-            this, tr("Error"),
-            tr("Unable to save the project file \"%1\". Check write permissions and available disk space.")
-                .arg(QDir::toNativeSeparators(m_projectFile)));
-        return false;
-      }
-      // fall through
-    case DONT_SAVE:
-      QFile::remove(backupFilePath);
-      break;
-    case CANCEL:
-      // The project stays open; the backup would only be left next to it.
-      QFile::remove(backupFilePath);
-      return false;
+  if (!confirmCancelRunningExport() || !resolveDirtyProjectBeforeClose()) {
+    return false;
   }
 
   if (closedProjectFile != nullptr) {
@@ -2311,65 +2351,31 @@ bool MainWindow::saveProjectWithFeedback(const QString& projectFile) {
   return true;
 }
 
-/**
- * Note: showInsertFileDialog(BEFORE, ImageId()) is legal and means inserting at the end.
- */
-void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId& existing) {
-  if (isBatchProcessingInProgress() || !isProjectLoaded()) {
-    return;
-  }
-  m_insertingFiles = true;
-  const auto insertGuard = qScopeGuard([this]() {
-    m_insertingFiles = false;
-    importDeferredScans();
-  });
-  // We need to filter out files already in project (issue #88: use normalized paths so
-  // dialog and project paths compare correctly when project already has images).
-  class ProxyModel : public QSortFilterProxyModel {
-   public:
-    explicit ProxyModel(QSet<QString> inProjectPaths) : m_inProjectPaths(std::move(inProjectPaths)) {
-      setDynamicSortFilter(true);
-    }
-
-   protected:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override {
-      const QModelIndex idx = sourceModel()->index(sourceRow, 0, sourceParent);
-      const QVariant data(idx.data(QFileSystemModel::FilePathRole));
-      if (data.isNull()) {
-        return true;
-      }
-      return !m_inProjectPaths.contains(imagePathKey(data.toString()));
-    }
-
-    bool lessThan(const QModelIndex& left, const QModelIndex& right) const override { return left.row() < right.row(); }
-
-   private:
-    QSet<QString> m_inProjectPaths;
-  };
-
-  QString dialogDir;
-  if (existing.isNull()) {
-    dialogDir = m_projectFile.isEmpty() ? QDir::homePath() : QFileInfo(m_projectFile).absolutePath();
-  } else {
-    dialogDir = QFileInfo(existing.filePath()).absolutePath();
-    if (dialogDir.isEmpty()) {
-      dialogDir = m_projectFile.isEmpty() ? QDir::homePath() : QFileInfo(m_projectFile).absolutePath();
+QString MainWindow::insertFileDialogDir(const ImageId& existing) const {
+  if (!existing.isNull()) {
+    const QString dir = QFileInfo(existing.filePath()).absolutePath();
+    if (!dir.isEmpty()) {
+      return dir;
     }
   }
-  auto dialog = std::make_unique<QFileDialog>(this, tr("Files to Insert"), dialogDir);
+  return m_projectFile.isEmpty() ? QDir::homePath() : QFileInfo(m_projectFile).absolutePath();
+}
+
+QStringList MainWindow::selectFilesToInsert(const ImageId& existing) {
+  auto dialog = std::make_unique<QFileDialog>(this, tr("Files to Insert"), insertFileDialogDir(existing));
   dialog->setFileMode(QFileDialog::ExistingFiles);
-  dialog->setProxyModel(new ProxyModel(projectImagePathKeys()));
+  dialog->setProxyModel(new InsertFileProxyModel(projectImagePathKeys()));
   dialog->setNameFilter(tr("Images not in project (%1)")
                             .arg("*.png *.tiff *.tif *.jpeg *.jpg *.jp2 *.j2k *.j2c *.jpc *.jpf *.jpx *.jph *.jhc"));
   // XXX: Adding individual pages from a multi-page TIFF where
   // some of the pages are already in project is not supported right now.
   if (dialog->exec() != QDialog::Accepted) {
-    return;
+    return {};
   }
 
   QStringList files(dialog->selectedFiles());
   if (files.empty()) {
-    return;
+    return {};
   }
 
   // The order of items returned by QFileDialog is platform-dependent,
@@ -2379,22 +2385,23 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
   // I suspect on some platforms it may be possible to select the same file twice,
   // so to be safe, remove duplicates.
   files.erase(std::unique(files.begin(), files.end()), files.end());
+  return files;
+}
 
-
-  std::vector<ImageFileInfo> newFiles;
+bool MainWindow::loadInsertImageFiles(const QStringList& files, std::vector<ImageFileInfo>* newFiles) {
   std::vector<QString> loadedFiles;
   std::vector<QString> failedFiles;  // Those we failed to read metadata from.
-  for (int i = 0; i < files.size(); ++i) {
-    const QFileInfo fileInfo(files[i]);
+  for (const QString& filePath : files) {
+    const QFileInfo fileInfo(filePath);
     ImageFileInfo imageFileInfo(fileInfo, std::vector<ImageMetadata>());
 
     ImageLoadErrorCapture errorCapture;
     const ImageMetadataLoader::Status status = ImageMetadataLoader::load(
-        files.at(i), [&](const ImageMetadata& metadata) { imageFileInfo.imageInfo().push_back(metadata); });
+        filePath, [&](const ImageMetadata& metadata) { imageFileInfo.imageInfo().push_back(metadata); });
 
     if (status == ImageMetadataLoader::LOADED) {
       imageFileInfo.setPartialReads(errorCapture.partialReads());
-      newFiles.push_back(imageFileInfo);
+      newFiles->push_back(imageFileInfo);
       loadedFiles.push_back(fileInfo.absoluteFilePath());
     } else {
       QString failedFile = fileInfo.absoluteFilePath();
@@ -2412,20 +2419,45 @@ void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId
     errDialog->setFailedFiles(failedFiles);
     errDialog->setOkButtonName(QString(" %1 ").arg(tr("Skip failed files")));
     if ((errDialog->exec() != QDialog::Accepted) || loadedFiles.empty()) {
-      return;
+      return false;
     }
   }
 
   // Check if there is at least one DPI that's not OK.
-  if (std::find_if(newFiles.begin(), newFiles.end(), [&](const ImageFileInfo& p) -> bool { return !p.isDpiOK(); })
-      != newFiles.end()) {
-    auto dpiDialog = std::make_unique<FixDpiDialog>(newFiles, this);
+  if (std::find_if(newFiles->begin(), newFiles->end(), [](const ImageFileInfo& p) { return !p.isDpiOK(); })
+      != newFiles->end()) {
+    auto dpiDialog = std::make_unique<FixDpiDialog>(*newFiles, this);
     dpiDialog->setWindowModality(Qt::WindowModal);
     if (dpiDialog->exec() != QDialog::Accepted) {
-      return;
+      return false;
     }
 
-    newFiles = dpiDialog->files();
+    *newFiles = dpiDialog->files();
+  }
+  return true;
+}
+
+/**
+ * Note: showInsertFileDialog(BEFORE, ImageId()) is legal and means inserting at the end.
+ */
+void MainWindow::showInsertFileDialog(BeforeOrAfter beforeOrAfter, const ImageId& existing) {
+  if (isBatchProcessingInProgress() || !isProjectLoaded()) {
+    return;
+  }
+  m_insertingFiles = true;
+  const auto insertGuard = qScopeGuard([this]() {
+    m_insertingFiles = false;
+    importDeferredScans();
+  });
+
+  const QStringList files = selectFilesToInsert(existing);
+  if (files.isEmpty()) {
+    return;
+  }
+
+  std::vector<ImageFileInfo> newFiles;
+  if (!loadInsertImageFiles(files, &newFiles)) {
+    return;
   }
 
   // Actually insert the new pages, in the order of the file names.
@@ -2754,6 +2786,77 @@ void MainWindow::scanReady(const ImageFileInfo& file) {
   importDeferredScans();
 }
 
+void MainWindow::prepareScanInsertion(const ImageFileInfo& scan,
+                                      ImageFileInfo* file,
+                                      BeforeOrAfter* beforeOrAfter,
+                                      ImageId* existing,
+                                      std::vector<ImageId>* replacedImages) {
+  if (m_importMode == AutoImportPanel::INSERT_AFTER) {
+    if (!isImageInProject(m_insertAnchor.anchorFile()) || !isImageInProject(m_insertAnchor.insertAfterFile())) {
+      // The page to insert after is gone: add at the end, as the panel shows then.
+      resetImportMode();
+    } else {
+      // Named after the anchor, so it is sorted after it in the folder, too.
+      *file
+          = renameScan(scan, scan_insertion::prefixedFileName(m_insertAnchor.anchorFile(), scan.fileInfo().fileName()));
+      *beforeOrAfter = AFTER;
+      *existing = ImageId(m_insertAnchor.insertAfterFile());
+    }
+    return;
+  }
+
+  if (m_importMode == AutoImportPanel::REPLACE) {
+    bool contiguous = false;
+    const std::vector<ImageId> selected = imagesToReplace(&contiguous);
+    if (!contiguous) {
+      showImportWarning(tr("Only pages next to each other can be replaced together. The new scan %1 is added at "
+                           "the end.")
+                            .arg(scan.fileInfo().fileName()));
+    } else if (!selected.empty()) {
+      *replacedImages = selected;
+      // In place of the first of them and named after it.
+      *file
+          = renameScan(scan, scan_insertion::prefixedFileName(selected.front().filePath(), scan.fileInfo().fileName()));
+      *existing = selected.front();  // Inserted before it, then they are removed.
+    }
+    // Only the next scan replaces pages; see below for what follows.
+    resetImportMode();
+  }
+}
+
+void MainWindow::removeReplacedScanImages(const std::vector<ImageId>& replacedImages,
+                                          const std::vector<PageInfo>& insertedPages) {
+  const std::set<ImageId> replaced(replacedImages.begin(), replacedImages.end());
+  std::set<PageId> replacedPages;
+  for (const PageInfo& page : m_pages->toPageSequence(getCurrentView())) {
+    if (replaced.count(page.imageId()) != 0) {
+      replacedPages.insert(page.id());
+    }
+  }
+  // Their settings go with them, and so do their output files: the new scan has another name.
+  removeFromProject(replacedPages);
+  eraseOutputFiles(replacedPages);
+  eraseInputThumbnails(replacedPages);
+  // A file is moved away only once none of its pages is in the project: of a multi-page file,
+  // the other pages stay.
+  std::set<QString> replacedFiles;
+  for (const ImageId& image : replacedImages) {
+    replacedFiles.insert(image.filePath());
+  }
+  for (const QString& replacedFile : replacedFiles) {
+    if (!isImageInProject(replacedFile)) {
+      moveReplacedImage(replacedFile);
+    }
+  }
+
+  // Further scans usually belong right after the replaced page: insert them after the new scan.
+  if (!insertedPages.empty()) {
+    m_importMode = AutoImportPanel::INSERT_AFTER;
+    m_insertAnchor.start(insertedPages.front().imageId().filePath());
+    m_autoImportPanel->setMode(m_importMode);
+  }
+}
+
 void MainWindow::importScan(const ImageFileInfo& scan) {
   // It may have been inserted by hand in the meantime.
   if (isImageInProject(scan.fileInfo().absoluteFilePath())) {
@@ -2765,38 +2868,9 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
   ImageFileInfo file(scan);
   BeforeOrAfter beforeOrAfter = BEFORE;
   ImageId existing;  // Null with BEFORE: at the end.
-  if (m_importMode == AutoImportPanel::INSERT_AFTER) {
-    if (!isImageInProject(m_insertAnchor.anchorFile()) || !isImageInProject(m_insertAnchor.insertAfterFile())) {
-      // The page to insert after is gone: add at the end, as the panel shows then.
-      resetImportMode();
-    } else {
-      // Named after the anchor, so it is sorted after it in the folder, too.
-      file
-          = renameScan(scan, scan_insertion::prefixedFileName(m_insertAnchor.anchorFile(), scan.fileInfo().fileName()));
-      beforeOrAfter = AFTER;
-      existing = ImageId(m_insertAnchor.insertAfterFile());
-    }
-  }
-
   // The whole images of the selected pages are replaced, both pages of a two-page scan.
   std::vector<ImageId> replacedImages;
-  if (m_importMode == AutoImportPanel::REPLACE) {
-    bool contiguous = false;
-    const std::vector<ImageId> selected = imagesToReplace(&contiguous);
-    if (!contiguous) {
-      showImportWarning(tr("Only pages next to each other can be replaced together. The new scan %1 is added at "
-                           "the end.")
-                            .arg(scan.fileInfo().fileName()));
-    } else if (!selected.empty()) {
-      replacedImages = selected;
-      // In place of the first of them and named after it.
-      file
-          = renameScan(scan, scan_insertion::prefixedFileName(selected.front().filePath(), scan.fileInfo().fileName()));
-      existing = selected.front();  // Inserted before it, then they are removed.
-    }
-    // Only the next scan replaces pages; see below for what follows.
-    resetImportMode();
-  }
+  prepareScanInsertion(scan, &file, &beforeOrAfter, &existing, &replacedImages);
 
   const std::vector<PageInfo> pages = insertImageFile(file, beforeOrAfter, existing);
   if (!pages.empty()) {
@@ -2804,35 +2878,7 @@ void MainWindow::importScan(const ImageFileInfo& scan) {
   }
 
   if (!replacedImages.empty()) {
-    const std::set<ImageId> replaced(replacedImages.begin(), replacedImages.end());
-    std::set<PageId> replacedPages;
-    for (const PageInfo& page : m_pages->toPageSequence(getCurrentView())) {
-      if (replaced.count(page.imageId()) != 0) {
-        replacedPages.insert(page.id());
-      }
-    }
-    // Their settings go with them, and so do their output files: the new scan has another name.
-    removeFromProject(replacedPages);
-    eraseOutputFiles(replacedPages);
-    eraseInputThumbnails(replacedPages);
-    // A file is moved away only once none of its pages is in the project: of a multi-page file,
-    // the other pages stay.
-    std::set<QString> replacedFiles;
-    for (const ImageId& image : replacedImages) {
-      replacedFiles.insert(image.filePath());
-    }
-    for (const QString& replacedFile : replacedFiles) {
-      if (!isImageInProject(replacedFile)) {
-        moveReplacedImage(replacedFile);
-      }
-    }
-
-    // Further scans usually belong right after the replaced page: insert them after the new scan.
-    if (!pages.empty()) {
-      m_importMode = AutoImportPanel::INSERT_AFTER;
-      m_insertAnchor.start(pages.front().imageId().filePath());
-      m_autoImportPanel->setMode(m_importMode);
-    }
+    removeReplacedScanImages(replacedImages, pages);
   }
   if (!pages.empty() && !m_pdfStage && (m_curFilter == m_stages->fixOrientationFilterIdx())) {
     goToPage(pages.front().id());
