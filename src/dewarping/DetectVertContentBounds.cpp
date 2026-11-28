@@ -10,6 +10,7 @@
 #include <QPainter>
 #include <QRandomGenerator>
 #include <cstdint>
+#include <deque>
 
 #include "DebugImages.h"
 #include "VecNT.h"

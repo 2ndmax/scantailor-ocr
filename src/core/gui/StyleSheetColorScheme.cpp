@@ -4,16 +4,14 @@
 #include "StyleSheetColorScheme.h"
 
 #include <QFile>
+#include <QRegularExpression>
 #include <QStyle>
 #include <QStyleFactory>
 #include <algorithm>
 #include <cmath>
 
 #include "ApplicationSettings.h"
-#include "CoreUtils.h"
 #include "FocusFrameStyle.h"
-
-using namespace core;
 
 namespace {
 /** The relative luminance of a color, as WCAG 2 defines it for contrast. */
@@ -29,6 +27,26 @@ double contrastRatio(const QColor& first, const QColor& second) {
   const double a = relativeLuminance(first);
   const double b = relativeLuminance(second);
   return (std::max(a, b) + 0.05) / (std::min(a, b) + 0.05);
+}
+
+QString qssConvertPxToEm(const QString& stylesheet, const double base, const int precision) {
+  QString result;
+  const QRegularExpression pxToEm(R"((\d+(\.\d+)?)px)");
+
+  QRegularExpressionMatchIterator iter = pxToEm.globalMatch(stylesheet);
+  int prevIndex = 0;
+  while (iter.hasNext()) {
+    const QRegularExpressionMatch match = iter.next();
+    result.append(stylesheet.mid(prevIndex, match.capturedStart() - prevIndex));
+
+    double value = match.captured(1).toDouble();
+    value /= base;
+    result.append(QString::number(value, 'f', precision)).append(QLatin1String("em"));
+
+    prevIndex = match.capturedEnd();
+  }
+  result.append(stylesheet.mid(prevIndex));
+  return result;
 }
 }  // namespace
 
@@ -181,9 +199,9 @@ void StyleSheetColorScheme::loadStyleSheet(const QString& path, const Colors& co
   m_styleSheet.append(sharedComponentRules({}, {}, colors.bar.name(), colors.border.name(), true));
 
 #ifdef _WIN32
-  m_styleSheet = CoreUtils::qssConvertPxToEm(m_styleSheet, 13, 4);
+  m_styleSheet = qssConvertPxToEm(m_styleSheet, 13, 4);
 #else
-  m_styleSheet = CoreUtils::qssConvertPxToEm(m_styleSheet, 16, 4);
+  m_styleSheet = qssConvertPxToEm(m_styleSheet, 16, 4);
 #endif
 }
 

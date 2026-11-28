@@ -5,7 +5,6 @@
 #define SCANTAILOR_IMAGEPROC_DEBUGIMAGES_H_
 
 #include <QString>
-#include <deque>
 #include <functional>
 
 #include "AutoRemovingFile.h"
@@ -19,6 +18,9 @@ class BinaryImage;
 
 /**
  * \brief A sequence of image + label pairs.
+ *
+ * Kept in imageproc so lower layers (dewarping, core_base) can emit optional
+ * debug views without depending on QtWidgets; QWidget* remains opaque here.
  */
 class DebugImages {
  public:

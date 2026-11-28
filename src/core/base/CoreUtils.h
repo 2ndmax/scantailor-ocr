@@ -6,9 +6,10 @@
 
 #include <QString>
 #include <map>
+#include <memory>
 #include <unordered_map>
 
-#include "ThumbnailPixmapCache.h"
+class ThumbnailPixmapCache;
 
 namespace core {
 class CoreUtils {
@@ -39,8 +40,6 @@ class CoreUtils {
    * On Windows, it also works with paths longer than 260 characters.
    */
   static bool overwritingRename(const QString& from, const QString& to);
-
-  static QString qssConvertPxToEm(const QString& stylesheet, double base, int precise);
 
   /// A resolution as shown in the lists of resolutions, e.g. "300 dpi".
   static QString dpiText(int dpi);

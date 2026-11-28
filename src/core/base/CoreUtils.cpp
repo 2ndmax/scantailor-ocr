@@ -8,6 +8,7 @@
 #include <QRegularExpression>
 
 #include "ApplicationSettings.h"
+#include "ThumbnailPixmapCache.h"
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -75,26 +76,6 @@ std::shared_ptr<ThumbnailPixmapCache> CoreUtils::createThumbnailCache(const QStr
   const QSize maxPixmapSize = ApplicationSettings::getInstance().getThumbnailQuality();
   const QString thumbsCachePath(outputDirToThumbDir(outputDir));
   return std::make_shared<ThumbnailPixmapCache>(thumbsCachePath, maxPixmapSize, 40, 5);
-}
-
-QString CoreUtils::qssConvertPxToEm(const QString& stylesheet, const double base, const int precision) {
-  QString result = "";
-  const QRegularExpression pxToEm(R"((\d+(\.\d+)?)px)");
-
-  QRegularExpressionMatchIterator iter = pxToEm.globalMatch(stylesheet);
-  int prevIndex = 0;
-  while (iter.hasNext()) {
-    QRegularExpressionMatch match = iter.next();
-    result.append(stylesheet.mid(prevIndex, match.capturedStart() - prevIndex));
-
-    double value = match.captured(1).toDouble();
-    value /= base;
-    result.append(QString::number(value, 'f', precision)).append("em");
-
-    prevIndex = match.capturedEnd();
-  }
-  result.append(stylesheet.mid(prevIndex));
-  return result;
 }
 
 QString CoreUtils::dpiText(const int dpi) {
