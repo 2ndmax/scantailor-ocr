@@ -99,4 +99,45 @@ BOOST_AUTO_TEST_CASE(callback_tells_a_skipped_page) {
   BOOST_CHECK(skipped[1] == pages[1].id());
 }
 
+BOOST_AUTO_TEST_CASE(failed_and_cancelled_pages_update_counters) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const ProjectSession session = createProject(dir, 3);
+  session.stages->processAll(nullptr, session.outFileNameGen, session.stages->pageLayoutFilterIdx());
+
+  std::vector<PageInfo> pages;
+  for (const PageInfo& page : session.pages->toPageSequence(PAGE_VIEW)) {
+    pages.push_back(page);
+  }
+  const std::shared_ptr<CompositeCacheDrivenTask> geometryTask(
+      session.stages->createCacheDrivenTask(session.stages->outputFilterIdx(), session.outFileNameGen));
+  const NullTaskStatus status;
+
+  // Corrupt the first image so detectColorMode fails on it -> PageResult::FAILED.
+  {
+    QFile broken(pages[0].imageId().filePath());
+    BOOST_REQUIRE(broken.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    broken.write("broken");
+  }
+  std::vector<output::ColorModeDetection::PageResult::Status> statuses;
+  const output::ColorModeDetection::Result failedRes = output::ColorModeDetection::run(
+      session.stages->outputFilter(), pages, geometryTask, status, {},
+      [&](const PageInfo&, const output::ColorModeDetection::PageResult& pr) { statuses.push_back(pr.status); });
+  BOOST_CHECK(!failedRes.cancelled);
+  BOOST_CHECK_EQUAL(failedRes.failed, 1);
+  BOOST_REQUIRE_EQUAL(statuses.size(), pages.size());
+  BOOST_CHECK(statuses[0] == output::ColorModeDetection::PageResult::FAILED);
+
+  // Cancel immediately after the first page -> cancelled flag set and remaining pages skipped.
+  int progressCalls = 0;
+  const output::ColorModeDetection::Result cancelRes = output::ColorModeDetection::run(
+      session.stages->outputFilter(), pages, geometryTask, status, [&](const int done) {
+        ++progressCalls;
+        return done < 1;
+      });
+  BOOST_CHECK(cancelRes.cancelled);
+  BOOST_CHECK_EQUAL(progressCalls, 2);
+  BOOST_CHECK_EQUAL(cancelRes.detected.size() + cancelRes.failed, size_t(1));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -314,4 +314,65 @@ BOOST_AUTO_TEST_CASE(book_rule_ignores_invalid_angles_and_zero_sizes) {
   BOOST_CHECK_EQUAL(res.back().source, OrientationDetection::BookDecision::UNDECIDED);
 }
 
+BOOST_AUTO_TEST_CASE(book_rule_empty_and_boundary_inputs) {
+  BOOST_CHECK(OrientationDetection::applyBookRule({}).empty());
+
+  // Fewer than 5 votes for the best angle (4 vs 2): book rotation does not trigger.
+  std::vector<OrientationDetection::Detection> belowMin{
+      makeDet(true, 0, 100, 200),  makeDet(true, 0, 100, 200),   makeDet(true, 0, 100, 200),
+      makeDet(true, 0, 100, 200),  makeDet(true, 180, 100, 200), makeDet(true, 180, 100, 200),
+      makeDet(false, 0, 100, 200),
+  };
+  const auto resBelow = OrientationDetection::applyBookRule(belowMin);
+  BOOST_REQUIRE_EQUAL(resBelow.size(), belowMin.size());
+  BOOST_CHECK(!resBelow.back().decided);
+
+  // 6 votes for 0° and 4 votes for 180° (votes[0] >= 5 and exact 60% majority) -> decides matching-size undecided page.
+  std::vector<OrientationDetection::Detection> boundary{
+      makeDet(true, 0, 100, 200),   makeDet(true, 0, 100, 200),   makeDet(true, 0, 100, 200),
+      makeDet(true, 0, 100, 200),   makeDet(true, 0, 100, 200),   makeDet(true, 0, 100, 200),
+      makeDet(true, 180, 100, 200), makeDet(true, 180, 100, 200), makeDet(true, 180, 100, 200),
+      makeDet(true, 180, 100, 200), makeDet(false, 0, 100, 200),
+  };
+  const auto res = OrientationDetection::applyBookRule(boundary);
+  BOOST_REQUIRE_EQUAL(res.size(), boundary.size());
+  BOOST_CHECK(res.back().decided);
+  BOOST_CHECK_EQUAL(res.back().angle, 0);
+  BOOST_CHECK_EQUAL(res.back().source, OrientationDetection::BookDecision::BOOK_RULE);
+}
+
+BOOST_AUTO_TEST_CASE(summary_covers_cancelled_book_rule_failed_and_split_selection) {
+  OrientationDetection::Result cancelledRes;
+  cancelledRes.cancelled = true;
+  const QString cancelledMsg
+      = OrientationDetection::summary(cancelledRes, {}, false, [](const PageId& p) { return p.imageId().filePath(); });
+  BOOST_CHECK(cancelledMsg.contains(QStringLiteral("canceled"), Qt::CaseInsensitive));
+
+  OrientationDetection::Result result;
+  const ImageId imgDetected(QStringLiteral("d.png"));
+  const ImageId imgBook(QStringLiteral("b.png"));
+  const ImageId imgFailed(QStringLiteral("f.png"));
+  result.results.push_back(
+      {PageId(imgDetected, PageId::SINGLE_PAGE), {OrientationDetection::PageResult::DETECTED, 90}});
+  result.results.push_back({PageId(imgBook, PageId::SINGLE_PAGE), {OrientationDetection::PageResult::BOOK_RULE, 90}});
+  result.results.push_back({PageId(imgFailed, PageId::SINGLE_PAGE), {OrientationDetection::PageResult::FAILED, 0}});
+  result.detected = 1;
+  result.bookRule = 1;
+  result.changed = 1;
+  result.failed = 1;
+
+  // Selecting both halves of a split image still counts that image only once.
+  const std::set<PageId> selection{
+      PageId(imgDetected, PageId::LEFT_PAGE),
+      PageId(imgDetected, PageId::RIGHT_PAGE),
+      PageId(imgBook, PageId::SINGLE_PAGE),
+      PageId(imgFailed, PageId::SINGLE_PAGE),
+  };
+  const QString text = OrientationDetection::summary(result, selection, true,
+                                                     [](const PageId& page) { return page.imageId().filePath(); });
+  BOOST_CHECK_MESSAGE(text.contains(QStringLiteral("2 page(s): 1 rotated, 1 already correct")), text.toStdString());
+  BOOST_CHECK_MESSAGE(text.contains(QStringLiteral("Of these, 1 like their neighbors")), text.toStdString());
+  BOOST_CHECK_MESSAGE(text.contains(QStringLiteral("could not be read: f.png")), text.toStdString());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

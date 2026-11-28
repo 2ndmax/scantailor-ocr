@@ -197,4 +197,14 @@ BOOST_AUTO_TEST_CASE(narrow_high_dpi_image_does_not_crash) {
   BOOST_CHECK(!result.decided);
 }
 
+BOOST_AUTO_TEST_CASE(non_rgb32_formats_detect_orientation) {
+  const QImage base = Tests::makeTextPage(90, 300);
+  for (const QImage::Format fmt : {QImage::Format_RGB888, QImage::Format_Indexed8}) {
+    const QImage converted = base.convertToFormat(fmt);
+    const auto result = OrientationDetector::detect(converted, 300);
+    BOOST_CHECK(result.decided);
+    BOOST_CHECK_EQUAL(result.angle, 270);
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

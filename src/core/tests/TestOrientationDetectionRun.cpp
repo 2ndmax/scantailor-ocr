@@ -4,6 +4,7 @@
 #include <filters/fix_orientation/OrientationDetection.h>
 #include <filters/fix_orientation/Settings.h>
 
+#include <BackgroundTask.h>
 #include <CompositeCacheDrivenTask.h>
 #include <DefaultParams.h>
 #include <ImageFileInfo.h>
@@ -228,6 +229,37 @@ BOOST_AUTO_TEST_CASE(selected_page_half_sets_its_image) {
   const auto result = fix_orientation::OrientationDetection::run(settings, pages, selection, false, status);
   BOOST_CHECK_EQUAL(result.detected, 1);
   BOOST_CHECK_EQUAL(settings->getRotationFor(pages[0].imageId()).toDegrees(), 270);
+  BOOST_CHECK_EQUAL(settings->getRotationFor(pages[1].imageId()).toDegrees(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(cancelled_task_status_aborts_run) {
+  struct CancelledStatus : public TaskStatus {
+    void cancel() override {}
+    bool isCancelled() const override { return true; }
+    void throwIfCancelled() const override { throw BackgroundTask::CancelledException(); }
+  };
+
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  ProjectSession session = createProject(dir, 2, 90);
+  const std::vector<PageInfo> pages = pageList(session);
+  const auto settings = session.stages->fixOrientationFilter()->settings();
+  std::set<PageId> selection;
+  for (const auto& p : pages) {
+    selection.insert(p.id());
+  }
+
+  const CancelledStatus cancelled;
+  BOOST_CHECK_THROW(fix_orientation::OrientationDetection::run(settings, pages, selection, false, cancelled),
+                    BackgroundTask::CancelledException);
+  BOOST_CHECK_EQUAL(settings->getRotationFor(pages[0].imageId()).toDegrees(), 0);
+  BOOST_CHECK_EQUAL(settings->getRotationFor(pages[1].imageId()).toDegrees(), 0);
+
+  const NullTaskStatus status;
+  const auto result = fix_orientation::OrientationDetection::run(settings, pages, selection, false, status,
+                                                                 [](int done) { return done == 0; });
+  BOOST_CHECK(result.cancelled);
+  BOOST_CHECK_EQUAL(settings->getRotationFor(pages[0].imageId()).toDegrees(), 0);
   BOOST_CHECK_EQUAL(settings->getRotationFor(pages[1].imageId()).toDegrees(), 0);
 }
 

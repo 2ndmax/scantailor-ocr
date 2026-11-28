@@ -12,10 +12,14 @@
 #include <iterator>
 
 #include "FuzzSetup.h"
+#include "ZoneSet.h"
 #include "filters/deskew/Dependencies.h"
 #include "filters/deskew/Params.h"
+#include "filters/fix_orientation/FixOrientationParams.h"
 #include "filters/output/OutputParams.h"
+#include "filters/output/OutputProcessingParams.h"
 #include "filters/output/Params.h"
+#include "filters/output/PictureZonePropFactory.h"
 #include "filters/page_layout/Guide.h"
 #include "filters/page_layout/Params.h"
 #include "filters/page_split/Dependencies.h"
@@ -31,18 +35,29 @@ void readWriteRead(const QDomElement& el) {
   (void) T(doc.documentElement());
 }
 
+void readWriteReadZones(const QDomElement& el) {
+  const output::PictureZonePropFactory propFactory;
+  const ZoneSet zones(el, propFactory);
+  QDomDocument doc;
+  doc.appendChild(zones.toXml(doc, "zones"));
+  (void) ZoneSet(doc.documentElement(), propFactory);
+}
+
 // The order is the class number of the seeds; append new classes at the end.
 const std::function<void(const QDomElement&)> readers[] = {
-    readWriteRead<deskew::Params>,                // 0
-    readWriteRead<deskew::Dependencies>,          // 1
-    readWriteRead<page_split::Params>,            // 2
-    readWriteRead<page_split::Dependencies>,      // 3
-    readWriteRead<select_content::Params>,        // 4
-    readWriteRead<select_content::Dependencies>,  // 5
-    readWriteRead<page_layout::Params>,           // 6
-    readWriteRead<page_layout::Guide>,            // 7
-    readWriteRead<output::Params>,                // 8
-    readWriteRead<output::OutputParams>,          // 9
+    readWriteRead<deskew::Params>,                         // 0
+    readWriteRead<deskew::Dependencies>,                   // 1
+    readWriteRead<page_split::Params>,                     // 2
+    readWriteRead<page_split::Dependencies>,               // 3
+    readWriteRead<select_content::Params>,                 // 4
+    readWriteRead<select_content::Dependencies>,           // 5
+    readWriteRead<page_layout::Params>,                    // 6
+    readWriteRead<page_layout::Guide>,                     // 7
+    readWriteRead<output::Params>,                         // 8
+    readWriteRead<output::OutputParams>,                   // 9
+    readWriteRead<fix_orientation::FixOrientationParams>,  // 10
+    readWriteRead<output::OutputProcessingParams>,         // 11
+    readWriteReadZones,                                    // 12
 };
 }  // namespace
 

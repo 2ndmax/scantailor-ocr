@@ -1,6 +1,7 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <ImageId.h>
 #include <ImageLoadErrors.h>
 #include <ImageLoader.h>
 #include <ImageMetadata.h>
@@ -1679,6 +1680,29 @@ BOOST_AUTO_TEST_CASE(test_png_huge_phys_resolution_is_ignored) {
   BOOST_CHECK(pages[0].size() == QSize(8, 8));
   BOOST_CHECK_EQUAL(pages[0].dpi().horizontal(), 0);
   BOOST_CHECK_EQUAL(pages[0].dpi().vertical(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(test_load_for_thumbnail_jpeg_exif_6_and_8_and_nonzero_page_on_non_tiff) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+
+  for (const int orientation : {6, 8}) {
+    const QString jpgPath = dir.filePath(QStringLiteral("exif_%1.jpg").arg(orientation));
+    writeGrayJpeg(jpgPath, 400, 200, 300, 300, false, orientation);
+    const QImage thumb = ImageLoader::loadForThumbnail(ImageId(jpgPath), QSize(100, 100));
+    BOOST_REQUIRE(!thumb.isNull());
+    // Both EXIF 6 and 8 rotate a 400x200 landscape scan into upright portrait orientation.
+    BOOST_CHECK_GT(thumb.height(), thumb.width());
+    BOOST_CHECK_LT(thumb.width(), 200);
+    BOOST_CHECK_LT(thumb.height(), 400);
+    BOOST_CHECK(ImageLoader::load(jpgPath, 1).isNull());
+  }
+
+  const QString pngPath = dir.filePath(QStringLiteral("single.png"));
+  QImage img(16, 16, QImage::Format_RGB32);
+  img.fill(Qt::white);
+  BOOST_REQUIRE(img.save(pngPath, "PNG"));
+  BOOST_CHECK(ImageLoader::load(pngPath, 1).isNull());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

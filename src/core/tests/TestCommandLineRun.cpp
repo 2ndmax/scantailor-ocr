@@ -2874,4 +2874,184 @@ BOOST_AUTO_TEST_CASE(test_report_file_validation_rejects_empty_and_reserved) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_parse_last_step_all_values_and_invalid) {
+  const struct {
+    const char* name;
+    CommandLineRun::Options::LastStep expected;
+  } valid[] = {
+      {"fix-orientation", CommandLineRun::Options::FIX_ORIENTATION},
+      {"split-pages", CommandLineRun::Options::SPLIT_PAGES},
+      {"deskew", CommandLineRun::Options::DESKEW},
+      {"select-content", CommandLineRun::Options::SELECT_CONTENT},
+      {"margins", CommandLineRun::Options::MARGINS},
+      {"output", CommandLineRun::Options::OUTPUT},
+      {"export", CommandLineRun::Options::EXPORT},
+  };
+  for (const auto& entry : valid) {
+    CommandLineRun::Options::LastStep parsed = CommandLineRun::Options::OUTPUT;
+    BOOST_CHECK(CommandLineRun::Options::parseLastStep(QString::fromLatin1(entry.name), &parsed));
+    BOOST_CHECK_EQUAL(static_cast<int>(parsed), static_cast<int>(entry.expected));
+  }
+  for (const char* bad : {"", "OUTPUT", "unknown", "margins "}) {
+    CommandLineRun::Options::LastStep parsed = CommandLineRun::Options::OUTPUT;
+    BOOST_CHECK(!CommandLineRun::Options::parseLastStep(QString::fromLatin1(bad), &parsed));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_usage_error_option_combinations) {
+  QTemporaryDir dir;
+  BOOST_REQUIRE(dir.isValid());
+  const QString inputDir = dir.filePath("in");
+  BOOST_REQUIRE(QDir().mkpath(inputDir));
+  BOOST_REQUIRE(!Tests::saveTextPageScan(inputDir + QStringLiteral("/p1.png"), 300).imageInfo().empty());
+
+  auto runWith = [](const CommandLineRun::Options& opts) {
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    return std::make_pair(CommandLineRun::run(opts, outStream, errStream, std::atomic<bool>(false)), err);
+  };
+
+  // --dpi and --dpi-fix together -> USAGE_ERROR.
+  {
+    CommandLineRun::Options opts;
+    opts.inputFolder = inputDir;
+    opts.outputFolder = dir.filePath("out1");
+    opts.projectFile = dir.filePath("p1.ScanTailor");
+    opts.dpi = Dpi(300, 300);
+    opts.dpiFix = Dpi(300, 300);
+    const auto [code, err] = runWith(opts);
+    BOOST_CHECK_EQUAL(code, CommandLineRun::USAGE_ERROR);
+    BOOST_CHECK(!err.isEmpty());
+  }
+
+  // --color-mode-detect with --last-step earlier than margins -> USAGE_ERROR.
+  {
+    CommandLineRun::Options opts;
+    opts.inputFolder = inputDir;
+    opts.outputFolder = dir.filePath("out2");
+    opts.projectFile = dir.filePath("p2.ScanTailor");
+    opts.colorModeDetect = true;
+    opts.lastStep = CommandLineRun::Options::SELECT_CONTENT;
+    const auto [code, err] = runWith(opts);
+    BOOST_CHECK_EQUAL(code, CommandLineRun::USAGE_ERROR);
+    BOOST_CHECK(!err.isEmpty());
+  }
+
+  // --threads 0 -> USAGE_ERROR.
+  {
+    CommandLineRun::Options opts;
+    opts.inputFolder = inputDir;
+    opts.outputFolder = dir.filePath("out_threads");
+    opts.projectFile = dir.filePath("p3_threads.ScanTailor");
+    opts.threads = 0;
+    const auto [code, err] = runWith(opts);
+    BOOST_CHECK_EQUAL(code, CommandLineRun::USAGE_ERROR);
+    BOOST_CHECK(!err.isEmpty());
+  }
+
+  // outputFolder == inputFolder -> PROJECT_UNUSABLE.
+  {
+    CommandLineRun::Options opts;
+    opts.inputFolder = inputDir;
+    opts.outputFolder = inputDir;
+    opts.projectFile = dir.filePath("p3.ScanTailor");
+    const auto [code, err] = runWith(opts);
+    BOOST_CHECK_EQUAL(code, CommandLineRun::PROJECT_UNUSABLE);
+    BOOST_CHECK(!err.isEmpty());
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_project_info_missing_dpi_and_json_failure_types) {
+  // --project-info on a project with missing DPI refuses with PROJECT_UNUSABLE,
+  // while a valid project exits with SUCCESS and full JSON page metadata.
+  {
+    QTemporaryDir dir;
+    BOOST_REQUIRE(dir.isValid());
+    const QString missingDpiProject = createProject(dir, 0);
+    BOOST_REQUIRE(!missingDpiProject.isEmpty());
+
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(missingDpiProject, outStream, errStream),
+                      CommandLineRun::PROJECT_UNUSABLE);
+    BOOST_CHECK(!err.isEmpty());
+  }
+  {
+    QTemporaryDir dir;
+    BOOST_REQUIRE(dir.isValid());
+    const QString projectFile = createProject(dir, 300);
+    BOOST_REQUIRE(!projectFile.isEmpty());
+
+    QString out;
+    QString err;
+    QTextStream outStream(&out);
+    QTextStream errStream(&err);
+    BOOST_CHECK_EQUAL(CommandLineRun::projectInfo(projectFile, outStream, errStream), CommandLineRun::SUCCESS);
+    const QJsonDocument doc = QJsonDocument::fromJson(out.toUtf8());
+    BOOST_REQUIRE(doc.isObject());
+    const QJsonArray pages = doc.object()["pages"].toArray();
+    BOOST_REQUIRE_EQUAL(pages.size(), 1);
+    BOOST_CHECK_EQUAL(pages[0].toObject()["dpi"].toObject()["horizontal"].toInt(), 300);
+  }
+
+  // Broken input image during OUTPUT step records LOAD_FAILED/PROCESSING_FAILED in JSON report.
+  {
+    QTemporaryDir dir;
+    BOOST_REQUIRE(dir.isValid());
+    const QString projectFile = createProject(dir, 300);
+    BOOST_REQUIRE(!projectFile.isEmpty());
+    QFile broken(dir.filePath("page.png"));
+    BOOST_REQUIRE(broken.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    broken.write("corrupted image bytes");
+    broken.close();
+
+    QString out;
+    QString err;
+    const QString reportFile = dir.filePath("report.json");
+    BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, false,
+                          CommandLineRun::Options::OUTPUT, reportFile),
+                      CommandLineRun::PAGES_FAILED);
+    const QJsonObject report = readReport(reportFile);
+    const QJsonArray pages = report["pages"].toArray();
+    BOOST_REQUIRE_EQUAL(pages.size(), 1);
+    BOOST_CHECK_EQUAL(pages[0].toObject()["status"].toString().toStdString(), "failed");
+    BOOST_CHECK(!pages[0].toObject()["errorKind"].toString().isEmpty());
+  }
+
+  // Unusable output path (a file blocking the output folder) yields OUTPUT_NOT_WRITTEN in JSON report.
+  {
+    QTemporaryDir dir;
+    BOOST_REQUIRE(dir.isValid());
+    const QString blockerOut = dir.filePath("blocked_out");
+    QFile blocker(blockerOut);
+    BOOST_REQUIRE(blocker.open(QIODevice::WriteOnly));
+    blocker.write("file blocks directory creation");
+    blocker.close();
+
+    const std::vector<ImageFileInfo> files{Tests::saveTextPageScan(dir.filePath("page.png"), 300)};
+    const DefaultParams startValues;
+    const ProjectSession session
+        = ProjectSession::createNew(ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder()),
+                                    blockerOut, QString(), startValues);
+    const QString projectFile = dir.filePath("blocked.ScanTailor");
+    BOOST_REQUIRE(session.write(projectFile));
+
+    QString out;
+    QString err;
+    const QString reportFile = dir.filePath("blocked_report.json");
+    BOOST_CHECK_EQUAL(run(projectFile, &out, &err, std::nullopt, std::nullopt, std::nullopt, false,
+                          CommandLineRun::Options::OUTPUT, reportFile),
+                      CommandLineRun::PAGES_FAILED);
+    const QJsonObject report = readReport(reportFile);
+    const QJsonArray pages = report["pages"].toArray();
+    BOOST_REQUIRE_EQUAL(pages.size(), 1);
+    BOOST_CHECK_EQUAL(pages[0].toObject()["status"].toString().toStdString(), "failed");
+    BOOST_CHECK_EQUAL(pages[0].toObject()["errorKind"].toString().toStdString(), "OUTPUT_NOT_WRITTEN");
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -4,6 +4,8 @@
 #include <ImageMetadata.h>
 #include <ImageSizeLimit.h>
 
+#include <QImageReader>
+#include <QScopeGuard>
 #include <QSize>
 #include <boost/test/unit_test.hpp>
 #include <limits>
@@ -91,6 +93,14 @@ BOOST_AUTO_TEST_CASE(test_undefined_dpi_on_one_axis) {
   const ImageMetadata metadata(QSize(20000, 28000), Dpi(0, 5));
   BOOST_CHECK(!metadata.isDpiOK());
   BOOST_CHECK_EQUAL(metadata.horizontalDpiStatus(), ImageMetadata::DPI_UNDEFINED);
+}
+
+BOOST_AUTO_TEST_CASE(test_apply_qt_allocation_limit_sets_expected_megabytes) {
+  const int prevLimit = QImageReader::allocationLimit();
+  const auto restore = qScopeGuard([prevLimit]() { QImageReader::setAllocationLimit(prevLimit); });
+  ImageSizeLimit::applyQtAllocationLimit();
+  const int expectedMb = static_cast<int>(ImageSizeLimit::MAX_PIXELS * 8 / (1024 * 1024)) + 1;
+  BOOST_CHECK_EQUAL(QImageReader::allocationLimit(), expectedMb);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

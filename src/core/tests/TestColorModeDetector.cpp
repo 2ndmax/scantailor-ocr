@@ -192,5 +192,39 @@ BOOST_AUTO_TEST_CASE(empty_image_returns_black_and_white_with_finite_evidence) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(pure_gray_photo_is_grayscale) {
+  QImage page = blankPage();
+  Random random(21);
+  for (int y = 20; y < PAGE_HEIGHT - 20; ++y) {
+    auto* line = reinterpret_cast<QRgb*>(page.scanLine(y));
+    for (int x = 20; x < PAGE_WIDTH - 20; ++x) {
+      const double base = 85.0 + 35.0 * std::sin(x / 6.0) * std::cos(y / 7.0);
+      const int v = qBound(20, static_cast<int>(base) + random.next(30) - 15, 160);
+      line[x] = qRgb(v, v, v);
+    }
+  }
+  BOOST_CHECK(detect(page) == ColorModeDetector::Mode::Grayscale);
+}
+
+BOOST_AUTO_TEST_CASE(grayscale_photo_with_caption_triggers_text_outside_branch) {
+  QImage page = blankPage();
+  for (int y = 40; y < PAGE_HEIGHT - 260; ++y) {
+    auto* line = reinterpret_cast<QRgb*>(page.scanLine(y));
+    for (int x = 40; x < PAGE_WIDTH - 40; ++x) {
+      const int v = qBound(0, static_cast<int>(128.0 + 127.0 * std::sin((x + y) / 35.0)), 255);
+      line[x] = qRgb(v, v, v);
+    }
+  }
+  drawText(page, PAGE_HEIGHT - 200, PAGE_HEIGHT - 50, QColor(20, 20, 20), 23);
+
+  ColorModeDetector::Options options;
+  options.usePictureZones = false;
+  ColorModeDetector::Evidence ev;
+  const auto mode = ColorModeDetector::detect(page, options, NullTaskStatus(), &ev);
+  BOOST_CHECK(mode == ColorModeDetector::Mode::Mixed);
+  BOOST_CHECK(ev.reason.contains(QStringLiteral("text_beside_picture")));
+  BOOST_CHECK_GT(ev.textOutside, 0.0f);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace Tests
