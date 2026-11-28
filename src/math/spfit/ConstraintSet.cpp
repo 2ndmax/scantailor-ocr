@@ -3,6 +3,7 @@
 
 #include "ConstraintSet.h"
 
+#include <cmath>
 #include <stdexcept>
 
 #include "FittableSpline.h"
@@ -70,8 +71,15 @@ void ConstraintSet::constrainControlPoint(int cpIdx, const QLineF& line) {
     return;
   }
 
-  const double dx = line.p2().x() - line.p1().x();
-  const double dy = line.p2().y() - line.p1().y();
+  const double rawDx = line.p2().x() - line.p1().x();
+  const double rawDy = line.p2().y() - line.p1().y();
+  const double len = std::hypot(rawDx, rawDy);
+  if (!(len > 0.0) || !std::isfinite(len)) {
+    constrainControlPoint(cpIdx, line.p1());
+    return;
+  }
+  const double dx = rawDx / len;
+  const double dy = rawDy / len;
 
   // Lx(cp) = p1.x + t * dx
   // Ly(cp) = p1.y + t * dy
@@ -100,11 +108,18 @@ void ConstraintSet::constrainSplinePoint(double t, const QLineF& line) {
     return;
   }
 
+  const double rawDx = line.p2().x() - line.p1().x();
+  const double rawDy = line.p2().y() - line.p1().y();
+  const double len = std::hypot(rawDx, rawDy);
+  if (!(len > 0.0) || !std::isfinite(len)) {
+    constrainSplinePoint(t, line.p1());
+    return;
+  }
+  const double dx = rawDx / len;
+  const double dy = rawDy / len;
+
   std::vector<FittableSpline::LinearCoefficient> coeffs;
   m_spline->linearCombinationAt(t, coeffs);
-
-  const double dx = line.p2().x() - line.p1().x();
-  const double dy = line.p2().y() - line.p1().y();
 
   // Lx(cp) = p1.x + t * dx
   // Ly(cp) = p1.y + t * dy

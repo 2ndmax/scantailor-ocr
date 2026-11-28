@@ -8,9 +8,13 @@
 #include <atomic>
 
 namespace {
-std::atomic<int> g_maxThreads{ThreadBudget::defaultThreads()};
 std::atomic<int> g_runningTasks{0};
 thread_local bool t_inTask = false;
+
+std::atomic<int>& maxThreadsRef() {
+  static std::atomic<int> maxThreads{ThreadBudget::defaultThreads()};
+  return maxThreads;
+}
 }  // namespace
 
 int ThreadBudget::availableThreads() {
@@ -26,11 +30,11 @@ int ThreadBudget::defaultThreads() {
 }
 
 int ThreadBudget::maxThreads() {
-  return g_maxThreads.load(std::memory_order_relaxed);
+  return maxThreadsRef().load(std::memory_order_relaxed);
 }
 
 void ThreadBudget::setMaxThreads(const int threads) {
-  g_maxThreads.store(std::clamp(threads, 1, availableThreads()), std::memory_order_relaxed);
+  maxThreadsRef().store(std::clamp(threads, 1, availableThreads()), std::memory_order_relaxed);
 }
 
 int ThreadBudget::threadsForCurrentTask() {

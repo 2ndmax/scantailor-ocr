@@ -49,7 +49,7 @@ DebugImageView::DebugImageView(AutoRemovingFile file,
                                const std::function<QWidget*(const QImage&)>& imageViewFactory,
                                QWidget* parent)
     : QStackedWidget(parent),
-      m_file(file),
+      m_file(std::move(file)),
       m_imageViewFactory(imageViewFactory),
       m_placeholderWidget(new ProcessingIndicationWidget(this)),
       m_isLive(false) {

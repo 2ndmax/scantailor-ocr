@@ -3,7 +3,6 @@
 
 #include "XSpline.h"
 
-#include <QDebug>
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -666,7 +665,7 @@ QPointF XSpline::pointClosestTo(const QPointF to, double* t, double accuracy) co
   for (int seg = 0; seg < numSegments; ++seg, prevPt = nextPt) {
     nextPt = pointAtImpl(seg, 1.0);
 
-    const double sqdist = sqDistToLine(to, QLineF(prevPt, nextPt));
+    const double sqdist = sqDistToSegment(to, QLineF(prevPt, nextPt));
     if (sqdist < bestSqdist) {
       bestSegment = seg;
       bestSqdist = sqdist;
@@ -731,7 +730,7 @@ std::vector<QPointF> XSpline::toPolyline(const SamplingParams& params, double fr
   return polyline;
 }
 
-double XSpline::sqDistToLine(const QPointF& pt, const QLineF& line) {
+double XSpline::sqDistToSegment(const QPointF& pt, const QLineF& line) {
   const ToLineProjector projector(line);
   const double p = projector.projectionScalar(pt);
   QPointF ppt;

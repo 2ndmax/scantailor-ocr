@@ -9,6 +9,6 @@ LinearSolver::LinearSolver(size_t rows_AB, size_t cols_A_rows_X, size_t cols_BX)
     throw std::runtime_error("LinearSolver: system has no variables");
   }
   if (m_rowsAB < m_colsArowsX) {
-    throw std::runtime_error("LinearSolver: can's solve underdetermined systems");
+    throw std::runtime_error("LinearSolver: can't solve underdetermined systems");
   }
 }

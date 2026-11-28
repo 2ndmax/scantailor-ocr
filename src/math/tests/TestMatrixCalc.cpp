@@ -7,7 +7,7 @@
 #include <boost/test/unit_test.hpp>
 #include <stdexcept>
 
-namespace imageproc {
+namespace math {
 namespace tests {
 BOOST_AUTO_TEST_SUITE(MatrixCalcSuite)
 
@@ -99,4 +99,4 @@ BOOST_AUTO_TEST_CASE(test_dimension_mismatch_throws) {
 
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
-}  // namespace imageproc
+}  // namespace math

@@ -9,6 +9,7 @@
 #include <QImage>
 #include <QImageWriter>
 #include <QTemporaryFile>
+#include <utility>
 
 void DebugImagesImpl::add(const QImage& image,
                           const QString& label,
@@ -30,7 +31,7 @@ void DebugImagesImpl::add(const QImage& image,
   AutoRemovingFile aremFile(file.fileName());
   file.setAutoRemove(false);
 
-  m_sequence.push_back(std::make_shared<Item>(aremFile, label, imageViewFactory));
+  m_sequence.push_back(std::make_shared<Item>(std::move(aremFile), label, imageViewFactory));
 }
 
 void DebugImagesImpl::add(const imageproc::BinaryImage& image,
@@ -45,7 +46,7 @@ AutoRemovingFile DebugImagesImpl::retrieveNext(QString* label,
     return AutoRemovingFile();
   }
 
-  AutoRemovingFile file(m_sequence.front()->file);
+  AutoRemovingFile file(std::move(m_sequence.front()->file));
   if (label) {
     *label = m_sequence.front()->label;
   }

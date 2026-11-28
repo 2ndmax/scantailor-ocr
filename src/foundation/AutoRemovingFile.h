@@ -7,35 +7,26 @@
 #include <QString>
 
 /**
- * \brief Provides unique_ptr semantics for files.
+ * \brief Provides move-only unique_ptr semantics for files.
  *
  * Just like std::unique_ptr deleting its object when it goes out of scope,
- * this class deletes a file. unique_ptr's copying semantics is also preserved.
+ * this class deletes a file.
  */
 class AutoRemovingFile {
- private:
-  struct CopyHelper {
-    AutoRemovingFile* obj;
-
-    explicit CopyHelper(AutoRemovingFile* o) : obj(o) {}
-  };
-
  public:
   AutoRemovingFile();
 
   explicit AutoRemovingFile(const QString& filePath);
 
-  AutoRemovingFile(AutoRemovingFile& other);
+  AutoRemovingFile(const AutoRemovingFile&) = delete;
 
-  AutoRemovingFile(CopyHelper other);
+  AutoRemovingFile(AutoRemovingFile&& other) noexcept;
 
   ~AutoRemovingFile();
 
-  AutoRemovingFile& operator=(AutoRemovingFile& other);
+  AutoRemovingFile& operator=(const AutoRemovingFile&) = delete;
 
-  AutoRemovingFile& operator=(CopyHelper other);
-
-  operator CopyHelper() { return CopyHelper(this); }
+  AutoRemovingFile& operator=(AutoRemovingFile&& other) noexcept;
 
   const QString& get() const { return m_file; }
 

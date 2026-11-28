@@ -11,7 +11,6 @@
 #include "ModelShape.h"
 #include "NonCopyable.h"
 #include "SqDistApproximant.h"
-#include "VecNT.h"
 #include "XSpline.h"
 
 namespace spfit {

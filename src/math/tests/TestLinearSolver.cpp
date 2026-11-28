@@ -8,7 +8,7 @@
 #include <limits>
 #include <stdexcept>
 
-namespace imageproc {
+namespace math {
 namespace tests {
 BOOST_AUTO_TEST_SUITE(LinearSolverSuite)
 
@@ -90,4 +90,4 @@ BOOST_AUTO_TEST_CASE(zero_columns_is_rejected) {
 
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace tests
-}  // namespace imageproc
+}  // namespace math

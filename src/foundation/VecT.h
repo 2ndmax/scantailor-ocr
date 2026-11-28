@@ -155,6 +155,9 @@ VecT<T>::VecT(const VecT<OT>& other) : m_data(new T[other.size()]), m_size(other
 
 template <typename T>
 VecT<T>& VecT<T>::operator=(const VecT& other) {
+  if (this == &other) {
+    return *this;
+  }
   VecT(other).swap(*this);
   return *this;
 }

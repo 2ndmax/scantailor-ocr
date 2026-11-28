@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 #include "ToLineProjector.h"
+#include "VecNT.h"
 
 PolylineIntersector::PolylineIntersector(const std::vector<QPointF>& polyline)
     : m_polyline(polyline), m_numSegments(static_cast<int>(polyline.size()) - 1) {

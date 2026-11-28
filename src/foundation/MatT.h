@@ -163,6 +163,9 @@ MatT<T>::MatT(const MatT<OT>& other) : m_rows(other.rows()), m_cols(other.cols()
 
 template <typename T>
 MatT<T>& MatT<T>::operator=(const MatT& other) {
+  if (this == &other) {
+    return *this;
+  }
   MatT(other).swap(*this);
   return *this;
 }

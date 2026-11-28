@@ -3,6 +3,7 @@
 
 #include <ToLineProjector.h>
 #include <XSpline.h>
+#include <spfit/FrenetFrame.h>
 #include <spfit/PolylineModelShape.h>
 #include <spfit/SqDistApproximant.h>
 
@@ -112,6 +113,14 @@ BOOST_AUTO_TEST_CASE(test_weighted_line_distance_preserves_weight_on_short_line)
 
   const SqDistApproximant tinyLen = SqDistApproximant::weightedLineDistance(QLineF(1, 2, 1 + 1e-5, 2), 3.5);
   BOOST_CHECK_CLOSE(tinyLen.evaluate(Vec2d(1, 3)), 3.5, 1e-9);
+}
+
+BOOST_AUTO_TEST_CASE(test_weighted_curve_distance_with_invalid_frenet_frame) {
+  const FrenetFrame invalidFrame(Vec2d(2.0, 3.0), Vec2d(0.0, 0.0));
+  BOOST_REQUIRE(!invalidFrame.isValid());
+  const SqDistApproximant approx(SqDistApproximant::weightedCurveDistance(Vec2d(5.0, 7.0), invalidFrame, 0.5, 4.0));
+  BOOST_CHECK_CLOSE(approx.evaluate(Vec2d(5.0, 7.0)), 100.0, 1e-9);
+  BOOST_CHECK_SMALL(approx.evaluate(Vec2d(2.0, 3.0)), 1e-9);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

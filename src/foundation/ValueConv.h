@@ -26,18 +26,21 @@ class RoundAndClipValueConv {
 
   template <typename FromType>
   ToType operator()(FromType val) const {
-    // To avoid possible "comparing signed to unsigned" warnings,
-    // we do the comparison with FromType. It should be fine, as
-    // "Round" in the name of the class assumes it's a floating point type,
-    // and therefore should be "wider" than ToType.
+    static_assert(std::numeric_limits<ToType>::is_integer, "RoundAndClipValueConv requires an integer target type");
+    static_assert(std::numeric_limits<ToType>::digits <= std::numeric_limits<double>::digits,
+                  "RoundAndClipValueConv target type must be exactly representable in double");
+
+    // Compare in double so 32-bit integer bounds are represented exactly (e.g. float(INT32_MAX)
+    // rounds up to 2^31, which would otherwise pass a float bounds check and overflow on cast).
     // Written as "not at least the minimum", so that NaN, which fails every comparison, gets the
     // minimum instead of an undefined cast.
-    if (!(val >= FromType(m_min))) {
+    const double dval = static_cast<double>(val);
+    if (!(dval >= static_cast<double>(m_min))) {
       return m_min;
-    } else if (val > FromType(m_max)) {
+    } else if (dval > static_cast<double>(m_max)) {
       return m_max;
     } else {
-      return static_cast<ToType>(std::floor(val + 0.5));
+      return static_cast<ToType>(std::floor(dval + 0.5));
     }
   }
 

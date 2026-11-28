@@ -10,6 +10,7 @@
 #include <deque>
 #include <functional>
 #include <memory>
+#include <utility>
 
 #include "AutoRemovingFile.h"
 
@@ -47,7 +48,7 @@ class DebugImagesImpl : public DebugImages {
     std::function<QWidget*(const QImage&)> imageViewFactory;
 
     Item(AutoRemovingFile f, const QString& l, const std::function<QWidget*(const QImage&)>& imf)
-        : file(f), label(l), imageViewFactory(imf) {}
+        : file(std::move(f)), label(l), imageViewFactory(imf) {}
 
     virtual ~Item() = default;
   };

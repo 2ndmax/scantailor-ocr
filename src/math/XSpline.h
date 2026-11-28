@@ -207,7 +207,7 @@ class XSpline : public spfit::FittableSpline {
                            const QPointF& nextPt,
                            int depth) const;
 
-  static double sqDistToLine(const QPointF& pt, const QLineF& line);
+  static double sqDistToSegment(const QPointF& pt, const QLineF& line);
 
   std::vector<ControlPoint> m_controlPoints;
 };

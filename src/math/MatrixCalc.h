@@ -27,6 +27,9 @@ class AbstractAllocator {
   virtual T* allocT(size_t size) = 0;
 
   virtual size_t* allocP(size_t size) = 0;
+
+ protected:
+  ~AbstractAllocator() = default;
 };
 
 

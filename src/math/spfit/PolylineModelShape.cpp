@@ -3,13 +3,13 @@
 
 #include "PolylineModelShape.h"
 
-#include <QDebug>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
 
 #include "FrenetFrame.h"
 #include "ToLineProjector.h"
+#include "VecNT.h"
 
 namespace spfit {
 PolylineModelShape::PolylineModelShape(const std::vector<QPointF>& polyline) {

@@ -814,7 +814,7 @@ void MainWindow::setImageWidget(QWidget* widget, const Ownership ownership, Debu
     AutoRemovingFile file;
     QString label;
     while (!(file = debugImages->retrieveNext(&label)).get().isNull()) {
-      QWidget* view = new DebugImageView(file);
+      QWidget* view = new DebugImageView(std::move(file));
       m_imageWidgetCleanup.add(view);
       m_tabbedDebugImages->addTab(view, label);
     }

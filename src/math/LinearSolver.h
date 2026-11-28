@@ -4,18 +4,12 @@
 #ifndef SCANTAILOR_MATH_LINEARSOLVER_H_
 #define SCANTAILOR_MATH_LINEARSOLVER_H_
 
-#include <NonCopyable.h>
-
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <limits>
 #include <memory>
 #include <stdexcept>
-#include <string>
-
-#include "StaticPool.h"
 
 /**
  * \brief Solves Ax = b using LU decomposition.

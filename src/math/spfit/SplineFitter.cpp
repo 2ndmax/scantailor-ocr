@@ -3,9 +3,9 @@
 
 #include "SplineFitter.h"
 
-
 #include "ConstraintSet.h"
 #include "ModelShape.h"
+#include "VecNT.h"
 
 namespace spfit {
 SplineFitter::SplineFitter(FittableSpline* spline) : m_spline(spline), m_optimizer(spline->numControlPoints() * 2) {

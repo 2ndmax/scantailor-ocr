@@ -10,6 +10,7 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 #include <type_traits>
 #include <vector>
 
@@ -65,6 +66,21 @@ BOOST_AUTO_TEST_CASE(test_double_to_string_round_trip) {
 // NaN failed both range checks and went into the cast to an integer, which is undefined.
 BOOST_AUTO_TEST_CASE(test_round_and_clip_maps_nan_to_the_minimum) {
   BOOST_CHECK_EQUAL(int(RoundAndClipValueConv<uint8_t>(10, 200)(std::nanf(""))), 10);
+}
+
+BOOST_AUTO_TEST_CASE(test_round_and_clip_int32_bounds) {
+  const RoundAndClipValueConv<int32_t> conv;
+  // float(INT32_MAX) rounds up to 2^31, which must clamp to INT32_MAX without overflowing.
+  const float maxAsFloat = static_cast<float>(std::numeric_limits<int32_t>::max());
+  BOOST_CHECK_EQUAL(conv(maxAsFloat), std::numeric_limits<int32_t>::max());
+  BOOST_CHECK_EQUAL(conv(static_cast<float>(std::numeric_limits<int32_t>::min())), std::numeric_limits<int32_t>::min());
+  BOOST_CHECK_EQUAL(conv(2147483520.0f), 2147483520);
+  BOOST_CHECK_EQUAL(conv(std::numeric_limits<float>::infinity()), std::numeric_limits<int32_t>::max());
+  BOOST_CHECK_EQUAL(conv(-std::numeric_limits<float>::infinity()), std::numeric_limits<int32_t>::min());
+  BOOST_CHECK_EQUAL(conv(std::nanf("")), std::numeric_limits<int32_t>::min());
+
+  const float u32MaxAsFloat = static_cast<float>(std::numeric_limits<uint32_t>::max());
+  BOOST_CHECK_EQUAL(RoundAndClipValueConv<uint32_t>()(u32MaxAsFloat), std::numeric_limits<uint32_t>::max());
 }
 
 BOOST_AUTO_TEST_CASE(test_flag_ops_unsigned_and_bitwise_not) {

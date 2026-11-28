@@ -75,6 +75,10 @@ SqDistApproximant SqDistApproximant::weightedCurveDistance(const Vec2d& referenc
                                                            const FrenetFrame& frenetFrame,
                                                            const double signedCurvature,
                                                            const double weight) {
+  if (!frenetFrame.isValid()) {
+    return weightedPointDistance(frenetFrame.origin(), weight);
+  }
+
   const double absCurvature = std::fabs(signedCurvature);
   double m = 0;
 

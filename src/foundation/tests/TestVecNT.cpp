@@ -95,4 +95,25 @@ BOOST_AUTO_TEST_CASE(test_mat_and_vec_move_semantics) {
   BOOST_CHECK_EQUAL(m3(1, 2), 1.5);
 }
 
+BOOST_AUTO_TEST_CASE(test_mat_and_vec_self_assignment) {
+  VecT<double> vec(3, 4.5);
+  const double* vecPtr = vec.data();
+  VecT<double>& vecAlias = vec;
+  vec = vecAlias;
+  BOOST_CHECK(vec.data() == vecPtr);
+  BOOST_REQUIRE_EQUAL(vec.size(), 3u);
+  BOOST_CHECK_EQUAL(vec[0], 4.5);
+  BOOST_CHECK_EQUAL(vec[2], 4.5);
+
+  MatT<double> mat(2, 3, 7.5);
+  const double* matPtr = mat.data();
+  MatT<double>& matAlias = mat;
+  mat = matAlias;
+  BOOST_CHECK(mat.data() == matPtr);
+  BOOST_REQUIRE_EQUAL(mat.rows(), 2u);
+  BOOST_REQUIRE_EQUAL(mat.cols(), 3u);
+  BOOST_CHECK_EQUAL(mat(0, 0), 7.5);
+  BOOST_CHECK_EQUAL(mat(1, 2), 7.5);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

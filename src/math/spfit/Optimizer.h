@@ -7,15 +7,11 @@
 #include <list>
 #include <vector>
 
-#include "FittableSpline.h"
 #include "LinearFunction.h"
 #include "MatT.h"
 #include "OptimizationResult.h"
 #include "QuadraticFunction.h"
-#include "SqDistApproximant.h"
-#include "VecNT.h"
 #include "VecT.h"
-#include "VirtualFunction.h"
 
 namespace spfit {
 class Optimizer {

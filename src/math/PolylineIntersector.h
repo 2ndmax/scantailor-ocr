@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "SegmentSearch.h"
-#include "VecNT.h"
 
 class PolylineIntersector {
  public:

@@ -9,7 +9,6 @@
 #include "FittableSpline.h"
 #include "NonCopyable.h"
 #include "Optimizer.h"
-#include "VecNT.h"
 
 namespace spfit {
 class ConstraintSet;
