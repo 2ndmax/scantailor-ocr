@@ -136,8 +136,6 @@ class ThumbnailSequence::Impl {
 
   std::set<PageId> selectedItems() const;
 
-  std::vector<PageRange> selectedRanges() const;
-
   void contextMenuRequested(const PageInfo& pageInfo, const QPoint& screenPos, bool selected);
 
   void itemSelectedByUser(CompositeItem* compositeItem, Qt::KeyboardModifiers modifiers);
@@ -464,10 +462,6 @@ QRectF ThumbnailSequence::selectionLeaderSceneRect() const {
 
 std::set<PageId> ThumbnailSequence::selectedItems() const {
   return m_impl->selectedItems();
-}
-
-std::vector<PageRange> ThumbnailSequence::selectedRanges() const {
-  return m_impl->selectedRanges();
 }
 
 void ThumbnailSequence::emitNewSelectionLeader(const PageInfo& pageInfo,
@@ -1250,28 +1244,6 @@ std::set<PageId> ThumbnailSequence::Impl::selectedItems() const {
     selection.insert(item.pageInfo.id());
   }
   return selection;
-}
-
-std::vector<PageRange> ThumbnailSequence::Impl::selectedRanges() const {
-  std::vector<PageRange> ranges;
-
-  ItemsInOrder::iterator it(m_itemsInOrder.begin());
-  const ItemsInOrder::iterator end(m_itemsInOrder.end());
-  while (true) {
-    for (; it != end && !it->isSelected(); ++it) {
-      // Skip unselected items.
-    }
-    if (it == end) {
-      break;
-    }
-
-    ranges.emplace_back();
-    PageRange& range = ranges.back();
-    for (; it != end && it->isSelected(); ++it) {
-      range.pages.push_back(it->pageInfo.id());
-    }
-  }
-  return ranges;
 }
 
 void ThumbnailSequence::Impl::contextMenuRequested(const PageInfo& pageInfo, const QPoint& screenPos, bool selected) {

@@ -5,8 +5,8 @@
 #define SCANTAILOR_ZONES_ZONECREATIONINTERACTION_H_
 
 #include <QCoreApplication>
-#include <QDateTime>
 #include <QPointF>
+#include <memory>
 
 #include "BasicSplineVisualizer.h"
 #include "DragHandler.h"
@@ -47,6 +47,8 @@ class ZoneCreationInteraction : public InteractionHandler {
   ZoneCreationMode currentZoneCreationMode() const;
 
   void cancel();
+
+  void returnToDefaultInteraction();
 
   ZoneInteractionContext& m_context;
 

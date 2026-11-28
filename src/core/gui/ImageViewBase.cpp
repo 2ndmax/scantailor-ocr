@@ -30,6 +30,7 @@
 #include "DownscaledImage.h"
 #include "Dpm.h"
 #include "ImagePresentation.h"
+#include "ImageViewInfoListener.h"
 #include "OpenGLSupport.h"
 #include "PixmapRenderer.h"
 #include "ScopedIncDec.h"
@@ -135,10 +136,10 @@ ImageViewBase::ImageViewBase(const QImage& image,
       m_lastMaximumViewportSize(maximumViewportSize()),
       m_margins(margins),
       m_zoom(1.0),
+      m_infoProvider(Dpm(m_image)),
       m_transformChangeWatchersActive(0),
       m_ignoreScrollEvents(0),
-      m_ignoreResizeEvents(0),
-      m_infoProvider(Dpm(m_image)) {
+      m_ignoreResizeEvents(0) {
   /* For some reason, the default viewport fills background with
    * a color different from QPalette::Window at the first show on Windows.
    * Here we make it not fill it automatically at all
@@ -191,10 +192,10 @@ ImageViewBase::ImageViewBase(const QImage& image,
   setMouseTracking(true);
   m_cursorTrackerTimer.setSingleShot(true);
   m_cursorTrackerTimer.setInterval(150);  // msec
-  connect(&m_cursorTrackerTimer, &QTimer::timeout, [this]() {
+  connect(&m_cursorTrackerTimer, &QTimer::timeout, this, [this]() {
     QPointF cursorPos;
-    if (!m_cursorPos.isNull()) {
-      cursorPos = m_widgetToVirtual.map(m_cursorPos) - m_virtualImageCropArea.boundingRect().topLeft();
+    if (m_cursorPos.has_value()) {
+      cursorPos = m_widgetToVirtual.map(*m_cursorPos) - m_virtualImageCropArea.boundingRect().topLeft();
     }
     m_infoProvider.setMousePos(cursorPos);
   });
@@ -604,7 +605,7 @@ void ImageViewBase::enterEvent(QEnterEvent* event) {
 }
 
 void ImageViewBase::leaveEvent(QEvent* event) {
-  updateCursorPos(QPointF());
+  updateCursorPos(std::nullopt);
   QAbstractScrollArea::leaveEvent(event);
 }
 
@@ -705,12 +706,6 @@ void ImageViewBase::updateScrollBars() {
 
     horizontalScrollBar()->setPageStep(qRound(viewport.width()));
     verticalScrollBar()->setPageStep(qRound(viewport.height()));
-    // XXX: a hack to force immediate update of viewport()->rect(),
-    // which is used by dynamicViewportRect() below.
-    // Note that it involves a resize event being sent not only to
-    // the viewport, but for some reason also to the containing
-    // QAbstractScrollArea, that is to this object.
-    setHorizontalScrollBarPolicy(horizontalScrollBarPolicy());
 
     const QRectF oldViewport(viewport);
     viewport = dynamicViewportRect();
@@ -1082,7 +1077,7 @@ BackgroundExecutor& ImageViewBase::backgroundExecutor() {
   return executor;
 }
 
-void ImageViewBase::updateCursorPos(const QPointF& pos) {
+void ImageViewBase::updateCursorPos(const std::optional<QPointF>& pos) {
   if (pos != m_cursorPos) {
     m_cursorPos = pos;
     if (!m_cursorTrackerTimer.isActive()) {

@@ -7,6 +7,7 @@
 
 #include <QHashFunctions>
 #include <QString>
+#include <memory>
 #include <unordered_map>
 
 #include "AbstractIconPack.h"

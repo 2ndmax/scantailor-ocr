@@ -30,7 +30,6 @@
 #include "NonCopyable.h"
 #include "OutputFileNameGenerator.h"
 #include "PageId.h"
-#include "PageRange.h"
 #include "PageView.h"
 #include "ScanInsertion.h"
 #include "SelectedPage.h"
@@ -87,8 +86,6 @@ class MainWindow : public QMainWindow, private FilterUiInterface, private Ui::Ma
   PageSequence allPages() const;
 
   std::set<PageId> selectedPages() const;
-
-  std::vector<PageRange> selectedRanges() const;
 
  protected:
   bool eventFilter(QObject* obj, QEvent* ev) override;

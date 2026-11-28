@@ -15,6 +15,9 @@ void FocusFrameStyle::drawPrimitive(const PrimitiveElement element,
                                     const QStyleOption* option,
                                     QPainter* painter,
                                     const QWidget* widget) const {
+  if (!option || !painter) {
+    return;
+  }
   if (element != PE_FrameFocusRect) {
     QProxyStyle::drawPrimitive(element, option, painter, widget);
     return;
@@ -41,6 +44,9 @@ void FocusFrameStyle::drawControl(const ControlElement element,
                                   const QStyleOption* option,
                                   QPainter* painter,
                                   const QWidget* widget) const {
+  if (!option || !painter) {
+    return;
+  }
   QProxyStyle::drawControl(element, option, painter, widget);
   // The style sheet draws tool buttons without asking for a focus frame, so it is added after
   // their label, the last part of a tool button the style draws.
@@ -48,7 +54,6 @@ void FocusFrameStyle::drawControl(const ControlElement element,
     QStyleOptionFocusRect focusOption;
     focusOption.QStyleOption::operator=(*option);
     painter->save();
-    painter->setClipping(false);
     drawPrimitive(PE_FrameFocusRect, &focusOption, painter, widget);
     painter->restore();
   }

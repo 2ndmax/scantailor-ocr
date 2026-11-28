@@ -28,8 +28,12 @@ namespace {
 /// field; it is measured as QLineEdit::paintEvent() places the text, so the last character isn't
 /// cut off.
 int textFieldWidth(const QWidget* field, QLineEdit* edit, const QString& text) {
-  const int width = field->fontMetrics().horizontalAdvance(text) + 6;
-  if (!edit) {
+  if (!field && !edit) {
+    return 0;
+  }
+  const QFontMetrics fm = edit ? edit->fontMetrics() : field->fontMetrics();
+  const int width = fm.horizontalAdvance(text) + 6;
+  if (!edit || !edit->style()) {
     return width;
   }
   edit->ensurePolished();
@@ -43,6 +47,9 @@ int textFieldWidth(const QWidget* field, QLineEdit* edit, const QString& text) {
 }  // namespace
 
 void WidgetUtils::setDpiFieldWidth(QComboBox* field) {
+  if (!field) {
+    return;
+  }
   // As wide as three digits, such as "600 dpi"; four digits can still be typed in, and the list
   // itself is as wide as its entries. The style's size hint is far wider than needed, so the
   // space taken by the frame, the padding and the arrow is measured, as for number fields. The
@@ -59,6 +66,9 @@ void WidgetUtils::setDpiFieldWidth(QComboBox* field) {
 }
 
 void WidgetUtils::setNumberFieldWidth(QAbstractSpinBox* field, const double widestValue, const int decimals) {
+  if (!field) {
+    return;
+  }
   QString prefix;
   QString suffix;
   int fieldDecimals = 0;
@@ -92,6 +102,9 @@ void WidgetUtils::setNumberFieldWidth(QAbstractSpinBox* field, const double wide
 }
 
 void WidgetUtils::setUpLengthField(QDoubleSpinBox* field, const Units units, const double widestValue) {
+  if (!field) {
+    return;
+  }
   const bool fineSteps = (units == CENTIMETRES) || (units == INCHES);
   field->setDecimals(fineSteps ? 2 : ((units == PIXELS) ? 0 : 1));
   field->setSingleStep(fineSteps ? 0.01 : 1.0);
@@ -102,6 +115,9 @@ void WidgetUtils::setUpLengthField(QDoubleSpinBox* field, const Units units, con
 void WidgetUtils::alignLabelColumns(const QList<QGridLayout*>& grids, const int column) {
   int width = 0;
   for (const QGridLayout* grid : grids) {
+    if (!grid) {
+      continue;
+    }
     for (int row = 0; row < grid->rowCount(); ++row) {
       QLayoutItem* item = grid->itemAtPosition(row, column);
       if (!item) {
@@ -125,8 +141,17 @@ void WidgetUtils::alignLabelColumns(const QList<QGridLayout*>& grids, const int 
   }
   // A grid without its own spacing takes that of its parent layout, which may differ between the
   // grids; all get the spacing of the first one.
-  const int spacing = grids.isEmpty() ? 0 : grids.first()->horizontalSpacing();
+  int spacing = 0;
+  for (const QGridLayout* grid : grids) {
+    if (grid) {
+      spacing = grid->horizontalSpacing();
+      break;
+    }
+  }
   for (QGridLayout* grid : grids) {
+    if (!grid) {
+      continue;
+    }
     grid->setColumnMinimumWidth(column, width);
     grid->setHorizontalSpacing(spacing);
   }

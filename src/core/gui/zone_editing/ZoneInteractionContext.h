@@ -15,7 +15,6 @@
 class InteractionHandler;
 class InteractionState;
 class ImageViewBase;
-class EditableZoneSet;
 
 class ZoneInteractionContext {
  public:

@@ -343,7 +343,6 @@ void TestOutputQt::testApplyParamsDialogModePartsAndThisPageIncluded() {
     explicit StubProvider(PageSequence seq) : pages(std::move(seq)) {}
     PageSequence allPages() const override { return pages; }
     std::set<PageId> selectedPages() const override { return selected; }
-    std::vector<PageRange> selectedRanges() const override { return {}; }
   };
 
   std::vector<ImageInfo> infos;

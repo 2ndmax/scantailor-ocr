@@ -14,7 +14,7 @@ set(gui_sources
     ThumbnailBase.cpp ThumbnailBase.h
     IncompleteThumbnail.cpp IncompleteThumbnail.h
     ErrorWidget.cpp ErrorWidget.h
-    FilterOptionsWidget.cpp FilterOptionsWidget.h
+    FilterOptionsWidget.h
     StyleSheetColorScheme.cpp StyleSheetColorScheme.h
     FocusFrameStyle.cpp FocusFrameStyle.h
     NativeColorScheme.cpp NativeColorScheme.h

@@ -79,8 +79,9 @@ void PageScopeGroupBox::setPages(const PageId& curPage, const PageSelectionAcces
   m_curPage = curPage;
   m_selectedPages = pageSelectionAccessor.selectedPages();
 
-  // Page numbers count from 1, so the first page is odd.
-  if ((m_pages.pageNo(m_curPage) % 2) != 0) {
+  // Page indices are 0-based, so index 0 is page 1 (odd) and odd indices are even pages.
+  const int pageIdx = m_pages.pageNo(m_curPage);
+  if ((pageIdx >= 0) && ((pageIdx % 2) != 0)) {
     m_buttons[EVERY_OTHER]->setText(tr("Every other page (even pages)"));
   } else {
     m_buttons[EVERY_OTHER]->setText(tr("Every other page (odd pages)"));
@@ -97,6 +98,8 @@ void PageScopeGroupBox::setPages(const PageId& curPage, const PageSelectionAcces
   const bool multipleSelected = m_selectedPages.size() > 1;
   if (multipleSelected) {
     m_buttons[SELECTED]->setChecked(true);
+  } else if ((checkedScope() == SELECTED) || (checkedScope() == EVERY_OTHER_SELECTED)) {
+    m_buttons[THIS_PAGE]->setChecked(true);
   }
   for (const Scope scope : {SELECTED, EVERY_OTHER_SELECTED}) {
     m_buttons[scope]->setEnabled(multipleSelected);

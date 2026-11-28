@@ -43,7 +43,7 @@ StyleSheetColorScheme::StyleSheetColorScheme(const Colors& colors,
   const QColor onAccent = textOnAccent(accent, colors.lightTextOnAccent, colors.darkTextOnAccent);
   loadPalette(colors, accent, onAccent);
   loadStyleSheet(styleSheetPath, colors, onAccent == colors.lightTextOnAccent);
-  m_customColors = colorParams(colors, accent, onAccent);
+  m_customColors = colorParams(colors.text, colors.border, colors.imageView, colors.error, accent, onAccent);
 }
 
 QColor StyleSheetColorScheme::textOnAccent(const QColor& accent, const QColor& lightText, const QColor& darkText) {
@@ -63,7 +63,8 @@ const ColorScheme::ColorParams* StyleSheetColorScheme::getColorParams() const {
 }
 
 QStyle* StyleSheetColorScheme::getStyle() const {
-  return new FocusFrameStyle(QStyleFactory::create("Fusion"));
+  QStyle* fusion = QStyleFactory::create("Fusion");
+  return fusion ? new FocusFrameStyle(fusion) : nullptr;
 }
 
 void StyleSheetColorScheme::loadPalette(const Colors& colors, const QColor& accent, const QColor& onAccent) {
@@ -186,20 +187,23 @@ void StyleSheetColorScheme::loadStyleSheet(const QString& path, const Colors& co
 #endif
 }
 
-ColorScheme::ColorParams StyleSheetColorScheme::colorParams(const Colors& colors,
+ColorScheme::ColorParams StyleSheetColorScheme::colorParams(const QColor& text,
+                                                            const QColor& border,
+                                                            const QColor& imageView,
+                                                            const QColor& error,
                                                             const QColor& accent,
                                                             const QColor& onAccent) {
   ColorParams params;
-  params["ThumbnailSequenceItemText"] = colors.text;
+  params["ThumbnailSequenceItemText"] = text;
   params["ThumbnailSequenceSelectedItemBorder"] = accent;
   params["ThumbnailSequenceSelectionLeaderBackground"] = accent;
   params["ThumbnailSequenceSelectionLeaderText"] = onAccent;
-  params["OpenNewProjectBorder"] = colors.border;
-  params["ProcessingIndicationFade"] = colors.imageView;
-  params["ProcessingIndicationHead"] = colors.text;
+  params["OpenNewProjectBorder"] = border;
+  params["ProcessingIndicationFade"] = imageView;
+  params["ProcessingIndicationHead"] = text;
   params["ProcessingIndicationTail"] = accent;
-  params["StageListHead"] = colors.text;
+  params["StageListHead"] = text;
   params["StageListTail"] = accent;
-  params["ErrorText"] = colors.error;
+  params["ErrorText"] = error;
   return params;
 }

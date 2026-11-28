@@ -6,18 +6,14 @@
 
 #include <QColor>
 #include <QObject>
-#include <QtGlobal>
 #include <functional>
-#include <map>
 #include <memory>
 #include <vector>
 
 #include "BasicSplineVisualizer.h"
-#include "EditableSpline.h"
 #include "EditableZoneSet.h"
 #include "InteractionHandler.h"
 #include "InteractionState.h"
-#include "PropertySet.h"
 #include "ZoneContextMenuItem.h"
 
 class ZoneInteractionContext;

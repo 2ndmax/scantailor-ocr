@@ -38,18 +38,11 @@ void ZoneVertexDragInteraction::onPaint(QPainter& painter, const InteractionStat
 
   const QTransform toScreen(m_context.imageView().imageToWidget());
 
-  for (const EditableZoneSet::Zone& zone : m_context.zones()) {
-    const EditableSpline::Ptr& spline = zone.spline();
-
-    if (spline != m_spline) {
-      // Draw the whole spline in solid color.
-      m_visualizer.drawSpline(painter, toScreen, spline);
-      continue;
-    }
+  m_visualizer.drawSplines(painter, toScreen, m_context.zones(), m_spline);
+  if (m_spline) {
     // Draw the solid part of the spline.
     const QPolygonF points(BasicSplineVisualizer::screenPolylineSkipping(m_vertex, toScreen));
-
-    m_visualizer.prepareForActiveSpline(painter, spline);
+    m_visualizer.prepareForActiveSpline(painter, m_spline);
     painter.drawPolyline(points);
   }
 

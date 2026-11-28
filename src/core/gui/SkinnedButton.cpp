@@ -3,7 +3,6 @@
 
 #include "SkinnedButton.h"
 
-#include <QBitmap>
 #include <QEvent>
 
 SkinnedButton::SkinnedButton(const QIcon& icon, QWidget* parent) : QToolButton(parent), m_normalStateIcon(icon) {
@@ -23,23 +22,24 @@ SkinnedButton::SkinnedButton(const QIcon& normalStateIcon,
 
 void SkinnedButton::setHoverImage(const QIcon& icon) {
   m_hoverStateIcon = icon;
+  updateAppearance();
 }
 
 void SkinnedButton::setPressedImage(const QIcon& icon) {
   m_pressedStateIcon = icon;
+  updateAppearance();
 }
 
 void SkinnedButton::initialize() {
   initStyleSheet();
 
-  setIconSize(size());
   updateAppearance();
 
-  connect(this, &QToolButton::pressed, [this]() {
+  connect(this, &QToolButton::pressed, this, [this]() {
     m_pressed = true;
     updateAppearance();
   });
-  connect(this, &QToolButton::released, [this]() {
+  connect(this, &QToolButton::released, this, [this]() {
     m_pressed = false;
     updateAppearance();
   });
@@ -61,7 +61,12 @@ bool SkinnedButton::event(QEvent* e) {
       updateAppearance();
       break;
     case QEvent::HoverLeave:
+    case QEvent::Hide:
+    case QEvent::EnabledChange:
       m_hovered = false;
+      if ((e->type() == QEvent::EnabledChange) && !isEnabled()) {
+        m_pressed = false;
+      }
       updateAppearance();
       break;
     default:

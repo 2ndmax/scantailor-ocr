@@ -104,10 +104,6 @@ class MainWindow::PageSelectionProviderImpl : public PageSelectionProvider {
 
   std::set<PageId> selectedPages() const override { return m_wnd ? m_wnd->selectedPages() : std::set<PageId>(); }
 
-  std::vector<PageRange> selectedRanges() const override {
-    return m_wnd ? m_wnd->selectedRanges() : std::vector<PageRange>();
-  }
-
  private:
   QPointer<MainWindow> m_wnd;
 };
@@ -336,10 +332,6 @@ PageSequence MainWindow::allPages() const {
 
 std::set<PageId> MainWindow::selectedPages() const {
   return m_thumbSequence->selectedItems();
-}
-
-std::vector<PageRange> MainWindow::selectedRanges() const {
-  return m_thumbSequence->selectedRanges();
 }
 
 void MainWindow::switchToNewProject(const ProjectSession& project,

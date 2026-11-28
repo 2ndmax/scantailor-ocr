@@ -10,6 +10,7 @@
 #include <limits>
 
 #include "ImageViewBase.h"
+#include "InteractionState.h"
 
 ZoomHandler::ZoomHandler(ImageViewBase& imageView)
     : ZoomHandler(imageView, &InteractionHandler::defaultInteractionPermitter) {}
@@ -40,7 +41,7 @@ void ZoomHandler::setShortcutsEnabled(const bool enabled) {
 }
 
 void ZoomHandler::onWheelEvent(QWheelEvent* event, InteractionState& interaction) {
-  if (!m_interactionPermitter(interaction)) {
+  if (!m_interactionPermitter(interaction) || (event->angleDelta().y() == 0)) {
     return;
   }
 
@@ -111,6 +112,7 @@ void ZoomHandler::onMouseDoubleClickEvent(QMouseEvent* event, InteractionState& 
   if (!m_zoomAllOnDoubleClick || (event->button() != Qt::LeftButton) || !m_interactionPermitter(interaction)) {
     return;
   }
+  event->accept();
   m_imageView.setZoomLevel(1.0);
   m_imageView.moveTowardsIdealPosition(std::numeric_limits<double>::max());
 }

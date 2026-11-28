@@ -10,8 +10,21 @@
 #include <QTransform>
 
 void PixmapRenderer::drawPixmap(QPainter& painter, const QPixmap& pixmap) {
-  const QTransform invTransform(painter.worldTransform().inverted());
+  if (pixmap.isNull()) {
+    return;
+  }
+  bool ok = false;
+  const QTransform invTransform(painter.worldTransform().inverted(&ok));
+  if (!ok) {
+    return;
+  }
   const QRectF srcRect(invTransform.map(QRectF(painter.viewport())).boundingRect());
-  const QRectF boundedSrcRect(srcRect.intersected(pixmap.rect()));
-  painter.drawPixmap(boundedSrcRect, pixmap, boundedSrcRect);
+  const QRectF logicalPixmapRect(QPointF(0, 0), pixmap.deviceIndependentSize());
+  const QRectF boundedTargetRect(srcRect.intersected(logicalPixmapRect));
+  if (boundedTargetRect.isEmpty()) {
+    return;
+  }
+  const qreal dpr = pixmap.devicePixelRatio();
+  const QRectF boundedSourceRect(boundedTargetRect.topLeft() * dpr, boundedTargetRect.size() * dpr);
+  painter.drawPixmap(boundedTargetRect, pixmap, boundedSourceRect);
 }

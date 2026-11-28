@@ -13,7 +13,6 @@
 #include "FlagOps.h"
 #include "NonCopyable.h"
 #include "PageOrderProvider.h"
-#include "PageRange.h"
 
 class QGraphicsItem;
 class QGraphicsView;
@@ -230,8 +229,6 @@ class ThumbnailSequence : public QObject {
   QRectF selectionLeaderSceneRect() const;
 
   std::set<PageId> selectedItems() const;
-
-  std::vector<PageRange> selectedRanges() const;
 
   const QSizeF& getMaxLogicalThumbSize() const;
 

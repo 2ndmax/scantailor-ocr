@@ -6,6 +6,7 @@
 
 #include <QCoreApplication>
 #include <QPointF>
+#include <memory>
 
 #include "BasicSplineVisualizer.h"
 #include "DragHandler.h"
@@ -40,6 +41,8 @@ class ZoneDefaultInteraction : public InteractionHandler {
   void onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction) override;
 
  private:
+  void switchToInteraction(InteractionHandler* next, QEvent* event = nullptr);
+
   void clearHoverCache();
 
   void removeZoneUnderMouse();
@@ -63,9 +66,7 @@ class ZoneDefaultInteraction : public InteractionHandler {
   DragHandler m_dragHandler;
 
   /**
-   * Because we hold an interaction state from constructor to destructor,
-   * we have to have our own zoom handler with explicit interaction permission
-   * if we want zoom to work.
+   * Watches m_dragHandler so onMouseReleaseEvent() can distinguish a click from a drag.
    */
   DragWatcher m_dragWatcher;
 

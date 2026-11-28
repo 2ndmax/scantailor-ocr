@@ -54,7 +54,12 @@ class StyleSheetColorScheme : public ColorScheme {
    * The color parameters (ColorScheme::getColorParams()) of these colors, the accent color and the
    * text on it. The native scheme takes them by the same meanings from the system's palette.
    */
-  static ColorParams colorParams(const Colors& colors, const QColor& accent, const QColor& onAccent);
+  static ColorParams colorParams(const QColor& text,
+                                 const QColor& border,
+                                 const QColor& imageView,
+                                 const QColor& error,
+                                 const QColor& accent,
+                                 const QColor& onAccent);
 
   /**
    * Shared QSS rules used by both stylesheet color schemes and NativeColorScheme

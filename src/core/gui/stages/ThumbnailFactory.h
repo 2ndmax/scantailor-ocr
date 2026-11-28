@@ -28,7 +28,7 @@ class ThumbnailFactory {
                    std::shared_ptr<CompositeCacheDrivenTask> task,
                    std::shared_ptr<const FilterUiSequence> filterUis);
 
-  virtual ~ThumbnailFactory();
+  ~ThumbnailFactory();
 
   std::unique_ptr<QGraphicsItem> get(const PageInfo& pageInfo);
 

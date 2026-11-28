@@ -98,8 +98,6 @@ class ThumbnailBase : public QGraphicsItem {
                                  const QTransform& /*imageToDisplay*/,
                                  const QTransform& /*thumbToDisplay*/) {}
 
-  void setImageXform(const ImageTransformation& imageXform);
-
   const ImageTransformation& imageXform() const { return m_imageXform; }
 
   /**
@@ -111,6 +109,8 @@ class ThumbnailBase : public QGraphicsItem {
 
  private:
   class LoadCompletionHandler;
+
+  void setImageXform(const ImageTransformation& imageXform);
 
   void handleLoadResult(const ThumbnailLoadResult& result);
 

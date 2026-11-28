@@ -3,6 +3,7 @@
 
 #include "ErrorWidget.h"
 
+#include <QApplication>
 #include <QIcon>
 #include <QStyle>
 
@@ -12,8 +13,10 @@ ErrorWidget::ErrorWidget(const QString& text, Qt::TextFormat fmt) : ui(std::make
   ui->setupUi(this);
   ui->textLabel->setTextFormat(fmt);
   ui->textLabel->setText(text);
-  QIcon icon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning));
-  ui->imageLabel->setPixmap(icon.pixmap(48, 48));
+  if (QStyle* style = QApplication::style()) {
+    const QIcon icon(style->standardIcon(QStyle::SP_MessageBoxWarning));
+    ui->imageLabel->setPixmap(icon.pixmap(QSize(48, 48), devicePixelRatioF()));
+  }
 
   connect(ui->textLabel, &QLabel::linkActivated, this, &ErrorWidget::linkActivated);
 }

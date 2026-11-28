@@ -3,9 +3,7 @@
 
 #include "BasicImageView.h"
 
-#include "Dpm.h"
 #include "ImagePresentation.h"
-#include "ImageTransformation.h"
 
 BasicImageView::BasicImageView(const QImage& image, const ImagePixmapUnion& downscaledImage, const Margins& margins)
     : ImageViewBase(image, downscaledImage, ImagePresentation(QTransform(), QRectF(image.rect())), margins),

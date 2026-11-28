@@ -3,10 +3,10 @@
 
 #include "ZoneEditorBase.h"
 
-#include <QKeyEvent>
 #include <QShortcut>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QStatusBar>
+#include <algorithm>
 
 #include "ApplicationSettings.h"
 #include "WidgetUtils.h"
@@ -20,6 +20,8 @@ class ZoneEditorBase::ZoneModeProvider {
   ~ZoneModeProvider();
 
   void addListener(ZoneModeListener* listener);
+
+  void removeListener(ZoneModeListener* listener);
 
   void removeAllListeners();
 
@@ -110,12 +112,29 @@ ZoneEditorBase::ZoneModeProvider::~ZoneModeProvider() {
 }
 
 void ZoneEditorBase::ZoneModeProvider::addListener(ZoneModeListener* listener) {
+  if (!listener) {
+    return;
+  }
+  if (std::find(m_listeners.begin(), m_listeners.end(), listener) != m_listeners.end()) {
+    return;
+  }
   // The listener drops this callback in onZoneModeProviderStopped(), which we call
   // on hiding and on destruction, so it never outlives m_parent.
   ZoneEditorBase* const parent = &m_parent;
   listener->onZoneModeProviderStarted([parent](ZoneCreationMode mode) { parent->setZoneCreationMode(mode); });
   listener->onZoneModeChanged(m_parent.context().getZoneCreationMode());
   m_listeners.push_back(listener);
+}
+
+void ZoneEditorBase::ZoneModeProvider::removeListener(ZoneModeListener* listener) {
+  if (!listener) {
+    return;
+  }
+  const auto it = std::find(m_listeners.begin(), m_listeners.end(), listener);
+  if (it != m_listeners.end()) {
+    (*it)->onZoneModeProviderStopped();
+    m_listeners.erase(it);
+  }
 }
 
 void ZoneEditorBase::ZoneModeProvider::removeAllListeners() {

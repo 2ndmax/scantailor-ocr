@@ -23,10 +23,3 @@ std::set<PageId> PageSelectionAccessor::selectedPages() const {
   }
   return m_provider->selectedPages();
 }
-
-std::vector<PageRange> PageSelectionAccessor::selectedRanges() const {
-  if (!m_provider) {
-    return {};
-  }
-  return m_provider->selectedRanges();
-}

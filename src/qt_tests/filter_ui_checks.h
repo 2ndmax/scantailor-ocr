@@ -46,7 +46,6 @@ class EmptyPageSelectionProvider : public PageSelectionProvider {
  public:
   PageSequence allPages() const override { return {}; }
   std::set<PageId> selectedPages() const override { return {}; }
-  std::vector<PageRange> selectedRanges() const override { return {}; }
 };
 
 // Records what a step shows, in place of the main window.

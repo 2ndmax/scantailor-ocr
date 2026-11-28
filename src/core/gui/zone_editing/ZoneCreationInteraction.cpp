@@ -3,8 +3,7 @@
 
 #include "ZoneCreationInteraction.h"
 
-#include <QDebug>
-#include <QKeyEvent>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QShortcut>
 #include <functional>
@@ -101,10 +100,14 @@ void ZoneCreationInteraction::addFinishedZone() {
   m_context.zones().commit();
 }
 
-void ZoneCreationInteraction::cancel() {
+void ZoneCreationInteraction::returnToDefaultInteraction() {
   makePeerPreceeder(*m_context.createDefaultInteraction());
   m_context.imageView().updateViewport();
   delete this;
+}
+
+void ZoneCreationInteraction::cancel() {
+  returnToDefaultInteraction();
 }
 
 void ZoneCreationInteraction::onMousePressEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
@@ -147,27 +150,27 @@ void ZoneCreationInteraction::onMouseReleaseEvent(QMouseEvent* event, Interactio
       addFinishedZone();
     }
 
-    makePeerPreceeder(*m_context.createDefaultInteraction());
-    m_context.imageView().updateViewport();
-    delete this;
+    event->accept();
+    returnToDefaultInteraction();
+    return;
   } else {
     if (m_spline->hasAtLeastSegments(2) && (m_nextVertexImagePos == m_spline->firstVertex()->point())) {
       // Finishing the spline. Bridging the first and the last points
       // will create another segment.
       addFinishedZone();
 
-      makePeerPreceeder(*m_context.createDefaultInteraction());
-      m_context.imageView().updateViewport();
-      delete this;
+      event->accept();
+      returnToDefaultInteraction();
+      return;
     } else if (!m_lassoVertexAddedSincePress && (m_nextVertexImagePos == m_spline->lastVertex()->point())) {
       // Removing the last vertex, i.e. a click on it. The vertex that the stroke ending now has added stays,
       // also if the stroke was too short to count as a drag.
       m_spline->lastVertex()->remove();
       if (!m_spline->firstVertex()) {
         // If it was the only vertex, cancelling spline creation.
-        makePeerPreceeder(*m_context.createDefaultInteraction());
-        m_context.imageView().updateViewport();
-        delete this;
+        event->accept();
+        returnToDefaultInteraction();
+        return;
       }
     } else {
       // Adding a new vertex, provided we are not too close to the previous one.
@@ -234,9 +237,8 @@ void ZoneCreationInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionSt
       // will create another segment.
       addFinishedZone();
 
-      makePeerPreceeder(*m_context.createDefaultInteraction());
-      m_context.imageView().updateViewport();
-      delete this;
+      event->accept();
+      returnToDefaultInteraction();
       // No member may be accessed from here on.
       return;
     }

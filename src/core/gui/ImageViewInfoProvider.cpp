@@ -3,8 +3,9 @@
 
 #include "ImageViewInfoProvider.h"
 
-#include <QtCore/QMutexLocker>
-#include <QtCore/QRectF>
+#include <algorithm>
+
+#include "ImageViewInfoListener.h"
 
 ImageViewInfoProvider::ImageViewInfoProvider(const Dpi& dpi) : m_dpi(dpi) {}
 
@@ -13,11 +14,28 @@ ImageViewInfoProvider::~ImageViewInfoProvider() {
 }
 
 void ImageViewInfoProvider::addListener(ImageViewInfoListener* listener) {
+  if (!listener) {
+    return;
+  }
+  if (std::find(m_listeners.begin(), m_listeners.end(), listener) != m_listeners.end()) {
+    return;
+  }
   listener->onDpiChanged(m_dpi);
   listener->onPhysSizeChanged(m_physSize);
   listener->onMousePosChanged(m_mousePos);
 
   m_listeners.push_back(listener);
+}
+
+void ImageViewInfoProvider::removeListener(ImageViewInfoListener* listener) {
+  if (!listener) {
+    return;
+  }
+  const auto it = std::find(m_listeners.begin(), m_listeners.end(), listener);
+  if (it != m_listeners.end()) {
+    (*it)->onImageViewInfoProviderStopped();
+    m_listeners.erase(it);
+  }
 }
 
 void ImageViewInfoProvider::removeAllListeners() {

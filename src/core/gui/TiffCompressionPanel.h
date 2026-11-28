@@ -9,7 +9,6 @@
 #include "TiffWriter.h"
 
 class QComboBox;
-class QFormLayout;
 class QSpinBox;
 
 /**

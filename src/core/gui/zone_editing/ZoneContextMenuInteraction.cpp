@@ -3,7 +3,6 @@
 
 #include "ZoneContextMenuInteraction.h"
 
-#include <QDebug>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>

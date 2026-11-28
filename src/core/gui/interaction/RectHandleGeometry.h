@@ -9,6 +9,7 @@
 #include <QRectF>
 #include <QSizeF>
 #include <algorithm>
+#include <cmath>
 
 /** The edges of a rectangle with handles. A corner is the mask of its two edges. */
 enum RectEdge { RECT_LEFT = 1, RECT_RIGHT = 2, RECT_TOP = 4, RECT_BOTTOM = 8 };
@@ -46,16 +47,20 @@ inline QLineF rectEdge(const QRectF& rect, const int edge) {
 
 /** \p rect with the edges in \p edgeMask moved to \p pos, keeping at least \p minSize. */
 inline QRectF resizeRectByEdges(QRectF rect, const int edgeMask, const QPointF& pos, const QSizeF& minSize) {
-  if (edgeMask & RECT_TOP) {
-    rect.setTop(std::min(pos.y(), rect.bottom() - minSize.height()));
-  } else if (edgeMask & RECT_BOTTOM) {
-    rect.setBottom(std::max(pos.y(), rect.top() + minSize.height()));
+  if (std::isfinite(pos.y())) {
+    if (edgeMask & RECT_TOP) {
+      rect.setTop(std::min(pos.y(), rect.bottom() - minSize.height()));
+    } else if (edgeMask & RECT_BOTTOM) {
+      rect.setBottom(std::max(pos.y(), rect.top() + minSize.height()));
+    }
   }
 
-  if (edgeMask & RECT_LEFT) {
-    rect.setLeft(std::min(pos.x(), rect.right() - minSize.width()));
-  } else if (edgeMask & RECT_RIGHT) {
-    rect.setRight(std::max(pos.x(), rect.left() + minSize.width()));
+  if (std::isfinite(pos.x())) {
+    if (edgeMask & RECT_LEFT) {
+      rect.setLeft(std::min(pos.x(), rect.right() - minSize.width()));
+    } else if (edgeMask & RECT_RIGHT) {
+      rect.setRight(std::max(pos.x(), rect.left() + minSize.width()));
+    }
   }
   return rect;
 }

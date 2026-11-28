@@ -98,6 +98,7 @@ TiffCompressionPanel::TiffCompressionPanel(QWidget* parent) : QWidget(parent) {
   // The lists of the three parts line up.
   int listWidth = 0;
   for (QComboBox* box : {m_colorCompression, m_paletteCompression, m_bwCompression}) {
+    box->ensurePolished();
     listWidth = std::max(listWidth, box->sizeHint().width());
   }
   for (QComboBox* box : {m_colorCompression, m_paletteCompression, m_bwCompression}) {

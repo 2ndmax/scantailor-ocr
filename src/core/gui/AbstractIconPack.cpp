@@ -17,7 +17,14 @@ QColor AbstractIconPack::iconColor(const QIcon::Mode mode) {
 }
 
 void AbstractIconPack::mergeWith(std::unique_ptr<IconPack> pack) {
-  m_parentIconPack = std::move(pack);
+  if (!pack || (pack.get() == this)) {
+    return;
+  }
+  if (m_parentIconPack) {
+    m_parentIconPack->mergeWith(std::move(pack));
+  } else {
+    m_parentIconPack = std::move(pack);
+  }
 }
 
 QIcon AbstractIconPack::getIcon(const QString& iconKey) const {

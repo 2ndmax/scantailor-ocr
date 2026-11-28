@@ -153,13 +153,12 @@ void NativeColorScheme::loadStyleSheet() {
 void NativeColorScheme::loadColorParams() {
   // The same meanings as in Light and Dark, taken from the system's palette.
   const QPalette palette = QPalette();
-  StyleSheetColorScheme::Colors colors;
-  colors.text = palette.color(QPalette::Text);
-  colors.border = palette.color(QPalette::Mid);
-  colors.imageView = imageViewColor(palette);
+  const QColor text = palette.color(QPalette::Text);
+  const QColor border = palette.color(QPalette::Mid);
+  const QColor imageView = imageViewColor(palette);
   // The palette has no error color: the one of Light or Dark, whichever matches the window.
   const bool darkWindow = palette.color(QPalette::Window).lightnessF() < 0.5;
-  colors.error = QColor(darkWindow ? dark_scheme_colors::error : light_scheme_colors::error);
-  m_customColors = StyleSheetColorScheme::colorParams(colors, palette.color(QPalette::Highlight),
-                                                      palette.color(QPalette::HighlightedText));
+  const QColor error(darkWindow ? dark_scheme_colors::error : light_scheme_colors::error);
+  m_customColors = StyleSheetColorScheme::colorParams(
+      text, border, imageView, error, palette.color(QPalette::Highlight), palette.color(QPalette::HighlightedText));
 }

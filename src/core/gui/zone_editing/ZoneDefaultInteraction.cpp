@@ -49,31 +49,28 @@ void ZoneDefaultInteraction::onPaint(QPainter& painter, const InteractionState& 
 
   const QTransform toScreen(m_context.imageView().imageToWidget());
 
-  for (const EditableZoneSet::Zone& zone : m_context.zones()) {
-    const EditableSpline::Ptr& spline = zone.spline();
-    const bool nearVertex = !interaction.captured() && interaction.proximityLeader(m_vertexProximity)
-                            && (spline == m_nearestVertexSpline);
-    const bool nearSegment = !interaction.captured() && interaction.proximityLeader(m_segmentProximity)
-                             && (spline == m_nearestSegmentSpline);
-    if (nearVertex || nearSegment) {
-      m_visualizer.prepareForActiveSpline(painter, spline);
-    } else {
-      m_visualizer.prepareForSpline(painter, spline);
-    }
-    QPolygonF points;
+  const EditableSpline::Ptr nearVertexSpline
+      = (!interaction.captured() && interaction.proximityLeader(m_vertexProximity)) ? m_nearestVertexSpline
+                                                                                    : EditableSpline::Ptr();
+  const EditableSpline::Ptr nearSegmentSpline
+      = (!interaction.captured() && interaction.proximityLeader(m_segmentProximity)) ? m_nearestSegmentSpline
+                                                                                     : EditableSpline::Ptr();
+  const EditableSpline::Ptr activeSpline = nearVertexSpline ? nearVertexSpline : nearSegmentSpline;
 
-    if (nearVertex) {
-      points = BasicSplineVisualizer::screenPolylineSkipping(m_nearestVertex, toScreen);
-      painter.drawPolyline(points);
-    } else if (nearSegment) {
+  m_visualizer.drawSplines(painter, toScreen, m_context.zones(), activeSpline);
+
+  if (activeSpline) {
+    m_visualizer.prepareForActiveSpline(painter, activeSpline);
+    if (nearVertexSpline) {
+      painter.drawPolyline(BasicSplineVisualizer::screenPolylineSkipping(m_nearestVertex, toScreen));
+    } else {
+      QPolygonF points;
       SplineVertex::Ptr vertex(m_nearestSegment.prev);
       do {
         vertex = vertex->next(SplineVertex::LOOP);
         points.push_back(toScreen.map(vertex->point()));
       } while (vertex != m_nearestSegment.prev);
       painter.drawPolyline(points);
-    } else {
-      m_visualizer.drawSpline(painter, toScreen, spline);
     }
   }
 
@@ -169,29 +166,20 @@ void ZoneDefaultInteraction::onMousePressEvent(QMouseEvent* event, InteractionSt
   }
 
   if (interaction.proximityLeader(m_vertexProximity)) {
-    makePeerPreceeder(*m_context.createVertexDragInteraction(interaction, m_nearestVertexSpline, m_nearestVertex));
-    delete this;
-    event->accept();
+    switchToInteraction(m_context.createVertexDragInteraction(interaction, m_nearestVertexSpline, m_nearestVertex),
+                        event);
   } else if (interaction.proximityLeader(m_segmentProximity)) {
     const QTransform fromScreen(m_context.imageView().widgetToImage());
     SplineVertex::Ptr vertex(m_nearestSegment.splitAt(fromScreen.map(m_screenPointOnSegment)));
-    makePeerPreceeder(*m_context.createVertexDragInteraction(interaction, m_nearestSegmentSpline, vertex));
-    delete this;
-    event->accept();
+    switchToInteraction(m_context.createVertexDragInteraction(interaction, m_nearestSegmentSpline, vertex), event);
   } else if (interaction.proximityLeader(m_zoneAreaDragProximity)) {
-    makePeerPreceeder(*m_context.createZoneDragInteraction(interaction, m_splineUnderMouse));
-    delete this;
-    event->accept();
+    switchToInteraction(m_context.createZoneDragInteraction(interaction, m_splineUnderMouse), event);
   } else if (interaction.proximityLeader(m_zoneAreaDragCopyProximity)) {
     auto newSpline = std::make_shared<EditableSpline>(SerializableSpline(*m_splineUnderMouse));
     m_context.zones().addZone(newSpline, *m_context.zones().propertiesFor(m_splineUnderMouse));
-    makePeerPreceeder(*m_context.createZoneDragInteraction(interaction, newSpline, /*isNewCopy=*/true));
-    delete this;
-    event->accept();
+    switchToInteraction(m_context.createZoneDragInteraction(interaction, newSpline, /*isNewCopy=*/true), event);
   } else if ((m_context.getZoneCreationMode() == ZoneCreationMode::LASSO) && (event->modifiers() == Qt::NoModifier)) {
-    makePeerPreceeder(*m_context.createZoneCreationInteraction(interaction));
-    delete this;
-    event->accept();
+    switchToInteraction(m_context.createZoneCreationInteraction(interaction), event);
   }
 }
 
@@ -225,13 +213,12 @@ void ZoneDefaultInteraction::onMouseReleaseEvent(QMouseEvent* event, Interaction
       m_context.zones().commit();
     }
 
+    event->accept();
     m_context.imageView().updateViewport();
     return;
   }
 
-  makePeerPreceeder(*m_context.createZoneCreationInteraction(interaction));
-  delete this;
-  event->accept();
+  switchToInteraction(m_context.createZoneCreationInteraction(interaction), event);
 }
 
 void ZoneDefaultInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionState& /*interaction*/) {
@@ -240,6 +227,9 @@ void ZoneDefaultInteraction::onMouseMoveEvent(QMouseEvent* event, InteractionSta
 }
 
 void ZoneDefaultInteraction::onContextMenuEvent(QContextMenuEvent* event, InteractionState& interaction) {
+  if (interaction.captured()) {
+    return;
+  }
   event->accept();
   m_context.setLastContextMenuScreenPos(event->globalPos());  // Multi-monitor: use event position (issue #75).
 
@@ -248,7 +238,17 @@ void ZoneDefaultInteraction::onContextMenuEvent(QContextMenuEvent* event, Intera
     return;
   }
 
-  makePeerPreceeder(*cmInteraction);
+  switchToInteraction(cmInteraction);
+}
+
+void ZoneDefaultInteraction::switchToInteraction(InteractionHandler* next, QEvent* event) {
+  if (!next) {
+    return;
+  }
+  if (event) {
+    event->accept();
+  }
+  makePeerPreceeder(*next);
   delete this;
 }
 

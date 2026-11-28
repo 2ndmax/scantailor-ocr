@@ -4,16 +4,14 @@
 #ifndef SCANTAILOR_CORE_IMAGEVIEWINFOPROVIDER_H_
 #define SCANTAILOR_CORE_IMAGEVIEWINFOPROVIDER_H_
 
-#include <foundation/NonCopyable.h>
-
 #include <QPointF>
 #include <QSizeF>
 #include <list>
-#include <memory>
 
 #include "Dpi.h"
-#include "ImageViewInfoListener.h"
 #include "NonCopyable.h"
+
+class ImageViewInfoListener;
 
 class ImageViewInfoProvider {
   DECLARE_NON_COPYABLE(ImageViewInfoProvider)
@@ -23,6 +21,8 @@ class ImageViewInfoProvider {
   ~ImageViewInfoProvider();
 
   void addListener(ImageViewInfoListener* listener);
+
+  void removeListener(ImageViewInfoListener* listener);
 
   void removeAllListeners();
 

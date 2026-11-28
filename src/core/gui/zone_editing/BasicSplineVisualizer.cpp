@@ -15,9 +15,15 @@ BasicSplineVisualizer::BasicSplineVisualizer()
       m_highlightDarkColor(OverlayStyle::primary().rgb()),
       m_pen(OverlayStyle::pen(m_solidColor, OverlayStyle::Line::Fine)) {}
 
-void BasicSplineVisualizer::drawSplines(QPainter& painter, const QTransform& toScreen, const EditableZoneSet& zones) {
+void BasicSplineVisualizer::drawSplines(QPainter& painter,
+                                        const QTransform& toScreen,
+                                        const EditableZoneSet& zones,
+                                        const EditableSpline::Ptr& skipSpline) {
   for (const EditableZoneSet::Zone& zone : zones) {
-    drawSpline(painter, toScreen, zone.spline());
+    const EditableSpline::Ptr& spline = zone.spline();
+    if (spline != skipSpline) {
+      drawSpline(painter, toScreen, spline);
+    }
   }
 }
 

@@ -32,13 +32,20 @@ class ErrWidget : public ErrorWidget {
       : ErrorWidget(text, fmt), m_relinkingDialogRequester(std::move(relinkingDialogRequester)) {}
 
  private:
-  void linkActivated(const QString& /*link*/) override { (*m_relinkingDialogRequester)(); }
+  void linkActivated(const QString& /*link*/) override {
+    if (m_relinkingDialogRequester) {
+      (*m_relinkingDialogRequester)();
+    }
+  }
 
   std::shared_ptr<AbstractCommand<void>> m_relinkingDialogRequester;
 };
 
 // A page that couldn't be loaded or processed: its message in place of the page, and no options.
 void showLoadError(const FilterResult& result, FilterUiInterface* ui) {
+  if (!ui) {
+    return;
+  }
   QString message;
   Qt::TextFormat format = Qt::AutoText;
   if (!LoadFileTask::errorMessage(result, &message, &format)) {
@@ -51,36 +58,53 @@ void showLoadError(const FilterResult& result, FilterUiInterface* ui) {
 
 FilterUiSequence::FilterUiSequence(std::shared_ptr<StageSequence> stages,
                                    const PageSelectionAccessor& pageSelectionAccessor)
-    : m_stages(std::move(stages)), m_filterUis(m_stages->count()) {
-  m_filterUis[m_stages->fixOrientationFilterIdx()]
-      = std::make_unique<fix_orientation::FilterUi>(m_stages->fixOrientationFilter(), pageSelectionAccessor);
-  m_filterUis[m_stages->pageSplitFilterIdx()]
-      = std::make_unique<page_split::FilterUi>(m_stages->pageSplitFilter(), pageSelectionAccessor);
-  m_filterUis[m_stages->deskewFilterIdx()]
-      = std::make_unique<deskew::FilterUi>(m_stages->deskewFilter(), pageSelectionAccessor);
-  m_filterUis[m_stages->selectContentFilterIdx()]
-      = std::make_unique<select_content::FilterUi>(m_stages->selectContentFilter(), pageSelectionAccessor);
-  m_filterUis[m_stages->pageLayoutFilterIdx()]
-      = std::make_unique<page_layout::FilterUi>(m_stages->pageLayoutFilter(), pageSelectionAccessor);
-  m_filterUis[m_stages->outputFilterIdx()]
-      = std::make_unique<output::FilterUi>(m_stages->outputFilter(), pageSelectionAccessor);
+    : m_stages(std::move(stages)), m_filterUis(m_stages ? m_stages->count() : 0) {
+  if (!m_stages) {
+    return;
+  }
+  const auto setFilterUi = [this](const int idx, std::unique_ptr<AbstractFilterUi> filterUi) {
+    if ((idx >= 0) && (static_cast<size_t>(idx) < m_filterUis.size())) {
+      m_filterUis[idx] = std::move(filterUi);
+    }
+  };
+  setFilterUi(m_stages->fixOrientationFilterIdx(),
+              std::make_unique<fix_orientation::FilterUi>(m_stages->fixOrientationFilter(), pageSelectionAccessor));
+  setFilterUi(m_stages->pageSplitFilterIdx(),
+              std::make_unique<page_split::FilterUi>(m_stages->pageSplitFilter(), pageSelectionAccessor));
+  setFilterUi(m_stages->deskewFilterIdx(),
+              std::make_unique<deskew::FilterUi>(m_stages->deskewFilter(), pageSelectionAccessor));
+  setFilterUi(m_stages->selectContentFilterIdx(),
+              std::make_unique<select_content::FilterUi>(m_stages->selectContentFilter(), pageSelectionAccessor));
+  setFilterUi(m_stages->pageLayoutFilterIdx(),
+              std::make_unique<page_layout::FilterUi>(m_stages->pageLayoutFilter(), pageSelectionAccessor));
+  setFilterUi(m_stages->outputFilterIdx(),
+              std::make_unique<output::FilterUi>(m_stages->outputFilter(), pageSelectionAccessor));
 }
 
 FilterUiSequence::~FilterUiSequence() = default;
 
 void FilterUiSequence::preUpdateUI(const int filterIdx, FilterUiInterface* ui, const PageInfo& pageInfo) const {
+  if (!ui || (filterIdx < 0) || (static_cast<size_t>(filterIdx) >= m_filterUis.size()) || !m_filterUis[filterIdx]) {
+    return;
+  }
   m_filterUis[filterIdx]->preUpdateUI(ui, pageInfo);
 }
 
 void FilterUiSequence::showResult(FilterResult& result, FilterUiInterface* ui) const {
+  if (!ui) {
+    return;
+  }
   const std::shared_ptr<AbstractFilter> filter = result.filter();
   // A result of no step is a page that could not be loaded or processed.
   if (!filter) {
     showLoadError(result, ui);
     return;
   }
+  if (!m_stages) {
+    return;
+  }
   const int filterIdx = m_stages->findFilter(filter);
-  if (filterIdx >= 0) {
+  if ((filterIdx >= 0) && (static_cast<size_t>(filterIdx) < m_filterUis.size()) && m_filterUis[filterIdx]) {
     m_filterUis[filterIdx]->showResult(result, ui);
   }
 }
@@ -93,8 +117,10 @@ std::unique_ptr<QGraphicsItem> FilterUiSequence::createThumbnail(const Thumbnail
     return std::make_unique<IncompleteThumbnail>(cache, maxSize, data.imageId(), data.xform());
   }
   for (const std::unique_ptr<AbstractFilterUi>& filterUi : m_filterUis) {
-    if (std::unique_ptr<QGraphicsItem> thumbnail = filterUi->createThumbnail(data, cache, maxSize)) {
-      return thumbnail;
+    if (filterUi) {
+      if (std::unique_ptr<QGraphicsItem> thumbnail = filterUi->createThumbnail(data, cache, maxSize)) {
+        return thumbnail;
+      }
     }
   }
   return nullptr;

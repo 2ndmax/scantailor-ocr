@@ -32,18 +32,9 @@ class ChangedStateItemDelegate : public T {
   void removeAllChanges() { m_changedMask = QStyle::State(); }
 
   void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
-    const QStyle::State origState = option.state;
-
-    const QStyle::State newState = (origState & ~m_changedMask) | (m_changedFlags & m_changedMask);
-
-    // Evil but necessary: the alternative solution of modifying
-    // a copy doesn't work, as option doesn't really point to
-    // QStyleOptionViewItem, but to one of its subclasses.
-    QStyleOptionViewItem& nonConstOpt = const_cast<QStyleOptionViewItem&>(option);
-
-    nonConstOpt.state = newState;
-    T::paint(painter, nonConstOpt, index);
-    nonConstOpt.state = origState;
+    QStyleOptionViewItem modifiedOption(option);
+    modifiedOption.state = (option.state & ~m_changedMask) | (m_changedFlags & m_changedMask);
+    T::paint(painter, modifiedOption, index);
   }
 
  private:

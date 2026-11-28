@@ -5,12 +5,10 @@
 #define SCANTAILOR_CORE_PAGESELECTIONPROVIDER_H_
 
 #include <set>
-#include <vector>
 
 
 class PageSequence;
 class PageId;
-class PageRange;
 
 class PageSelectionProvider {
  public:
@@ -19,8 +17,6 @@ class PageSelectionProvider {
   virtual PageSequence allPages() const = 0;
 
   virtual std::set<PageId> selectedPages() const = 0;
-
-  virtual std::vector<PageRange> selectedRanges() const = 0;
 };
 
 

@@ -17,6 +17,7 @@
 #include <QWidget>
 #include <Qt>
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "ImagePixmapUnion.h"
@@ -248,7 +249,7 @@ class ImageViewBase : public QAbstractScrollArea {
    */
   QRectF maxViewportRect() const;
 
-  virtual void updateCursorPos(const QPointF& pos);
+  virtual void updateCursorPos(const std::optional<QPointF>& pos);
 
   virtual void updatePhysSize();
 
@@ -445,23 +446,23 @@ class ImageViewBase : public QAbstractScrollArea {
    */
   double m_zoom;
 
+  ImageViewInfoProvider m_infoProvider;
+
   /**
    * This timer is used for tracking the cursor position.
    */
   QTimer m_cursorTrackerTimer;
 
   /**
-   * Current mouse pos in widget coordinates.
+   * Current mouse pos in widget coordinates, or std::nullopt when outside the widget.
    */
-  QPointF m_cursorPos;
+  std::optional<QPointF> m_cursorPos;
 
   int m_transformChangeWatchersActive;
 
   int m_ignoreScrollEvents;
 
   int m_ignoreResizeEvents;
-
-  ImageViewInfoProvider m_infoProvider;
 
   std::vector<ZoomHandler*> m_zoomHandlers;
 };

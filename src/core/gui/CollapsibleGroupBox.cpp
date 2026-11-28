@@ -6,6 +6,7 @@
 #include <foundation/ScopedIncDec.h>
 
 #include <QApplication>
+#include <QPointer>
 #include <QSettings>
 #include <QtCore/QEvent>
 #include <QtGui/QShowEvent>
@@ -108,7 +109,13 @@ void CollapsibleGroupBox::setCollapsed(const bool collapse) {
 }
 
 void CollapsibleGroupBox::makeTitleBold(QGroupBox* groupBox) {
-  static BoldTitlePainter* const painter = new BoldTitlePainter(qApp);
+  if (!groupBox) {
+    return;
+  }
+  static QPointer<BoldTitlePainter> painter;
+  if (!painter) {
+    painter = new BoldTitlePainter(qApp);
+  }
   groupBox->installEventFilter(painter);
 }
 
@@ -117,7 +124,7 @@ bool CollapsibleGroupBox::isCollapsed() const {
 }
 
 void CollapsibleGroupBox::checkToggled(bool /*checked*/) {
-  m_collapseButton->setEnabled(true);
+  m_collapseButton->setEnabled(isEnabled());
 }
 
 void CollapsibleGroupBox::checkClicked(bool checked) {
@@ -167,7 +174,7 @@ void CollapsibleGroupBox::showEvent(QShowEvent* event) {
   updateCollapseButtonTexts();
   loadState();
 
-  QWidget::showEvent(event);
+  QGroupBox::showEvent(event);
 }
 
 void CollapsibleGroupBox::changeEvent(QEvent* event) {
@@ -212,7 +219,7 @@ void CollapsibleGroupBox::childEvent(QChildEvent* event) {
 bool CollapsibleGroupBox::eventFilter(QObject* watched, QEvent* event) {
   if (m_collapsed && !m_ignoreVisibilityEvents) {
     auto* childWidget = dynamic_cast<QWidget*>(watched);
-    if (childWidget) {
+    if (childWidget && (childWidget != m_collapseButton)) {
       if (event->type() == QEvent::ShowToParent) {
         const ScopedIncDec<int> guard(m_ignoreVisibilityEvents);
 

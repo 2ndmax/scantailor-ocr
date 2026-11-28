@@ -6,7 +6,7 @@
 
 #include <QApplication>
 #include <QPointF>
-#include <QTimer>
+#include <list>
 
 #include "Translations.h"
 

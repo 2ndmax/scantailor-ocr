@@ -6,10 +6,8 @@
 
 #include <memory>
 #include <set>
-#include <vector>
 
 #include "PageId.h"
-#include "PageRange.h"
 #include "PageSelectionProvider.h"
 
 class PageSequence;
@@ -22,8 +20,6 @@ class PageSelectionAccessor {
   PageSequence allPages() const;
 
   std::set<PageId> selectedPages() const;
-
-  std::vector<PageRange> selectedRanges() const;
 
  private:
   std::shared_ptr<const PageSelectionProvider> m_provider;

@@ -6,7 +6,6 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
-#include <QSettings>
 #include <QSurfaceFormat>
 
 bool OpenGLSupport::supported() {
@@ -33,8 +32,13 @@ bool OpenGLSupport::supported() {
 QString OpenGLSupport::deviceName() {
   QString name;
   QOpenGLContext context;
+  if (!context.create()) {
+    return name;
+  }
   QOffscreenSurface surface;
-  if (context.create() && (surface.create(), true) && context.makeCurrent(&surface)) {
+  surface.setFormat(context.format());
+  surface.create();
+  if (surface.isValid() && context.makeCurrent(&surface)) {
     name = QString::fromUtf8((const char*) context.functions()->glGetString(GL_RENDERER));
     context.doneCurrent();
   }

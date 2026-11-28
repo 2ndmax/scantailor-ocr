@@ -590,7 +590,6 @@ void TestUxQt::testPageSelectionAccessorNullProvider() {
   PageSelectionAccessor accessor{std::shared_ptr<const PageSelectionProvider>()};
   QVERIFY(accessor.allPages().numPages() == 0);
   QVERIFY(accessor.selectedPages().empty());
-  QVERIFY(accessor.selectedRanges().empty());
 }
 
 void TestUxQt::testStyledIconPackDegenerateAndHiDpiPixmap() {
@@ -994,7 +993,6 @@ void TestUxQt::testPageScopeGroupBoxCountsOddEvenAndSelection() {
     explicit StubProvider(PageSequence seq) : pages(std::move(seq)) {}
     PageSequence allPages() const override { return pages; }
     std::set<PageId> selectedPages() const override { return selected; }
-    std::vector<PageRange> selectedRanges() const override { return {}; }
   };
 
   std::vector<ImageInfo> infos;

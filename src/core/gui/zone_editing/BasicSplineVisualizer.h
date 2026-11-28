@@ -18,6 +18,8 @@ class BasicSplineVisualizer {
  public:
   BasicSplineVisualizer();
 
+  virtual ~BasicSplineVisualizer() = default;
+
   QRgb solidColor() const { return m_solidColor; }
 
   QRgb highlightBrightColor() const { return m_highlightBrightColor; }
@@ -40,7 +42,10 @@ class BasicSplineVisualizer {
    */
   void drawHighlightedVertex(QPainter& painter, const QTransform& toScreen, const SplineVertex::Ptr& vertex, QPen pen);
 
-  void drawSplines(QPainter& painter, const QTransform& toScreen, const EditableZoneSet& zones);
+  void drawSplines(QPainter& painter,
+                   const QTransform& toScreen,
+                   const EditableZoneSet& zones,
+                   const EditableSpline::Ptr& skipSpline = {});
 
   virtual void drawSpline(QPainter& painter, const QTransform& toScreen, const EditableSpline::Ptr& spline);
 

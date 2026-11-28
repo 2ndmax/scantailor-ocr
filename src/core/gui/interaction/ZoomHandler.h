@@ -7,11 +7,12 @@
 #include <QCoreApplication>
 #include <QPoint>
 #include <functional>
+#include <memory>
 
 #include "InteractionHandler.h"
-#include "InteractionState.h"
 
 class ImageViewBase;
+class InteractionState;
 class QShortcut;
 
 class ZoomHandler : public InteractionHandler {
