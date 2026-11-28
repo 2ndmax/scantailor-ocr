@@ -8,11 +8,15 @@
 
 #include <QWidget>
 
+#include "../BlackWhiteOptions.h"
+
 namespace output {
 class OptionsWidgetBinarization : public QWidget {
   Q_OBJECT
  public:
-  virtual void updateUi(const PageId& m_pageId) = 0;
+  virtual BinarizationMethod method() const = 0;
+
+  virtual void updateUi(const PageId& pageId) = 0;
 
  signals:
 

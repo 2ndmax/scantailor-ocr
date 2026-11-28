@@ -23,7 +23,9 @@ class OptionsWidgetBinarizationOtsu : public OptionsWidgetBinarization, private 
 
   ~OptionsWidgetBinarizationOtsu() override = default;
 
-  void updateUi(const PageId& m_pageId) override;
+  BinarizationMethod method() const override { return T_OTSU; }
+
+  void updateUi(const PageId& pageId) override;
 
  private slots:
 
@@ -32,14 +34,12 @@ class OptionsWidgetBinarizationOtsu : public OptionsWidgetBinarization, private 
   void sendStateChanged();
 
  private:
-  void updateView();
-
+  void updateView(const ColorParams& colorParams);
 
   void setupUiConnections();
 
   std::shared_ptr<Settings> m_settings;
   PageId m_pageId;
-  ColorParams m_colorParams;
   QTimer m_delayedStateChanger;
 
   ConnectionManager m_connectionManager;

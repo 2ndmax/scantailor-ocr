@@ -5914,29 +5914,29 @@ Ohne Internetverbindung lassen sich die installierten Sprachen weiterhin verwend
     </message>
 </context>
 <context>
-    <name>output::ApplyColorsDialog</name>
+    <name>output::ApplyParamsDialog</name>
     <message>
-        <location filename="../core/filters/output/ui/ApplyColorsDialog.ui" line="17"/>
+        <location filename="../core/filters/output/ui/ApplyParamsDialog.ui" line="17"/>
         <source>Apply Mode</source>
         <translation>Modus anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/ui/ApplyColorsDialog.ui" line="26"/>
+        <location filename="../core/filters/output/ui/ApplyParamsDialog.ui" line="26"/>
         <source>Apply Parameters</source>
         <translation>Parameter anwenden</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/ui/ApplyColorsDialog.ui" line="32"/>
+        <location filename="../core/filters/output/ui/ApplyParamsDialog.ui" line="32"/>
         <source>Color mode</source>
         <translation>Farbmodus</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/ui/ApplyColorsDialog.ui" line="42"/>
+        <location filename="../core/filters/output/ui/ApplyParamsDialog.ui" line="42"/>
         <source>All other settings of the Mode panel, such as the threshold, the filters and the shape of the picture zones.</source>
         <translation>Alle übrigen Einstellungen der Gruppe „Modus“, etwa der Schwellwert, die Filter und die Form der Bildzonen.</translation>
     </message>
     <message>
-        <location filename="../core/filters/output/ui/ApplyColorsDialog.ui" line="45"/>
+        <location filename="../core/filters/output/ui/ApplyParamsDialog.ui" line="45"/>
         <source>Other settings</source>
         <translation>Weitere Einstellungen</translation>
     </message>

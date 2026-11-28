@@ -6,12 +6,7 @@
 
 #include <ConnectionManager.h>
 
-#include <QtCore/QObjectCleanupHandler>
-#include <QtCore/QPointer>
-#include <QtCore/QTimer>
-#include <QtWidgets/QStackedLayout>
-#include <array>
-#include <list>
+#include <QTimer>
 #include <memory>
 #include <set>
 
@@ -31,6 +26,7 @@
 #include "ui_OptionsWidget.h"
 
 struct ProcessingOptions;
+class TestOutputQt;
 class TiffCompressionPanel;
 
 namespace dewarping {
@@ -38,10 +34,15 @@ class DistortionModel;
 }
 
 namespace output {
+class ApplyParamsDialog;
+class PhotoAdjustments;
+class PhotoAdjustmentsControls;
 class Settings;
 
 class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   Q_OBJECT
+  friend class ::TestOutputQt;
+
  public:
   /** How long after the last change of a setting the page is processed again, in milliseconds. */
   static constexpr int RELOAD_DELAY_MS = 750;
@@ -123,31 +124,7 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void chromaGrayLimitChanged(int value);
 
-  void subtractBgToggled(bool checked);
-
-  void subtractBgCoefChanged(double value);
-
-  void subtractBgRadiusChanged(int value);
-
   void subtractBgWhiteToggled(bool checked);
-
-  void knnToggled(bool checked);
-
-  void knnCoefChanged(double value);
-
-  void knnRadiusChanged(int value);
-
-  void sharpenToggled(bool checked);
-
-  void sharpenCoefChanged(double value);
-
-  void sharpenRadiusChanged(int value);
-
-  void wienerToggled(bool checked);
-
-  void wienerCoefChanged(double value);
-
-  void wienerWindowSizeChanged(int value);
 
   void colorSegmentationToggled(bool checked);
 
@@ -251,28 +228,34 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
 
   void updateColorReductionControls();
 
-  // The sliders of the group "Photo Adjustments", in the order of the panel.
-  enum PhotoAdjustment { TEMPERATURE, TINT, EXPOSURE, CONTRAST, HIGHLIGHTS, SHADOWS, WHITES, BLACKS };
-  static constexpr int PHOTO_ADJUSTMENT_COUNT = BLACKS + 1;
+  void commitPhotoAdjustments(const PhotoAdjustments& adjustments);
 
-  struct PhotoAdjustmentRow {
-    QLabel* label = nullptr;
-    QAbstractSpinBox* field = nullptr;  // QDoubleSpinBox for the exposure, QSpinBox otherwise.
-    QSlider* slider = nullptr;
-  };
+  ApplyParamsDialog* createApplyDialog(const QString& title = QString());
 
-  void setupPhotoAdjustmentsPanel();
+  template <typename OnAccepted>
+  ApplyParamsDialog* openApplyDialog(const QString& title, OnAccepted&& onAccepted);
 
-  void photoAdjustmentSliderChanged(int row, int value);
+  void updateEnhancementFilter(QCheckBox* cb,
+                               QWidget* optionsWidget,
+                               QDoubleSpinBox* coefBox,
+                               QSpinBox* paramBox,
+                               double coef,
+                               double& coefWhenOn,
+                               int param);
 
-  void photoAdjustmentFieldChanged(int row);
+  template <typename GetCoef, typename SetCoef, typename SetParam>
+  void connectEnhancementFilter(QCheckBox* cb,
+                                QWidget* optionsWidget,
+                                QDoubleSpinBox* coefBox,
+                                QSpinBox* paramBox,
+                                double& coefWhenOn,
+                                GetCoef getCoef,
+                                SetCoef setCoef,
+                                SetParam setParam);
 
-  // Stores the values of the panel and recalculates the page shortly after.
-  void commitPhotoAdjustments();
+  void selectBinarizationPanel(BinarizationMethod method);
 
-  void updatePhotoAdjustmentsDisplay();
-
-  int photoAdjustmentSliderValue(int row) const;
+  void requestReloadNow();
 
   void handleDespeckleLevelChange(double level, bool delay = false);
 
@@ -330,7 +313,7 @@ class OptionsWidget : public FilterOptionsWidget, private Ui::OptionsWidget {
   // A member, so it stops with the widget: no delayed reload fires after the widget is gone.
   QTimer m_delayedReloadRequest;
   bool m_checkingDpi = false;
-  std::array<PhotoAdjustmentRow, PHOTO_ADJUSTMENT_COUNT> m_photoAdjustmentRows;
+  PhotoAdjustmentsControls* m_photoAdjustmentsControls = nullptr;
 
   ConnectionManager m_connectionManager;
   TiffCompressionPanel* m_tiffCompressionPanel = nullptr;

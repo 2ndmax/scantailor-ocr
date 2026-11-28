@@ -30,56 +30,55 @@ OptionsWidgetBinarizationLocal::OptionsWidgetBinarizationLocal(std::shared_ptr<S
 
 void OptionsWidgetBinarizationLocal::updateUi(const PageId& pageId) {
   auto block = m_connectionManager.getScopedBlock();
+  m_delayedStateChanger.stop();
 
   const Params params(m_settings->getParams(pageId));
   m_pageId = pageId;
-  m_colorParams = params.colorParams();
-  m_outputProcessingParams = m_settings->getOutputProcessingParams(pageId);
 
-  updateView();
+  updateView(params.colorParams());
 }
 
 void OptionsWidgetBinarizationLocal::deltaChanged(double value) {
-  m_colorParams = m_settings->getParams(m_pageId).colorParams();
-  BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
+  ColorParams colorParams = m_settings->getParams(m_pageId).colorParams();
+  BlackWhiteOptions opt(colorParams.blackWhiteOptions());
   BlackWhiteOptions::MethodValues values = opt.values(m_method);
   values.thresholdAdjustment = static_cast<int>(value);
   opt.setValues(m_method, values);
-  m_colorParams.setBlackWhiteOptions(opt);
-  m_settings->setColorParams(m_pageId, m_colorParams);
+  colorParams.setBlackWhiteOptions(opt);
+  m_settings->setColorParams(m_pageId, colorParams);
   emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }
 
 void OptionsWidgetBinarizationLocal::windowSizeChanged(int value) {
-  m_colorParams = m_settings->getParams(m_pageId).colorParams();
-  BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
+  ColorParams colorParams = m_settings->getParams(m_pageId).colorParams();
+  BlackWhiteOptions opt(colorParams.blackWhiteOptions());
   BlackWhiteOptions::MethodValues values = opt.values(m_method);
   values.windowSize = value;
   opt.setValues(m_method, values);
-  m_colorParams.setBlackWhiteOptions(opt);
-  m_settings->setColorParams(m_pageId, m_colorParams);
+  colorParams.setBlackWhiteOptions(opt);
+  m_settings->setColorParams(m_pageId, colorParams);
   emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }
 
 void OptionsWidgetBinarizationLocal::coefChanged(double value) {
-  m_colorParams = m_settings->getParams(m_pageId).colorParams();
-  BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
+  ColorParams colorParams = m_settings->getParams(m_pageId).colorParams();
+  BlackWhiteOptions opt(colorParams.blackWhiteOptions());
   BlackWhiteOptions::MethodValues values = opt.values(m_method);
   values.coef = value;
   opt.setValues(m_method, values);
-  m_colorParams.setBlackWhiteOptions(opt);
-  m_settings->setColorParams(m_pageId, m_colorParams);
+  colorParams.setBlackWhiteOptions(opt);
+  m_settings->setColorParams(m_pageId, colorParams);
   emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }
 
-void OptionsWidgetBinarizationLocal::updateView() {
-  const BlackWhiteOptions::MethodValues values = m_colorParams.blackWhiteOptions().values(m_method);
+void OptionsWidgetBinarizationLocal::updateView(const ColorParams& colorParams) {
+  const BlackWhiteOptions::MethodValues values = colorParams.blackWhiteOptions().values(m_method);
   delta->setValue(values.thresholdAdjustment);
   windowSize->setValue(values.windowSize);
   coef->setValue(values.coef);

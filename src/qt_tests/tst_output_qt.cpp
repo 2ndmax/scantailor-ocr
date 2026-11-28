@@ -6,19 +6,37 @@
 #include <DefaultParams.h>
 #include <ErrorWidget.h>
 #include <FilterUiInterface.h>
+#include <ImagePresentation.h>
+#include <ImageTransformation.h>
 #include <IncompleteThumbnail.h>
 #include <PageSequence.h>
+#include <ProcessingOptions.h>
 #include <filters/output/ColorParams.h>
+#include <filters/output/DewarpingOptions.h>
+#include <filters/output/OutputImageParams.h>
+#include <filters/output/OutputParams.h>
+#include <filters/output/Settings.h>
 #include <filters/output/ui/DespeckleView.h>
 #include <filters/output/ui/DewarpingView.h>
 #include <filters/output/ui/FillZoneEditor.h>
 #include <filters/output/ui/ImageView.h>
 #include <filters/output/ui/OptionsWidget.h>
+#include <filters/output/ui/OptionsWidgetBinarizationLocal.h>
+#include <filters/output/ui/OptionsWidgetBinarizationOtsu.h>
 #include <filters/output/ui/PictureZoneEditor.h>
 #include <filters/output/ui/TabbedImageView.h>
 #include <filters/output/ui/Thumbnail.h>
 
+#include <QComboBox>
+#include <QCoreApplication>
+#include <QDoubleSpinBox>
+#include <QMouseEvent>
+#include <QPixmap>
+#include <QScrollBar>
+#include <QShortcut>
+#include <QStackedWidget>
 #include <QtTest/QtTest>
+#include <cmath>
 #include <memory>
 #include <typeinfo>
 
@@ -118,4 +136,195 @@ void TestOutputQt::testThumbnailOfPage() {
   const std::unique_ptr<QGraphicsItem> after = filter_ui_checks::thumbnailFor(one, page, filterIdx);
   QVERIFY(after != nullptr);
   QVERIFY(typeid(*after) == typeid(Thumbnail));
+}
+
+void TestOutputQt::testTabbedImageViewEmptyRectAndZeroScrollBar() {
+  // P8-10: Empty rects or zero-length scrollbars in TabbedImageView must not divide by 0 / produce NaN.
+  TabbedImageView tabs;
+  QScrollBar horBar(Qt::Horizontal);
+  QScrollBar verBar(Qt::Vertical);
+  horBar.setRange(0, 0);
+  horBar.setPageStep(0);
+  verBar.setRange(0, 0);
+  verBar.setPageStep(0);
+
+  const QPointF zeroBarFocus = tabs.getFocus(QRectF(10.0, 20.0, 100.0, 200.0), horBar, verBar);
+  QVERIFY(std::isfinite(zeroBarFocus.x()));
+  QVERIFY(std::isfinite(zeroBarFocus.y()));
+  const QPointF emptyRectFocus = tabs.getFocus(QRectF(), horBar, verBar);
+  QVERIFY(std::isfinite(emptyRectFocus.x()));
+  QVERIFY(std::isfinite(emptyRectFocus.y()));
+  tabs.setFocus(horBar, verBar, QRectF(), QPointF(5.0, 5.0));
+  tabs.setFocus(horBar, verBar, QRectF(0.0, 0.0, 100.0, 100.0), QPointF(50.0, 50.0));
+
+  QImage img(40, 40, QImage::Format_ARGB32_Premultiplied);
+  img.fill(Qt::white);
+  auto* viewA = new ImageViewBase(img, ImagePixmapUnion(), ImagePresentation(QTransform(), QRectF(0, 0, 40, 40)));
+  auto* viewB = new ImageViewBase(img, ImagePixmapUnion(), ImagePresentation(QTransform(), QRectF(0, 0, 40, 40)));
+  tabs.addTab(viewA, QStringLiteral("A"), TAB_OUTPUT, QString());
+  tabs.addTab(viewB, QStringLiteral("B"), TAB_DESPECKLING, QString());
+  auto rectMap = std::make_unique<std::unordered_map<ImageViewTab, QRectF, std::hash<int>>>();
+  (*rectMap)[TAB_OUTPUT] = QRectF();
+  (*rectMap)[TAB_DESPECKLING] = QRectF(0, 0, 40, 40);
+  tabs.setImageRectMap(std::move(rectMap));
+
+  viewA->setZoomLevel(2.0);
+  tabs.setCurrentIndex(0);
+  tabs.setCurrentIndex(1);
+  QCOMPARE(viewB->zoomLevel(), 1.0);
+}
+
+void TestOutputQt::testDewarpingViewDeleteKeyEmitsChangeAndNullptrSplineSafe() {
+  // P8-12: initNewSpline(..., nullptr) and painting with invalid model / empty virtDisplayArea must not crash.
+  XSpline nullOptSpline;
+  DewarpingView::initNewSpline(nullOptSpline, QPointF(0.0, 0.0), QPointF(100.0, 0.0), nullptr);
+  QCOMPARE(nullOptSpline.numControlPoints(), 2);
+
+  QImage img(100, 100, QImage::Format_ARGB32_Premultiplied);
+  img.fill(Qt::white);
+  const PageId page(ImageId(QStringLiteral("dewarp.png")));
+  {
+    DewarpingView emptyView(img, ImagePixmapUnion(), QTransform(), QPolygonF(), QRectF(0, 0, 100, 100), page,
+                            DewarpingOptions(MANUAL), dewarping::DistortionModel(), DepthPerception(2.0));
+    emptyView.resize(120, 120);
+    QPixmap target(120, 120);
+    emptyView.render(&target);
+    QVERIFY(emptyView.virtMarginArea(0).isEmpty());
+  }
+
+  // P8-11: Deleting a control point via 'D' must emit distortionModelChanged so Settings are updated.
+  DewarpingOptions autoOpts(AUTO);
+  XSpline topSpline;
+  DewarpingView::initNewSpline(topSpline, QPointF(10.0, 20.0), QPointF(90.0, 20.0), &autoOpts);
+  XSpline bottomSpline;
+  DewarpingView::initNewSpline(bottomSpline, QPointF(10.0, 80.0), QPointF(90.0, 80.0), &autoOpts);
+  dewarping::DistortionModel model;
+  model.setTopCurve(dewarping::Curve(topSpline));
+  model.setBottomCurve(dewarping::Curve(bottomSpline));
+
+  DewarpingView view(img, ImagePixmapUnion(), QTransform(), QPolygonF(QRectF(0, 0, 100, 100)), QRectF(0, 0, 100, 100),
+                     page, autoOpts, model, DepthPerception(2.0));
+  view.resize(400, 400);
+  view.show();
+  QCoreApplication::processEvents();
+
+  int changedCount = 0;
+  QObject::connect(&view, &DewarpingView::distortionModelChanged,
+                   [&changedCount](const dewarping::DistortionModel&) { ++changedCount; });
+
+  const int pointsBefore = view.m_topSpline.spline().numControlPoints();
+  const QPointF pt = view.sourceToWidget(view.m_topSpline.spline().controlPointPosition(1));
+  QMouseEvent move(QEvent::MouseMove, pt, view.viewport()->mapToGlobal(pt.toPoint()), Qt::NoButton, Qt::NoButton,
+                   Qt::NoModifier);
+  move.ignore();
+  QCoreApplication::sendEvent(view.viewport(), &move);
+
+  emit view.m_removeControlPointShortcut->activated();
+  QCOMPARE(view.m_topSpline.spline().numControlPoints(), pointsBefore - 1);
+  QCOMPARE(changedCount, 1);
+}
+
+void TestOutputQt::testBinarizationUpdateUiStopsDelayedTimer() {
+  // P8-13: Switching pages within 750 ms must cancel the delayed state-change timer in binarization subwidgets.
+  auto settings = std::make_shared<Settings>();
+  const PageId page1(ImageId(QStringLiteral("p1.png")));
+  const PageId page2(ImageId(QStringLiteral("p2.png")));
+
+  {
+    OptionsWidgetBinarizationOtsu otsu(settings);
+    int stateChangedCount = 0;
+    QObject::connect(&otsu, &OptionsWidgetBinarization::stateChanged, [&stateChangedCount]() { ++stateChangedCount; });
+    otsu.updateUi(page1);
+    auto* deltaSpin = otsu.findChild<QDoubleSpinBox*>(QStringLiteral("otsuDelta"));
+    QVERIFY(deltaSpin != nullptr);
+    deltaSpin->setValue(12.0);
+    otsu.updateUi(page2);
+    QTest::qWait(850);
+    QCOMPARE(stateChangedCount, 0);
+  }
+
+  {
+    OptionsWidgetBinarizationLocal local(settings, T_SAUVOLA);
+    int stateChangedCount = 0;
+    QObject::connect(&local, &OptionsWidgetBinarization::stateChanged, [&stateChangedCount]() { ++stateChangedCount; });
+    local.updateUi(page1);
+    auto* deltaSpin = local.findChild<QDoubleSpinBox*>(QStringLiteral("delta"));
+    QVERIFY(deltaSpin != nullptr);
+    deltaSpin->setValue(8.0);
+    local.updateUi(page2);
+    QTest::qWait(850);
+    QCOMPARE(stateChangedCount, 0);
+  }
+}
+
+void TestOutputQt::testOptionsWidgetSignalsNullIndexImmediateSwitchAndPostDeskew() {
+  // P8-14, P8-15, P8-16, P8-17: Dummy cleanup, -1 index safety, immediate method panel switch,
+  // blocked updateColorsDisplay / cancelled delayed reload, and AUTO -> MANUAL post-deskew reload.
+  auto settings = std::make_shared<Settings>();
+  auto procOpts = std::make_shared<ProcessingOptions>();
+  const PageId page(ImageId(QStringLiteral("opts.png")));
+  OptionsWidget widget(settings, procOpts, PageSelectionAccessor(nullptr), std::make_shared<LastImageViewTab>());
+  widget.preUpdateUI(page);
+
+  auto* methodBox = widget.findChild<QComboBox*>(QStringLiteral("thresholdMethodBox"));
+  auto* methodPanels = widget.findChild<QStackedWidget*>(QStringLiteral("binarizationOptions"));
+  QVERIFY(methodBox != nullptr);
+  QVERIFY(methodPanels != nullptr);
+  QCOMPARE(methodPanels->count(), int(BlackWhiteOptions::METHOD_COUNT));
+
+  // P8-15: updateBinarizationOptionsDisplay(-1) must not crash.
+  widget.updateBinarizationOptionsDisplay(-1);
+
+  int reloadCount = 0;
+  QObject::connect(&widget, &FilterOptionsWidget::reloadRequested, [&reloadCount]() { ++reloadCount; });
+
+  // P8-14 & P8-15: Immediate reload stops any pending delayed reload, and thresholdMethodChanged switches panel right
+  // away.
+  auto* dimming = widget.findChild<QDoubleSpinBox*>(QStringLiteral("coloredDimmingSB"));
+  QVERIFY(dimming != nullptr);
+  dimming->setValue(0.5);
+  QVERIFY(widget.m_delayedReloadRequest.isActive());
+
+  const int wolfIdx = methodBox->findData(int(T_WOLF));
+  QVERIFY(wolfIdx >= 0);
+  methodBox->setCurrentIndex(wolfIdx);
+  QCOMPARE(static_cast<OptionsWidgetBinarization*>(methodPanels->currentWidget())->method(), T_WOLF);
+  QCOMPARE(reloadCount, 1);
+  QVERIFY(!widget.m_delayedReloadRequest.isActive());
+
+  // P8-14: ColorParams with non-default chromaGrayLimit/wienerWindowSize updated during tabChanged must not trigger
+  // extra reloads.
+  ColorParams customColor = settings->getParams(page).colorParams();
+  ColorCommonOptions common = customColor.colorCommonOptions();
+  common.setChromaGrayLimit(12);
+  common.setWienerCoef(0.4);
+  common.setWienerWindowSize(7);
+  customColor.setColorCommonOptions(common);
+  settings->setColorParams(page, customColor);
+  widget.preUpdateUI(page);
+  reloadCount = 0;
+  widget.tabChanged(TAB_OUTPUT);
+  QVERIFY(!widget.m_delayedReloadRequest.isActive());
+  QCOMPARE(reloadCount, 0);
+
+  // P8-16: Switching AUTO -> MANUAL with active needPostDeskew and matching curves must reload.
+  DewarpingOptions savedDewarp(AUTO, true);
+  DewarpingOptions currentDewarp(MANUAL, true);
+  dewarping::DistortionModel model;
+  model.setTopCurve(dewarping::Curve(std::vector<QPointF>{QPointF(0, 10), QPointF(100, 10)}));
+  model.setBottomCurve(dewarping::Curve(std::vector<QPointF>{QPointF(0, 90), QPointF(100, 90)}));
+
+  settings->setDewarpingOptions(page, currentDewarp);
+  settings->setDistortionModel(page, model);
+  const ImageTransformation xform(QRectF(0, 0, 100, 100), Dpi(300, 300));
+  OutputImageParams savedImgParams(QSize(100, 100), QRect(0, 0, 100, 100), xform, Dpi(300, 300), customColor,
+                                   SplittingOptions(), savedDewarp, model, DepthPerception(2.0), 1.0,
+                                   PictureShapeOptions(), OutputProcessingParams(), false);
+  settings->setOutputParams(
+      page, OutputParams(savedImgParams, OutputFileParams(), OutputFileParams(), OutputFileParams(), OutputFileParams(),
+                         OutputFileParams(), OutputFileParams(), OutputFileParams(), ZoneSet(), ZoneSet()));
+  widget.preUpdateUI(page);
+  reloadCount = 0;
+  widget.reloadIfNecessary();
+  QCOMPARE(reloadCount, 1);
 }

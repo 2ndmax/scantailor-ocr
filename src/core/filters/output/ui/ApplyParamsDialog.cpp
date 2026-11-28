@@ -1,14 +1,14 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
-#include "ApplyColorsDialog.h"
+#include "ApplyParamsDialog.h"
 
 #include <QPushButton>
 
 #include "PageSelectionAccessor.h"
 
 namespace output {
-ApplyColorsDialog::ApplyColorsDialog(QWidget* parent,
+ApplyParamsDialog::ApplyParamsDialog(QWidget* parent,
                                      const PageId& curPage,
                                      const PageSelectionAccessor& pageSelectionAccessor)
     : QDialog(parent), m_curPage(curPage) {
@@ -24,29 +24,29 @@ ApplyColorsDialog::ApplyColorsDialog(QWidget* parent,
   connect(applyColorModeOption, &QAbstractButton::toggled, this, updateOkButton);
   connect(applyOtherSettingsOption, &QAbstractButton::toggled, this, updateOkButton);
 
-  connect(buttonBox, &QDialogButtonBox::accepted, this, &ApplyColorsDialog::onSubmit);
+  connect(buttonBox, &QDialogButtonBox::accepted, this, &ApplyParamsDialog::onSubmit);
 }
 
-ApplyColorsDialog::~ApplyColorsDialog() = default;
+ApplyParamsDialog::~ApplyParamsDialog() = default;
 
-void ApplyColorsDialog::showModeParts() {
+void ApplyParamsDialog::showModeParts() {
   m_modeParts = true;
   optionsBox->setVisible(true);
 }
 
-bool ApplyColorsDialog::isColorModeChosen() const {
+bool ApplyParamsDialog::isColorModeChosen() const {
   return !m_modeParts || applyColorModeOption->isChecked();
 }
 
-bool ApplyColorsDialog::isOtherSettingsChosen() const {
+bool ApplyParamsDialog::isOtherSettingsChosen() const {
   return !m_modeParts || applyOtherSettingsOption->isChecked();
 }
 
-void ApplyColorsDialog::setThisPageIncluded(const bool included) {
+void ApplyParamsDialog::setThisPageIncluded(const bool included) {
   m_thisPageIncluded = included;
 }
 
-void ApplyColorsDialog::onSubmit() {
+void ApplyParamsDialog::onSubmit() {
   if (scopeGroupBox->isThisPageOnly()) {
     // Usually not handled: the options panel has already applied it.
     emit accepted(m_thisPageIncluded ? std::set<PageId>{m_curPage} : std::set<PageId>());

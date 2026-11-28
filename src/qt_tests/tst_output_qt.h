@@ -12,6 +12,10 @@ class TestOutputQt : public QObject {
   void testShowsPanelAndConnectedTabs();
   void testMixedModeShowsPictureZones();
   void testThumbnailOfPage();
+  void testTabbedImageViewEmptyRectAndZeroScrollBar();
+  void testDewarpingViewDeleteKeyEmitsChangeAndNullptrSplineSafe();
+  void testBinarizationUpdateUiStopsDelayedTimer();
+  void testOptionsWidgetSignalsNullIndexImmediateSwitchAndPostDeskew();
 };
 
 #endif  // TST_OUTPUT_QT_H

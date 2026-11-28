@@ -25,7 +25,9 @@ class OptionsWidgetBinarizationLocal : public OptionsWidgetBinarization, private
 
   ~OptionsWidgetBinarizationLocal() override = default;
 
-  void updateUi(const PageId& m_pageId) override;
+  BinarizationMethod method() const override { return m_method; }
+
+  void updateUi(const PageId& pageId) override;
 
  private slots:
 
@@ -38,16 +40,14 @@ class OptionsWidgetBinarizationLocal : public OptionsWidgetBinarization, private
   void sendStateChanged();
 
  private:
-  void updateView();
+  void updateView(const ColorParams& colorParams);
 
   void setupUiConnections();
 
   std::shared_ptr<Settings> m_settings;
   BinarizationMethod m_method;
   PageId m_pageId;
-  ColorParams m_colorParams;
   QTimer m_delayedStateChanger;
-  OutputProcessingParams m_outputProcessingParams;
 
   ConnectionManager m_connectionManager;
 };

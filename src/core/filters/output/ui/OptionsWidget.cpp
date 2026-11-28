@@ -25,11 +25,12 @@
 
 #include "../FillZoneComparator.h"
 #include "../PictureZoneComparator.h"
-#include "ApplyColorsDialog.h"
+#include "ApplyParamsDialog.h"
 #include "BinarizationMethods.h"
 #include "CoreUtils.h"
 #include "OptionsWidgetBinarizationLocal.h"
 #include "OptionsWidgetBinarizationOtsu.h"
+#include "PhotoAdjustmentsControls.h"
 #include "ProcessingOptions.h"
 #include "TiffCompressionPanel.h"
 #include "WidgetUtils.h"
@@ -97,7 +98,9 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
   fillingColorBox->addItem(tr("Black"), FILL_BLACK);
 
   while (binarizationOptions->count() != 0) {
-    binarizationOptions->removeWidget(binarizationOptions->widget(0));
+    QWidget* dummy = binarizationOptions->widget(0);
+    binarizationOptions->removeWidget(dummy);
+    delete dummy;
   }
   addOptionsWidgetBinarization(new OptionsWidgetBinarizationOtsu(m_settings));
   // One panel per method, in the order of BinarizationMethod.
@@ -138,7 +141,8 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings,
 
   DewarpingMethodBox::setUp(dewarpingMethodBox, dewarpingMethodLabel);
 
-  setupPhotoAdjustmentsPanel();
+  m_photoAdjustmentsControls = new PhotoAdjustmentsControls(photoAdjustmentsPanel, colorBalanceGrid, toneGrid,
+                                                            colorBalanceHeading, keepWhiteCB, this);
 
   updateDpiDisplay();
   updateColorsDisplay();
@@ -192,7 +196,7 @@ void OptionsWidget::tiffCompressionChanged(const bool delayReload) {
     // Don't recreate the page for every step of the spin box.
     m_delayedReloadRequest.start(RELOAD_DELAY_MS);
   } else {
-    emit reloadRequested();
+    requestReloadNow();
   }
 }
 
@@ -255,7 +259,7 @@ void OptionsWidget::colorModeChanged(const ColorMode mode) {
   m_colorParams.setColorMode(mode);
   m_settings->setColorParams(m_pageId, m_colorParams);
   updateColorsDisplay();
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::colorDetectionMinColorChanged(const int percent) {
@@ -273,22 +277,19 @@ void OptionsWidget::colorDetectionMinPictureChanged(const int percent) {
 }
 
 void OptionsWidget::colorDetectionButtonClicked() {
-  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
-  dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Detect Color Mode"));
+  ApplyParamsDialog* dialog = openApplyDialog(tr("Detect Color Mode"), &OptionsWidget::colorModeDetectionRequested);
   dialog->setThisPageIncluded(true);
-  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::colorModeDetectionRequested);
-  dialog->show();
 }
 
 void OptionsWidget::thresholdMethodChanged(int idx) {
-  const BinarizationMethod method = (BinarizationMethod) thresholdMethodBox->itemData(idx).toInt();
+  const auto method = static_cast<BinarizationMethod>(thresholdMethodBox->itemData(idx).toInt());
   BlackWhiteOptions blackWhiteOptions(m_colorParams.blackWhiteOptions());
   blackWhiteOptions.setBinarizationMethod(method);
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
+  selectBinarizationPanel(method);
 
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::fillingColorChanged(int idx) {
@@ -298,7 +299,7 @@ void OptionsWidget::fillingColorChanged(int idx) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::pictureShapeChanged(const int idx) {
@@ -309,7 +310,7 @@ void OptionsWidget::pictureShapeChanged(const int idx) {
   pictureShapeSensitivityOptions->setEnabled(shapeMode == RECTANGULAR_SHAPE);
   higherSearchSensitivityCB->setEnabled(shapeMode != OFF_SHAPE);
 
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::pictureShapeSensitivityChanged(int value) {
@@ -323,7 +324,7 @@ void OptionsWidget::higherSearchSensivityToggled(const bool checked) {
   m_pictureShapeOptions.setHigherSearchSensitivity(checked);
   m_settings->setPictureShapeOptions(m_pageId, m_pictureShapeOptions);
 
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::fillMarginsToggled(const bool checked) {
@@ -331,7 +332,7 @@ void OptionsWidget::fillMarginsToggled(const bool checked) {
   colorCommonOptions.setFillMargins(checked);
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::fillOffcutToggled(const bool checked) {
@@ -344,7 +345,7 @@ void OptionsWidget::fillOffcutToggled(const bool checked) {
   }
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::fillOutsidePageBoxToggled(const bool checked) {
@@ -357,7 +358,7 @@ void OptionsWidget::fillOutsidePageBoxToggled(const bool checked) {
   }
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::equalizeIlluminationToggled(const bool checked) {
@@ -381,7 +382,7 @@ void OptionsWidget::equalizeIlluminationToggled(const bool checked) {
   }
 
   m_settings->setColorParams(m_pageId, m_colorParams);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::equalizeIlluminationColorToggled(const bool checked) {
@@ -389,7 +390,7 @@ void OptionsWidget::equalizeIlluminationColorToggled(const bool checked) {
   opt.setNormalizeIllumination(checked);
   m_colorParams.setColorCommonOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::grayscaleOutputToggled(const bool checked) {
@@ -397,13 +398,13 @@ void OptionsWidget::grayscaleOutputToggled(const bool checked) {
   opt.setGrayscaleOutput(checked);
   m_colorParams.setColorCommonOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  emit reloadRequested();
+  requestReloadNow();
   emit invalidateThumbnail(m_pageId);
 }
 
 
 void OptionsWidget::binarizationSettingsChanged() {
-  emit reloadRequested();
+  requestReloadNow();
   emit invalidateThumbnail(m_pageId);
 }
 
@@ -434,11 +435,7 @@ void OptionsWidget::dpiSelectionChanged() {
 }
 
 void OptionsWidget::applyDpiButtonClicked() {
-  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
-  dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Output Resolution"));
-  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyDpiConfirmed);
-  dialog->show();
+  openApplyDialog(tr("Apply Output Resolution"), &OptionsWidget::applyDpiConfirmed);
 }
 
 void OptionsWidget::applyDpiConfirmed(const std::set<PageId>& pages) {
@@ -446,13 +443,11 @@ void OptionsWidget::applyDpiConfirmed(const std::set<PageId>& pages) {
 }
 
 void OptionsWidget::applyColorsButtonClicked() {
-  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
-  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  ApplyParamsDialog* dialog = createApplyDialog();
   dialog->showModeParts();
-  connect(dialog, &ApplyColorsDialog::accepted, this, [this, dialog](const std::set<PageId>& pages) {
+  connect(dialog, &ApplyParamsDialog::accepted, this, [this, dialog](const std::set<PageId>& pages) {
     applyColorsConfirmed(pages, dialog->isColorModeChosen(), dialog->isOtherSettingsChosen());
   });
-  dialog->show();
 }
 
 void OptionsWidget::dpiChanged(const std::set<PageId>& pages, const Dpi& dpi) {
@@ -479,7 +474,7 @@ void OptionsWidget::dpiChanged(const std::set<PageId>& pages, const Dpi& dpi) {
     // The dewarping mode may have changed above.
     m_dewarpingOptions = m_settings->getParams(m_pageId).dewarpingOptions();
     updateDewarpingDisplay();
-    emit reloadRequested();
+    requestReloadNow();
   }
 }
 
@@ -502,138 +497,7 @@ void OptionsWidget::applyColorsConfirmed(const std::set<PageId>& pages,
   pagesChanged(pages);
 }
 
-void OptionsWidget::setupPhotoAdjustmentsPanel() {
-  struct RowText {
-    QString label;
-    QString toolTip;
-  };
-  const RowText texts[PHOTO_ADJUSTMENT_COUNT]
-      = {{tr("Temperature:"),
-          tr("Positive values make the pictures warmer (more yellow), negative values cooler (more blue).")},
-         {tr("Tint:"), tr("Positive values add magenta, negative values green.")},
-         {tr("Exposure:"), tr("Brightens or darkens the pictures as a whole, in stops (EV).")},
-         {tr("Contrast:"), tr("Positive values spread the tones apart, negative values bring them closer together, "
-                              "around the middle gray.")},
-         {tr("Highlights:"), tr("Positive values brighten the bright parts, negative values darken them.")},
-         {tr("Shadows:"), tr("Positive values brighten the dark parts, negative values darken them.")},
-         {tr("Whites:"), tr("Positive values make the brightest tones whiter, negative values duller.")},
-         {tr("Blacks:"), tr("Positive values make the darkest tones lighter, negative values deeper.")}};
-
-  for (int row = 0; row < PHOTO_ADJUSTMENT_COUNT; ++row) {
-    PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
-    QWidget* parent = photoAdjustmentsPanel;
-    r.label = new QLabel(texts[row].label, parent);
-    r.slider = new QSlider(Qt::Horizontal, parent);
-    if (row == EXPOSURE) {
-      // The slider counts hundredths of a stop.
-      auto* field = new QDoubleSpinBox(parent);
-      field->setRange(PhotoAdjustments::MIN_EXPOSURE, PhotoAdjustments::MAX_EXPOSURE);
-      field->setDecimals(2);
-      field->setSingleStep(0.05);
-      field->setSuffix(QStringLiteral(" EV"));
-      r.field = field;
-      r.slider->setRange(qRound(PhotoAdjustments::MIN_EXPOSURE * 100), qRound(PhotoAdjustments::MAX_EXPOSURE * 100));
-      r.slider->setSingleStep(5);
-      r.slider->setPageStep(25);
-    } else {
-      auto* field = new QSpinBox(parent);
-      field->setRange(PhotoAdjustments::MIN_VALUE, PhotoAdjustments::MAX_VALUE);
-      r.field = field;
-      r.slider->setRange(PhotoAdjustments::MIN_VALUE, PhotoAdjustments::MAX_VALUE);
-      r.slider->setSingleStep(1);
-      r.slider->setPageStep(10);
-    }
-    r.field->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    r.field->setKeyboardTracking(false);
-    for (QWidget* widget :
-         {static_cast<QWidget*>(r.label), static_cast<QWidget*>(r.field), static_cast<QWidget*>(r.slider)}) {
-      widget->setToolTip(texts[row].toolTip);
-    }
-
-    QGridLayout* grid = (row <= TINT) ? colorBalanceGrid : toneGrid;
-    const int gridRow = 2 * ((row <= TINT) ? row : row - EXPOSURE);
-    grid->addWidget(r.label, gridRow, 0);
-    grid->addWidget(r.field, gridRow, 1, Qt::AlignLeft);
-    grid->addWidget(r.slider, gridRow + 1, 0, 1, 2);
-  }
-  // Equal fields, as wide as "-2.00 EV".
-  QAbstractSpinBox* exposureField = m_photoAdjustmentRows[EXPOSURE].field;
-  core::WidgetUtils::setNumberFieldWidth(exposureField, PhotoAdjustments::MIN_EXPOSURE);
-  for (PhotoAdjustmentRow& r : m_photoAdjustmentRows) {
-    r.field->setFixedWidth(exposureField->minimumWidth());
-  }
-  // The fields of both parts start at the same place.
-  core::WidgetUtils::alignLabelColumns({colorBalanceGrid, toneGrid});
-  for (QGridLayout* grid : {colorBalanceGrid, toneGrid}) {
-    grid->setColumnStretch(1, 1);
-  }
-}
-
-int OptionsWidget::photoAdjustmentSliderValue(const int row) const {
-  const PhotoAdjustments& adjustments = m_colorParams.photoAdjustments();
-  switch (row) {
-    case TEMPERATURE:
-      return adjustments.temperature();
-    case TINT:
-      return adjustments.tint();
-    case EXPOSURE:
-      return qRound(adjustments.exposure() * 100);
-    case CONTRAST:
-      return adjustments.contrast();
-    case HIGHLIGHTS:
-      return adjustments.highlights();
-    case SHADOWS:
-      return adjustments.shadows();
-    case WHITES:
-      return adjustments.whites();
-    case BLACKS:
-      return adjustments.blacks();
-    default:
-      return 0;
-  }
-}
-
-void OptionsWidget::photoAdjustmentSliderChanged(const int row, const int value) {
-  PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
-  {
-    const QSignalBlocker blocker(r.field);
-    if (auto* doubleField = qobject_cast<QDoubleSpinBox*>(r.field)) {
-      doubleField->setValue(value / 100.0);
-    } else if (auto* intField = qobject_cast<QSpinBox*>(r.field)) {
-      intField->setValue(value);
-    }
-  }
-  // While dragging, the page is recalculated only once the slider is released.
-  if (!r.slider->isSliderDown()) {
-    commitPhotoAdjustments();
-  }
-}
-
-void OptionsWidget::photoAdjustmentFieldChanged(const int row) {
-  PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
-  {
-    const QSignalBlocker blocker(r.slider);
-    if (auto* doubleField = qobject_cast<QDoubleSpinBox*>(r.field)) {
-      r.slider->setValue(qRound(doubleField->value() * 100));
-    } else if (auto* intField = qobject_cast<QSpinBox*>(r.field)) {
-      r.slider->setValue(intField->value());
-    }
-  }
-  commitPhotoAdjustments();
-}
-
-void OptionsWidget::commitPhotoAdjustments() {
-  const auto value = [this](const int row) { return m_photoAdjustmentRows[row].slider->value(); };
-  PhotoAdjustments adjustments;
-  adjustments.setTemperature(value(TEMPERATURE));
-  adjustments.setTint(value(TINT));
-  adjustments.setExposure(value(EXPOSURE) / 100.0);
-  adjustments.setContrast(value(CONTRAST));
-  adjustments.setHighlights(value(HIGHLIGHTS));
-  adjustments.setShadows(value(SHADOWS));
-  adjustments.setWhites(value(WHITES));
-  adjustments.setBlacks(value(BLACKS));
-  adjustments.setKeepWhite(keepWhiteCB->isChecked());
+void OptionsWidget::commitPhotoAdjustments(const PhotoAdjustments& adjustments) {
   if (adjustments == m_colorParams.photoAdjustments()) {
     return;
   }
@@ -644,42 +508,8 @@ void OptionsWidget::commitPhotoAdjustments() {
   m_delayedReloadRequest.start(300);
 }
 
-void OptionsWidget::updatePhotoAdjustmentsDisplay() {
-  for (int row = 0; row < PHOTO_ADJUSTMENT_COUNT; ++row) {
-    PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
-    const QSignalBlocker sliderBlocker(r.slider);
-    const QSignalBlocker fieldBlocker(r.field);
-    const int value = photoAdjustmentSliderValue(row);
-    r.slider->setValue(value);
-    if (auto* doubleField = qobject_cast<QDoubleSpinBox*>(r.field)) {
-      doubleField->setValue(value / 100.0);
-    } else if (auto* intField = qobject_cast<QSpinBox*>(r.field)) {
-      intField->setValue(value);
-    }
-  }
-  const QSignalBlocker keepWhiteBlocker(keepWhiteCB);
-  keepWhiteCB->setChecked(m_colorParams.photoAdjustments().keepWhite());
-
-  // Not used in black and white; the color balance not with grayscale output, "Keep white" only
-  // in color mode (in mixed mode only the pictures are changed).
-  const ColorMode colorMode = m_colorParams.colorMode();
-  const bool colorBalance = !m_colorParams.colorCommonOptions().isGrayscaleOutput();
-  photoAdjustmentsPanel->setEnabled(colorMode != BLACK_AND_WHITE);
-  colorBalanceHeading->setEnabled(colorBalance);
-  for (const int row : {TEMPERATURE, TINT}) {
-    m_photoAdjustmentRows[row].label->setEnabled(colorBalance);
-    m_photoAdjustmentRows[row].field->setEnabled(colorBalance);
-    m_photoAdjustmentRows[row].slider->setEnabled(colorBalance);
-  }
-  keepWhiteCB->setEnabled(colorMode == COLOR_GRAYSCALE);
-}
-
 void OptionsWidget::applyPhotoAdjustmentsButtonClicked() {
-  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
-  dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Photo Adjustments"));
-  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyPhotoAdjustmentsConfirmed);
-  dialog->show();
+  openApplyDialog(tr("Apply Photo Adjustments"), &OptionsWidget::applyPhotoAdjustmentsConfirmed);
 }
 
 void OptionsWidget::applyPhotoAdjustmentsConfirmed(const std::set<PageId>& pages) {
@@ -693,11 +523,7 @@ void OptionsWidget::applyPhotoAdjustmentsConfirmed(const std::set<PageId>& pages
 }
 
 void OptionsWidget::applySplittingButtonClicked() {
-  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
-  dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Splitting"));
-  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applySplittingOptionsConfirmed);
-  dialog->show();
+  openApplyDialog(tr("Apply Splitting"), &OptionsWidget::applySplittingOptionsConfirmed);
 }
 
 void OptionsWidget::applySplittingOptionsConfirmed(const std::set<PageId>& pages) {
@@ -750,17 +576,13 @@ void OptionsWidget::handleDespeckleLevelChange(const double level, const bool de
     if (delay) {
       m_delayedReloadRequest.start(RELOAD_DELAY_MS);
     } else {
-      emit reloadRequested();
+      requestReloadNow();
     }
   }
 }
 
 void OptionsWidget::applyDespeckleButtonClicked() {
-  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
-  dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Despeckling"));
-  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyDespeckleConfirmed);
-  dialog->show();
+  openApplyDialog(tr("Apply Despeckling"), &OptionsWidget::applyDespeckleConfirmed);
 }
 
 void OptionsWidget::applyDespeckleConfirmed(const std::set<PageId>& pages) {
@@ -798,11 +620,7 @@ void OptionsWidget::evenOutLetterWidthsToggled(const bool checked) {
 }
 
 void OptionsWidget::applyDewarpingButtonClicked() {
-  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
-  dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Dewarping"));
-  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyDewarpingConfirmed);
-  dialog->show();
+  openApplyDialog(tr("Apply Dewarping"), &OptionsWidget::applyDewarpingConfirmed);
 }
 
 void OptionsWidget::applyDewarpingConfirmed(const std::set<PageId>& pages) {
@@ -845,7 +663,7 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
         updateColorsDisplay();
         updateDewarpingDisplay();
 
-        emit reloadRequested();
+        requestReloadNow();
       } else {
         // The Dewarping tab follows the change by itself, only the options panel is updated.
         updateDewarpingDisplay();
@@ -888,7 +706,7 @@ void OptionsWidget::invalidateThumbnails(const std::set<PageId>& pages) {
 void OptionsWidget::pagesChanged(const std::set<PageId>& pages) {
   invalidateThumbnails(pages);
   if (pages.find(m_pageId) != pages.end()) {
-    emit reloadRequested();
+    requestReloadNow();
   }
 }
 
@@ -915,7 +733,7 @@ void OptionsWidget::reloadIfNecessary() {
   if (!PictureZoneComparator::equal(savedPictureZones, m_settings->pictureZonesForPage(m_pageId))
       || !FillZoneComparator::equal(savedFillZones, m_settings->fillZonesForPage(m_pageId))
       || (savedDespeckleLevel != params.despeckleLevel())) {
-    emit reloadRequested();
+    requestReloadNow();
     return;
   }
 
@@ -927,17 +745,20 @@ void OptionsWidget::reloadIfNecessary() {
     return;
   }
 
+  // Only Manual and Marginal modes apply post-deskew in OutputGenerator.
+  const auto postDeskewActive = [](const DewarpingOptions& opt) {
+    return opt.needPostDeskew() && ((opt.dewarpingMode() == MANUAL) || (opt.dewarpingMode() == MARGINAL));
+  };
   bool reload = (savedDepthPerception.value() != params.depthPerception().value())
                 || (savedDewarpingOptions.evenOutLetterWidths() != dewarpingOptions.evenOutLetterWidths())
-                // Not reloaded on the Dewarping tab in the manual mode, see dewarpingChanged().
-                || (savedDewarpingOptions.needPostDeskew() != dewarpingOptions.needPostDeskew());
+                || (postDeskewActive(savedDewarpingOptions) != postDeskewActive(dewarpingOptions));
   // The automatic modes find the curves anew, so a changed model doesn't count there.
   const bool sameAutomaticMode = (savedMode == mode) && dewarpingOptions.findsCurvesItself();
   if (!reload && !sameAutomaticMode) {
     reload = !savedDistortionModel.matches(params.distortionModel()) || ((savedMode == OFF) != (mode == OFF));
   }
   if (reload) {
-    emit reloadRequested();
+    requestReloadNow();
   }
 }  // OptionsWidget::reloadIfNecessary
 
@@ -948,6 +769,7 @@ void OptionsWidget::updateDpiDisplay() {
 }
 
 void OptionsWidget::updateColorsDisplay() {
+  auto block = m_connectionManager.getScopedBlock();
   const QSignalBlocker minColorBlocker(colorDetectionMinColorSB);
   const QSignalBlocker zonesBlocker(colorDetectionZonesCB);
   const QSignalBlocker minPictureBlocker(colorDetectionMinPictureSB);
@@ -1011,7 +833,8 @@ void OptionsWidget::updateColorsDisplay() {
   thresholdOptions->setEnabled(thresholdOptionsVisible);
   despecklePanel->setEnabled(thresholdOptionsVisible);
 
-  updatePhotoAdjustmentsDisplay();
+  m_photoAdjustmentsControls->updateDisplay(colorMode, colorCommonOptions.isGrayscaleOutput(),
+                                            m_colorParams.photoAdjustments());
 
   splittingOptions->setEnabled(splittingOptionsVisible);
   splittingCB->setChecked(m_splittingOptions.isSplitOutput());
@@ -1029,8 +852,7 @@ void OptionsWidget::updateColorsDisplay() {
   updateOriginalBackgroundEnabled();
 
   thresholdMethodBox->setCurrentIndex(thresholdMethodBox->findData(blackWhiteOptions.getBinarizationMethod()));
-  // The option widgets were added in the order of the methods.
-  binarizationOptions->setCurrentIndex((int) blackWhiteOptions.getBinarizationMethod());
+  selectBinarizationPanel(blackWhiteOptions.getBinarizationMethod());
 
   // The areas to fill are used in every color mode, the color not in black and white.
   fillingColorLabel->setEnabled(colorMode != BLACK_AND_WHITE);
@@ -1044,39 +866,16 @@ void OptionsWidget::updateColorsDisplay() {
   chromaOptionsWidget->setEnabled(colorCommonOptions.chromaDenoise());
   chromaRadius->setValue(colorCommonOptions.chromaRadius());
   chromaGrayLimit->setValue(colorCommonOptions.chromaGrayLimit());
-  const bool subtractBgOn = colorCommonOptions.subtractBackgroundCoef() > 0.0;
-  if (subtractBgOn) {
-    m_subtractBgCoefWhenOn = colorCommonOptions.subtractBackgroundCoef();
-  }
-  subtractBgCB->setChecked(subtractBgOn);
-  subtractBgOptionsWidget->setEnabled(subtractBgOn);
-  subtractBgCoef->setValue(m_subtractBgCoefWhenOn);
-  subtractBgRadius->setValue(colorCommonOptions.subtractBackgroundRadius());
+  updateEnhancementFilter(subtractBgCB, subtractBgOptionsWidget, subtractBgCoef, subtractBgRadius,
+                          colorCommonOptions.subtractBackgroundCoef(), m_subtractBgCoefWhenOn,
+                          colorCommonOptions.subtractBackgroundRadius());
   subtractBgWhiteCB->setChecked(colorCommonOptions.subtractBackgroundWhite());
-  const bool knnOn = colorCommonOptions.knnCoef() > 0.0;
-  if (knnOn) {
-    m_knnCoefWhenOn = colorCommonOptions.knnCoef();
-  }
-  knnCB->setChecked(knnOn);
-  knnOptionsWidget->setEnabled(knnOn);
-  knnCoef->setValue(m_knnCoefWhenOn);
-  knnRadius->setValue(colorCommonOptions.knnRadius());
-  const bool sharpenOn = colorCommonOptions.sharpenCoef() > 0.0;
-  if (sharpenOn) {
-    m_sharpenCoefWhenOn = colorCommonOptions.sharpenCoef();
-  }
-  sharpenCB->setChecked(sharpenOn);
-  sharpenOptionsWidget->setEnabled(sharpenOn);
-  sharpenCoef->setValue(m_sharpenCoefWhenOn);
-  sharpenRadius->setValue(colorCommonOptions.sharpenRadius());
-  const bool wienerOn = colorCommonOptions.wienerCoef() > 0.0;
-  if (wienerOn) {
-    m_wienerCoefWhenOn = colorCommonOptions.wienerCoef();
-  }
-  wienerCB->setChecked(wienerOn);
-  wienerOptionsWidget->setEnabled(wienerOn);
-  wienerCoef->setValue(m_wienerCoefWhenOn);
-  wienerWindowSize->setValue(colorCommonOptions.wienerWindowSize());
+  updateEnhancementFilter(knnCB, knnOptionsWidget, knnCoef, knnRadius, colorCommonOptions.knnCoef(), m_knnCoefWhenOn,
+                          colorCommonOptions.knnRadius());
+  updateEnhancementFilter(sharpenCB, sharpenOptionsWidget, sharpenCoef, sharpenRadius, colorCommonOptions.sharpenCoef(),
+                          m_sharpenCoefWhenOn, colorCommonOptions.sharpenRadius());
+  updateEnhancementFilter(wienerCB, wienerOptionsWidget, wienerCoef, wienerWindowSize, colorCommonOptions.wienerCoef(),
+                          m_wienerCoefWhenOn, colorCommonOptions.wienerWindowSize());
   colorSegmentationCB->setChecked(blackWhiteOptions.getColorSegmenterOptions().isEnabled());
   reduceNoiseSB->setValue(blackWhiteOptions.getColorSegmenterOptions().getNoiseReduction());
   redAdjustmentSB->setValue(blackWhiteOptions.getColorSegmenterOptions().getRedThresholdAdjustment());
@@ -1177,7 +976,7 @@ void OptionsWidget::savitzkyGolaySmoothingToggled(bool checked) {
   opt.setSavitzkyGolaySmoothingEnabled(checked);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::morphologicalSmoothingToggled(bool checked) {
@@ -1185,7 +984,7 @@ void OptionsWidget::morphologicalSmoothingToggled(bool checked) {
   opt.setMorphologicalSmoothingEnabled(checked);
   m_colorParams.setBlackWhiteOptions(opt);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::coloredDimmingChanged(const double value) {
@@ -1210,7 +1009,7 @@ void OptionsWidget::bwForegroundToggled(bool /*checked*/) {
   m_splittingOptions.setSplittingMode(BLACK_AND_WHITE_FOREGROUND);
   updateOriginalBackgroundEnabled();
   m_settings->setSplittingOptions(m_pageId, m_splittingOptions);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::colorForegroundToggled(bool /*checked*/) {
@@ -1218,7 +1017,7 @@ void OptionsWidget::colorForegroundToggled(bool /*checked*/) {
   m_splittingOptions.setSplittingMode(COLOR_FOREGROUND);
   updateOriginalBackgroundEnabled();
   m_settings->setSplittingOptions(m_pageId, m_splittingOptions);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::updateOriginalBackgroundEnabled() {
@@ -1234,14 +1033,14 @@ void OptionsWidget::splittingToggled(bool checked) {
   updateOriginalBackgroundEnabled();
 
   m_settings->setSplittingOptions(m_pageId, m_splittingOptions);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::originalBackgroundToggled(bool checked) {
   m_splittingOptions.setOriginalBackgroundEnabled(checked);
 
   m_settings->setSplittingOptions(m_pageId, m_splittingOptions);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::chromaToggled(bool checked) {
@@ -1251,7 +1050,7 @@ void OptionsWidget::chromaToggled(bool checked) {
   m_settings->setColorParams(m_pageId, m_colorParams);
 
   chromaOptionsWidget->setEnabled(checked);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::chromaRadiusChanged(int value) {
@@ -1272,36 +1071,21 @@ void OptionsWidget::chromaGrayLimitChanged(int value) {
   m_delayedReloadRequest.start(RELOAD_DELAY_MS);
 }
 
-void OptionsWidget::subtractBgToggled(bool checked) {
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setSubtractBackgroundCoef(checked ? m_subtractBgCoefWhenOn : 0.0);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  subtractBgOptionsWidget->setEnabled(checked);
-  emit reloadRequested();
-}
-
-void OptionsWidget::subtractBgCoefChanged(double value) {
-  if (!subtractBgCB->isChecked()) {
-    return;
+void OptionsWidget::updateEnhancementFilter(QCheckBox* cb,
+                                            QWidget* optionsWidget,
+                                            QDoubleSpinBox* coefBox,
+                                            QSpinBox* paramBox,
+                                            const double coef,
+                                            double& coefWhenOn,
+                                            const int param) {
+  const bool enabled = coef > 0.0;
+  if (enabled) {
+    coefWhenOn = coef;
   }
-  m_subtractBgCoefWhenOn = value;
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setSubtractBackgroundCoef(value);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
-}
-
-void OptionsWidget::subtractBgRadiusChanged(int value) {
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setSubtractBackgroundRadius(value);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
+  cb->setChecked(enabled);
+  optionsWidget->setEnabled(enabled);
+  coefBox->setValue(coefWhenOn);
+  paramBox->setValue(param);
 }
 
 void OptionsWidget::subtractBgWhiteToggled(bool checked) {
@@ -1310,103 +1094,7 @@ void OptionsWidget::subtractBgWhiteToggled(bool checked) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  emit reloadRequested();
-}
-
-void OptionsWidget::knnToggled(bool checked) {
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setKnnCoef(checked ? m_knnCoefWhenOn : 0.0);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  knnOptionsWidget->setEnabled(checked);
-  emit reloadRequested();
-}
-
-void OptionsWidget::knnCoefChanged(double value) {
-  if (!knnCB->isChecked()) {
-    return;
-  }
-  m_knnCoefWhenOn = value;
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setKnnCoef(value);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
-}
-
-void OptionsWidget::knnRadiusChanged(int value) {
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setKnnRadius(value);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
-}
-
-void OptionsWidget::sharpenToggled(bool checked) {
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setSharpenCoef(checked ? m_sharpenCoefWhenOn : 0.0);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  sharpenOptionsWidget->setEnabled(checked);
-  emit reloadRequested();
-}
-
-void OptionsWidget::sharpenCoefChanged(double value) {
-  if (!sharpenCB->isChecked()) {
-    return;
-  }
-  m_sharpenCoefWhenOn = value;
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setSharpenCoef(value);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
-}
-
-void OptionsWidget::sharpenRadiusChanged(int value) {
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setSharpenRadius(value);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
-}
-
-void OptionsWidget::wienerToggled(bool checked) {
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setWienerCoef(checked ? m_wienerCoefWhenOn : 0.0);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  wienerOptionsWidget->setEnabled(checked);
-  emit reloadRequested();
-}
-
-void OptionsWidget::wienerCoefChanged(double value) {
-  if (!wienerCB->isChecked()) {
-    return;
-  }
-  m_wienerCoefWhenOn = value;
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setWienerCoef(value);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
-}
-
-void OptionsWidget::wienerWindowSizeChanged(int value) {
-  ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
-  colorCommonOptions.setWienerWindowSize(value);
-  m_colorParams.setColorCommonOptions(colorCommonOptions);
-  m_settings->setColorParams(m_pageId, m_colorParams);
-
-  m_delayedReloadRequest.start(RELOAD_DELAY_MS);
+  requestReloadNow();
 }
 
 void OptionsWidget::colorSegmentationToggled(bool checked) {
@@ -1419,7 +1107,7 @@ void OptionsWidget::colorSegmentationToggled(bool checked) {
 
   updateColorReductionControls();
 
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::reduceNoiseChanged(int value) {
@@ -1532,7 +1220,7 @@ void OptionsWidget::colorReductionChanged(const int index) {
   m_settings->setColorParams(m_pageId, m_colorParams);
 
   updateColorReductionControls();
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::kmeansColorsChanged(const int value) {
@@ -1552,7 +1240,7 @@ void OptionsWidget::kmeansFixBlackToggled(const bool checked) {
   blackWhiteOptions.setColorSegmenterOptions(segmenterOptions);
   m_colorParams.setBlackWhiteOptions(blackWhiteOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::posterizeLevelChanged(int value) {
@@ -1574,7 +1262,7 @@ void OptionsWidget::posterizeNormalizationToggled(bool checked) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::posterizeForceBwToggled(bool checked) {
@@ -1585,7 +1273,7 @@ void OptionsWidget::posterizeForceBwToggled(bool checked) {
   m_colorParams.setColorCommonOptions(colorCommonOptions);
   m_settings->setColorParams(m_pageId, m_colorParams);
 
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::updateBinarizationOptionsDisplay(int idx) {
@@ -1599,12 +1287,46 @@ void OptionsWidget::updateBinarizationOptionsDisplay(int idx) {
   }
 
   QWidget* widget = binarizationOptions->widget(idx);
+  if (widget == nullptr) {
+    return;
+  }
   widget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
   widget->adjustSize();
   binarizationOptions->adjustSize();
 
   connect(static_cast<OptionsWidgetBinarization*>(widget), &OptionsWidgetBinarization::stateChanged, this,
           &OptionsWidget::binarizationSettingsChanged);
+}
+
+void OptionsWidget::selectBinarizationPanel(const BinarizationMethod method) {
+  for (int i = 0; i < binarizationOptions->count(); ++i) {
+    if (static_cast<OptionsWidgetBinarization*>(binarizationOptions->widget(i))->method() == method) {
+      binarizationOptions->setCurrentIndex(i);
+      return;
+    }
+  }
+}
+
+void OptionsWidget::requestReloadNow() {
+  m_delayedReloadRequest.stop();
+  emit reloadRequested();
+}
+
+ApplyParamsDialog* OptionsWidget::createApplyDialog(const QString& title) {
+  auto* dialog = new ApplyParamsDialog(this, m_pageId, m_pageSelectionAccessor);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  if (!title.isEmpty()) {
+    dialog->setWindowTitle(title);
+  }
+  dialog->show();
+  return dialog;
+}
+
+template <typename OnAccepted>
+ApplyParamsDialog* OptionsWidget::openApplyDialog(const QString& title, OnAccepted&& onAccepted) {
+  ApplyParamsDialog* dialog = createApplyDialog(title);
+  connect(dialog, &ApplyParamsDialog::accepted, this, std::forward<OnAccepted>(onAccepted));
+  return dialog;
 }
 
 void OptionsWidget::addOptionsWidgetBinarization(OptionsWidgetBinarization* widget) {
@@ -1626,6 +1348,47 @@ void OptionsWidget::sendReloadRequested() {
 
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))
 
+template <typename GetCoef, typename SetCoef, typename SetParam>
+void OptionsWidget::connectEnhancementFilter(QCheckBox* cb,
+                                             QWidget* optionsWidget,
+                                             QDoubleSpinBox* coefBox,
+                                             QSpinBox* paramBox,
+                                             double& coefWhenOn,
+                                             GetCoef getCoef,
+                                             SetCoef setCoef,
+                                             SetParam setParam) {
+  (void) getCoef;
+  CONNECT(cb, &QAbstractButton::clicked, this, [this, optionsWidget, &coefWhenOn, setCoef](const bool checked) {
+    ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+    (colorCommonOptions.*setCoef)(checked ? coefWhenOn : 0.0);
+    m_colorParams.setColorCommonOptions(colorCommonOptions);
+    m_settings->setColorParams(m_pageId, m_colorParams);
+
+    optionsWidget->setEnabled(checked);
+    requestReloadNow();
+  });
+  CONNECT(coefBox, &QDoubleSpinBox::valueChanged, this, [this, cb, &coefWhenOn, setCoef](const double value) {
+    if (!cb->isChecked()) {
+      return;
+    }
+    coefWhenOn = value;
+    ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+    (colorCommonOptions.*setCoef)(value);
+    m_colorParams.setColorCommonOptions(colorCommonOptions);
+    m_settings->setColorParams(m_pageId, m_colorParams);
+
+    m_delayedReloadRequest.start(RELOAD_DELAY_MS);
+  });
+  CONNECT(paramBox, &QSpinBox::valueChanged, this, [this, setParam](const int value) {
+    ColorCommonOptions colorCommonOptions = m_colorParams.colorCommonOptions();
+    (colorCommonOptions.*setParam)(value);
+    m_colorParams.setColorCommonOptions(colorCommonOptions);
+    m_settings->setColorParams(m_pageId, m_colorParams);
+
+    m_delayedReloadRequest.start(RELOAD_DELAY_MS);
+  });
+}
+
 void OptionsWidget::setupUiConnections() {
   CONNECT(dpiSelector, &QComboBox::activated, this, &OptionsWidget::dpiSelectionChanged);
   CONNECT(dpiSelector->lineEdit(), &QLineEdit::editingFinished, this, &OptionsWidget::dpiSelectionChanged);
@@ -1646,19 +1409,19 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(chromaCB, &QAbstractButton::clicked, this, &OptionsWidget::chromaToggled);
   CONNECT(chromaRadius, &QSpinBox::valueChanged, this, &OptionsWidget::chromaRadiusChanged);
   CONNECT(chromaGrayLimit, &QSpinBox::valueChanged, this, &OptionsWidget::chromaGrayLimitChanged);
-  CONNECT(subtractBgCB, &QAbstractButton::clicked, this, &OptionsWidget::subtractBgToggled);
-  CONNECT(subtractBgCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::subtractBgCoefChanged);
-  CONNECT(subtractBgRadius, &QSpinBox::valueChanged, this, &OptionsWidget::subtractBgRadiusChanged);
+  connectEnhancementFilter(subtractBgCB, subtractBgOptionsWidget, subtractBgCoef, subtractBgRadius,
+                           m_subtractBgCoefWhenOn, &ColorCommonOptions::subtractBackgroundCoef,
+                           &ColorCommonOptions::setSubtractBackgroundCoef,
+                           &ColorCommonOptions::setSubtractBackgroundRadius);
   CONNECT(subtractBgWhiteCB, &QAbstractButton::clicked, this, &OptionsWidget::subtractBgWhiteToggled);
-  CONNECT(knnCB, &QAbstractButton::clicked, this, &OptionsWidget::knnToggled);
-  CONNECT(knnCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::knnCoefChanged);
-  CONNECT(knnRadius, &QSpinBox::valueChanged, this, &OptionsWidget::knnRadiusChanged);
-  CONNECT(sharpenCB, &QAbstractButton::clicked, this, &OptionsWidget::sharpenToggled);
-  CONNECT(sharpenCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::sharpenCoefChanged);
-  CONNECT(sharpenRadius, &QSpinBox::valueChanged, this, &OptionsWidget::sharpenRadiusChanged);
-  CONNECT(wienerCB, &QAbstractButton::clicked, this, &OptionsWidget::wienerToggled);
-  CONNECT(wienerCoef, &QDoubleSpinBox::valueChanged, this, &OptionsWidget::wienerCoefChanged);
-  CONNECT(wienerWindowSize, &QSpinBox::valueChanged, this, &OptionsWidget::wienerWindowSizeChanged);
+  connectEnhancementFilter(knnCB, knnOptionsWidget, knnCoef, knnRadius, m_knnCoefWhenOn, &ColorCommonOptions::knnCoef,
+                           &ColorCommonOptions::setKnnCoef, &ColorCommonOptions::setKnnRadius);
+  connectEnhancementFilter(sharpenCB, sharpenOptionsWidget, sharpenCoef, sharpenRadius, m_sharpenCoefWhenOn,
+                           &ColorCommonOptions::sharpenCoef, &ColorCommonOptions::setSharpenCoef,
+                           &ColorCommonOptions::setSharpenRadius);
+  connectEnhancementFilter(wienerCB, wienerOptionsWidget, wienerCoef, wienerWindowSize, m_wienerCoefWhenOn,
+                           &ColorCommonOptions::wienerCoef, &ColorCommonOptions::setWienerCoef,
+                           &ColorCommonOptions::setWienerWindowSize);
   CONNECT(colorSegmentationCB, &QAbstractButton::clicked, this, &OptionsWidget::colorSegmentationToggled);
   CONNECT(reduceNoiseSB, &QSpinBox::valueChanged, this, &OptionsWidget::reduceNoiseChanged);
   CONNECT(colorReductionCB, qOverload<int>(&QComboBox::currentIndexChanged), this,
@@ -1707,18 +1470,8 @@ void OptionsWidget::setupUiConnections() {
   CONNECT(depthPerceptionSlider, &QAbstractSlider::sliderReleased, this, &OptionsWidget::depthPerceptionSliderReleased);
   CONNECT(&m_delayedReloadRequest, &QTimer::timeout, this, &OptionsWidget::sendReloadRequested);
 
-  for (int row = 0; row < PHOTO_ADJUSTMENT_COUNT; ++row) {
-    const PhotoAdjustmentRow& r = m_photoAdjustmentRows[row];
-    CONNECT(r.slider, &QAbstractSlider::valueChanged, this,
-            [this, row](const int value) { photoAdjustmentSliderChanged(row, value); });
-    CONNECT(r.slider, &QAbstractSlider::sliderReleased, this, &OptionsWidget::commitPhotoAdjustments);
-    if (auto* doubleField = qobject_cast<QDoubleSpinBox*>(r.field)) {
-      CONNECT(doubleField, &QDoubleSpinBox::valueChanged, this, [this, row] { photoAdjustmentFieldChanged(row); });
-    } else if (auto* intField = qobject_cast<QSpinBox*>(r.field)) {
-      CONNECT(intField, &QSpinBox::valueChanged, this, [this, row] { photoAdjustmentFieldChanged(row); });
-    }
-  }
-  CONNECT(keepWhiteCB, &QAbstractButton::clicked, this, &OptionsWidget::commitPhotoAdjustments);
+  m_photoAdjustmentsControls->setupConnections(
+      m_connectionManager, [this](const PhotoAdjustments& adjustments) { commitPhotoAdjustments(adjustments); });
   CONNECT(applyPhotoAdjustmentsButton, &QAbstractButton::clicked, this,
           &OptionsWidget::applyPhotoAdjustmentsButtonClicked);
 
@@ -1742,15 +1495,11 @@ void OptionsWidget::blackOnWhiteToggled(bool value) {
   processingParams.setBlackOnWhiteSetManually(true);
   m_settings->setOutputProcessingParams(m_pageId, processingParams);
 
-  emit reloadRequested();
+  requestReloadNow();
 }
 
 void OptionsWidget::applyProcessingParamsClicked() {
-  auto* dialog = new ApplyColorsDialog(this, m_pageId, m_pageSelectionAccessor);
-  dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setWindowTitle(tr("Apply Content"));
-  connect(dialog, &ApplyColorsDialog::accepted, this, &OptionsWidget::applyProcessingParamsConfirmed);
-  dialog->show();
+  openApplyDialog(tr("Apply Content"), &OptionsWidget::applyProcessingParamsConfirmed);
 }
 
 void OptionsWidget::applyProcessingParamsConfirmed(const std::set<PageId>& pages) {

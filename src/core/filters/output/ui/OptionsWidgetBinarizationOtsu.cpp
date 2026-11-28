@@ -23,29 +23,29 @@ OptionsWidgetBinarizationOtsu::OptionsWidgetBinarizationOtsu(std::shared_ptr<Set
 
 void OptionsWidgetBinarizationOtsu::updateUi(const PageId& pageId) {
   auto block = m_connectionManager.getScopedBlock();
+  m_delayedStateChanger.stop();
 
   const Params params(m_settings->getParams(pageId));
   m_pageId = pageId;
-  m_colorParams = params.colorParams();
 
-  updateView();
+  updateView(params.colorParams());
 }
 
 void OptionsWidgetBinarizationOtsu::otsuDeltaChanged(double value) {
-  m_colorParams = m_settings->getParams(m_pageId).colorParams();
-  BlackWhiteOptions opt(m_colorParams.blackWhiteOptions());
+  ColorParams colorParams = m_settings->getParams(m_pageId).colorParams();
+  BlackWhiteOptions opt(colorParams.blackWhiteOptions());
   BlackWhiteOptions::MethodValues values = opt.values(T_OTSU);
   values.thresholdAdjustment = static_cast<int>(value);
   opt.setValues(T_OTSU, values);
-  m_colorParams.setBlackWhiteOptions(opt);
-  m_settings->setColorParams(m_pageId, m_colorParams);
+  colorParams.setBlackWhiteOptions(opt);
+  m_settings->setColorParams(m_pageId, colorParams);
   emit colorParamsChanged();
 
   m_delayedStateChanger.start(750);
 }
 
-void OptionsWidgetBinarizationOtsu::updateView() {
-  otsuDelta->setValue(m_colorParams.blackWhiteOptions().values(T_OTSU).thresholdAdjustment);
+void OptionsWidgetBinarizationOtsu::updateView(const ColorParams& colorParams) {
+  otsuDelta->setValue(colorParams.blackWhiteOptions().values(T_OTSU).thresholdAdjustment);
 }
 
 #define CONNECT(...) m_connectionManager.addConnection(connect(__VA_ARGS__))

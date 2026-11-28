@@ -1,7 +1,7 @@
 set(CMAKE_AUTOUIC ON)
 
 set(ui_files
-    ApplyColorsDialog.ui
+    ApplyParamsDialog.ui
     OptionsWidget.ui
     OptionsWidgetBinarizationOtsu.ui
     OptionsWidgetBinarizationLocal.ui
@@ -42,7 +42,6 @@ set(sources
     PhotoAdjustments.cpp PhotoAdjustments.h
     OutputImageParams.cpp OutputImageParams.h
     OutputFileParams.cpp OutputFileParams.h
-    OutputParams.cpp OutputParams.h
     PictureLayerProperty.cpp PictureLayerProperty.h
     ZoneCategoryProperty.cpp ZoneCategoryProperty.h
     PictureZonePropFactory.cpp PictureZonePropFactory.h
@@ -71,10 +70,11 @@ target_link_libraries(output PUBLIC core_base PRIVATE dewarping)
 target_include_directories(output PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
 # What the main window shows of the step.
 set(ui_sources
-    ApplyColorsDialog.cpp ApplyColorsDialog.h
+    ApplyParamsDialog.cpp ApplyParamsDialog.h
     ImageView.cpp ImageView.h
     TabbedImageView.cpp TabbedImageView.h
     OptionsWidget.cpp OptionsWidget.h
+    PhotoAdjustmentsControls.cpp PhotoAdjustmentsControls.h
     FilterUi.cpp FilterUi.h
     Thumbnail.cpp Thumbnail.h
     BinarizationMethods.cpp BinarizationMethods.h
