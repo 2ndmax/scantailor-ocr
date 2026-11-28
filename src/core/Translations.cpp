@@ -14,7 +14,8 @@
 
 Translations::Translations() : m_currentLocale("en") {
   // The files are named after the program, e.g. "scantailor-ocr_de.qm".
-  const QStringList languageFileFilter(QString::fromUtf8(APPLICATION_NAME) + "_*.qm");
+  const QString prefix = QString::fromUtf8(APPLICATION_NAME) + QLatin1Char('_');
+  const QStringList languageFileFilter(prefix + QLatin1String("*.qm"));
   for (const QString& path : translationDirs()) {
     const QDir dir(path);
     if (dir.exists()) {
@@ -22,7 +23,7 @@ Translations::Translations() : m_currentLocale("en") {
       for (const QString& fileName : translationFileNames) {
         QString locale(fileName);
         locale.truncate(locale.lastIndexOf('.'));
-        locale.remove(0, locale.indexOf('_') + 1);
+        locale.remove(0, prefix.size());
 
         m_translationsMap[locale] = dir.absoluteFilePath(fileName);
       }
@@ -41,13 +42,15 @@ void Translations::install(const QString& requestedLocale) {
   }
 
   if (m_translationsMap.find(locale) != m_translationsMap.end()) {
-    bool loaded = m_translator.load(m_translationsMap[locale]);
+    const bool loaded = m_translator.load(m_translationsMap[locale]);
 
     QCoreApplication::removeTranslator(&m_translator);
     m_currentLocale = (loaded) ? locale : "en";
     // Qt's translation is installed first, so the program's own one takes precedence.
     installQtLanguage(m_currentLocale);
-    QCoreApplication::installTranslator(&m_translator);
+    if (loaded) {
+      QCoreApplication::installTranslator(&m_translator);
+    }
   } else {
     QCoreApplication::removeTranslator(&m_translator);
 

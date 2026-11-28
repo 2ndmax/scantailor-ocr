@@ -22,7 +22,8 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
                      const QString& inputDir,
                      const ProjectReader* reader,
                      const DefaultParams& defaults,
-                     const ProjectSession::LoadMode mode) {
+                     const ProjectSession::LoadMode mode,
+                     const bool createThumbnails) {
   ProjectSession session;
   session.pages = pages;
 
@@ -64,9 +65,9 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
     session.stages->startNewProject(defaults);
   }
 
-  // Thumbnails are stored relative to the output directory. Loading without side effects creates
-  // no cache and leaves this pointer null, so describing a project changes nothing.
-  if (withSideEffects && !outDir.isEmpty()) {
+  // Thumbnails are stored relative to the output folder. Loading without side effects or with
+  // createThumbnails == false creates no cache and leaves this pointer null.
+  if (withSideEffects && createThumbnails && !outDir.isEmpty()) {
     session.thumbnailCache = core::CoreUtils::createThumbnailCache(outDir);
   }
   return session;
@@ -76,14 +77,16 @@ ProjectSession setUp(const std::shared_ptr<ProjectPages>& pages,
 ProjectSession ProjectSession::createNew(const std::shared_ptr<ProjectPages>& pages,
                                          const QString& outDir,
                                          const QString& inputDir,
-                                         const DefaultParams& startValues) {
-  return setUp(pages, outDir, inputDir, nullptr, startValues, ProjectSession::LoadMode::Normal);
+                                         const DefaultParams& startValues,
+                                         const bool createThumbnails) {
+  return setUp(pages, outDir, inputDir, nullptr, startValues, ProjectSession::LoadMode::Normal, createThumbnails);
 }
 
 ProjectSession ProjectSession::load(const ProjectReader& reader,
                                     const DefaultParams& fallback,
-                                    const ProjectSession::LoadMode mode) {
-  return setUp(reader.pages(), reader.outputDirectory(), QString(), &reader, fallback, mode);
+                                    const ProjectSession::LoadMode mode,
+                                    const bool createThumbnails) {
+  return setUp(reader.pages(), reader.outputDirectory(), QString(), &reader, fallback, mode, createThumbnails);
 }
 
 bool ProjectSession::write(const QString& projectFile) const {

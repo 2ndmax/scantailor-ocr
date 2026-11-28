@@ -67,6 +67,7 @@ ImageMetadataLoader::Status ImageMetadataLoader::loadImpl(const QString& filePat
                                                           const VirtualFunction<void, const ImageMetadata&>& out) {
   QFile file(filePath);
   if (!file.open(QIODevice::ReadOnly)) {
+    ImageLoadErrorCapture::addError(file.errorString());
     return GENERIC_ERROR;
   }
   return loadImpl(file, out);

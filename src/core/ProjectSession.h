@@ -37,12 +37,14 @@ struct ProjectSession {
   static ProjectSession createNew(const std::shared_ptr<ProjectPages>& pages,
                                   const QString& outDir,
                                   const QString& inputDir,
-                                  const DefaultParams& startValues);
+                                  const DefaultParams& startValues,
+                                  bool createThumbnails = true);
 
   /** A project read from its file. Settings the file lacks come from \p fallback. */
   static ProjectSession load(const ProjectReader& reader,
                              const DefaultParams& fallback,
-                             LoadMode mode = LoadMode::Normal);
+                             LoadMode mode = LoadMode::Normal,
+                             bool createThumbnails = true);
 
   /** Writes the project file. Returns false if it could not be written. */
   bool write(const QString& projectFile) const;

@@ -193,6 +193,8 @@ bool parseJp2Header(QIODevice& device, HeaderInfo& info) {
 struct CodestreamInfo {
   int64_t width = 0;
   int64_t height = 0;
+  uint32_t x1 = 0;
+  uint32_t y1 = 0;
   // 0 if the tile grid is invalid or the marker is truncated.
   uint64_t numTiles = 0;
   uint32_t numComps = 0;
@@ -217,6 +219,8 @@ bool readCodestreamInfo(QIODevice& device, const qint64 pos, CodestreamInfo& inf
   }
   info.width = static_cast<int64_t>(xSiz) - xOffset;
   info.height = static_cast<int64_t>(ySiz) - yOffset;
+  info.x1 = xSiz;
+  info.y1 = ySiz;
 
   info.numTiles = 0;
   info.numComps = 0;
@@ -282,6 +286,11 @@ bool codestreamExceedsLimits(QIODevice& device, const Jp2Format format) {
   CodestreamInfo info;
   if ((codestreamPos < 0) || !readCodestreamInfo(device, codestreamPos, info)) {
     return false;
+  }
+  if ((info.x1 > static_cast<uint32_t>(INT32_MAX)) || (info.y1 > static_cast<uint32_t>(INT32_MAX))) {
+    ImageLoadErrorCapture::addError(
+        QCoreApplication::translate("Jp2Reader", "The JPEG 2000 file header is damaged or incomplete."));
+    return true;
   }
   if (ImageSizeLimit::exceeds(info.width, info.height)) {
     ImageLoadErrorCapture::addError(ImageSizeLimit::errorMessage(info.width, info.height));
@@ -650,6 +659,10 @@ QImage decodeInStrips(opj_codec_t* codec, opj_stream_t* stream, opj_image_t* ima
   const OPJ_UINT32 y0 = image->y0;
   const OPJ_UINT32 x1 = image->x1;
   const OPJ_UINT32 y1 = image->y1;
+  if ((x0 >= x1) || (y0 >= y1) || (x1 > static_cast<OPJ_UINT32>(INT32_MAX))
+      || (y1 > static_cast<OPJ_UINT32>(INT32_MAX))) {
+    return QImage();
+  }
   const OPJ_UINT32 numComps = image->numcomps;
   const uint64_t bytesPerRow = static_cast<uint64_t>(x1 - x0) * numComps * sizeof(OPJ_INT32);
   const auto rowsPerStrip = static_cast<OPJ_UINT32>(
@@ -765,6 +778,12 @@ QImage decode(QIODevice& device,
   // The size of the codestream, not that of the JP2 header, as OpenJPEG allocates by this one.
   // Components with subsampling are scaled up to it by toQImage(). Checked again here for the
   // codestreams codestreamExceedsLimits() couldn't read.
+  if ((image->x0 >= image->x1) || (image->y0 >= image->y1) || (image->x1 > static_cast<OPJ_UINT32>(INT32_MAX))
+      || (image->y1 > static_cast<OPJ_UINT32>(INT32_MAX))) {
+    ImageLoadErrorCapture::addError(
+        QCoreApplication::translate("Jp2Reader", "The JPEG 2000 file header is damaged or incomplete."));
+    return QImage();
+  }
   const int64_t fullWidth = static_cast<int64_t>(image->x1) - image->x0;
   const int64_t fullHeight = static_cast<int64_t>(image->y1) - image->y0;
   if (ImageSizeLimit::exceeds(fullWidth, fullHeight)) {

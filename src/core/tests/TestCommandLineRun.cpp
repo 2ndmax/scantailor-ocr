@@ -870,7 +870,7 @@ BOOST_AUTO_TEST_CASE(test_project_without_a_format_needs_the_option) {
 
   QString out;
   QString err;
-  BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book")), CommandLineRun::USAGE_ERROR);
+  BOOST_CHECK_EQUAL(runExport(projectFile, &out, &err, dir.filePath("book")), CommandLineRun::PROJECT_UNUSABLE);
   BOOST_CHECK(err.contains(QStringLiteral("--export-formats")));
   BOOST_CHECK(QDir(dir.filePath("out")).entryList({"*.tif"}, QDir::Files).isEmpty());
 
@@ -1397,8 +1397,8 @@ BOOST_AUTO_TEST_CASE(test_folder_mode_color_detect_is_used_by_the_output) {
   BOOST_CHECK(QFileInfo::exists(dir.filePath("p.pdf")));
 }
 
-// --threads: the run gets its budget, which is restored for the other tests; a too small value is
-// a usage error and leaves the budget alone.
+// --threads: the run gets its budget and restores the previous one when done; a too small value
+// is a usage error and leaves the budget alone.
 BOOST_AUTO_TEST_CASE(test_threads_option) {
   QTemporaryDir dir;
   BOOST_REQUIRE(dir.isValid());
@@ -1419,10 +1419,10 @@ BOOST_AUTO_TEST_CASE(test_threads_option) {
   BOOST_CHECK(!err.isEmpty());
   BOOST_CHECK_EQUAL(ThreadBudget::maxThreads(), saved);
 
-  options.threads = 2;
+  options.threads = (saved == 1) ? 2 : 1;
   BOOST_CHECK_EQUAL(CommandLineRun::run(options, outStream, errStream, std::atomic<bool>(false)),
                     CommandLineRun::SUCCESS);
-  BOOST_CHECK_EQUAL(ThreadBudget::maxThreads(), std::min(2, ThreadBudget::availableThreads()));
+  BOOST_CHECK_EQUAL(ThreadBudget::maxThreads(), saved);
 }
 
 BOOST_AUTO_TEST_CASE(test_threads_does_not_change_the_budget_on_a_usage_error) {

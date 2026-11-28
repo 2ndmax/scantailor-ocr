@@ -64,7 +64,7 @@ Units DefaultParams::displayUnits(const Units profileUnits, const Units programU
 
 DefaultParams DefaultParams::inUnits(const Units units) const {
   DefaultParams converted(*this);
-  if (units == m_units) {
+  if ((units == m_units) || (m_units == PIXELS) || (units == PIXELS)) {
     return converted;
   }
 

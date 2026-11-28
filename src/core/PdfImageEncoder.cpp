@@ -224,10 +224,7 @@ void appendSegmentHeader(QByteArray& out, const uint32_t number, const int type,
 }  // namespace
 
 bool PdfImageEncoder::isBitonal(const QImage& image) {
-  // REVIEW-NOTE (2026-10): any 1-bit image counts as bitonal, even with a non-gray color table
-  // -> a two-color page would be exported black and white. Not fixed because the output stage
-  // does not produce such images today.
-  return image.depth() == 1;
+  return (image.depth() == 1) && image.allGray();
 }
 
 bool PdfImageEncoder::isPalette(const QImage& image) {
@@ -554,6 +551,52 @@ QByteArray PdfImageEncoder::encodeJbig2(const QImage& image) {
   return out;
 }  // PdfImageEncoder::encodeJbig2
 
+namespace {
+#ifdef _MSC_VER
+// Keeps setjmp() in a frame without C++ objects that have destructors; MSVC still emits C4611
+// for any setjmp() under /EHsc even when the frame holds only POD types.
+#pragma warning(push)
+#pragma warning(disable : 4611)
+#endif
+bool encodeJpegImpl(jpeg_compress_struct* cinfo,
+                    JpegErrorManager* errorManager,
+                    JpegDestination* destination,
+                    const uchar* bits,
+                    const qsizetype bytesPerLine,
+                    const int width,
+                    const int height,
+                    const int numComponents,
+                    const bool gray,
+                    const int quality) {
+  if (setjmp(errorManager->jmpBuf())) {
+    jpeg_destroy_compress(cinfo);
+    return false;
+  }
+
+  jpeg_create_compress(cinfo);
+  cinfo->dest = destination;
+  cinfo->image_width = static_cast<JDIMENSION>(width);
+  cinfo->image_height = static_cast<JDIMENSION>(height);
+  cinfo->input_components = numComponents;
+  cinfo->in_color_space = gray ? JCS_GRAYSCALE : JCS_RGB;
+  jpeg_set_defaults(cinfo);
+  jpeg_set_quality(cinfo, qBound(1, quality, 100), TRUE);
+  cinfo->optimize_coding = TRUE;
+
+  jpeg_start_compress(cinfo, TRUE);
+  while (cinfo->next_scanline < cinfo->image_height) {
+    auto* row = const_cast<JSAMPROW>(bits + static_cast<qsizetype>(cinfo->next_scanline) * bytesPerLine);
+    jpeg_write_scanlines(cinfo, &row, 1);
+  }
+  jpeg_finish_compress(cinfo);
+  jpeg_destroy_compress(cinfo);
+  return true;
+}
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+}  // namespace
+
 QByteArray PdfImageEncoder::encodeJpeg(const QImage& image, const int quality, int* components) {
   if (image.isNull()) {
     return QByteArray();
@@ -563,41 +606,17 @@ QByteArray PdfImageEncoder::encodeJpeg(const QImage& image, const int quality, i
   const QImage src = image.convertToFormat(gray ? QImage::Format_Grayscale8 : QImage::Format_RGB888);
   const int numComponents = gray ? 1 : 3;
 
-  // Everything with a destructor has to exist before setjmp().
+  // Everything with a destructor lives in this outer frame, not in encodeJpegImpl() with setjmp().
   QByteArray out;
   JpegErrorManager errorManager;
   JpegDestination destination(out);
   jpeg_compress_struct cinfo{};
   cinfo.err = &errorManager;
 
-  // REVIEW-NOTE (2026-10): a libjpeg error longjmp()s back here -> destructors of objects in the
-  // frames jumped over are skipped, and locals changed after setjmp() are indeterminate.
-  // Not fixed because no such object exists: src, out, errorManager and destination are created
-  // before setjmp(), the frames jumped over (libjpeg, JpegDestination, errorExit, whose QString dies
-  // before longjmp()) hold none, and cinfo and out are changed only through pointers handed to
-  // libjpeg, so they are read from memory after the jump, as in libjpeg's example.c.
-  if (setjmp(errorManager.jmpBuf())) {
-    jpeg_destroy_compress(&cinfo);
+  if (!encodeJpegImpl(&cinfo, &errorManager, &destination, src.constBits(), src.bytesPerLine(), src.width(),
+                      src.height(), numComponents, gray, quality)) {
     return QByteArray();
   }
-
-  jpeg_create_compress(&cinfo);
-  cinfo.dest = &destination;
-  cinfo.image_width = static_cast<JDIMENSION>(src.width());
-  cinfo.image_height = static_cast<JDIMENSION>(src.height());
-  cinfo.input_components = numComponents;
-  cinfo.in_color_space = gray ? JCS_GRAYSCALE : JCS_RGB;
-  jpeg_set_defaults(&cinfo);
-  jpeg_set_quality(&cinfo, qBound(1, quality, 100), TRUE);
-  cinfo.optimize_coding = TRUE;
-
-  jpeg_start_compress(&cinfo, TRUE);
-  while (cinfo.next_scanline < cinfo.image_height) {
-    auto* row = const_cast<JSAMPROW>(src.constScanLine(static_cast<int>(cinfo.next_scanline)));
-    jpeg_write_scanlines(&cinfo, &row, 1);
-  }
-  jpeg_finish_compress(&cinfo);
-  jpeg_destroy_compress(&cinfo);
 
   if (components) {
     *components = numComponents;

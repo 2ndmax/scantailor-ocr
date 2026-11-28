@@ -680,6 +680,7 @@ void ExportJob::run() {
     if (!replaced.isEmpty()) {
       m_errors.push_back(tr("These were already replaced: %1").arg(replaced.join(QStringLiteral(", "))));
     }
+    textOutputs.cancel();
     return;
   }
 

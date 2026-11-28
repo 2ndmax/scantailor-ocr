@@ -6,7 +6,7 @@
 #include <Transform.h>
 
 #include <QTransform>
-#include <cassert>
+#include <cstdint>
 
 #include "Dpi.h"
 #include "Dpm.h"
@@ -14,7 +14,9 @@
 using namespace imageproc;
 
 QImage createDownscaledImage(const QImage& image) {
-  assert(!image.isNull());
+  if (image.isNull()) {
+    return image;
+  }
 
   // Original and downscaled DPM.
   const Dpm oDpm(image);
@@ -23,15 +25,15 @@ QImage createDownscaledImage(const QImage& image) {
   const int oW = image.width();
   const int oH = image.height();
 
-  if ((oDpm.horizontal() <= 0) || (oDpm.vertical() <= 0)) {
-    // Unknown resolution: no downscaling, rather than dividing by zero.
+  if ((oW <= 0) || (oH <= 0) || (oDpm.horizontal() <= 0) || (oDpm.vertical() <= 0)) {
+    // Empty image or unknown resolution: no downscaling, rather than dividing by zero.
     return image;
   }
 
-  int dW = oW * dDpm.horizontal() / oDpm.horizontal();
-  int dH = oH * dDpm.vertical() / oDpm.vertical();
-  dW = qBound(1, dW, oW);
-  dH = qBound(1, dH, oH);
+  const int64_t scaledW = int64_t(oW) * dDpm.horizontal() / oDpm.horizontal();
+  const int64_t scaledH = int64_t(oH) * dDpm.vertical() / oDpm.vertical();
+  const int dW = static_cast<int>(qBound(int64_t(1), scaledW, int64_t(oW)));
+  const int dH = static_cast<int>(qBound(int64_t(1), scaledH, int64_t(oH)));
 
   if ((dW * 1.2 > oW) || (dH * 1.2 > oH)) {
     // Sizes are close - no point in downscaling.

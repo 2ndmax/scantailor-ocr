@@ -16,8 +16,8 @@ bool OrderBySizeProviderBase::compare(const Dimension dimension,
   const bool lhsValid = !lhsIncomplete && lhsSize.isValid();
   const bool rhsValid = !rhsIncomplete && rhsSize.isValid();
 
-  if (lhsValid != rhsValid) {
-    // Invalid (unknown) sizes go to the back.
+  if (!lhsValid || !rhsValid) {
+    // Invalid (unknown) sizes go to the back; two invalid entries are equivalent.
     return lhsValid;
   }
   if (dimension == WIDTH) {

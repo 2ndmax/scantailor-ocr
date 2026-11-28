@@ -263,6 +263,29 @@ int exifOrientation(j_decompress_ptr cinfo) {
   }
   return 0;
 }
+
+#ifdef _MSC_VER
+// Keeps setjmp() in a frame without C++ objects that have destructors; MSVC still emits C4611
+// for any setjmp() under /EHsc even when the frame holds only POD types.
+#pragma warning(push)
+#pragma warning(disable : 4611)
+#endif
+// Returns JPEG_HEADER_OK, JPEG_HEADER_TABLES_ONLY, or -1 on libjpeg error.
+int readJpegHeader(jpeg_decompress_struct* cinfo, JpegErrorManager* errMgr, jpeg_source_mgr* srcMgr) {
+  if (setjmp(errMgr->jmpBuf())) {
+    return -1;
+  }
+
+  jpeg_create_decompress(cinfo);
+  // jpeg_create_decompress() clears the source manager, so it has to be installed afterwards.
+  cinfo->src = srcMgr;
+  // Keeps APP1 for its EXIF orientation.
+  jpeg_save_markers(cinfo, JPEG_APP0 + 1, 0xffff);
+  return jpeg_read_header(cinfo, 0);
+}
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 }  // namespace
 
 /*============================= JpegMetadataLoader ==========================*/
@@ -284,29 +307,16 @@ ImageMetadataLoader::Status JpegMetadataLoader::loadMetadata(QIODevice& ioDevice
     return FORMAT_NOT_RECOGNIZED;
   }
 
-  // All three objects have to be constructed before setjmp(), or longjmp()
-  // would skip their destructors - most importantly the one calling
-  // jpeg_destroy_decompress(). None of these constructors can longjmp().
+  // All three objects live in this outer frame, not in readJpegHeader() with setjmp(),
+  // so longjmp() never skips C++ destructors and jpeg_destroy_decompress() always runs.
   JpegErrorManager errMgr;
   JpegSourceManager srcMgr(ioDevice);
   JpegDecompressHandle cinfo(&errMgr);
 
-  // REVIEW-NOTE (2026-10): a libjpeg error longjmp()s back here -> destructors of objects in the
-  // frames jumped over are skipped, and locals changed after setjmp() are indeterminate.
-  // Not fixed because no such object exists: the frames jumped over (libjpeg, JpegSourceManager,
-  // errorExit, whose QString dies before longjmp()) hold none, nothing with a destructor is created
-  // here between setjmp() and the last libjpeg call, and cinfo is changed only through the pointer
-  // handed to libjpeg, so it is read from memory by its destructor, as in libjpeg's example.c.
-  if (setjmp(errMgr.jmpBuf())) {
-    // Returning from longjmp().
+  const int headerStatus = readJpegHeader(cinfo.ptr(), &errMgr, &srcMgr);
+  if (headerStatus < 0) {
     return GENERIC_ERROR;
   }
-
-  cinfo.create(&srcMgr);
-  // Keeps APP1 for its EXIF orientation.
-  jpeg_save_markers(cinfo.ptr(), JPEG_APP0 + 1, 0xffff);
-
-  const int headerStatus = jpeg_read_header(cinfo.ptr(), 0);
   if (headerStatus == JPEG_HEADER_TABLES_ONLY) {
     return NO_IMAGES;
   }

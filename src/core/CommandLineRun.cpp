@@ -462,7 +462,7 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
   }
   const std::shared_ptr<ProjectPages> pages
       = ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder());
-  return ProjectSession::createNew(pages, outDir, inputDir, startValues);
+  return ProjectSession::createNew(pages, outDir, inputDir, startValues, false);
 }
 
 /**
@@ -505,7 +505,7 @@ std::optional<ProjectSession> loadExistingProject(const ProjectReader& reader,
     return std::nullopt;
   }
   // The fallback fills in what a project of 1.0.9 to 1.0.12 lacks.
-  return ProjectSession::load(reader, DefaultParams(), mode);
+  return ProjectSession::load(reader, DefaultParams(), mode, false);
 }
 
 /**
@@ -1145,14 +1145,27 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     return USAGE_ERROR;
   }
   // Only now that all usage checks passed does the budget of this run replace the program's one.
-  if (options.threads) {
-    ThreadBudget::setMaxThreads(*options.threads);
-  }
+  class ThreadBudgetGuard {
+   public:
+    explicit ThreadBudgetGuard(const std::optional<int> threads) {
+      if (threads) {
+        m_previous = ThreadBudget::maxThreads();
+        ThreadBudget::setMaxThreads(*threads);
+      }
+    }
+    ~ThreadBudgetGuard() {
+      if (m_previous) {
+        ThreadBudget::setMaxThreads(*m_previous);
+      }
+    }
+    ThreadBudgetGuard(const ThreadBudgetGuard&) = delete;
+    ThreadBudgetGuard& operator=(const ThreadBudgetGuard&) = delete;
 
-  // The project session: of the file, or new of the folder. The read result is kept alive: the
-  // reader of a project is used through the run.
-  ProjectReader::FileResult read;
-  const ProjectReader* reader = nullptr;
+   private:
+    std::optional<int> m_previous;
+  } const threadBudgetGuard(options.threads);
+
+  // The project session: of the file, or new of the folder.
   QStringList passedOver;
   QStringList fixedFiles;
   QString usedProfile;
@@ -1160,7 +1173,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   if (folderMode) {
     session = createFolderProject(options, projectFile, out, err, &usedProfile, &passedOver, &fixedFiles);
   } else {
-    read = ProjectReader::readFile(projectFile);
+    const ProjectReader::FileResult read = ProjectReader::readFile(projectFile);
     if (read.error != ProjectReader::FileError::NONE) {
       err << nativePath(projectFile) << ": " << ProjectReader::errorMessage(read.error) << Qt::endl;
       return PROJECT_UNUSABLE;
@@ -1169,8 +1182,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       err << projectNotSavableMessage(projectFile) << Qt::endl;
       return PROJECT_UNUSABLE;
     }
-    reader = read.reader.get();
-    session = loadExistingProject(*reader, err, ProjectSession::LoadMode::Normal);
+    session = loadExistingProject(*read.reader, err, ProjectSession::LoadMode::Normal);
   }
   if (!session) {
     return PROJECT_UNUSABLE;
@@ -1200,17 +1212,13 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
       // REVIEW-NOTE (2026-11): a project saved by 1.0.9 or 1.0.10 has no <processing-options> and no <default-params>,
       // one saved by 1.0.11 or 1.0.12 no <formats> -> the built-in defaults fill them in here, the default profile in
       // the app, so here only PDF is exported. Not fixed because no such projects are in use.
-      formats = reader ? reader->readProcessingOptions(ProcessingOptions()).formats
-                       : session->stages->processingOptions()->formats;
+      formats = session->stages->processingOptions()->formats;
       if (!formats.any()) {
         err << tr(
             "The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them "
             "with --export-formats.")
             << Qt::endl;
-        // REVIEW-NOTE (2026-11): a project with no format ticked, exported without --export-formats -> exit code 1
-        // (wrong command line) although the command line itself is correct. Not fixed because the message names
-        // --export-formats as the remedy and scripts usually only test for "not 0".
-        return USAGE_ERROR;
+        return PROJECT_UNUSABLE;
       }
     }
     exportPaths = ExportPaths::fromBase(exportBase);
@@ -1483,7 +1491,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   return *exitCode;
 }
 
-CommandLineRun::ExitCode CommandLineRun::profileList(QTextStream& out, QTextStream& err, const QString& profileDir) {
+CommandLineRun::ExitCode CommandLineRun::profileList(QTextStream& out, QTextStream&, const QString& profileDir) {
   QJsonObject root;
   root["schemaVersion"] = 1;
 

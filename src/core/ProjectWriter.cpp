@@ -189,6 +189,9 @@ QDomElement ProjectWriter::processImages(QDomDocument& doc) const {
 void ProjectWriter::writeImageMetadata(QDomDocument& doc, QDomElement& imageEl, const ImageId& imageId) const {
   auto it(m_metadataByImage.find(imageId));
   assert(it != m_metadataByImage.end());
+  if (it == m_metadataByImage.end()) {
+    return;
+  }
   const ImageMetadata& metadata = it->second;
 
   QDomElement sizeEl(doc.createElement("size"));
@@ -236,6 +239,9 @@ QDomElement ProjectWriter::processPages(QDomDocument& doc) const {
 int ProjectWriter::dirId(const QString& dirPath) const {
   const Directories::const_iterator it(m_dirs.find(dirPath));
   assert(it != m_dirs.end());
+  if (it == m_dirs.end()) {
+    return -1;
+  }
   return it->numericId;
 }
 
@@ -260,12 +266,18 @@ QString ProjectWriter::packFilePath(const QString& filePath) const {
 int ProjectWriter::imageId(const ImageId& imageId) const {
   const Images::const_iterator it(m_images.find(imageId));
   assert(it != m_images.end());
+  if (it == m_images.end()) {
+    return -1;
+  }
   return it->numericId;
 }
 
 int ProjectWriter::pageId(const PageId& pageId) const {
   const Pages::const_iterator it(m_pages.find(pageId));
   assert(it != m_pages.end());
+  if (it == m_pages.end()) {
+    return -1;
+  }
   return it->numericId;
 }
 

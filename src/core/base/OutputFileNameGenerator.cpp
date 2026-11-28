@@ -3,12 +3,14 @@
 
 #include "OutputFileNameGenerator.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <utility>
 
 #include "AbstractRelinker.h"
+#include "CoreUtils.h"
 #include "PageId.h"
 #include "RelinkablePath.h"
 
@@ -81,8 +83,9 @@ void OutputFileNameGenerator::setLayoutDirectionRenamingFiles(const Qt::LayoutDi
           continue;
         }
         const QString newPath(fileDir.absoluteFilePath(newName));
-        QFile::remove(newPath);
-        QFile::rename(oldPath, newPath);
+        if (!core::CoreUtils::overwritingRename(oldPath, newPath)) {
+          qWarning().noquote() << "Failed to rename" << oldPath << "to" << newPath;
+        }
       }
     }
   }

@@ -5,8 +5,12 @@
 
 #include <config.h>
 
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QSaveFile>
-#include <QtGui/QtGui>
+#include <QStandardPaths>
+#include <QTextStream>
 #include <QtXml/QDomDocument>
 #include <algorithm>
 
@@ -37,7 +41,10 @@ DefaultParamsProfileManager::DefaultParamsProfileManager() {
   if (!portableConfigPath.isNull()) {
     m_path = portableConfigPath + "/profiles";
   } else {
-    m_path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/profiles";
+    const QString appDataLocation = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    if (!appDataLocation.isEmpty()) {
+      m_path = appDataLocation + "/profiles";
+    }
   }
 }
 
@@ -45,6 +52,9 @@ DefaultParamsProfileManager::DefaultParamsProfileManager(const QString& path) : 
 
 std::list<QString> DefaultParamsProfileManager::getProfileList() const {
   std::list<QString> profileList;
+  if (m_path.isEmpty()) {
+    return profileList;
+  }
 
   QDir dir(m_path);
   if (dir.exists()) {
@@ -63,7 +73,7 @@ std::list<QString> DefaultParamsProfileManager::getProfileList() const {
 }
 
 QFileInfo DefaultParamsProfileManager::profileFile(const QString& name) const {
-  if (!isValidProfileName(name)) {
+  if (m_path.isEmpty() || !isValidProfileName(name)) {
     return QFileInfo();
   }
   const QDir dir(m_path);
@@ -103,6 +113,12 @@ std::unique_ptr<DefaultParams> DefaultParamsProfileManager::readProfile(QIODevic
   device.close();
 
   const QDomElement profileElement(doc.documentElement());
+  if (profileElement.tagName() != QLatin1String("profile")) {
+    if (status) {
+      *status = IO_ERROR;
+    }
+    return nullptr;
+  }
   // Older versions are fine, the defaults fill in what they lack. Profiles are saved as PROJECT_VERSION,
   // so accepting only that one would drop all of them with the next version.
   bool versionOk = false;
@@ -114,6 +130,12 @@ std::unique_ptr<DefaultParams> DefaultParamsProfileManager::readProfile(QIODevic
     return nullptr;
   }
   const QDomElement defaultParamsElement(profileElement.namedItem("default-params").toElement());
+  if (defaultParamsElement.isNull()) {
+    if (status) {
+      *status = IO_ERROR;
+    }
+    return nullptr;
+  }
 
   if (status) {
     *status = SUCCESS;
@@ -122,7 +144,7 @@ std::unique_ptr<DefaultParams> DefaultParamsProfileManager::readProfile(QIODevic
 }
 
 bool DefaultParamsProfileManager::writeProfile(const DefaultParams& params, const QString& name) const {
-  if (!isValidProfileName(name)) {
+  if (m_path.isEmpty() || !isValidProfileName(name)) {
     return false;
   }
   QDomDocument doc;
@@ -211,7 +233,7 @@ DefaultParamsProfileManager::StartProfile DefaultParamsProfileManager::startProf
 }
 
 bool DefaultParamsProfileManager::deleteProfile(const QString& name) const {
-  if (!isValidProfileName(name)) {
+  if (m_path.isEmpty() || !isValidProfileName(name)) {
     return false;
   }
   // Both files go, or the old .xml one would take the place of the deleted profile.

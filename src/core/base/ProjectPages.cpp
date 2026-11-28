@@ -142,14 +142,26 @@ void ProjectPages::listRelinkablePaths(const VirtualFunction<void, const Relinka
 }
 
 void ProjectPages::performRelinking(const AbstractRelinker& relinker) {
-  // REVIEW-NOTE (2026-11): the relinker is called while the mutex is held -> a relinker calling back into this
-  // object would deadlock. Not fixed because the only relinker just looks up a table.
-  QMutexLocker locker(&m_mutex);
+  std::unordered_map<QString, QString> replacements;
+  {
+    QMutexLocker locker(&m_mutex);
+    for (const ImageDesc& image : m_images) {
+      replacements.emplace(image.id.filePath(), QString());
+    }
+  }
 
-  for (ImageDesc& image : m_images) {
-    const RelinkablePath oldPath(image.id.filePath(), RelinkablePath::File);
-    const QString newPath(relinker.substitutionPathFor(oldPath));
-    image.id.setFilePath(newPath);
+  for (auto& entry : replacements) {
+    entry.second = relinker.substitutionPathFor(RelinkablePath(entry.first, RelinkablePath::File));
+  }
+
+  {
+    QMutexLocker locker(&m_mutex);
+    for (ImageDesc& image : m_images) {
+      const auto it = replacements.find(image.id.filePath());
+      if (it != replacements.end()) {
+        image.id.setFilePath(it->second);
+      }
+    }
   }
 }
 

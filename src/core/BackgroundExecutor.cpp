@@ -66,9 +66,15 @@ void BackgroundExecutor::Dispatcher::customEvent(QEvent* event) {
   try {
     auto* evt = dynamic_cast<TaskEvent*>(event);
     assert(evt);
+    if (!evt) {
+      return;
+    }
 
     const TaskPtr& task = evt->payload();
     assert(task);
+    if (!task) {
+      return;
+    }
 
     const TaskResultPtr result((*task)());
     if (result) {
@@ -111,9 +117,15 @@ void BackgroundExecutor::Impl::run() {
 void BackgroundExecutor::Impl::customEvent(QEvent* event) {
   auto* evt = dynamic_cast<ResultEvent*>(event);
   assert(evt);
+  if (!evt) {
+    return;
+  }
 
   const TaskResultPtr& result = evt->payload();
   assert(result);
+  if (!result) {
+    return;
+  }
 
   (*result)();
 }

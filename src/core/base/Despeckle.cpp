@@ -777,6 +777,9 @@ void despeckleImpl(BinaryImage& image, const double level, const Dpi& dpi, const
     // Without a resolution there are no physical sizes to judge by.
     return;
   }
+  if (image.isNull() || (image.width() > ImageSizeLimit::MAX_SIDE) || (image.height() > ImageSizeLimit::MAX_SIDE)) {
+    return;
+  }
   const Settings settings = Settings::get(level, dpi);
   Despeckler(settings, status, dbg).run(image);
 }

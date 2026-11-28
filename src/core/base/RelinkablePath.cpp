@@ -8,6 +8,10 @@
 RelinkablePath::RelinkablePath(const QString& path, Type type) : m_normalizedPath(normalize(path)), m_type(type) {}
 
 QString RelinkablePath::normalize(const QString& path) {
+  if (path.isEmpty()) {
+    return QString();
+  }
+
   QString frontSlashes(path);
   frontSlashes.replace(QChar('\\'), QLatin1String("/"));
 
@@ -38,6 +42,17 @@ QString RelinkablePath::normalize(const QString& path) {
       newComponents.pop_back();
     } else {
       newComponents.push_back(comp);
+    }
+  }
+
+  // Preserve root paths ("/" and drive roots like "C:/").
+  if (newComponents.size() == 1) {
+    const QString& only = newComponents.front();
+    if (only.isEmpty()) {
+      return QStringLiteral("/");
+    }
+    if (only.endsWith(QChar(':')) && frontSlashes.contains(QChar('/'))) {
+      return only + QChar('/');
     }
   }
   return newComponents.join(QChar('/'));

@@ -211,11 +211,8 @@ bool TiffWriter::writeBitonalOrIndexed8Image(const TiffHandle& tif,
     case QImage::Format_MonoLSB:
       bitsPerSample = 1;
       if (image.colorCount() < 2) {
-        // REVIEW-NOTE (2026-10): a Format_Mono image without a color table is written as
-        // MINISWHITE (1 = black), while Qt treats 0 as black -> such an image would come out
-        // inverted. Not fixed because BinaryImage::toQImage() always sets the table and
-        // PdfImageEncoder::toMono() relies on the same assumption.
-        photometric = PHOTOMETRIC_MINISWHITE;
+        // Without a color table Qt treats bit 0 as black and bit 1 as white (MINISBLACK).
+        photometric = PHOTOMETRIC_MINISBLACK;
       } else {
         // Some programs don't understand
         // palettized binary images, so don't
@@ -305,12 +302,12 @@ bool TiffWriter::writeRGB32Image(const TiffHandle& tif, const QImage& image, con
   const int width = image.width();
   const int height = image.height();
 
-  std::vector<uint8_t> tmpLine(width * 3);
+  std::vector<uint8_t> tmpLine(static_cast<size_t>(width) * 3);
 
   // Libtiff expects "RR GG BB" sequences regardless of CPU byte order.
 
   for (int y = 0; y < height; ++y) {
-    const auto* pSrc = (const uint32_t*) image.scanLine(y);
+    const auto* pSrc = reinterpret_cast<const uint32_t*>(image.constScanLine(y));
     uint8_t* pDst = &tmpLine[0];
     for (int x = 0; x < width; ++x) {
       const uint32_t ARGB = *pSrc;
@@ -345,12 +342,12 @@ bool TiffWriter::writeARGB32Image(const TiffHandle& tif, const QImage& image, co
   const int width = image.width();
   const int height = image.height();
 
-  std::vector<uint8_t> tmpLine(width * 4);
+  std::vector<uint8_t> tmpLine(static_cast<size_t>(width) * 4);
 
   // Libtiff expects "RR GG BB AA" sequences regardless of CPU byte order.
 
   for (int y = 0; y < height; ++y) {
-    const auto* pSrc = (const uint32_t*) image.scanLine(y);
+    const auto* pSrc = reinterpret_cast<const uint32_t*>(image.constScanLine(y));
     uint8_t* pDst = &tmpLine[0];
     for (int x = 0; x < width; ++x) {
       const uint32_t ARGB = *pSrc;

@@ -5,6 +5,7 @@
 #define SCANTAILOR_CORE_ABSTRACTFILTER_H_
 
 #include <cassert>
+#include <cstddef>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -44,7 +45,10 @@ class AbstractFilter : public std::enable_shared_from_this<AbstractFilter> {
     if (m_pageOrderOptions.empty()) {
       return;
     }
-    assert((unsigned) option < m_pageOrderOptions.size());
+    assert((option >= 0) && (static_cast<size_t>(option) < m_pageOrderOptions.size()));
+    if ((option < 0) || (static_cast<size_t>(option) >= m_pageOrderOptions.size())) {
+      return;
+    }
     m_selectedPageOrder = option;
   }
 
