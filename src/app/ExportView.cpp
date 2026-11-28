@@ -440,6 +440,8 @@ ExportView::ExportView(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
   connect(m_pageList->model(), &QAbstractItemModel::rowsMoved, this, &ExportView::updateControls);
   connect(m_pageList->model(), &QAbstractItemModel::rowsInserted, this, &ExportView::updatePositions);
   connect(m_pageList->model(), &QAbstractItemModel::rowsRemoved, this, &ExportView::updatePositions);
+  connect(m_pageList->model(), &QAbstractItemModel::rowsRemoved, this,
+          [this]() { QTimer::singleShot(0, this, &ExportView::updateControls); });
   connect(m_allButton, &QPushButton::clicked, this, [this]() { setAllChecked(Qt::Checked); });
   connect(m_noneButton, &QPushButton::clicked, this, [this]() { setAllChecked(Qt::Unchecked); });
   connect(m_outputMissingButton, &QPushButton::clicked, this, &ExportView::outputMissingPagesRequested);

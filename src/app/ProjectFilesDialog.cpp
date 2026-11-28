@@ -240,11 +240,11 @@ void ProjectFilesDialog::chooseExistingImages(const QString& dir, const std::vec
 }
 
 QString ProjectFilesDialog::inputDirectory() const {
-  return inpDirLine->text();
+  return QDir::fromNativeSeparators(sanitizePath(inpDirLine->text()));
 }
 
 QString ProjectFilesDialog::outputDirectory() const {
-  return outDirLine->text();
+  return QDir::fromNativeSeparators(sanitizePath(outDirLine->text()));
 }
 
 QString ProjectFilesDialog::projectFile() const {
@@ -524,7 +524,7 @@ void ProjectFilesDialog::onOK() {
     return invalidNameReason.isEmpty();
   };
 
-  const QDir inpDir(inpDirLine->text());
+  const QDir inpDir(inputDirectory());
   if (!folderNameIsValid(inpDir)) {
     return;
   }
@@ -533,7 +533,7 @@ void ProjectFilesDialog::onOK() {
     return;
   }
 
-  const QDir outDir(outDirLine->text());
+  const QDir outDir(outputDirectory());
   if (inpDir == outDir) {
     QMessageBox::warning(this, tr("Error"), tr("Input and output folders can't be the same."));
     return;
@@ -547,6 +547,11 @@ void ProjectFilesDialog::onOK() {
   // When importing new scans, the project may start empty.
   if ((m_inProjectFiles->count() == 0) && !isImportingNewScans()) {
     QMessageBox::warning(this, tr("Error"), tr("No files in project!"));
+    return;
+  }
+
+  if (!outDir.isAbsolute()) {
+    QMessageBox::warning(this, tr("Error"), tr("Output folder is not set or doesn't exist."));
     return;
   }
 
@@ -624,8 +629,20 @@ void ProjectFilesDialog::timerEvent(QTimerEvent* event) {
   }
 }
 
+void ProjectFilesDialog::reject() {
+  if (m_loadTimerId != 0) {
+    killTimer(m_loadTimerId);
+    m_loadTimerId = 0;
+  }
+  m_showProgressTimer.stop();
+  QDialog::reject();
+}
+
 void ProjectFilesDialog::finishLoadingMetadata() {
-  killTimer(m_loadTimerId);
+  if (m_loadTimerId != 0) {
+    killTimer(m_loadTimerId);
+    m_loadTimerId = 0;
+  }
   m_showProgressTimer.stop();
   progressBar->hide();
 

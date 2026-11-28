@@ -17,8 +17,12 @@
 #include "ImageMetadata.h"
 #include "ui_FixDpiDialog.h"
 
+class TestAppUiQt;
+
 class FixDpiDialog : public QDialog, private Ui::FixDpiDialog {
   Q_OBJECT
+  friend class TestAppUiQt;
+
  public:
   explicit FixDpiDialog(const std::vector<ImageFileInfo>& files, QWidget* parent = nullptr);
 

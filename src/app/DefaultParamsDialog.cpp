@@ -699,10 +699,14 @@ void DefaultParamsDialog::setupUiConnections() {
   CONNECT(fillOffcutCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOffcutToggled);
   CONNECT(fillOutsidePageBoxCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::fillOutsidePageBoxToggled);
   CONNECT(chromaCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::chromaToggled);
-  CONNECT(subtractBgCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::subtractBgToggled);
-  CONNECT(knnCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::knnToggled);
-  CONNECT(sharpenCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::sharpenToggled);
-  CONNECT(wienerCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::wienerToggled);
+  for (const auto& [cb, widget] : std::initializer_list<std::pair<QCheckBox*, QWidget*>>{
+           {subtractBgCB, subtractBgOptionsWidget},
+           {knnCB, knnOptionsWidget},
+           {sharpenCB, sharpenOptionsWidget},
+           {wienerCB, wienerOptionsWidget},
+       }) {
+    CONNECT(cb, &QAbstractButton::clicked, widget, &QWidget::setEnabled);
+  }
   CONNECT(dewarpingCB, &QAbstractButton::clicked, this, &DefaultParamsDialog::dewarpingModeChanged);
   CONNECT(dewarpingMethodBox, &QComboBox::activated, this, &DefaultParamsDialog::dewarpingModeChanged);
   CONNECT(depthPerceptionSlider, &QAbstractSlider::valueChanged, this,
@@ -1320,22 +1324,6 @@ void DefaultParamsDialog::fillOutsidePageBoxToggled(const bool checked) {
 
 void DefaultParamsDialog::chromaToggled(const bool checked) {
   chromaOptionsWidget->setEnabled(checked);
-}
-
-void DefaultParamsDialog::subtractBgToggled(const bool checked) {
-  subtractBgOptionsWidget->setEnabled(checked);
-}
-
-void DefaultParamsDialog::knnToggled(const bool checked) {
-  knnOptionsWidget->setEnabled(checked);
-}
-
-void DefaultParamsDialog::sharpenToggled(const bool checked) {
-  sharpenOptionsWidget->setEnabled(checked);
-}
-
-void DefaultParamsDialog::wienerToggled(const bool checked) {
-  wienerOptionsWidget->setEnabled(checked);
 }
 
 void DefaultParamsDialog::dewarpingModeChanged() {

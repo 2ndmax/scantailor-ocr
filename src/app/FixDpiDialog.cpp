@@ -531,6 +531,9 @@ int FixDpiDialog::TreeModel::rowCount(const QModelIndex& parent) const {
 }
 
 QModelIndex FixDpiDialog::TreeModel::index(const int row, const int column, const QModelIndex& parent) const {
+  if (!hasIndex(row, column, parent)) {
+    return QModelIndex();
+  }
   if (!parent.isValid()) {
     // A folder.
     return createIndex(row, column, &m_folderNodeId);

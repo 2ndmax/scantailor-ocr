@@ -31,6 +31,7 @@ class OcrPanel;
 class PdfCompressionPanel;
 class ExportFormatsPanel;
 class ThumbnailLoadResult;
+class TestAppUiQt;
 struct ProcessingOptions;
 
 /**
@@ -45,6 +46,8 @@ struct ProcessingOptions;
  */
 class ExportView : public QWidget {
   Q_OBJECT
+  friend class TestAppUiQt;
+
  public:
   struct Entry {
     /** Shown in the page list, e.g. "page_1L.tif". */

@@ -1,6 +1,7 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include "tst_app_ui_qt.h"
 #include "tst_core_qt.h"
 #include "tst_deskew_qt.h"
 #include "tst_end_to_end_qt.h"
@@ -109,7 +110,8 @@ int main(int argc, char* argv[]) {
   TestPageSplitQt tc8;
   TestOutputQt tc9;
   TestMainWindowBatchCliQt tc10;
-  const std::vector<QObject*> testObjects{&tc1, &tc2, &tc3, &tc4, &tc5, &tc6, &tc7, &tc8, &tc9, &tc10};
+  TestAppUiQt tc11;
+  const std::vector<QObject*> testObjects{&tc1, &tc2, &tc3, &tc4, &tc5, &tc6, &tc7, &tc8, &tc9, &tc10, &tc11};
 
   int failed = 0;
   for (QObject* testObject : testObjects) {

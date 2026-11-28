@@ -107,14 +107,6 @@ class DefaultParamsDialog : public QDialog, private Ui::DefaultParamsDialog {
 
   void chromaToggled(bool checked);
 
-  void subtractBgToggled(bool checked);
-
-  void knnToggled(bool checked);
-
-  void sharpenToggled(bool checked);
-
-  void wienerToggled(bool checked);
-
   void dewarpingModeChanged();
 
   void depthPerceptionChangedSlot(int val);

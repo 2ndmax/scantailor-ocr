@@ -843,7 +843,12 @@ bool ThumbnailSequence::Impl::cancelingSelectionAccepted() {
       return true;
     }
 
-    QMessageBox msgBox;
+    QWidget* parent = nullptr;
+    const QList<QGraphicsView*> views = m_graphicsScene.views();
+    if (!views.isEmpty() && (views.first() != nullptr)) {
+      parent = views.first()->window();
+    }
+    QMessageBox msgBox(parent);
     msgBox.setWindowTitle(QObject::tr("Canceling Multi-Page Selection"));
     msgBox.setText(QObject::tr("The selection of %1 pages will be canceled. Continue?").arg(selectedPages.size()));
     msgBox.setIcon(QMessageBox::Question);
@@ -1114,6 +1119,10 @@ PageInfo ThumbnailSequence::Impl::lastPage() const {
 }
 
 void ThumbnailSequence::Impl::insert(const PageInfo& newPage, BeforeOrAfter beforeOrAfter, const ImageId& image) {
+  if (m_itemsById.find(newPage.id()) != m_itemsById.end()) {
+    return;
+  }
+
   ItemsInOrder::iterator ordIt;
 
   if ((beforeOrAfter == BEFORE) && image.isNull()) {
@@ -1162,9 +1171,6 @@ void ThumbnailSequence::Impl::insert(const PageInfo& newPage, BeforeOrAfter befo
   const Item item(newPage, composite.get());
   const std::pair<ItemsInOrder::iterator, bool> ins(m_itemsInOrder.insert(ordIt, item));
   if (!ins.second) {
-    // REVIEW-NOTE (2026-11): no regression test -> qt_tests doesn't build the views of the app, and no caller
-    // inserts a page twice today.
-    // The page is there already. Its tile would be added to the scene without an item, and never removed.
     return;
   }
   composite->setItem(&*ins.first);
@@ -1415,23 +1421,29 @@ void ThumbnailSequence::Impl::selectItemWithShift(const ItemsById::iterator& idI
 }  // ThumbnailSequence::Impl::selectItemWithShift
 
 void ThumbnailSequence::Impl::selectItemNoModifiers(const ItemsById::iterator& idIt) {
+  const PageId targetId = idIt->pageId();
   if (!cancelingSelectionAccepted()) {
     return;
   }
 
+  const ItemsById::iterator refreshedIt = m_itemsById.find(targetId);
+  if (refreshedIt == m_itemsById.end()) {
+    return;
+  }
+
   SelectionFlags flags = SELECTED_BY_USER;
-  if (m_selectionLeader == &*idIt) {
+  if (m_selectionLeader == &*refreshedIt) {
     flags |= REDUNDANT_SELECTION;
   }
   flags |= SELECTION_CLEARED;
 
   clearSelection();
 
-  m_selectionLeader = &*idIt;
+  m_selectionLeader = &*refreshedIt;
   m_selectionLeader->setSelectionLeader(true);
   moveToSelected(m_selectionLeader);
 
-  m_owner.emitNewSelectionLeader(idIt->pageInfo, idIt->composite, flags);
+  m_owner.emitNewSelectionLeader(refreshedIt->pageInfo, refreshedIt->composite, flags);
 }
 
 void ThumbnailSequence::Impl::clear() {
@@ -1650,8 +1662,8 @@ std::unique_ptr<ThumbnailSequence::CompositeItem> ThumbnailSequence::Impl::getCo
 }
 
 void ThumbnailSequence::Impl::commitSceneRectAfterShift() {
-  if (m_viewMode == MULTI_COLUMN) {
-    updateSceneItemsPos();  // Commits the scene rectangle itself.
+  if (getGraphicsViewWidth() > 0) {
+    updateSceneItemsPos();
   } else {
     commitSceneRect();
   }

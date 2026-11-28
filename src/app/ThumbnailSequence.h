@@ -25,10 +25,12 @@ class ThumbnailFactory;
 class QSizeF;
 class QRectF;
 class QPoint;
+class TestAppUiQt;
 
 class ThumbnailSequence : public QObject {
   Q_OBJECT
   DECLARE_NON_COPYABLE(ThumbnailSequence)
+  friend class TestAppUiQt;
 
  public:
   enum SelectionAction { KEEP_SELECTION, RESET_SELECTION, FORCE_RESET_SELECTION };

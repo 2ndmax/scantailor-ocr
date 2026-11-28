@@ -14,8 +14,12 @@
 #include "ImageFileInfo.h"
 #include "ui_ProjectFilesDialog.h"
 
+class TestAppUiQt;
+
 class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
   Q_OBJECT
+  friend class TestAppUiQt;
+
  public:
   explicit ProjectFilesDialog(QWidget* parent = nullptr);
 
@@ -37,6 +41,8 @@ class ProjectFilesDialog : public QDialog, private Ui::ProjectFilesDialog {
   bool isImportingNewScans() const;
 
   std::vector<ImageFileInfo> inProjectFiles() const;
+
+  void reject() override;
 
  private slots:
 

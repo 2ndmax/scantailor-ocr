@@ -2,6 +2,7 @@ set(sources
     main.cpp
     filter_ui_checks.h
     test_project.h
+    tst_app_ui_qt.cpp
     tst_core_qt.cpp
     tst_deskew_qt.cpp
     tst_end_to_end_qt.cpp

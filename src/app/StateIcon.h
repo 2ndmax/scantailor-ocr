@@ -16,9 +16,6 @@ class StateIcon {
   enum Color { Green, Yellow, Red, None };
 
   static QPixmap pixmap(Color color);
-
- private:
-  static QPixmap create(Color color);
 };
 
 
