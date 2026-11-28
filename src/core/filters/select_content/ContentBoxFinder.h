@@ -40,6 +40,24 @@ class ContentBoxFinder {
  private:
   class Garbage;
 
+  static imageproc::BinaryImage detectShadows(const TaskStatus& status,
+                                              const imageproc::BinaryImage& bw150,
+                                              DebugImages* dbg);
+
+  static imageproc::BinaryImage buildContentBlocks(const imageproc::BinaryImage& content,
+                                                   imageproc::BinaryImage& despeckled,
+                                                   int borderTolerance,
+                                                   DebugImages* dbg);
+
+  static QRect trimContentRect(const TaskStatus& status,
+                               const imageproc::BinaryImage& content,
+                               const imageproc::BinaryImage& contentBlocks,
+                               const imageproc::BinaryImage& textMask,
+                               QRect contentRect,
+                               Garbage& horGarbage,
+                               Garbage& vertGarbage,
+                               DebugImages* dbg);
+
   static void segmentGarbage(const imageproc::BinaryImage& garbage,
                              imageproc::BinaryImage& horGarbage,
                              imageproc::BinaryImage& vertGarbage,
