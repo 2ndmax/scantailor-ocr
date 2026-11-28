@@ -9,6 +9,8 @@
 #include <functional>
 #include <vector>
 
+#include "GrayImage.h"
+
 namespace binarization_compare {
 /** A way to show colored text in few colors, compared with --colors. */
 struct ColorMethod {
@@ -26,6 +28,7 @@ struct ColorMethod {
 const std::vector<ColorMethod>& colorMethods();
 
 /** The black and white text the methods color: Otsu on the grayscale page, as the Output step by default. */
+QImage textOf(const imageproc::GrayImage& gray);
 QImage textOf(const QImage& color);
 }  // namespace binarization_compare
 

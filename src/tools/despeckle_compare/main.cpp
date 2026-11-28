@@ -48,7 +48,10 @@ int run(const QString& inDir, const QString& outDir, const int dpi) {
     std::cerr << "Input folder not found: " << inDir.toStdString() << "\n";
     return 1;
   }
-  QDir().mkpath(outDir);
+  if (!QDir().mkpath(outDir)) {
+    std::cerr << "Cannot create " << outDir.toStdString() << "\n";
+    return 1;
+  }
   const QStringList files = QDir(inDir).entryList({"*.tif", "*.tiff", "*.png", "*.jpg"}, QDir::Files, QDir::Name);
   for (const QString& file : files) {
     const QImage image = ImageLoader::load(QDir(inDir).filePath(file));
@@ -74,14 +77,33 @@ bool isBlack(const QImage& image, int x, int y) {
 }
 
 int diff(const QString& beforeDir, const QString& afterDir, const QString& outDir) {
-  QDir().mkpath(outDir);
+  if (!QDir(beforeDir).exists()) {
+    std::cerr << "Before folder not found: " << beforeDir.toStdString() << "\n";
+    return 1;
+  }
+  if (!QDir(afterDir).exists()) {
+    std::cerr << "After folder not found: " << afterDir.toStdString() << "\n";
+    return 1;
+  }
+  if (!QDir().mkpath(outDir)) {
+    std::cerr << "Cannot create " << outDir.toStdString() << "\n";
+    return 1;
+  }
   const QStringList files = QDir(afterDir).entryList({"*.png"}, QDir::Files, QDir::Name);
   for (const QString& file : files) {
-    if (file.endsWith("_bin.png") || !QFileInfo::exists(QDir(beforeDir).filePath(file))) {
+    const QString name = QFileInfo(file).completeBaseName();
+    QString baseName;
+    for (const LevelName& level : kLevels) {
+      const QString suffix = QLatin1Char('_') + QLatin1String(level.name);
+      if (name.endsWith(suffix)) {
+        baseName = name.left(name.size() - suffix.size());
+        break;
+      }
+    }
+    if (baseName.isEmpty() || !QFileInfo::exists(QDir(beforeDir).filePath(file))) {
       continue;
     }
-    const QString name = QFileInfo(file).completeBaseName();
-    const QString binFile = name.left(name.lastIndexOf('_')) + "_bin.png";
+    const QString binFile = baseName + QLatin1String("_bin.png");
     const QImage bin(QDir(afterDir).filePath(binFile));
     const QImage before(QDir(beforeDir).filePath(file));
     const QImage after(QDir(afterDir).filePath(file));
@@ -123,6 +145,10 @@ int diff(const QString& beforeDir, const QString& afterDir, const QString& outDi
 
 // The content box detection uses the despeckling too: prints the box it finds on each scan.
 int content(const QString& inDir, const int dpi) {
+  if (!QDir(inDir).exists()) {
+    std::cerr << "Input folder not found: " << inDir.toStdString() << "\n";
+    return 1;
+  }
   const QStringList files = QDir(inDir).entryList({"*.tif", "*.tiff", "*.png", "*.jpg"}, QDir::Files, QDir::Name);
   for (const QString& file : files) {
     const QImage image = ImageLoader::load(QDir(inDir).filePath(file));
@@ -141,10 +167,17 @@ int content(const QString& inDir, const int dpi) {
   return 0;
 }
 
-// Sets *dpi from the option --dpi=, or to 200 without one. A value that is no positive number is refused.
-bool readDpiArgument(const QStringList& args, int* dpi) {
+int printUsage() {
+  std::cerr << "Usage: despeckle_compare run <input folder> <output folder> [--dpi=200]\n"
+               "       despeckle_compare diff <before folder> <after folder> <output folder>\n"
+               "       despeckle_compare bench <output folder> [--images]\n"
+               "       despeckle_compare content <input folder> [--dpi=200]\n";
+  return 1;
+}
+
+bool parseDpiCommand(const QStringList& rest, const int expectedPositional, QStringList& positional, int* dpi) {
   *dpi = 200;
-  for (const QString& arg : args) {
+  for (const QString& arg : rest) {
     if (arg.startsWith("--dpi=")) {
       bool ok = false;
       *dpi = arg.mid(6).toInt(&ok);
@@ -152,10 +185,16 @@ bool readDpiArgument(const QStringList& args, int* dpi) {
         std::cerr << "--dpi must be a positive number\n";
         return false;
       }
+    } else if (arg.startsWith('-')) {
+      std::cerr << "Unknown option: " << arg.toStdString() << "\n";
+      return false;
+    } else {
+      positional << arg;
     }
   }
-  return true;
+  return positional.size() == expectedPositional;
 }
+
 int runMain(int argc, char** argv) {
   // The benchmark renders text, which needs fonts and thus a GUI application, but no window.
   // Elsewhere there may be no display; on Windows the offscreen platform finds no fonts.
@@ -167,25 +206,58 @@ int runMain(int argc, char** argv) {
   QGuiApplication app(argc, argv);
   ImageSizeLimit::applyQtAllocationLimit();
   const QStringList args = app.arguments();
-  if ((args.size() >= 4) && (args[1] == "run")) {
-    int dpi = 0;
-    return readDpiArgument(args.mid(4), &dpi) ? run(args[2], args[3], dpi) : 1;
+  if (args.size() < 2) {
+    return printUsage();
   }
-  if ((args.size() >= 3) && (args[1] == "content")) {
-    int dpi = 0;
-    return readDpiArgument(args.mid(3), &dpi) ? content(args[2], dpi) : 1;
+  const QString& cmd = args[1];
+  const QStringList rest = args.mid(2);
+  if (cmd == "run") {
+    QStringList pos;
+    int dpi = 200;
+    if (!parseDpiCommand(rest, 2, pos, &dpi)) {
+      return printUsage();
+    }
+    return run(pos[0], pos[1], dpi);
   }
-  if ((args.size() >= 3) && (args[1] == "bench")) {
-    return bench(args[2], args.mid(3).contains("--images"));
+  if (cmd == "content") {
+    QStringList pos;
+    int dpi = 200;
+    if (!parseDpiCommand(rest, 1, pos, &dpi)) {
+      return printUsage();
+    }
+    return content(pos[0], dpi);
   }
-  if ((args.size() == 5) && (args[1] == "diff")) {
-    return diff(args[2], args[3], args[4]);
+  if (cmd == "bench") {
+    QStringList pos;
+    bool images = false;
+    for (const QString& arg : rest) {
+      if (arg == "--images") {
+        images = true;
+      } else if (arg.startsWith('-')) {
+        std::cerr << "Unknown option: " << arg.toStdString() << "\n";
+        return printUsage();
+      } else {
+        pos << arg;
+      }
+    }
+    if (pos.size() != 1) {
+      return printUsage();
+    }
+    return bench(pos[0], images);
   }
-  std::cerr << "Usage: despeckle_compare run <input folder> <output folder> [--dpi=200]\n"
-               "       despeckle_compare diff <before folder> <after folder> <output folder>\n"
-               "       despeckle_compare bench <output folder> [--images]\n"
-               "       despeckle_compare content <input folder> [--dpi=200]\n";
-  return 1;
+  if (cmd == "diff") {
+    for (const QString& arg : rest) {
+      if (arg.startsWith('-')) {
+        std::cerr << "Unknown option: " << arg.toStdString() << "\n";
+        return printUsage();
+      }
+    }
+    if (rest.size() != 3) {
+      return printUsage();
+    }
+    return diff(rest[0], rest[1], rest[2]);
+  }
+  return printUsage();
 }
 }  // namespace
 

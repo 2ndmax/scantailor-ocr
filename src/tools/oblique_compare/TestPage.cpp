@@ -3,6 +3,7 @@
 
 #include "TestPage.h"
 
+#include <Constants.h>
 #include <GrayImage.h>
 #include <Grayscale.h>
 #include <Transform.h>
@@ -21,8 +22,6 @@ using namespace imageproc;
 namespace compare {
 
 namespace {
-const double DEG2RAD = M_PI / 180.0;
-
 /** splitmix64: the same numbers on every machine and with every compiler. */
 class Random {
  public:
@@ -44,7 +43,7 @@ class Random {
   double gaussian() {
     const double u1 = std::max(uniform(), 1e-12);
     const double u2 = uniform();
-    return std::sqrt(-2.0 * std::log(u1)) * std::cos(2.0 * M_PI * u2);
+    return std::sqrt(-2.0 * std::log(u1)) * std::cos(2.0 * constants::PI * u2);
   }
 
  private:
@@ -555,7 +554,7 @@ QImage renderPage(const PageSpec& spec, const uint32_t seed) {
 
 QImage scannedPage(const QImage& upright, const PageSpec& spec, const uint32_t seed, const QPointF& shift) {
   const QPointF center(0.5 * upright.width(), 0.5 * upright.height());
-  const QTransform shear(1, 0, std::tan(spec.shearDeg * DEG2RAD), 1, 0, 0);
+  const QTransform shear(1, 0, std::tan(spec.shearDeg * constants::DEG2RAD), 1, 0, 0);
   QTransform rotation;
   rotation.rotate(-spec.rotationDeg);
   const QTransform xform(QTransform::fromTranslate(-center.x(), -center.y()) * shear * rotation

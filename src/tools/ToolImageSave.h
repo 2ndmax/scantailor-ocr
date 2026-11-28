@@ -14,19 +14,24 @@ namespace detail {
 inline std::atomic<int> failedSaves{0};
 }
 
+/** Resets the failed-save counter before a run. */
+inline void resetFailedSaves() {
+  detail::failedSaves.store(0, std::memory_order_relaxed);
+}
+
 /** Saves the image; if that fails, says so on stderr, so a missing picture of a run doesn't go unnoticed. */
 inline bool saveImage(const QImage& image, const QString& path) {
   if (image.save(path)) {
     return true;
   }
   std::cerr << "Cannot write " << path.toStdString() << "\n";
-  ++detail::failedSaves;
+  detail::failedSaves.fetch_add(1, std::memory_order_relaxed);
   return false;
 }
 
-/** What a tool returns from main() after its pictures: 1 if any of them is missing, else 0. */
+/** What a tool returns from main() after its pictures: 1 if any of them is missing (and resets the counter), else 0. */
 inline int exitCodeOfSaves() {
-  return (detail::failedSaves > 0) ? 1 : 0;
+  return (detail::failedSaves.exchange(0, std::memory_order_relaxed) > 0) ? 1 : 0;
 }
 }  // namespace tools
 

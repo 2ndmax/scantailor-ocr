@@ -224,10 +224,10 @@ Page drawPage(const Layout layout, const Distortion& distortion, const unsigned 
   for (const TextLine& line : textLinesOf(layout, seed)) {
     // Letters grouped into words, the last one ending exactly at the right end of the line.
     int lettersInWord = 0;
-    for (double x = line.left; x + kLetterWidth < line.right - kLetterWidth; x += 11) {
-      drawLetter(x, line.top);
+    for (int offset = 0; line.left + offset + kLetterWidth < line.right - kLetterWidth; offset += 11) {
+      drawLetter(line.left + offset, line.top);
       if (++lettersInWord == 6) {
-        x += 8;
+        offset += 8;
         lettersInWord = 0;
       }
     }
@@ -235,7 +235,11 @@ Page drawPage(const Layout layout, const Distortion& distortion, const unsigned 
 
     std::vector<QPointF> flat;
     std::vector<QPointF> warpedLine;
-    for (double x = line.left; x <= line.right; x += 10) {
+    for (int step = 0;; ++step) {
+      const double x = line.left + step * 10.0;
+      if (x > line.right) {
+        break;
+      }
       flat.emplace_back(x, line.top + kLetterHeight / 2);
       warpedLine.push_back(warped(distortion, flat.back()));
     }
@@ -678,6 +682,10 @@ int showModelsOfRealPages(const Options& options) {
                                QStringLiteral("vertBounds_from_lines"), QStringLiteral("trimmed_polylines"),
                                QStringLiteral("distortion_model")};
   const QDir dir(options.imagesDir);
+  if (!dir.exists()) {
+    std::cerr << "Input folder not found: " << options.imagesDir.toStdString() << std::endl;
+    return 1;
+  }
   const QStringList names
       = dir.entryList({"*.tif", "*.tiff", "*.png", "*.jpg", "*.jpeg", "*.jp2", "*.jpf"}, QDir::Files, QDir::Name);
   if (names.isEmpty()) {
@@ -695,11 +703,13 @@ int showModelsOfRealPages(const Options& options) {
             "(tracing included) and for dewarping the image at %1 dpi.\n\n")
             .arg(kOutputDpi, 0, 'f', 0);
   std::cout << report.toStdString();
+  int failed = 0;
   for (const QString& name : names) {
     const QImage loaded = ImageLoader::load(dir.filePath(name));
     if (loaded.isNull()) {
-      std::cerr << "Cannot read " << name.toStdString() << std::endl;
-      return 1;
+      std::cerr << "Cannot read " << name.toStdString() << ", skipped" << std::endl;
+      ++failed;
+      continue;
     }
     const Dpi dpi = tools::dpiOrDefault(loaded);
     const QImage image = imageproc::GrayImage(loaded).toQImage();
@@ -784,11 +794,12 @@ int showModelsOfRealPages(const Options& options) {
               << reportFile.errorString().toStdString() << std::endl;
     return 1;
   }
-  return tools::exitCodeOfSaves();
+  return (failed == 0) ? tools::exitCodeOfSaves() : 1;
 }
 
 bool parseArgs(const QStringList& args, Options& options) {
   options.jobs = std::clamp(static_cast<int>(std::thread::hardware_concurrency()) / 2, 1, 6);
+  const int maxJobs = std::max(64, 4 * static_cast<int>(std::thread::hardware_concurrency()));
   for (int i = 1; i < args.size(); ++i) {
     const QString& arg = args[i];
     bool ok = true;
@@ -798,16 +809,21 @@ bool parseArgs(const QStringList& args, Options& options) {
     } else if (arg.startsWith(QLatin1String("--jobs="))) {
       options.jobs = arg.mid(7).toInt(&ok);
       ok = ok && options.jobs > 0;
+      if (ok) {
+        options.jobs = std::min(options.jobs, maxJobs);
+      }
     } else if (arg.startsWith(QLatin1String("--only="))) {
       options.only = arg.mid(7);
     } else if (arg.startsWith(QLatin1String("--images="))) {
       options.imagesDir = arg.mid(9);
-    } else if (!arg.startsWith(QLatin1String("--")) && options.outDir.isEmpty()) {
+      ok = !options.imagesDir.isEmpty();
+    } else if (!arg.startsWith(QLatin1Char('-')) && options.outDir.isEmpty()) {
       options.outDir = arg;
     } else {
       ok = false;
     }
     if (!ok) {
+      std::cerr << "Invalid argument: " << arg.toStdString() << std::endl;
       return false;
     }
   }
@@ -826,6 +842,7 @@ int runMain(int argc, char** argv) {
   Options options;
   if (!parseArgs(app.arguments(), options)) {
     std::cerr << "Usage: dewarp_compare <output folder> [--seeds=<n>] [--jobs=<n>] [--only=<part of a case name>]\n"
+                 "       dewarp_compare <output folder> --images=<folder>\n"
                  "Defaults: 10 seeds, half of the processor cores (at most 6)."
               << std::endl;
     return 2;

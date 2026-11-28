@@ -19,6 +19,7 @@
 
 #include <BinaryImage.h>
 #include <BinaryThreshold.h>
+#include <Constants.h>
 #include <Dpi.h>
 #include <Dpm.h>
 #include <GrayImage.h>
@@ -55,7 +56,6 @@ using namespace compare;
 using namespace imageproc;
 
 namespace {
-const double DEG2RAD = M_PI / 180.0;
 const int NUM_CASES = 10;
 
 /** Not a multiple of half a pixel, so that the sampling grid really moves. */
@@ -184,7 +184,7 @@ QString pageText(const PageSpec& s) {
 QPointF vertical(const double rotationDeg, const double shearDeg) {
   QTransform rotation;
   rotation.rotate(-rotationDeg);
-  return (QTransform(1, 0, std::tan(shearDeg * DEG2RAD), 1, 0, 0) * rotation).map(QPointF(0, 1));
+  return (QTransform(1, 0, std::tan(shearDeg * constants::DEG2RAD), 1, 0, 0) * rotation).map(QPointF(0, 1));
 }
 
 /** The scan, scaled down, with lines through it along the true and the corrected vertical. */
@@ -258,7 +258,7 @@ const double ADDED_SHEARS_DEG[] = {-3.0, -1.5, -0.5, 0.5, 1.5, 3.0};
 QImage withAddedShear(const QImage& gray, const double shearDeg) {
   const QPointF center(0.5 * gray.width(), 0.5 * gray.height());
   const QTransform xform(QTransform::fromTranslate(-center.x(), -center.y())
-                         * QTransform(1, 0, std::tan(shearDeg * DEG2RAD), 1, 0, 0)
+                         * QTransform(1, 0, std::tan(shearDeg * constants::DEG2RAD), 1, 0, 0)
                          * QTransform::fromTranslate(center.x(), center.y()));
   const QRect dstRect(xform.mapRect(QRectF(gray.rect())).toAlignedRect());
   return transformToGray(gray, xform, dstRect, OutsidePixels::assumeColor(Qt::white)).toQImage();
@@ -299,6 +299,9 @@ RealPage measureRealPage(const QString& path) {
 /** The scan, scaled down, with lines along the vertical that each method would make of it. */
 QImage realPageImage(const QString& path, const RealPage& page) {
   const QImage loaded(ImageLoader::load(path));
+  if (loaded.isNull()) {
+    return QImage();
+  }
   QImage image(loaded.scaledToHeight(std::min(loaded.height(), 2000), Qt::SmoothTransformation)
                    .convertToFormat(QImage::Format_RGB32));
   QPainter painter(&image);
@@ -326,7 +329,11 @@ QImage realPageImage(const QString& path, const RealPage& page) {
  * vertical grid lies over each panel; on the right one the text edges and stems run along it.
  */
 QImage comparisonImage(const QString& path, const RealPage& page) {
-  const QImage gray(GrayImage(ImageLoader::load(path)).toQImage());
+  const QImage loaded(ImageLoader::load(path));
+  if (loaded.isNull()) {
+    return QImage();
+  }
+  const QImage gray(GrayImage(loaded).toQImage());
   const double rotation = page.asIs.rotation.value_or(0.0);
   std::vector<std::pair<QString, QImage>> panels;
   panels.emplace_back(QStringLiteral("rotated only"), straightened(gray, rotation, 0.0));
@@ -444,7 +451,8 @@ bool writeRealReport(const Options& options,
           << text.toHtmlEscaped() << "</pre>\n";
   for (size_t i = 0; i < pages.size(); ++i) {
     const QString file(QStringLiteral("images/real_%1.png").arg(i + 1));
-    if (!realPageImage(paths[i], pages[i]).save(options.outDir + QLatin1Char('/') + file)) {
+    const QImage realImg(realPageImage(paths[i], pages[i]));
+    if (realImg.isNull() || !realImg.save(options.outDir + QLatin1Char('/') + file)) {
       *error = QStringLiteral("Cannot write ") + file;
       return false;
     }
@@ -457,7 +465,8 @@ bool writeRealReport(const Options& options,
   const int combined = static_cast<int>(methods().size()) - 1;
   for (size_t i = 0; i < pages.size(); ++i) {
     const QString file(QStringLiteral("images/comparison_%1.png").arg(i + 1));
-    if (!comparisonImage(paths[i], pages[i]).save(options.outDir + QLatin1Char('/') + file)) {
+    const QImage compImg(comparisonImage(paths[i], pages[i]));
+    if (compImg.isNull() || !compImg.save(options.outDir + QLatin1Char('/') + file)) {
       *error = QStringLiteral("Cannot write ") + file;
       return false;
     }
@@ -495,6 +504,10 @@ struct ThreadJoiner {
 
 int runRealImages(const Options& options) {
   const QDir dir(options.imagesDir);
+  if (!dir.exists()) {
+    std::cerr << "Input folder not found: " << qPrintable(options.imagesDir) << std::endl;
+    return 1;
+  }
   std::vector<QString> paths;
   for (const QString& name : dir.entryList({QStringLiteral("*.tif"), QStringLiteral("*.tiff"), QStringLiteral("*.png"),
                                             QStringLiteral("*.jpg"), QStringLiteral("*.jpeg"), QStringLiteral("*.jp2")},
@@ -553,6 +566,7 @@ int runRealImages(const Options& options) {
 
 bool parseOptions(const QStringList& args, Options& options) {
   options.jobs = std::clamp(static_cast<int>(std::thread::hardware_concurrency()) / 2, 1, 6);
+  const int maxJobs = std::max(64, 4 * static_cast<int>(std::thread::hardware_concurrency()));
   for (int i = 1; i < args.size(); ++i) {
     const QString& arg = args[i];
     bool ok = true;
@@ -567,7 +581,10 @@ bool parseOptions(const QStringList& args, Options& options) {
     } else if (arg.startsWith(QLatin1String("--jobs="))) {
       options.jobs = arg.mid(7).toInt(&ok);
       ok = ok && options.jobs > 0;
-    } else if (!arg.startsWith(QLatin1String("--")) && options.outDir.isEmpty()) {
+      if (ok) {
+        options.jobs = std::min(options.jobs, maxJobs);
+      }
+    } else if (!arg.startsWith(QLatin1Char('-')) && options.outDir.isEmpty()) {
       options.outDir = arg;
     } else {
       ok = false;

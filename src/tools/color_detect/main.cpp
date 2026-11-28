@@ -27,6 +27,7 @@
 #include <QPainter>
 #include <QTextStream>
 #include <algorithm>
+#include <cmath>
 #include <exception>
 #include <iostream>
 #include <vector>
@@ -38,6 +39,9 @@ using Mode = ColorModeDetector::Mode;
 
 // Crops dark scanner borders: removes edge rows and columns whose mean brightness is low.
 QRect brightArea(const QImage& image) {
+  if (image.isNull() || image.size().isEmpty()) {
+    return QRect();
+  }
   const QImage gray = image.convertToFormat(QImage::Format_Grayscale8);
   const int w = gray.width();
   const int h = gray.height();
@@ -58,17 +62,20 @@ QRect brightArea(const QImage& image) {
   }
   const double dark = 100.0;
   int left = 0, right = w - 1, top = 0, bottom = h - 1;
-  while (left < right && colMean[left] < dark) {
+  while (left <= right && colMean[left] < dark) {
     ++left;
   }
-  while (right > left && colMean[right] < dark) {
+  while (right >= left && colMean[right] < dark) {
     --right;
   }
-  while (top < bottom && rowMean[top] < dark) {
+  while (top <= bottom && rowMean[top] < dark) {
     ++top;
   }
-  while (bottom > top && rowMean[bottom] < dark) {
+  while (bottom >= top && rowMean[bottom] < dark) {
     --bottom;
+  }
+  if ((left > right) || (top > bottom)) {
+    return QRect();
   }
   return QRect(QPoint(left, top), QPoint(right, bottom));
 }
@@ -127,31 +134,29 @@ void writeSheet(const std::vector<Result>& results, const int sheetNo, const QSt
 bool readPercent(const QString& value, double& fraction) {
   bool ok = false;
   const double percent = value.toDouble(&ok);
-  if (!ok || (percent < 0) || (percent > 100)) {
+  if (!ok || !std::isfinite(percent) || (percent < 0.0) || (percent > 100.0)) {
     return false;
   }
-  fraction = percent / 100;
+  fraction = percent / 100.0;
   return true;
 }
 int runMain(int argc, char** argv) {
   QGuiApplication app(argc, argv);  // QPainter needs fonts.
   ImageSizeLimit::applyQtAllocationLimit();
   const QStringList args = app.arguments();
-  if (args.size() < 3) {
-    std::cerr << "Usage: color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3] "
-                 "[--minpicture=10] [--only=<name part>] [--inset=<percent>]\n";
-    return 1;
-  }
-  const QDir inDir(args[1]);
-  const QString& outDir = args[2];
-  const bool noSplit = args.contains("--nosplit");
+  const char* const usage
+      = "Usage: color_detect <input folder> <output folder> [--nosplit] [--zones] [--mincolor=3] "
+        "[--minpicture=10] [--only=<name part>] [--inset=<percent>]\n";
+  QStringList positional;
+  bool noSplit = false;
   QString only;            // Only files whose name contains this.
   int insetOverride = -1;  // Share of each edge left out, in percent.
   ColorModeDetector::Options options;
-  options.usePictureZones = args.contains("--zones");
-  for (const QString& arg : args.mid(3)) {
-    if ((arg == "--nosplit") || (arg == "--zones")) {
-      // Read above.
+  for (const QString& arg : args.mid(1)) {
+    if (arg == "--nosplit") {
+      noSplit = true;
+    } else if (arg == "--zones") {
+      options.usePictureZones = true;
     } else if (arg.startsWith("--only=")) {
       only = arg.mid(7);
     } else if (arg.startsWith("--inset=")) {
@@ -172,13 +177,28 @@ int runMain(int argc, char** argv) {
         std::cerr << "--mincolor must be a number from 0 to 100\n";
         return 1;
       }
-    } else {
+    } else if (arg.startsWith('-')) {
       // A mistyped option would otherwise run with the default silently.
-      std::cerr << "Unknown option: " << arg.toStdString() << "\n";
+      std::cerr << "Unknown option: " << arg.toStdString() << "\n" << usage;
       return 1;
+    } else {
+      positional << arg;
     }
   }
-  QDir().mkpath(outDir);
+  if (positional.size() != 2) {
+    std::cerr << usage;
+    return 1;
+  }
+  const QDir inDir(positional[0]);
+  if (!inDir.exists()) {
+    std::cerr << "Input folder not found: " << inDir.path().toStdString() << "\n";
+    return 1;
+  }
+  const QString& outDir = positional[1];
+  if (!QDir().mkpath(outDir)) {
+    std::cerr << "Cannot create " << outDir.toStdString() << "\n";
+    return 1;
+  }
 
   QFile csvFile(outDir + "/color_detect.csv");
   if (!csvFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
@@ -207,6 +227,10 @@ int runMain(int argc, char** argv) {
       continue;
     }
     const QRect area = brightArea(image);
+    if (area.isEmpty()) {
+      std::cerr << name.toStdString() << ": no bright area, skipped\n";
+      continue;
+    }
     std::vector<std::pair<QString, QRect>> parts;
     if (noSplit) {
       parts.emplace_back("page", area);

@@ -20,18 +20,19 @@ using imageproc::BinaryImage;
 // The noise reduction of the color segmentation, as the default of the Output step.
 const int kNoiseReduction = 7;
 
+QImage asRgb32(const QImage& image) {
+  return (image.format() == QImage::Format_RGB32) ? image : image.convertToFormat(QImage::Format_RGB32);
+}
+
 // Each letter in the average color of its pixels, the background white.
 QImage segmented(const QImage& color, const QImage& text) {
   const imageproc::ColorSegmenter segmenter(tools::dpiOrDefault(color), kNoiseReduction);
-  return segmenter.segment(BinaryImage(text), color.convertToFormat(QImage::Format_RGB32))
-      .convertToFormat(QImage::Format_RGB32);
+  return asRgb32(segmenter.segment(BinaryImage(text), asRgb32(color)));
 }
 
 QImage posterized(const QImage& color, const QImage& text, const int level) {
   // As the Output step with posterization: the levels and "force black and white".
-  return imageproc::Posterizer(level, false, true)
-      .posterize(segmented(color, text))
-      .convertToFormat(QImage::Format_RGB32);
+  return asRgb32(imageproc::Posterizer(level, false, true).posterize(segmented(color, text)));
 }
 
 QImage kmeans(const QImage& color, const QImage& text, const int k, const bool fixBlack) {
@@ -50,18 +51,29 @@ QImage textKMeans(const QImage& color, const QImage& text, const int k, const bo
 // black and white text as the image to color, the whole page as the area, its defaults (HSV, start
 // value 128, no saturation, normalization or background colors), with or without "find black".
 QImage experimentalKMeans(const QImage& color, const QImage& text, const int k, const bool findBlack) {
-  QImage dst = text.convertToFormat(QImage::Format_RGB32);
+  if (color.isNull() || text.isNull() || color.size().isEmpty() || text.size().isEmpty()
+      || (color.size() != text.size())) {
+    return QImage();
+  }
+  QImage dst = asRgb32(text);
   const BinaryImage content(text);
   const BinaryImage wholePage(text.size(), imageproc::BLACK);
-  imageproc::stexp::hsvKMeansInPlace(dst, color.convertToFormat(QImage::Format_RGB32), content, wholePage, k, 128, 0,
-                                     0.0f, 0.0f, 0.0f, findBlack, false);
+  imageproc::stexp::hsvKMeansInPlace(dst, asRgb32(color), content, wholePage, k, 128, 0, 0.0f, 0.0f, 0.0f, findBlack,
+                                     false);
   return dst;
 }
 }  // namespace
 
+QImage textOf(const imageproc::GrayImage& gray) {
+  if (gray.isNull()) {
+    return QImage();
+  }
+  const QImage grayQ = gray.toQImage();
+  return BinaryImage(grayQ, imageproc::BinaryThreshold::otsuThreshold(grayQ)).toQImage();
+}
+
 QImage textOf(const QImage& color) {
-  const imageproc::GrayImage gray(color);
-  return BinaryImage(gray.toQImage(), imageproc::BinaryThreshold::otsuThreshold(gray.toQImage())).toQImage();
+  return textOf(imageproc::GrayImage(color));
 }
 
 const std::vector<ColorMethod>& colorMethods() {

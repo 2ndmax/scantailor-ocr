@@ -15,10 +15,10 @@ inline Dpi storedDpi(const QImage& image) {
   return Dpi(Dpm(image));
 }
 
-/** The resolution stored in the image, or 300 dpi in a direction without one, for the methods to work with. */
+/** The resolution stored in the image, or 300 dpi when missing/null, for the methods to work with. */
 inline Dpi dpiOrDefault(const QImage& image) {
   const Dpi dpi = storedDpi(image);
-  return Dpi(dpi.horizontal() > 0 ? dpi.horizontal() : 300, dpi.vertical() > 0 ? dpi.vertical() : 300);
+  return dpi.isNull() ? Dpi(300, 300) : dpi;
 }
 }  // namespace tools
 

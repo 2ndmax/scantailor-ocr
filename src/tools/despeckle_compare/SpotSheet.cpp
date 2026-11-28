@@ -32,9 +32,17 @@ void saveSpotSheet(const QImage& image, const std::vector<QPoint>& points, const
   sheet.fill(qRgb(80, 80, 80));
   QPainter painter(&sheet);
   for (int i = 0; i < count; ++i) {
+    const QRect dstRect((i % cols) * (tile + 4), (i / cols) * (tile + 4), tile, tile);
+    painter.fillRect(dstRect, QColor(235, 235, 235));
     const QRect src(spots[i].x() * cell - cell / 2, spots[i].y() * cell - cell / 2, cell * 2, cell * 2);
-    const QImage crop = image.copy(src).scaled(tile, tile, Qt::KeepAspectRatio, Qt::FastTransformation);
-    painter.drawImage((i % cols) * (tile + 4), (i / cols) * (tile + 4), crop);
+    const QRect clipped = src.intersected(image.rect());
+    if (!clipped.isEmpty()) {
+      const int zoom = tile / (cell * 2);
+      const QRect target(dstRect.left() + (clipped.left() - src.left()) * zoom,
+                         dstRect.top() + (clipped.top() - src.top()) * zoom, clipped.width() * zoom,
+                         clipped.height() * zoom);
+      painter.drawImage(target, image, clipped);
+    }
   }
   painter.end();
   tools::saveImage(sheet, path);

@@ -53,7 +53,7 @@ main { display: grid; grid-template-columns: 300px 1fr; gap: 16px; padding: 16px
 </head>
 <body>
 <header>
-  <h1>Binarization Comparison</h1>
+  <h1 id="title">Binarization Comparison</h1>
   <label>Page <select id="page"></select></label>
   <label>Zoom <select id="zoom">
     <option value="0.5">50 %</option><option value="1" selected>100 %</option>
@@ -73,40 +73,70 @@ main { display: grid; grid-template-columns: 300px 1fr; gap: 16px; padding: 16px
 </main>
 <script src="data.js"></script>
 <script>
-const GROUPS = { original: ["Original (grayscale)", "#888"], ours: ["ScanTailor OCR", "var(--ours)"],
-  experimental: ["ScanTailor Experimental", "var(--experimental)"], filter: ["Filter (grayscale)", "var(--filter)"] };
+const $ = (id) => document.getElementById(id);
+const isColors = DATA.mode === "colors";
+const title = isColors ? "Colored Text Comparison" : "Binarization Comparison";
+document.title = title;
+$("title").textContent = title;
+const GROUPS = isColors
+  ? { original: ["Original (color)", "#888"], ours: ["ScanTailor OCR", "var(--ours)"],
+      experimental: ["K-Means (own code, idea from ScanTailor Experimental)", "var(--experimental)"],
+      filter: ["K-Means (original code of ScanTailor Experimental)", "var(--filter)"] }
+  : { original: ["Original (grayscale)", "#888"], ours: ["ScanTailor OCR", "var(--ours)"],
+      experimental: ["ScanTailor Experimental", "var(--experimental)"],
+      filter: ["Filter (grayscale)", "var(--filter)"] };
 const store = {
   get(k, d) { try { const v = localStorage.getItem("bc_" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem("bc_" + k, JSON.stringify(v)); } catch (e) {} }
 };
-const $ = (id) => document.getElementById(id);
 let page = null, cx = 0, cy = 0;
-const hidden = new Set(store.get("hidden", []));
+const savedHidden = store.get("hidden", []);
+const hidden = new Set(Array.isArray(savedHidden) ? savedHidden : []);
 
 function results(p) {
   return [{ id: "original", label: "Original", group: "original", parameters: "", ms: null, file: "original.jpg" }]
-    .concat(p.results);
+    .concat(Array.isArray(p.results) ? p.results : []);
 }
-function tileSize() { return $("tile").value.split("x").map(Number); }
-function zoom() { return Number($("zoom").value); }
+function restoreSelect(el, key, fallback) {
+  const saved = store.get(key, fallback);
+  const valid = Array.from(el.options).some((o) => o.value === String(saved));
+  el.value = valid ? String(saved) : fallback;
+}
+function tileSize() {
+  const parts = $("tile").value.split("x").map(Number);
+  return (parts.length === 2 && Number.isFinite(parts[0]) && parts[0] > 0 && Number.isFinite(parts[1]) && parts[1] > 0)
+    ? parts : [480, 340];
+}
+function zoom() {
+  const z = Number($("zoom").value);
+  return (Number.isFinite(z) && z > 0) ? z : 1;
+}
 
 function buildMethods() {
   const box = $("methods"); box.innerHTML = "";
-  let group = null;
-  for (const r of results(DATA.pages[0] || { results: [] })) {
-    if (r.group !== group) {
-      group = r.group;
-      const h = document.createElement("h3"); h.textContent = GROUPS[group][0]; box.appendChild(h);
+  const seen = new Set();
+  const byGroup = new Map();
+  for (const p of DATA.pages) {
+    for (const r of results(p)) {
+      if (seen.has(r.id)) continue;
+      seen.add(r.id);
+      if (!byGroup.has(r.group)) byGroup.set(r.group, []);
+      byGroup.get(r.group).push(r);
     }
-    const l = document.createElement("label");
-    const c = document.createElement("input"); c.type = "checkbox"; c.checked = !hidden.has(r.id);
-    c.onchange = () => { c.checked ? hidden.delete(r.id) : hidden.add(r.id); store.set("hidden", [...hidden]); render(); };
-    l.append(c, " " + r.label); box.appendChild(l);
+  }
+  for (const [group, items] of byGroup.entries()) {
+    const h = document.createElement("h3"); h.textContent = (GROUPS[group] || [group])[0]; box.appendChild(h);
+    for (const r of items) {
+      const l = document.createElement("label");
+      const c = document.createElement("input"); c.type = "checkbox"; c.checked = !hidden.has(r.id);
+      c.onchange = () => { c.checked ? hidden.delete(r.id) : hidden.add(r.id); store.set("hidden", [...hidden]); render(); };
+      l.append(c, " " + r.label); box.appendChild(l);
+    }
   }
 }
 
 function selectPage(id) {
-  page = DATA.pages.find((p) => p.id === id) || DATA.pages[0];
+  page = DATA.pages.find((p) => p.id === id) || DATA.pages[0] || null;
   if (!page) return;
   store.set("page", page.id);
   $("page").value = page.id;
@@ -124,7 +154,8 @@ function render() {
   grid.innerHTML = "";
   for (const r of results(page)) {
     if (hidden.has(r.id)) continue;
-    const t = document.createElement("div"); t.className = "tile"; t.style.setProperty("--g", GROUPS[r.group][1]);
+    const t = document.createElement("div"); t.className = "tile";
+    t.style.setProperty("--g", (GROUPS[r.group] || [r.group, "#888"])[1]);
     const head = document.createElement("div"); head.className = "head";
     const b = document.createElement("b"); b.textContent = r.label;
     const s = document.createElement("span");
@@ -140,20 +171,29 @@ function render() {
 }
 
 function position() {
-  const [, th] = tileSize(), z = zoom();
+  if (!page || !(page.width > 0) || !(page.height > 0)) return;
+  const [tw0, th] = tileSize(), z = zoom();
   const views = document.querySelectorAll(".view");
-  const tw = views.length ? views[0].clientWidth : tileSize()[0];
+  const tw = (views.length && views[0].clientWidth > 0) ? views[0].clientWidth : tw0;
   const w = tw / z, h = th / z;
+  if (!Number.isFinite(cx)) cx = page.width / 2;
+  if (!Number.isFinite(cy)) cy = page.height / 3;
   cx = Math.min(Math.max(cx, w / 2), Math.max(page.width - w / 2, w / 2));
   cy = Math.min(Math.max(cy, h / 2), Math.max(page.height - h / 2, h / 2));
   for (const v of views) v.style.backgroundPosition = -(cx - w / 2) * z + "px " + -(cy - h / 2) * z + "px";
-  const ov = $("ovimg"), f = $("frame"), s = ov.clientWidth / page.width;
-  f.style.left = (cx - w / 2) * s + "px"; f.style.top = (cy - h / 2) * s + "px";
-  f.style.width = w * s + "px"; f.style.height = h * s + "px";
+  const ov = $("ovimg"), f = $("frame");
+  if (ov.clientWidth > 0) {
+    const s = ov.clientWidth / page.width;
+    f.style.left = (cx - w / 2) * s + "px"; f.style.top = (cy - h / 2) * s + "px";
+    f.style.width = w * s + "px"; f.style.height = h * s + "px";
+  }
 }
 
 $("overview").onclick = (e) => {
-  const rect = $("ovimg").getBoundingClientRect(), s = rect.width / page.width;
+  if (!page || !(page.width > 0)) return;
+  const rect = $("ovimg").getBoundingClientRect();
+  if (!(rect.width > 0)) return;
+  const s = rect.width / page.width;
   cx = (e.clientX - rect.left) / s; cy = (e.clientY - rect.top) / s; position();
 };
 document.addEventListener("keydown", (e) => {
@@ -168,8 +208,8 @@ $("page").onchange = () => selectPage($("page").value);
 $("ovimg").onload = position;
 window.onresize = position;
 
-$("zoom").value = store.get("zoom", "1");
-$("tile").value = store.get("tile", "480x340");
+restoreSelect($("zoom"), "zoom", "1");
+restoreSelect($("tile"), "tile", "480x340");
 for (const p of DATA.pages) { const o = document.createElement("option"); o.value = p.id; o.textContent = p.file; $("page").appendChild(o); }
 buildMethods();
 selectPage(store.get("page", null));
@@ -203,19 +243,11 @@ bool writeViewer(const QDir& outDir, const bool colors) {
   }
 
   QByteArray dataBytes("const DATA = ");
-  dataBytes.append(QJsonDocument(QJsonObject{{"pages", pages}}).toJson(QJsonDocument::Compact));
+  dataBytes.append(
+      QJsonDocument(QJsonObject{{"mode", viewerMode(colors)}, {"pages", pages}}).toJson(QJsonDocument::Compact));
   dataBytes.append(";\n");
 
-  QString html = QString::fromUtf8(kIndexHtml);
-  if (colors) {
-    html.replace(QStringLiteral("Binarization Comparison"), QStringLiteral("Colored Text Comparison"));
-    html.replace(QStringLiteral("Original (grayscale)"), QStringLiteral("Original (color)"));
-    html.replace(QStringLiteral("\"ScanTailor Experimental\""),
-                 QStringLiteral("\"K-Means (own code, idea from ScanTailor Experimental)\""));
-    html.replace(QStringLiteral("Filter (grayscale)"),
-                 QStringLiteral("K-Means (original code of ScanTailor Experimental)"));
-  }
-  const QByteArray htmlBytes = html.toUtf8();
+  const QByteArray htmlBytes(kIndexHtml);
 
   QSaveFile data(dataPath);
   QSaveFile index(indexPath);

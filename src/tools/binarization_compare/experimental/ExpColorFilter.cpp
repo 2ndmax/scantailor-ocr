@@ -57,7 +57,7 @@ QImage imageHSVcylinder(QImage const& image) {
   float ctorad = (float) (2.0 * M_PI / 256.0);
 
   for (unsigned int y = 0; y < h; y++) {
-    QRgb* rowh = (QRgb*) hsv_img.constScanLine(y);
+    QRgb* rowh = reinterpret_cast<QRgb*>(hsv_img.scanLine(y));
     for (unsigned int x = 0; x < w; x++) {
       QRgb pixel = image.pixel(x, y);
       int r = qRed(pixel);
@@ -117,7 +117,7 @@ QImage imageHSLcylinder(QImage const& image) {
   float ctorad = (float) (2.0 * M_PI / 256.0);
 
   for (unsigned int y = 0; y < h; y++) {
-    QRgb* rowh = (QRgb*) hsl_img.constScanLine(y);
+    QRgb* rowh = reinterpret_cast<QRgb*>(hsl_img.scanLine(y));
     for (unsigned int x = 0; x < w; x++) {
       QRgb pixel = image.pixel(x, y);
       int r = qRed(pixel);
@@ -172,7 +172,7 @@ QImage imageYCbCr(QImage const& image) {
   }
 
   for (unsigned int y = 0; y < h; y++) {
-    QRgb* rowh = (QRgb*) ycbcr_img.constScanLine(y);
+    QRgb* rowh = reinterpret_cast<QRgb*>(ycbcr_img.scanLine(y));
     for (unsigned int x = 0; x < w; x++) {
       QRgb pixel = image.pixel(x, y);
       int r = qRed(pixel);
@@ -530,7 +530,7 @@ double hsvKMeansInPlace(QImage& dst,
 
     uint32_t const msb = uint32_t(1) << 31;
 
-    GrayImage clusters(image);
+    GrayImage clusters(image.size());
     if (clusters.isNull()) {
       return mse;
     }
@@ -547,7 +547,7 @@ double hsvKMeansInPlace(QImage& dst,
       mask_zones_line = mask_zones.data();
       float dist_min = -1.0f;
       for (unsigned int y = 0; y < h; y++) {
-        QRgb* rowh = (QRgb*) hsv_img.constScanLine(y);
+        const QRgb* rowh = reinterpret_cast<const QRgb*>(hsv_img.constScanLine(y));
         for (unsigned int x = 0; x < w; x++) {
           if (mask_zones_line[x >> 5] & (msb >> (x & 31))) {
             float const hsv_h = qRed(rowh[x]);
@@ -609,7 +609,7 @@ double hsvKMeansInPlace(QImage& dst,
       mask_zones_line = mask_zones.data();
       float dist_min = -1.0f;
       for (unsigned int y = 0; y < h; y++) {
-        QRgb* rowh = (QRgb*) hsv_img.constScanLine(y);
+        const QRgb* rowh = reinterpret_cast<const QRgb*>(hsv_img.constScanLine(y));
         for (unsigned int x = 0; x < w; x++) {
           if (mask_zones_line[x >> 5] & (msb >> (x & 31))) {
             // != on bools: the masked bit is not 0 or 1.
@@ -641,7 +641,7 @@ double hsvKMeansInPlace(QImage& dst,
     /* init clusters map */
     mask_line = mask.data();
     for (unsigned int y = 0; y < h; y++) {
-      QRgb* rowh = (QRgb*) hsv_img.constScanLine(y);
+      const QRgb* rowh = reinterpret_cast<const QRgb*>(hsv_img.constScanLine(y));
       for (unsigned int x = 0; x < w; x++) {
         float const hsv_h = qRed(rowh[x]);
         float const hsv_s = qGreen(rowh[x]);
@@ -694,7 +694,7 @@ double hsvKMeansInPlace(QImage& dst,
       mask_zones_line = mask_zones.data();
       clusters_line = clusters.data();
       for (unsigned int y = 0; y < h; y++) {
-        QRgb* rowh = (QRgb*) hsv_img.constScanLine(y);
+        const QRgb* rowh = reinterpret_cast<const QRgb*>(hsv_img.constScanLine(y));
         for (unsigned int x = 0; x < w; x++) {
           if (mask_zones_line[x >> 5] & (msb >> (x & 31))) {
             int const cluster = clusters_line[x];
@@ -743,7 +743,7 @@ double hsvKMeansInPlace(QImage& dst,
       mask_line = mask.data();
       clusters_line = clusters.data();
       for (unsigned int y = 0; y < h; y++) {
-        QRgb* rowh = (QRgb*) hsv_img.constScanLine(y);
+        const QRgb* rowh = reinterpret_cast<const QRgb*>(hsv_img.constScanLine(y));
         for (unsigned int x = 0; x < w; x++) {
           float const hsv_h = qRed(rowh[x]);
           float const hsv_s = qGreen(rowh[x]);
@@ -890,7 +890,7 @@ double hsvKMeansInPlace(QImage& dst,
     mask_zones_line = mask_zones.data();
     clusters_line = clusters.data();
     for (unsigned int y = 0; y < h; y++) {
-      QRgb* rowh = (QRgb*) hsv_img.constScanLine(y);
+      QRgb* rowh = reinterpret_cast<QRgb*>(hsv_img.scanLine(y));
       double msel = 0.0;
       for (unsigned int x = 0; x < w; x++) {
         int r, g, b;

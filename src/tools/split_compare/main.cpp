@@ -142,34 +142,50 @@ int runMain(int argc, char** argv) {
   QGuiApplication app(argc, argv);
   ImageSizeLimit::applyQtAllocationLimit();
   const QStringList args = app.arguments();
-  if (args.size() < 3) {
-    std::cerr << "Usage: split_compare <input folder> <output folder> [--rotate=<degrees>] [--only=<name part>]"
-                 " [--project=<file>]\n";
-    return 1;
-  }
-  const QDir inDir(args[1]);
-  const QDir outDir(args[2]);
-  QDir().mkpath(outDir.path());
+  QStringList positional;
   OrthogonalRotation rotation;
   QString only;
   QString projectPath;
-  for (int i = 3; i < args.size(); ++i) {
-    if (args[i].startsWith("--rotate=")) {
+  const char* const usage
+      = "Usage: split_compare <input folder> <output folder> [--rotate=<degrees>] "
+        "[--only=<name part>] [--project=<file>]\n";
+  for (int i = 1; i < args.size(); ++i) {
+    const QString& arg = args[i];
+    if (arg.startsWith("--rotate=")) {
       bool ok = false;
-      const int degrees = args[i].mid(9).toInt(&ok);
+      const int degrees = arg.mid(9).toInt(&ok);
       if (!ok || !toOrthogonalRotation(degrees, &rotation)) {
         std::cerr << "--rotate must be 0, 90, 180 or 270\n";
         return 1;
       }
-    } else if (args[i].startsWith("--only=")) {
-      only = args[i].mid(7);
-    } else if (args[i].startsWith("--project=")) {
-      projectPath = args[i].mid(10);
-    } else {
-      // A mistyped option would otherwise run with the default silently.
-      std::cerr << "Unknown option: " << args[i].toStdString() << "\n";
+    } else if (arg.startsWith("--only=")) {
+      only = arg.mid(7);
+    } else if (arg.startsWith("--project=")) {
+      projectPath = arg.mid(10);
+      if (projectPath.isEmpty()) {
+        std::cerr << "--project requires a file path\n";
+        return 1;
+      }
+    } else if (arg.startsWith('-')) {
+      std::cerr << "Unknown option: " << arg.toStdString() << "\n" << usage;
       return 1;
+    } else {
+      positional << arg;
     }
+  }
+  if (positional.size() != 2) {
+    std::cerr << usage;
+    return 1;
+  }
+  const QDir inDir(positional[0]);
+  if (!inDir.exists()) {
+    std::cerr << "Input folder not found: " << inDir.path().toStdString() << "\n";
+    return 1;
+  }
+  const QDir outDir(positional[1]);
+  if (!QDir().mkpath(outDir.path())) {
+    std::cerr << "Cannot create " << outDir.path().toStdString() << "\n";
+    return 1;
   }
 
   const auto canonicalPath = [&](const QString& file) { return QFileInfo(inDir.filePath(file)).canonicalFilePath(); };

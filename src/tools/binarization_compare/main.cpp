@@ -81,7 +81,7 @@ QString pageId(const QFileInfo& file) {
   return id.left(40) + "_" + hash;
 }
 
-void collect(const QString& path, QList<QFileInfo>& files) {
+bool collect(const QString& path, QList<QFileInfo>& files) {
   const QFileInfo info(path);
   if (info.isDir()) {
     for (const QFileInfo& entry : QDir(path).entryInfoList(QDir::Files, QDir::Name)) {
@@ -89,11 +89,14 @@ void collect(const QString& path, QList<QFileInfo>& files) {
         files << entry;
       }
     }
-  } else if (info.isFile()) {
-    files << info;
-  } else {
-    std::cerr << "Not found: " << qPrintable(path) << std::endl;
+    return true;
   }
+  if (info.isFile()) {
+    files << info;
+    return true;
+  }
+  std::cerr << "Not found: " << qPrintable(path) << std::endl;
+  return false;
 }
 
 bool processPage(const QFileInfo& file, const QDir& outDir) {
@@ -116,23 +119,28 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
     std::cerr << "  could not be loaded" << std::endl;
     return false;
   }
-  outDir.mkpath(id);
+  if (!outDir.mkpath(id)) {
+    std::cerr << "  could not create " << qPrintable(QDir::toNativeSeparators(pageDir.path())) << std::endl;
+    return false;
+  }
   // Without info.json the page is computed again next time and the viewer leaves it out, until
   // all its images are saved.
   QFile::remove(pageDir.filePath("info.json"));
   bool saved = true;
   const imageproc::GrayImage gray(image);
-  const QImage shown = gColors ? image.convertToFormat(QImage::Format_RGB32) : gray.toQImage();
+  const QImage shown
+      = gColors ? ((image.format() == QImage::Format_RGB32) ? image : image.convertToFormat(QImage::Format_RGB32))
+                : gray.toQImage();
   saved &= shown.save(pageDir.filePath("original.jpg"), "JPG", 90);
   saved &= shown.scaledToWidth(600, Qt::SmoothTransformation).save(pageDir.filePath("overview.jpg"), "JPG", 85);
 
   QJsonArray results;
   if (gColors) {
-    const QImage text = textOf(image);
+    const QImage text = textOf(gray);
     for (const ColorMethod& method : colorMethods()) {
       QElapsedTimer timer;
       timer.start();
-      const QImage result = method.run(image, text);
+      const QImage result = method.run(shown, text);
       const qint64 ms = timer.elapsed();
       const QString fileName = method.id + ".png";
       saved &= result.save(pageDir.filePath(fileName), "PNG");
@@ -151,7 +159,8 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
     const QImage result = method.run(gray);
     const qint64 ms = timer.elapsed();
     const QString fileName = method.id + ((method.group == "filter") ? ".jpg" : ".png");
-    saved &= result.save(pageDir.filePath(fileName), (method.group == "filter") ? "JPG" : "PNG", 90);
+    saved &= result.save(pageDir.filePath(fileName), (method.group == "filter") ? "JPG" : "PNG",
+                         (method.group == "filter") ? 90 : -1);
     std::cout << "  " << qPrintable(method.label) << ": " << ms << " ms" << std::endl;
     results.append(QJsonObject{{"id", method.id},
                                {"label", method.label},
@@ -187,26 +196,38 @@ bool processPage(const QFileInfo& file, const QDir& outDir) {
 int runMain(int argc, char** argv) {
   QCoreApplication app(argc, argv);
   ImageSizeLimit::applyQtAllocationLimit();
-  QStringList args = app.arguments();
-  if ((args.size() > 1) && (args[1] == QLatin1String("--colors"))) {
-    gColors = true;
-    args.removeAt(1);
+  gColors = false;
+  QStringList positional;
+  const QStringList args = app.arguments();
+  for (int i = 1; i < args.size(); ++i) {
+    const QString& arg = args[i];
+    if (arg == QLatin1String("--colors")) {
+      gColors = true;
+    } else if (arg.startsWith(QLatin1Char('-'))) {
+      std::cerr << "Unknown option: " << qPrintable(arg) << std::endl;
+      std::cerr << "Usage: binarization_compare [--colors] <output folder> <image file or folder>..." << std::endl;
+      return 2;
+    } else {
+      positional << arg;
+    }
   }
-  if (args.size() < 3) {
+  if (positional.size() < 2) {
     std::cerr << "Usage: binarization_compare [--colors] <output folder> <image file or folder>..." << std::endl;
     return 2;
   }
-  const QDir outDir(args[1]);
+  const QDir outDir(positional[0]);
   if (!outDir.mkpath(".")) {
-    std::cerr << "Cannot create " << qPrintable(args[1]) << std::endl;
+    std::cerr << "Cannot create " << qPrintable(positional[0]) << std::endl;
     return 1;
   }
 
-  QList<QFileInfo> files;
-  for (int i = 2; i < args.size(); ++i) {
-    collect(args[i], files);
-  }
   int failed = 0;
+  QList<QFileInfo> files;
+  for (int i = 1; i < positional.size(); ++i) {
+    if (!collect(positional[i], files)) {
+      ++failed;
+    }
+  }
   for (const QFileInfo& file : files) {
     if (!processPage(file, outDir)) {
       ++failed;

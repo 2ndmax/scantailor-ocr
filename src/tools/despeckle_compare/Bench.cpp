@@ -779,7 +779,14 @@ struct FontChoice {
 }  // namespace
 
 int bench(const QString& outDir, const bool images) {
-  QDir().mkpath(outDir);
+  if (!QDir().mkpath(outDir)) {
+    std::cerr << "Cannot create " << outDir.toStdString() << "\n";
+    return 1;
+  }
+  if (images && !QDir(outDir).mkpath("pages")) {
+    std::cerr << "Cannot create " << QDir(outDir).filePath("pages").toStdString() << "\n";
+    return 1;
+  }
   QFile csvFile(QDir(outDir).filePath("bench.csv"));
   if (!csvFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
     std::cerr << "Cannot write " << csvFile.fileName().toStdString() << "\n";
@@ -813,7 +820,6 @@ int bench(const QString& outDir, const bool images) {
         const BinaryImage input = toBinary(page);
         const QString pageName = QStringLiteral("%1_%2pt_%3dpi").arg(choice.name).arg(pointSize).arg(dpi);
         if (images) {
-          QDir(outDir).mkpath("pages");
           tools::saveImage(input.toQImage(), QDir(outDir).filePath("pages/" + pageName + ".png"));
         }
         for (int level = 0; level < 3; ++level) {

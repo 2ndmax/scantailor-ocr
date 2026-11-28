@@ -85,18 +85,18 @@ GrayImage grayDotsMap(GrayImage const& src, int delta = 0);
 /**
  * threshold MAPs as filters
  */
-void grayMapOverlay(GrayImage& src, GrayImage& gover, float coef = 0.0f);
+void grayMapOverlay(GrayImage& src, GrayImage const& gover, float coef = 0.0f);
 
-void grayMix(GrayImage& src, GrayImage& gover, float coef = 0.0f);
+void grayMix(GrayImage& src, GrayImage const& gover, float coef = 0.0f);
 
-void grayGrainExtract(GrayImage& src, GrayImage& gover, float coef = 0.0f);
+void grayGrainExtract(GrayImage& src, GrayImage const& gover, float coef = 0.0f);
 
 /**
  * @brief S-curve.
  *
  * (0-T)+(T-255), T = mean(I)
  */
-GrayImage grayCurveFilter(GrayImage& src, float coef = 0.5f);
+GrayImage grayCurveFilter(GrayImage const& src, float coef = 0.5f);
 
 void grayCurveFilterInPlace(GrayImage& src, float coef = 0.5f);
 
@@ -105,7 +105,7 @@ void grayCurveFilterInPlace(GrayImage& src, float coef = 0.5f);
  *
  * (0-255)
  */
-GrayImage graySqrFilter(GrayImage& src, float coef = 0.0f);
+GrayImage graySqrFilter(GrayImage const& src, float coef = 0.0f);
 
 void graySqrFilterInPlace(GrayImage& src, float coef = 0.0f);
 
@@ -126,7 +126,7 @@ void grayDots8InPlace(GrayImage& src, int radius = 17, float coef = 0.0f);
  * @brief RIS undefect GrayImage based linear scale.
  * https://habr.com/ru/articles/910412/
  */
-GrayImage grayScaleByLine(GrayImage& src, int const wnew, int const hnew);
+GrayImage grayScaleByLine(GrayImage const& src, int const wnew, int const hnew);
 GrayImage grayRISundefect(GrayImage const& src, float radius = 2.0f, float coef = 0.0f);
 void grayRISundefectInPlace(GrayImage& src, float radius = 2.0f, float coef = 0.0f);
 

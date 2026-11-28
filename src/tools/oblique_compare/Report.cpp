@@ -214,7 +214,7 @@ std::vector<QString> conclusions(const std::vector<PageResult>& results, const R
     const Figures small(figures(results, method, ofClass(ShearClass::SMALL)));
     const Figures large(figures(results, method, ofClass(ShearClass::LARGE)));
     lines.push_back(QStringLiteral("Shear, %1: detected %2 of the sheared pages (0.1°–1°: %3; 1°–4°: %4). "
-                                   "Residual shear after \"Auto\" %5 on average, %6 in the worst case. "
+                                   "Residual shear after \"%1\" %5 on average, %6 in the worst case. "
                                    "False alarms at 0°: %7. Instability on a shift by fractions of a pixel: %8, "
                                    "flips on %9 pages.")
                         .arg(info.methods[m], share(all.detected, all.sheared), share(small.detected, small.sheared),
