@@ -17,6 +17,7 @@
 #include "DebugImages.h"
 #include "DistortionModelBuilder.h"
 #include "GridLineTraverser.h"
+#include "GridUtils.h"
 #include "LineBoundedByRect.h"
 #include "MatrixCalc.h"
 #include "PriorityQueue.h"
@@ -129,32 +130,6 @@ struct TopBottomEdgeTracer::Step {
   uint32_t prevStepIdx{};
   float pathCost{};
 };
-
-
-template <typename Extractor>
-float TopBottomEdgeTracer::interpolatedGridValue(const Grid<GridNode>& grid,
-                                                 Extractor extractor,
-                                                 const Vec2f pos,
-                                                 float defaultValue) {
-  const auto xBase = static_cast<float>(std::floor(pos[0]));
-  const auto yBase = static_cast<float>(std::floor(pos[1]));
-  const auto xBaseI = (int) xBase;
-  const auto yBaseI = (int) yBase;
-
-  if ((xBaseI < 0) || (yBaseI < 0) || (xBaseI + 1 >= grid.width()) || (yBaseI + 1 >= grid.height())) {
-    return defaultValue;
-  }
-
-  const float x = pos[0] - xBase;
-  const float y = pos[1] - yBase;
-  const float x1 = 1.0f - x;
-  const float y1 = 1.0f - y;
-
-  const int stride = grid.stride();
-  const GridNode* base = grid.data() + yBaseI * stride + xBaseI;
-  return extractor(base[0]) * x1 * y1 + extractor(base[1]) * x * y1 + extractor(base[stride]) * x1 * y
-         + extractor(base[stride + 1]) * x * y;
-}
 
 void TopBottomEdgeTracer::trace(const imageproc::GrayImage& image,
                                 std::pair<QLineF, QLineF> bounds,
@@ -666,7 +641,56 @@ Vec2f TopBottomEdgeTracer::downTheHillDirection(const QRectF& pageRect,
   }
 }
 
-void TopBottomEdgeTracer::downTheHillSnake(std::vector<QPointF>& snake, const Grid<GridNode>& grid, const Vec2f dir) {
+struct TopBottomEdgeTracer::SnakeParams {
+  float displacementScale;
+  float elasticityWeight;
+  float bendingWeight;
+  float segmentDistThreshold;
+  int iterations;
+};
+
+float TopBottomEdgeTracer::calcTransitionCost(const std::vector<Step>& stepStorage,
+                                              const uint32_t prevStepIdx,
+                                              const Step& step,
+                                              const float avgDist,
+                                              const SnakeParams& params) {
+  const Step& prevStep = stepStorage[prevStepIdx];
+  float cost = prevStep.pathCost + step.pathCost;
+
+  const Vec2f vec(step.pt - prevStep.pt);
+  const auto vecLen = static_cast<float>(std::sqrt(vec.squaredNorm()));
+  if (vecLen < params.segmentDistThreshold) {
+    cost += 1000;
+  }
+
+  // Elasticity.
+  const auto distDiff = std::fabs(avgDist - vecLen);
+  cost += params.elasticityWeight * (distDiff / avgDist);
+
+  // Bending energy.
+  if ((prevStep.prevStepIdx != ~uint32_t(0)) && (vecLen >= params.segmentDistThreshold)) {
+    const Step& prevPrevStep = stepStorage[prevStep.prevStepIdx];
+    Vec2f prevNormal(prevStep.pt - prevPrevStep.pt);
+    std::swap(prevNormal[0], prevNormal[1]);
+    prevNormal[0] = -prevNormal[0];
+    const auto prevNormalLen = static_cast<float>(std::sqrt(prevNormal.squaredNorm()));
+    if (prevNormalLen < params.segmentDistThreshold) {
+      cost += 1000;
+    } else {
+      const float cos = vec.dot(prevNormal) / (vecLen * prevNormalLen);
+      cost += params.bendingWeight * cos * cos;
+    }
+  }
+
+  assert(cost < std::numeric_limits<float>::max());
+  return cost;
+}
+
+template <typename MakeStepEvaluator>
+void TopBottomEdgeTracer::optimizeSnake(std::vector<QPointF>& snake,
+                                        const Vec2f dir,
+                                        const SnakeParams& params,
+                                        MakeStepEvaluator&& makeStepEvaluator) {
   const size_t numNodes = snake.size();
   if (numNodes <= 1) {
     return;
@@ -678,19 +702,21 @@ void TopBottomEdgeTracer::downTheHillSnake(std::vector<QPointF>& snake, const Gr
     avgDist += std::sqrt(vec.squaredNorm());
   }
   avgDist /= numNodes - 1;
+  if (avgDist <= 0.0f) {
+    return;
+  }
 
   std::vector<Step> stepStorage;
 
   Vec2f displacements[9];
   const int numDisplacements = initDisplacementVectors(displacements, dir);
+  if (params.displacementScale != 1.0f) {
+    for (int i = 0; i < numDisplacements; ++i) {
+      displacements[i] *= params.displacementScale;
+    }
+  }
 
-  const float elasticityWeight = 0.6f;
-  const float bendingWeight = 8.0f;
-  const float externalWeight = 0.4f;
-
-  const float segmentDistThreshold = 1;
-
-  for (int iteration = 0; iteration < 40; ++iteration) {
+  for (int iteration = 0; iteration < params.iterations; ++iteration) {
     stepStorage.clear();
 
     std::vector<uint32_t> paths;
@@ -698,8 +724,7 @@ void TopBottomEdgeTracer::downTheHillSnake(std::vector<QPointF>& snake, const Gr
 
     for (size_t nodeIdx = 0; nodeIdx < numNodes; ++nodeIdx) {
       const Vec2f pt(snake[nodeIdx]);
-      const float curExternalEnergy
-          = interpolatedGridValue(grid, [](const GridNode& node) { return node.blurred; }, pt, 1000);
+      auto evalStep = makeStepEvaluator(pt);
 
       for (int displacementIdx = 0; displacementIdx < numDisplacements; ++displacementIdx) {
         Step step;
@@ -707,52 +732,15 @@ void TopBottomEdgeTracer::downTheHillSnake(std::vector<QPointF>& snake, const Gr
         step.pt = pt + displacements[displacementIdx];
         step.pathCost = 0;
 
-        const float adjustedExternalEnergy
-            = interpolatedGridValue(grid, [](const GridNode& node) { return node.blurred; }, step.pt, 1000);
-        if (displacementIdx == 0) {
-          step.pathCost += 100;
-        } else if (curExternalEnergy < 0.01) {
-          if (curExternalEnergy - adjustedExternalEnergy < 0.01f) {
-            continue;
-          }
+        if (!evalStep(step.pt, displacementIdx, step.pathCost)) {
+          continue;
         }
-
-        step.pathCost += externalWeight * adjustedExternalEnergy;
 
         float bestCost = std::numeric_limits<float>::max();
         uint32_t bestPrevStepIdx = step.prevStepIdx;
 
         for (uint32_t prevStepIdx : paths) {
-          const Step& prevStep = stepStorage[prevStepIdx];
-          float cost = prevStep.pathCost + step.pathCost;
-
-          const Vec2f vec(step.pt - prevStep.pt);
-          const auto vecLen = static_cast<float>(std::sqrt(vec.squaredNorm()));
-          if (vecLen < segmentDistThreshold) {
-            cost += 1000;
-          }
-
-          // Elasticity.
-          const auto distDiff = std::fabs(avgDist - vecLen);
-          cost += elasticityWeight * (distDiff / avgDist);
-          // Bending energy.
-          if ((prevStep.prevStepIdx != ~uint32_t(0)) && (vecLen >= segmentDistThreshold)) {
-            const Step& prevPrevStep = stepStorage[prevStep.prevStepIdx];
-            Vec2f prevNormal(prevStep.pt - prevPrevStep.pt);
-            std::swap(prevNormal[0], prevNormal[1]);
-            prevNormal[0] = -prevNormal[0];
-            const auto prevNormalLen = static_cast<float>(std::sqrt(prevNormal.squaredNorm()));
-            if (prevNormalLen < segmentDistThreshold) {
-              cost += 1000;
-            } else {
-              const float cos = vec.dot(prevNormal) / (vecLen * prevNormalLen);
-              // cost += 0.7 * std::fabs(cos);
-              cost += bendingWeight * cos * cos;
-            }
-          }
-
-          assert(cost < std::numeric_limits<float>::max());
-
+          const float cost = calcTransitionCost(stepStorage, prevStepIdx, step, avgDist, params);
           if (cost < bestCost) {
             bestCost = cost;
             bestPrevStepIdx = prevStepIdx;
@@ -791,133 +779,48 @@ void TopBottomEdgeTracer::downTheHillSnake(std::vector<QPointF>& snake, const Gr
     }
     assert(numNodes == snake.size());
   }
+}  // TopBottomEdgeTracer::optimizeSnake
+
+void TopBottomEdgeTracer::downTheHillSnake(std::vector<QPointF>& snake, const Grid<GridNode>& grid, const Vec2f dir) {
+  const SnakeParams params{1.0f, 0.6f, 8.0f, 1.0f, 40};
+  const float externalWeight = 0.4f;
+  const auto extractor = [](const GridNode& node) { return node.blurred; };
+
+  optimizeSnake(snake, dir, params, [&](const Vec2f& pt) {
+    const float curExternalEnergy = sampleGridBilinear(grid, extractor, pt, 1000);
+    return [&, curExternalEnergy](const Vec2f& candidatePt, const int displacementIdx, float& stepCost) {
+      const float adjustedExternalEnergy = sampleGridBilinear(grid, extractor, candidatePt, 1000);
+      if (displacementIdx == 0) {
+        stepCost += 100;
+      } else if (curExternalEnergy < 0.01) {
+        if (curExternalEnergy - adjustedExternalEnergy < 0.01f) {
+          return false;
+        }
+      }
+      stepCost += externalWeight * adjustedExternalEnergy;
+      return true;
+    };
+  });
 }  // TopBottomEdgeTracer::downTheHillSnake
 
 void TopBottomEdgeTracer::upTheHillSnake(std::vector<QPointF>& snake, const Grid<GridNode>& grid, const Vec2f dir) {
-  const size_t numNodes = snake.size();
-  if (numNodes <= 1) {
-    return;
-  }
-
-  float avgDist = 0;
-  for (size_t i = 1; i < numNodes; ++i) {
-    const Vec2f vec(snake[i] - snake[i - 1]);
-    avgDist += std::sqrt(vec.squaredNorm());
-  }
-  avgDist /= numNodes - 1;
-
-  std::vector<Step> stepStorage;
-
-  Vec2f displacements[9];
-  const int numDisplacements = initDisplacementVectors(displacements, dir);
-  for (int i = 0; i < numDisplacements; ++i) {
-    // We need more accuracy here.
-    displacements[i] *= 0.5f;
-  }
-
-  const float elasticityWeight = 0.6f;
-  const float bendingWeight = 3.0f;
+  // Use 0.5x displacements because more accuracy is needed on the ridge.
+  const SnakeParams params{0.5f, 0.6f, 3.0f, 1.0f, 40};
   const float externalWeight = 2.0f;
+  const auto extractor = [](const GridNode& node) { return node.absDirDeriv(); };
 
-  const float segmentDistThreshold = 1;
-
-  for (int iteration = 0; iteration < 40; ++iteration) {
-    stepStorage.clear();
-
-    std::vector<uint32_t> paths;
-    std::vector<uint32_t> newPaths;
-
-    for (size_t nodeIdx = 0; nodeIdx < numNodes; ++nodeIdx) {
-      const Vec2f pt(snake[nodeIdx]);
-
-      for (int displacementIdx = 0; displacementIdx < numDisplacements; ++displacementIdx) {
-        Step step;
-        step.prevStepIdx = ~uint32_t(0);
-        step.pt = pt + displacements[displacementIdx];
-        step.pathCost = 0;
-
-        const float adjustedExternalEnergy
-            = -interpolatedGridValue(grid, [](const GridNode& node) { return node.absDirDeriv(); }, step.pt, 1000);
-        if ((displacementIdx == 0) && (adjustedExternalEnergy > -0.02)) {
-          // Discorage staying on the spot if the gradient magnitude is too
-          // small at that point.
-          step.pathCost += 100;
-        }
-
-        step.pathCost += externalWeight * adjustedExternalEnergy;
-
-        float bestCost = std::numeric_limits<float>::max();
-        uint32_t bestPrevStepIdx = step.prevStepIdx;
-
-        for (uint32_t prevStepIdx : paths) {
-          const Step& prevStep = stepStorage[prevStepIdx];
-          float cost = prevStep.pathCost + step.pathCost;
-
-          const Vec2f vec(step.pt - prevStep.pt);
-          const auto vecLen = static_cast<float>(std::sqrt(vec.squaredNorm()));
-          if (vecLen < segmentDistThreshold) {
-            cost += 1000;
-          }
-
-          // Elasticity.
-          const auto distDiff = std::fabs(avgDist - vecLen);
-          cost += elasticityWeight * (distDiff / avgDist);
-          // Bending energy.
-          if ((prevStep.prevStepIdx != ~uint32_t(0)) && (vecLen >= segmentDistThreshold)) {
-            const Step& prevPrevStep = stepStorage[prevStep.prevStepIdx];
-            Vec2f prevNormal(prevStep.pt - prevPrevStep.pt);
-            std::swap(prevNormal[0], prevNormal[1]);
-            prevNormal[0] = -prevNormal[0];
-            const auto prevNormalLen = static_cast<float>(std::sqrt(prevNormal.squaredNorm()));
-            if (prevNormalLen < segmentDistThreshold) {
-              cost += 1000;
-            } else {
-              const float cos = vec.dot(prevNormal) / (vecLen * prevNormalLen);
-              // cost += 0.7 * std::fabs(cos);
-              cost += bendingWeight * cos * cos;
-            }
-          }
-
-          assert(cost < std::numeric_limits<float>::max());
-
-          if (cost < bestCost) {
-            bestCost = cost;
-            bestPrevStepIdx = prevStepIdx;
-          }
-        }
-
-        step.prevStepIdx = bestPrevStepIdx;
-        if (bestPrevStepIdx != ~uint32_t(0)) {
-          step.pathCost = bestCost;
-        }
-
-        newPaths.push_back(static_cast<uint32_t>(stepStorage.size()));
-        stepStorage.push_back(step);
+  optimizeSnake(snake, dir, params, [&](const Vec2f&) {
+    return [&](const Vec2f& candidatePt, const int displacementIdx, float& stepCost) {
+      const float adjustedExternalEnergy = -sampleGridBilinear(grid, extractor, candidatePt, 1000);
+      if ((displacementIdx == 0) && (adjustedExternalEnergy > -0.02)) {
+        // Discourage staying on the spot if the gradient magnitude is too
+        // small at that point.
+        stepCost += 100;
       }
-      assert(!newPaths.empty());
-      paths.swap(newPaths);
-      newPaths.clear();
-    }
-
-    uint32_t bestPathIdx = ~uint32_t(0);
-    float bestCost = std::numeric_limits<float>::max();
-    for (uint32_t lastStepIdx : paths) {
-      const Step& step = stepStorage[lastStepIdx];
-      if (step.pathCost < bestCost) {
-        bestCost = step.pathCost;
-        bestPathIdx = lastStepIdx;
-      }
-    }
-    // Having found the best path, convert it back to a snake.
-    snake.clear();
-    uint32_t stepIdx = bestPathIdx;
-    while (stepIdx != ~uint32_t(0)) {
-      const Step& step = stepStorage[stepIdx];
-      snake.push_back(step.pt);
-      stepIdx = step.prevStepIdx;
-    }
-    assert(numNodes == snake.size());
-  }
+      stepCost += externalWeight * adjustedExternalEnergy;
+      return true;
+    };
+  });
 }  // TopBottomEdgeTracer::upTheHillSnake
 
 int TopBottomEdgeTracer::initDisplacementVectors(Vec2f vectors[], Vec2f validDirection) {
@@ -940,112 +843,11 @@ int TopBottomEdgeTracer::initDisplacementVectors(Vec2f vectors[], Vec2f validDir
 }
 
 QImage TopBottomEdgeTracer::visualizeGradient(const Grid<GridNode>& grid, const QImage* background) {
-  const int width = grid.width();
-  const int height = grid.height();
-  const int gridStride = grid.stride();
-  // First let's find the maximum and minimum values.
-  float minValue = std::numeric_limits<float>::max();
-  float maxValue = std::numeric_limits<float>::lowest();
-
-  const GridNode* gridLine = grid.data();
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      const float value = gridLine[x].dirDeriv;
-      if (value < minValue) {
-        minValue = value;
-      }
-      if (value > maxValue) {
-        maxValue = value;
-      }
-    }
-    gridLine += gridStride;
-  }
-
-  float scale = std::max(maxValue, -minValue);
-  if (scale > std::numeric_limits<float>::epsilon()) {
-    scale = 255.0f / scale;
-  }
-
-  QImage overlay(width, height, QImage::Format_ARGB32_Premultiplied);
-  auto* overlayLine = (uint32_t*) overlay.bits();
-  const int overlayStride = overlay.bytesPerLine() / 4;
-
-  gridLine = grid.data();
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      const float value = gridLine[x].dirDeriv * scale;
-      const int magnitude = qBound(0, static_cast<int>(std::round(std::fabs(value))), 255);
-      if (value > 0) {
-        // Red for positive gradients which indicate bottom edges.
-        overlayLine[x] = qRgba(magnitude, 0, 0, magnitude);
-      } else {
-        overlayLine[x] = qRgba(0, 0, magnitude, magnitude);
-      }
-    }
-    gridLine += gridStride;
-    overlayLine += overlayStride;
-  }
-
-  QImage canvas;
-  if (background) {
-    canvas = background->convertToFormat(QImage::Format_ARGB32_Premultiplied);
-  } else {
-    canvas = QImage(width, height, QImage::Format_ARGB32_Premultiplied);
-    canvas.fill(0xffffffff);  // Opaque white.
-  }
-
-  QPainter painter(&canvas);
-  painter.drawImage(0, 0, overlay);
-  return canvas;
+  return visualizeGridOverlay(grid, [](const GridNode& node) { return node.dirDeriv; }, background, true);
 }  // TopBottomEdgeTracer::visualizeGradient
 
 QImage TopBottomEdgeTracer::visualizeBlurredGradient(const Grid<GridNode>& grid) {
-  const int width = grid.width();
-  const int height = grid.height();
-  const int gridStride = grid.stride();
-  // First let's find the maximum and minimum values.
-  float minValue = std::numeric_limits<float>::max();
-  float maxValue = std::numeric_limits<float>::lowest();
-
-  const GridNode* gridLine = grid.data();
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      const float value = gridLine[x].blurred;
-      if (value < minValue) {
-        minValue = value;
-      }
-      if (value > maxValue) {
-        maxValue = value;
-      }
-    }
-    gridLine += gridStride;
-  }
-
-  float scale = std::max(maxValue, -minValue);
-  if (scale > std::numeric_limits<float>::epsilon()) {
-    scale = 255.0f / scale;
-  }
-
-  QImage overlay(width, height, QImage::Format_ARGB32_Premultiplied);
-  auto* overlayLine = (uint32_t*) overlay.bits();
-  const int overlayStride = overlay.bytesPerLine() / 4;
-
-  gridLine = grid.data();
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      const float value = gridLine[x].blurred * scale;
-      const int magnitude = qBound(0, static_cast<int>(std::round(std::fabs(value))), 255);
-      overlayLine[x] = qRgba(magnitude, 0, 0, magnitude);
-    }
-    gridLine += gridStride;
-    overlayLine += overlayStride;
-  }
-
-  QImage canvas(grid.width(), grid.height(), QImage::Format_ARGB32_Premultiplied);
-  canvas.fill(0xffffffff);  // Opaque white.
-  QPainter painter(&canvas);
-  painter.drawImage(0, 0, overlay);
-  return canvas;
+  return visualizeGridOverlay(grid, [](const GridNode& node) { return node.blurred; }, nullptr, false);
 }  // TopBottomEdgeTracer::visualizeBlurredGradient
 
 QImage TopBottomEdgeTracer::visualizePaths(const QImage& background,

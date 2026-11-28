@@ -31,6 +31,7 @@
 #include "DistortionModel.h"
 #include "DistortionModelBuilder.h"
 #include "GridLineTraverser.h"
+#include "GridUtils.h"
 #include "LineBoundedByRect.h"
 #include "TaskStatus.h"
 #include "TextLineRefiner.h"
@@ -1192,55 +1193,7 @@ QImage TextLineTracer::visualizeVerticalBounds(const QImage& background, const s
 }
 
 QImage TextLineTracer::visualizeGradient(const QImage& background, const Grid<float>& grad) {
-  const int width = grad.width();
-  const int height = grad.height();
-  const int gradStride = grad.stride();
-  // First let's find the maximum and minimum values.
-  float minValue = std::numeric_limits<float>::max();
-  float maxValue = std::numeric_limits<float>::lowest();
-
-  const float* gradLine = grad.data();
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      const float value = gradLine[x];
-      if (value < minValue) {
-        minValue = value;
-      }
-      if (value > maxValue) {
-        maxValue = value;
-      }
-    }
-    gradLine += gradStride;
-  }
-
-  float scale = std::max(maxValue, -minValue);
-  if (scale > std::numeric_limits<float>::epsilon()) {
-    scale = 255.0f / scale;
-  }
-
-  QImage overlay(width, height, QImage::Format_ARGB32_Premultiplied);
-  auto* overlayLine = (uint32_t*) overlay.bits();
-  const int overlayStride = overlay.bytesPerLine() / 4;
-
-  gradLine = grad.data();
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      const float value = gradLine[x] * scale;
-      const int magnitude = qBound(0, static_cast<int>(std::round(std::fabs(value))), 255);
-      if (value < 0) {
-        overlayLine[x] = qRgba(0, 0, magnitude, magnitude);
-      } else {
-        overlayLine[x] = qRgba(magnitude, 0, 0, magnitude);
-      }
-    }
-    gradLine += gradStride;
-    overlayLine += overlayStride;
-  }
-
-  QImage canvas(background.convertToFormat(QImage::Format_ARGB32_Premultiplied));
-  QPainter painter(&canvas);
-  painter.drawImage(0, 0, overlay);
-  return canvas;
+  return visualizeGridOverlay(grad, [](float v) { return v; }, &background, true);
 }  // TextLineTracer::visualizeGradient
 
 QImage TextLineTracer::visualizeMidLineSeeds(const QImage& background,

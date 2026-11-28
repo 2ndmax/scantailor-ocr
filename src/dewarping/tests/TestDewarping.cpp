@@ -6,11 +6,13 @@
 #include <Constants.h>
 #include <Curve.h>
 #include <CylindricalSurfaceDewarper.h>
+#include <DebugImages.h>
 #include <DewarpingPointMapper.h>
 #include <DistortionModel.h>
 #include <DistortionModelBuilder.h>
 #include <Dpi.h>
 #include <GrayImage.h>
+#include <GridUtils.h>
 #include <RasterDewarper.h>
 #include <SEDM.h>
 #include <TaskStatus.h>
@@ -941,6 +943,33 @@ BOOST_AUTO_TEST_CASE(test_top_bottom_edge_tracer_traces_page_borders) {
   BOOST_REQUIRE(model.isValid());
   BOOST_TEST(std::fabs(model.topCurve().polyline().front().y() - 80.0) < 15.0);
   BOOST_TEST(std::fabs(model.bottomCurve().polyline().front().y() - 520.0) < 15.0);
+
+  struct StubDebugImages final : public DebugImages {
+    int count = 0;
+    bool allValid = true;
+    void add(const QImage& image, const QString&, const std::function<QWidget*(const QImage&)>&) override {
+      ++count;
+      allValid = allValid && !image.isNull();
+    }
+    void add(const imageproc::BinaryImage& image,
+             const QString&,
+             const std::function<QWidget*(const QImage&)>&) override {
+      ++count;
+      allValid = allValid && !image.isNull();
+    }
+    bool empty() const override { return count == 0; }
+    AutoRemovingFile retrieveNext(QString*, std::function<QWidget*(const QImage&)>*) override { return {}; }
+  };
+
+  StubDebugImages dbg;
+  DistortionModelBuilder dbgBuilder(Vec2d(0, 1));
+  dbgBuilder.setVerticalBounds(bounds.first, bounds.second);
+  TopBottomEdgeTracer::trace(imageproc::GrayImage(page), bounds, dbgBuilder, NoCancelStatus(), &dbg);
+  const DistortionModel dbgModel = dbgBuilder.tryBuildModel();
+  BOOST_REQUIRE(dbgModel.isValid());
+  BOOST_TEST(dbgModel.matches(model));
+  BOOST_TEST(dbg.count > 0);
+  BOOST_TEST(dbg.allValid);
 }
 
 BOOST_AUTO_TEST_CASE(test_curve_and_distortion_model_xml_roundtrip) {
@@ -963,6 +992,44 @@ BOOST_AUTO_TEST_CASE(test_curve_and_distortion_model_xml_roundtrip) {
   BOOST_TEST(model.topCurve().matches(topReloaded));
 
   BOOST_TEST(DistortionModel().toXml(doc, "distortion-model").isNull());
+}
+
+BOOST_AUTO_TEST_CASE(test_grid_utils_bilinear_and_overlay) {
+  Grid<float> emptyGrid;
+  BOOST_TEST(visualizeGridOverlay(emptyGrid, [](float v) { return v; }).isNull());
+
+  Grid<float> grid(3, 2, 0);
+  grid.initInterior(0.0f);
+  const auto setCell = [&](const int x, const int y, const float value) { grid.data()[y * grid.stride() + x] = value; };
+  setCell(0, 0, 1.0f);
+  setCell(1, 0, 3.0f);
+  setCell(0, 1, 5.0f);
+  setCell(1, 1, 7.0f);
+  setCell(2, 0, -4.0f);
+
+  const auto id = [](float v) { return v; };
+  BOOST_TEST(sampleGridBilinear(grid, id, Vec2f(0.5f, 0.5f), -99.0f) == 4.0f, boost::test_tools::tolerance(1e-5f));
+  BOOST_TEST(sampleGridBilinear(grid, id, Vec2f(-0.1f, 0.5f), -99.0f) == -99.0f);
+  BOOST_TEST(sampleGridBilinear(grid, id, Vec2f(0.5f, -0.1f), -99.0f) == -99.0f);
+  BOOST_TEST(sampleGridBilinear(grid, id, Vec2f(2.0f, 0.5f), -99.0f) == -99.0f);
+  BOOST_TEST(sampleGridBilinear(grid, id, Vec2f(0.5f, 1.0f), -99.0f) == -99.0f);
+
+  const QImage signedImg = visualizeGridOverlay(grid, id, nullptr, true);
+  BOOST_REQUIRE(signedImg.size() == QSize(3, 2));
+  const QRgb posPx = signedImg.pixel(1, 1);
+  const QRgb negPx = signedImg.pixel(2, 0);
+  BOOST_TEST(qRed(posPx) == 255);
+  BOOST_TEST(qBlue(posPx) < 255);
+  BOOST_TEST(qBlue(negPx) > qRed(negPx));
+
+  const QImage unsignedImg = visualizeGridOverlay(grid, id, nullptr, false);
+  const QRgb negUnsignedPx = unsignedImg.pixel(2, 0);
+  BOOST_TEST(qRed(negUnsignedPx) > qBlue(negUnsignedPx));
+
+  QImage bg(3, 2, QImage::Format_Grayscale8);
+  bg.fill(128);
+  const QImage withBg = visualizeGridOverlay(grid, id, &bg, true);
+  BOOST_REQUIRE(withBg.size() == QSize(3, 2));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

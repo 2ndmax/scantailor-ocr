@@ -13,6 +13,7 @@
 #include <limits>
 
 #include "DebugImages.h"
+#include "GridUtils.h"
 
 using namespace imageproc;
 
@@ -154,23 +155,7 @@ void TextLineRefiner::calcBlurredGradient(Grid<float>& gradient, float hSigma, f
 }
 
 float TextLineRefiner::externalEnergyAt(const Grid<float>& gradient, const Vec2f& pos, float penaltyIfOutside) {
-  const auto xBase = static_cast<float>(std::floor(pos[0]));
-  const auto yBase = static_cast<float>(std::floor(pos[1]));
-  const auto xBaseI = (int) xBase;
-  const auto yBaseI = (int) yBase;
-
-  if ((xBaseI < 0) || (yBaseI < 0) || (xBaseI + 1 >= gradient.width()) || (yBaseI + 1 >= gradient.height())) {
-    return penaltyIfOutside;
-  }
-
-  const float x = pos[0] - xBase;
-  const float y = pos[1] - yBase;
-  const float x1 = 1.0f - x;
-  const float y1 = 1.0f - y;
-
-  const int stride = gradient.stride();
-  const float* base = gradient.data() + yBaseI * stride + xBaseI;
-  return base[0] * x1 * y1 + base[1] * x * y1 + base[stride] * x1 * y + base[stride + 1] * x * y;
+  return sampleGridBilinear(gradient, [](float v) { return v; }, pos, penaltyIfOutside);
 }
 
 TextLineRefiner::Snake TextLineRefiner::makeSnake(const std::vector<QPointF>& polyline, const int iterations) {
@@ -307,56 +292,8 @@ void TextLineRefiner::evolveSnake(Snake& snake, const Grid<float>& gradient, con
 }
 
 QImage TextLineRefiner::visualizeGradient(const Grid<float>& gradient) const {
-  const int width = gradient.width();
-  const int height = gradient.height();
-  const int gradientStride = gradient.stride();
-  // First let's find the maximum and minimum values.
-  float minValue = std::numeric_limits<float>::max();
-  float maxValue = std::numeric_limits<float>::lowest();
-
-  const float* gradientLine = gradient.data();
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      const float value = gradientLine[x];
-      if (value < minValue) {
-        minValue = value;
-      }
-      if (value > maxValue) {
-        maxValue = value;
-      }
-    }
-    gradientLine += gradientStride;
-  }
-
-  float scale = std::max(maxValue, -minValue);
-  if (scale > std::numeric_limits<float>::epsilon()) {
-    scale = 255.0f / scale;
-  }
-
-  QImage overlay(width, height, QImage::Format_ARGB32_Premultiplied);
-  auto* overlayLine = (uint32_t*) overlay.bits();
-  const int overlayStride = overlay.bytesPerLine() / 4;
-
-  gradientLine = gradient.data();
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      const float value = gradientLine[x] * scale;
-      const int magnitude = qBound(0, static_cast<int>(std::round(std::fabs(value))), 255);
-      if (value > 0) {
-        // Red for positive gradients which indicate bottom edges.
-        overlayLine[x] = qRgba(magnitude, 0, 0, magnitude);
-      } else {
-        overlayLine[x] = qRgba(0, 0, magnitude, magnitude);
-      }
-    }
-    gradientLine += gradientStride;
-    overlayLine += overlayStride;
-  }
-
-  QImage canvas(m_image.toQImage().convertToFormat(QImage::Format_ARGB32_Premultiplied));
-  QPainter painter(&canvas);
-  painter.drawImage(0, 0, overlay);
-  return canvas;
+  const QImage background = m_image.toQImage();
+  return visualizeGridOverlay(gradient, [](float v) { return v; }, &background, true);
 }  // TextLineRefiner::visualizeGradient
 
 QImage TextLineRefiner::visualizeSnakes(const std::vector<Snake>& snakes, const Grid<float>* gradient) const {

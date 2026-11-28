@@ -41,6 +41,8 @@ class TopBottomEdgeTracer {
 
   struct Step;
 
+  struct SnakeParams;
+
   static bool intersectWithRect(std::pair<QLineF, QLineF>& bounds, const QRectF& rect);
 
   static void forceSameDirection(std::pair<QLineF, QLineF>& bounds);
@@ -73,10 +75,19 @@ class TopBottomEdgeTracer {
 
   static void upTheHillSnake(std::vector<QPointF>& snake, const Grid<GridNode>& grid, Vec2f dir);
 
-  static int initDisplacementVectors(Vec2f vectors[], Vec2f validDirection);
+  static float calcTransitionCost(const std::vector<Step>& stepStorage,
+                                  uint32_t prevStepIdx,
+                                  const Step& step,
+                                  float avgDist,
+                                  const SnakeParams& params);
 
-  template <typename Extractor>
-  static float interpolatedGridValue(const Grid<GridNode>& grid, Extractor extractor, Vec2f pos, float defaultValue);
+  template <typename MakeStepEvaluator>
+  static void optimizeSnake(std::vector<QPointF>& snake,
+                            Vec2f dir,
+                            const SnakeParams& params,
+                            MakeStepEvaluator&& makeStepEvaluator);
+
+  static int initDisplacementVectors(Vec2f vectors[], Vec2f validDirection);
 
   static QImage visualizeGradient(const Grid<GridNode>& grid, const QImage* background = nullptr);
 
