@@ -54,8 +54,8 @@ $graphDir = "$OutDir\cmake-graphviz"
 $graphs = [ordered]@{
     Program = @{ Title = 'the program and the command line tool with the libraries of the project they use'
                  ExternalLibs = 'FALSE'
-                 # Tests end in _tests, the developer tools (BUILD_DEV_TOOLS) are *_compare and color_detect.
-                 Ignore = '_tests$;_compare$;^color_detect$' }
+                 # Tests end in _tests, _test or _link_check; the developer tools (BUILD_DEV_TOOLS) are *_compare and color_detect.
+                 Ignore = '_tests$;_compare$;^color_detect$;_link_check$;_test$' }
     Targets = @{ Title = 'all targets of the project, with the tests and the developer tools'
                  ExternalLibs = 'FALSE'; Ignore = '' }
     All = @{ Title = 'all targets and the libraries they link from outside'

@@ -122,7 +122,7 @@
                <string>How far the drag handles for rotation and oblique correction are placed from the image center, in percent of the largest possible distance. Smaller values move them away from the edge of the view, but make the angle react more strongly to the mouse.</string>
               </property>
               <property name="suffix">
-               <string> %</string>
+               <string notr="true"> %</string>
               </property>
               <property name="minimum">
                <number>30</number>

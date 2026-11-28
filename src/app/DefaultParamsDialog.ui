@@ -119,7 +119,7 @@
         </font>
        </property>
        <property name="text">
-        <string/>
+        <string notr="true"/>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -273,7 +273,7 @@
                 <item>
                  <widget class="QLabel" name="rotationIndicator">
                   <property name="text">
-                   <string/>
+                   <string notr="true"/>
                   </property>
                   <property name="pixmap">
                    <pixmap resource="../resources/resources.qrc">:/icons/big-up-arrow.svg</pixmap>
@@ -1340,7 +1340,7 @@
                          <bool>false</bool>
                         </property>
                         <property name="suffix">
-                         <string> %</string>
+                         <string notr="true"> %</string>
                         </property>
                         <property name="minimum">
                          <number>30</number>
@@ -1378,7 +1378,7 @@
                          <bool>false</bool>
                         </property>
                         <property name="suffix">
-                         <string> %</string>
+                         <string notr="true"> %</string>
                         </property>
                         <property name="minimum">
                          <number>0</number>
@@ -3445,7 +3445,7 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
                </property>
                <property name="toolTip">
                 <string>Reduces the colors to a few.
-Black and white and mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
+Black and white or mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
 None: each letter keeps its own average color. Posterize: fixed color levels. K-means: the colors that fit the page best.</string>
                </property>
                <property name="text">
@@ -3457,7 +3457,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
               <widget class="QComboBox" name="colorReductionCB">
                <property name="toolTip">
                 <string>Reduces the colors to a few.
-Black and white and mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
+Black and white or mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
 None: each letter keeps its own average color. Posterize: fixed color levels. K-means: the colors that fit the page best.</string>
                </property>
               </widget>
@@ -4045,7 +4045,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
                               <cstring>methodCoef</cstring>
                              </property>
                              <property name="text">
-                              <string>Coef:</string>
+                              <string>Coefficient:</string>
                              </property>
                             </widget>
                            </item>
@@ -4298,7 +4298,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
            <bool>false</bool>
           </property>
           <property name="suffix">
-           <string> %</string>
+           <string notr="true"> %</string>
           </property>
           <property name="minimum">
            <number>0</number>
@@ -4363,7 +4363,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
            <bool>false</bool>
           </property>
           <property name="suffix">
-           <string> %</string>
+           <string notr="true"> %</string>
           </property>
           <property name="minimum">
            <number>1</number>

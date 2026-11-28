@@ -338,7 +338,7 @@
                  <bool>false</bool>
                 </property>
                 <property name="suffix">
-                 <string> %</string>
+                 <string notr="true"> %</string>
                 </property>
                 <property name="minimum">
                  <number>30</number>
@@ -376,7 +376,7 @@
                  <bool>false</bool>
                 </property>
                 <property name="suffix">
-                 <string> %</string>
+                 <string notr="true"> %</string>
                 </property>
                 <property name="minimum">
                  <number>0</number>

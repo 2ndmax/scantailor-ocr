@@ -158,7 +158,7 @@
           <string>Keep current page in view.</string>
          </property>
          <property name="statusTip">
-          <string/>
+          <string notr="true"/>
          </property>
          <property name="styleSheet">
           <string notr="true">QToolButton:!hover {
@@ -180,7 +180,7 @@ QToolButton:pressed {
 }</string>
          </property>
          <property name="text">
-          <string/>
+          <string notr="true"/>
          </property>
          <property name="icon">
           <iconset resource="../resources/resources.qrc">
@@ -924,7 +924,7 @@ QToolButton:pressed {
           </size>
          </property>
          <property name="statusTip">
-          <string>Use Home, End, PgUp/Q, PgDown/W to navigate between pages or Shift+PgUp/Q and Shift+PgDown/W to navigate between selected ones. Alt+Wheel - scale thumbnails.</string>
+          <string>Use Home, End, PgUp/Q, PgDown/W to navigate between pages or Shift+PgUp/Q and Shift+PgDown/W to navigate between selected ones. Alt+mouse wheel – scale thumbnails.</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignHCenter|Qt::AlignTop</set>
@@ -1356,9 +1356,6 @@ QToolButton:pressed {
    <property name="text">
     <string>Previous Selected Page</string>
    </property>
-   <property name="toolTip">
-    <string>Previous Selected Page</string>
-   </property>
    <property name="shortcut">
     <string notr="true">Shift+Q</string>
    </property>
@@ -1368,9 +1365,6 @@ QToolButton:pressed {
   </action>
   <action name="actionNextSelectedPageW">
    <property name="text">
-    <string>Next Selected Page</string>
-   </property>
-   <property name="toolTip">
     <string>Next Selected Page</string>
    </property>
    <property name="shortcut">
@@ -1384,9 +1378,6 @@ QToolButton:pressed {
    <property name="text">
     <string>Next Selected Page</string>
    </property>
-   <property name="toolTip">
-    <string>Next Selected Page</string>
-   </property>
    <property name="shortcut">
     <string notr="true">Shift+PgDown</string>
    </property>
@@ -1396,9 +1387,6 @@ QToolButton:pressed {
   </action>
   <action name="actionPrevSelectedPage">
    <property name="text">
-    <string>Previous Selected Page</string>
-   </property>
-   <property name="toolTip">
     <string>Previous Selected Page</string>
    </property>
    <property name="shortcut">
@@ -1440,7 +1428,7 @@ QToolButton:pressed {
     <string>Reload Current Page</string>
    </property>
    <property name="toolTip">
-    <string>Reload current page</string>
+    <string>Reloads the current page. (F5)</string>
    </property>
    <property name="shortcut">
     <string notr="true">F5</string>

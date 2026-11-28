@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
   parser.addOption(colorModeDetectOption);
   const QCommandLineOption orientationDetectOption(
       QStringLiteral("orientation-detect"),
-      CommandLineRun::tr("Detect the orientation of the pages in the folder mode, before the first step: "
+      CommandLineRun::tr("Detect the orientation of the pages in folder mode, before the first step: "
                          "pages rotates the pages whose orientation is certain; book also rotates uncertain pages like "
                          "their neighbors or the majority."),
       CommandLineRun::tr("method"));

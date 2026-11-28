@@ -98,7 +98,7 @@
         <cstring>coef</cstring>
        </property>
        <property name="text">
-        <string>Coef:</string>
+        <string>Coefficient:</string>
        </property>
       </widget>
      </item>

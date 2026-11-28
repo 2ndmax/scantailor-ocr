@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE(summary_covers_cancelled_book_rule_failed_and_split_selecti
   const QString text = OrientationDetection::summary(result, selection, true,
                                                      [](const PageId& page) { return page.imageId().filePath(); });
   BOOST_CHECK_MESSAGE(text.contains(QStringLiteral("2 page(s): 1 rotated, 1 already correct")), text.toStdString());
-  BOOST_CHECK_MESSAGE(text.contains(QStringLiteral("Of these, 1 like their neighbors")), text.toStdString());
+  BOOST_CHECK_MESSAGE(text.contains(QStringLiteral("Of these, 1 matched their neighbors")), text.toStdString());
   BOOST_CHECK_MESSAGE(text.contains(QStringLiteral("could not be read: f.png")), text.toStdString());
 }
 

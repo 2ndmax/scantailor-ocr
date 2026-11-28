@@ -207,56 +207,56 @@ font-weight:bold;</string>
              <item>
               <widget class="QLabel" name="label_12">
                <property name="text">
-                <string>U235 - Picture auto-detection algorithm.</string>
+                <string>U235 – Picture auto-detection algorithm.</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_13">
                <property name="text">
-                <string>Robert B. - First generation dewarping algorithm.</string>
+                <string>Robert B. – First generation dewarping algorithm.</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_14">
                <property name="text">
-                <string>Andrey Bergman - System load adjustment.</string>
+                <string>Andrey Bergman – System load adjustment.</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_15">
                <property name="text">
-                <string>Petr Kovář - ver. Enhanced</string>
+                <string>Petr Kovář – ver. Enhanced</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_16">
                <property name="text">
-                <string>Vadim Kuznetsov - ver. Plus</string>
+                <string>Vadim Kuznetsov – ver. Plus</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_29">
                <property name="text">
-                <string>monday2000 - ver. Featured</string>
+                <string>monday2000 – ver. Featured</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_7">
                <property name="text">
-                <string>Alexander Trufanov - ver. Universal</string>
+                <string>Alexander Trufanov – ver. Universal</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="labelSpectre">
                <property name="text">
-                <string>abandoned-industries - ver. Spectre</string>
+                <string>abandoned-industries – ver. Spectre</string>
                </property>
               </widget>
              </item>

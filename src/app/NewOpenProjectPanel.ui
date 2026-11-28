@@ -65,7 +65,7 @@
            </size>
           </property>
           <property name="text">
-           <string>New Project</string>
+           <string>New project ...</string>
           </property>
           <property name="autoDefault">
            <bool>false</bool>
@@ -97,7 +97,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Open Project</string>
+           <string>Open project ...</string>
           </property>
           <property name="autoDefault">
            <bool>false</bool>

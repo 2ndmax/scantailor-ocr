@@ -1978,7 +1978,7 @@ void MainWindow::showAboutDialog() {
   Ui::AboutDialog ui;
   auto* dialog = new QDialog(this);
   ui.setupUi(dialog);
-  ui.version->setText(QString(tr("version ")) + QString::fromUtf8(VERSION));
+  ui.version->setText(tr("version %1").arg(QString::fromUtf8(VERSION)));
 
   QResource license(":/GPLv3.html");
   ui.licenseViewer->setHtml(QString::fromUtf8((const char*) license.data(), static_cast<int>(license.size())));
@@ -2169,7 +2169,7 @@ void MainWindow::updateWindowTitle() {
     projectName = QFileInfo(m_projectFile).completeBaseName();
   }
   const QString version(QString::fromUtf8(VERSION));
-  setWindowTitle(tr("%2 - ScanTailor OCR %3 [%1bit]").arg(sizeof(void*) * 8).arg(projectName).arg(version));
+  setWindowTitle(tr("%2 – ScanTailor OCR %3 [%1-bit]").arg(sizeof(void*) * 8).arg(projectName).arg(version));
 }
 
 /**

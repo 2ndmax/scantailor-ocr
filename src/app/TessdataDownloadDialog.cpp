@@ -39,7 +39,7 @@ TessdataDownloadDialog::TessdataDownloadDialog(QWidget* parent) : QDialog(parent
   QString dirError;
   m_targetDir = OcrLanguages::downloadDir(&dirError);
   m_targetLabel = new QLabel(
-      m_targetDir.isEmpty() ? dirError : tr("The files are saved in %1").arg(QDir::toNativeSeparators(m_targetDir)));
+      m_targetDir.isEmpty() ? dirError : tr("The files are saved in %1.").arg(QDir::toNativeSeparators(m_targetDir)));
   m_targetLabel->setWordWrap(true);
   m_targetLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   layout->addWidget(m_targetLabel);

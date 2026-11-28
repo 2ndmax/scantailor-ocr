@@ -507,7 +507,7 @@ void OptionsWidget::updateCommonSizeDisplay() {
 
   const QSizeF sizeMm(m_settings->getAggregateHardSizeMM());
   if (sizeMm.isEmpty() || m_dpi.isNull()) {
-    commonSizeValue->setText(tr("no matched pages"));
+    commonSizeValue->setText(tr("No matched pages"));
     return;
   }
 
@@ -772,17 +772,17 @@ void OptionsWidget::decorateSourceDpiField(QComboBox* field, const ImageMetadata
   field->lineEdit()->setPalette(m_sourceDpiErrorPalette);
   switch (dpiStatus) {
     case ImageMetadata::DPI_TOO_LARGE:
-      field->setToolTip(tr("DPI is too large and most likely wrong."));
+      field->setToolTip(tr("The DPI value is too large and likely incorrect. Check and correct it if needed."));
       break;
     case ImageMetadata::DPI_TOO_SMALL:
       field->setToolTip(
-          tr("DPI is too small. Even if it's correct, you are not going to get acceptable results with it."));
+          tr("The DPI value is too small for reliable processing results. Check and correct it if needed."));
       break;
     case ImageMetadata::DPI_TOO_SMALL_FOR_THIS_PIXEL_SIZE:
     case ImageMetadata::DPI_TOO_SMALL_TO_PROCESS:
       field->setToolTip(
-          tr("An extremely low DPI value. That might correspond to a very large paper size for the pixel size in "
-             "question."));
+          tr("The DPI value is very low for this pixel size and corresponds to a very large page size. Check and "
+             "correct it if needed."));
       break;
     default:
       field->setToolTip(sourceDpiLabel->toolTip());

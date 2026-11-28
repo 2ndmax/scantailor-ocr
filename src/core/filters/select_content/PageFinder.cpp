@@ -53,7 +53,7 @@ QRectF PageFinder::findPageBox(const TaskStatus& status,
 #ifdef DEBUG
   std::cout << "dpi: " << data.xform().origDpi().horizontal() << std::endl;
   std::cout << "tolerance: " << tolerance << std::endl;
-  std::cout << "expWidth = " << expWidth << "; expHeight" << expHeight << std::endl;
+  std::cout << "expWidth = " << expWidth << "; expHeight = " << expHeight << std::endl;
 #endif
 
   const GrayImage dataGrayImage = data.grayImageBlackOnWhite();
@@ -116,13 +116,13 @@ QRectF PageFinder::findPageBox(const TaskStatus& status,
         continue;
       }
 #ifdef DEBUG
-      std::cout << "width = " << candidate.width() << "; height=" << candidate.height() << std::endl;
+      std::cout << "width = " << candidate.width() << "; height = " << candidate.height() << std::endl;
 #endif
 
       const double errW = double(std::abs(expWidth - candidate.width())) / double(expWidth);
       const double errH = double(std::abs(expHeight - candidate.height())) / double(expHeight);
 #ifdef DEBUG
-      std::cout << "errW=" << errW << "; errH" << errH << std::endl;
+      std::cout << "errW = " << errW << "; errH = " << errH << std::endl;
 #endif
 
       if (errW < errWidth) {
@@ -138,7 +138,7 @@ QRectF PageFinder::findPageBox(const TaskStatus& status,
     }
   }
 #ifdef DEBUG
-  std::cout << "width = " << contentRect.width() << "; height=" << contentRect.height() << std::endl;
+  std::cout << "width = " << contentRect.width() << "; height = " << contentRect.height() << std::endl;
 #endif
 
   QTransform combinedXform(xform150dpi.transform().inverted());

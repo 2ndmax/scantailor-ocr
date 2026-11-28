@@ -24,7 +24,7 @@
      </property>
      <widget class="QWidget" name="loadedTab">
       <attribute name="title">
-       <string>Loaded successfully: %1</string>
+       <string>Loaded Successfully: %1</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -84,7 +84,7 @@
      </widget>
      <widget class="QWidget" name="failedTab">
       <attribute name="title">
-       <string>Failed to load: %1</string>
+       <string>Failed to Load: %1</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>

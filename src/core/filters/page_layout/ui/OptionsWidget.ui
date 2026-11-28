@@ -113,7 +113,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Opens a window with the DPI of all images of the project, where you can check and correct them. The same as Tools &gt; Fix DPI of All Images ...</string>
+           <string>Opens a window with the DPI of all images of the project, where you can check and correct them. The same as &quot;Tools &gt; Fix DPI of All Images ...&quot;.</string>
           </property>
           <property name="text">
            <string>Fix DPI of all images ...</string>

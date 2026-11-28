@@ -17,7 +17,7 @@
    <item>
     <widget class="CollapsibleGroupBox" name="dpiPanel">
      <property name="toolTip">
-      <string/>
+      <string notr="true"/>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
@@ -252,7 +252,7 @@
            <bool>false</bool>
           </property>
           <property name="suffix">
-           <string> %</string>
+           <string notr="true"> %</string>
           </property>
           <property name="minimum">
            <number>0</number>
@@ -317,7 +317,7 @@
            <bool>false</bool>
           </property>
           <property name="suffix">
-           <string> %</string>
+           <string notr="true"> %</string>
           </property>
           <property name="minimum">
            <number>1</number>
@@ -1647,7 +1647,7 @@
               <string>Splits the image into color segments and colors the black and white mask.</string>
              </property>
              <property name="statusTip">
-              <string/>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>Color segmentation</string>
@@ -1882,7 +1882,7 @@
                </property>
                <property name="toolTip">
                 <string>Reduces the colors to a few.
-Black and white and mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
+Black and white or mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
 None: each letter keeps its own average color. Posterize: fixed color levels. K-means: the colors that fit the page best.</string>
                </property>
                <property name="text">
@@ -1894,7 +1894,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
               <widget class="QComboBox" name="colorReductionCB">
                <property name="toolTip">
                 <string>Reduces the colors to a few.
-Black and white and mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
+Black and white or mixed pages: the colors of the text (needs &quot;Color segmentation&quot;). Color pages: the whole page (posterizing only).
 None: each letter keeps its own average color. Posterize: fixed color levels. K-means: the colors that fit the page best.</string>
                </property>
               </widget>

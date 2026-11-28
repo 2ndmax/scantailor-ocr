@@ -154,7 +154,7 @@ void TessdataDownloader::listingFinished() {
   } else {
     const QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
     if (!doc.isArray() && path.isEmpty()) {
-      emit listReady(std::vector<TessdataFile>(), tr("GitHub sent an unexpected answer."));
+      emit listReady(std::vector<TessdataFile>(), tr("GitHub sent an unexpected response."));
       return;
     }
     for (const QJsonValue value : doc.array()) {

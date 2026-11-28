@@ -185,7 +185,7 @@
            <string>Shows where the top edge of the original image points after the rotation.</string>
           </property>
           <property name="text">
-           <string/>
+           <string notr="true"/>
           </property>
           <property name="pixmap">
            <pixmap resource="../../../../resources/resources.qrc">:/icons/big-up-arrow.svg</pixmap>

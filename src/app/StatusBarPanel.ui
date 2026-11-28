@@ -152,7 +152,7 @@
       <string>Position of the selected page in the current order.</string>
      </property>
      <property name="text">
-      <string/>
+      <string notr="true"/>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -190,7 +190,7 @@
       <string>Page name and type.</string>
      </property>
      <property name="text">
-      <string/>
+      <string notr="true"/>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

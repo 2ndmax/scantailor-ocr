@@ -848,7 +848,7 @@ bool ThumbnailSequence::Impl::cancelingSelectionAccepted() {
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Ok);
-    QCheckBox dontAskAgainCb(QObject::tr("Don't show this message again."));
+    QCheckBox dontAskAgainCb(QObject::tr("Don't show this message again"));
     msgBox.setCheckBox(&dontAskAgainCb);
     QObject::connect(&msgBox, &QMessageBox::accepted, [&appSettings, &dontAskAgainCb]() {
       if (dontAskAgainCb.isChecked()) {

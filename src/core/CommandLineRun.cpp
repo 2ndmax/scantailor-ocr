@@ -277,7 +277,7 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
     return std::nullopt;
   }
   if (QFileInfo(projectFile).exists()) {
-    err << CommandLineRun::tr("The project file exists: %1. Call the tool with it to process the project.")
+    err << CommandLineRun::tr("The project file exists: %1. Run scantailor-ocr-cli with it to process the project.")
                .arg(nativePath(projectFile))
         << Qt::endl;
     return std::nullopt;

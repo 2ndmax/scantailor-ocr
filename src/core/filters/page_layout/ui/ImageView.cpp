@@ -660,7 +660,7 @@ void ImageView::updatePhysSize() {
 void ImageView::setupContextMenuInteraction() {
   m_addHorizontalGuideAction = m_contextMenu->addAction(tr("Add a Horizontal Guide"));
   m_addVerticalGuideAction = m_contextMenu->addAction(tr("Add a Vertical Guide"));
-  m_removeAllGuidesAction = m_contextMenu->addAction(tr("Remove All the Guides"));
+  m_removeAllGuidesAction = m_contextMenu->addAction(tr("Remove All Guides"));
   m_removeGuideUnderMouseAction = m_contextMenu->addAction(tr("Remove This Guide"));
   m_guideActionsSeparator = m_contextMenu->addSeparator();
   m_showMiddleRectAction = m_contextMenu->addAction(tr("Show Hard Margins Rectangle"));

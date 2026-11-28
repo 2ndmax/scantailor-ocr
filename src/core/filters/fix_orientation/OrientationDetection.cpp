@@ -384,7 +384,7 @@ QString OrientationDetection::summary(const Result& result,
             .arg(rotated)
             .arg(alreadyCorrect);
   if (bookRule && byBookRule > 0) {
-    text += "\n" + tr("Of these, %n like their neighbors or the majority.", nullptr, byBookRule);
+    text += "\n" + tr("Of these, %n matched their neighbors or the majority.", nullptr, byBookRule);
   }
   // Long lists would make the message taller than the screen; the rest is counted instead. The text
   // for the rest brings its own separator (none before "und" in German), so it is appended, not joined.
