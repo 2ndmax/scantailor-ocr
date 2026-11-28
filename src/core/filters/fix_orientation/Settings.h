@@ -49,6 +49,10 @@ class Settings {
   ImageTrim getTrim(const ImageId& imageId) const;
 
  private:
+  void clearLocked();
+  void applyRotationLocked(const ImageId& imageId, OrthogonalRotation rotation);
+  void setTrimLocked(const ImageId& imageId, const ImageTrim& trim);
+
   using PerImageRotation = std::unordered_map<ImageId, OrthogonalRotation>;
   using PerImageTrim = std::unordered_map<ImageId, ImageTrim>;
 

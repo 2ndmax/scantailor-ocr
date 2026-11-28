@@ -10,9 +10,7 @@
 #include "../PageLayout.h"
 #include "ThumbnailBase.h"
 
-class QPointF;
 class QSizeF;
-class QPolygonF;
 class ThumbnailPixmapCache;
 class ImageId;
 class ImageTransformation;
@@ -33,11 +31,6 @@ class Thumbnail : public ThumbnailBase {
                          const QTransform& thumbToDisplay) override;
 
  private:
-  QPointF subPageCenter(const QPolygonF& leftPage,
-                        const QPolygonF& rightPage,
-                        const QTransform& imageToDisplay,
-                        int subpageIdx);
-
   PageLayout m_layout;
   QPixmap m_trashPixmap;
   bool m_leftHalfRemoved;

@@ -7,7 +7,6 @@
 #include <utility>
 
 #include "BatchProcessingResult.h"
-#include "Dpm.h"
 #include "Filter.h"
 #include "Settings.h"
 #include "TaskResult.h"

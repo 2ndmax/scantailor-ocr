@@ -13,7 +13,6 @@
 #include "NonCopyable.h"
 
 class TaskStatus;
-class QImage;
 
 namespace page_split {
 class Task;

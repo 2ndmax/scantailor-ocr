@@ -293,6 +293,7 @@ void OptionsWidget::layoutTypeSet(const PageId& sourcePage,
           deps.setLayoutType(newPageLayout.toLayoutType());
           newPageParams.setDependencies(deps);
         }
+        newPageParams.setSplitLineMode(MODE_MANUAL);
         updateAction.setParams(newPageParams);
       }
       m_settings->updatePage(pageId.imageId(), updateAction);

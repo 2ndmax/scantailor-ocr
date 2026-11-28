@@ -18,6 +18,10 @@ Settings::~Settings() = default;
 
 void Settings::clear() {
   QMutexLocker locker(&m_mutex);
+  clearLocked();
+}
+
+void Settings::clearLocked() {
   m_perImageRotation.clear();
   m_perImageTrim.clear();
 }
@@ -30,15 +34,19 @@ void Settings::performRelinking(const AbstractRelinker& relinker) {
 
 void Settings::applyRotation(const ImageId& imageId, const OrthogonalRotation rotation) {
   QMutexLocker locker(&m_mutex);
-  CoreUtils::mapSetValue(m_perImageRotation, imageId, rotation);
+  applyRotationLocked(imageId, rotation);
 }
 
 void Settings::applyRotation(const std::set<PageId>& pages, const OrthogonalRotation rotation) {
   QMutexLocker locker(&m_mutex);
 
   for (const PageId& page : pages) {
-    CoreUtils::mapSetValue(m_perImageRotation, page.imageId(), rotation);
+    applyRotationLocked(page.imageId(), rotation);
   }
+}
+
+void Settings::applyRotationLocked(const ImageId& imageId, const OrthogonalRotation rotation) {
+  CoreUtils::mapSetValue(m_perImageRotation, imageId, rotation);
 }
 
 OrthogonalRotation Settings::getRotationFor(const ImageId& imageId) const {
@@ -59,6 +67,10 @@ bool Settings::isRotationNull(const ImageId& imageId) const {
 
 void Settings::setTrim(const ImageId& imageId, const ImageTrim& trim) {
   QMutexLocker locker(&m_mutex);
+  setTrimLocked(imageId, trim);
+}
+
+void Settings::setTrimLocked(const ImageId& imageId, const ImageTrim& trim) {
   if (!trim.enabled) {
     m_perImageTrim.erase(imageId);
     return;
@@ -76,7 +88,8 @@ ImageTrim Settings::getTrim(const ImageId& imageId) const {
 }
 
 void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
-  clear();
+  QMutexLocker locker(&m_mutex);
+  clearLocked();
 
   const QString imageTagName("image");
   QDomNode node(filterEl.firstChild());
@@ -103,7 +116,7 @@ void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) 
     const QDomElement rotationEl(el.namedItem("rotation").toElement());
     if (!rotationEl.isNull()) {
       const OrthogonalRotation rotation(rotationEl);
-      applyRotation(imageId, rotation);
+      applyRotationLocked(imageId, rotation);
     }
 
     const QDomElement trimEl(el.namedItem("trim").toElement());
@@ -114,7 +127,7 @@ void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) 
       trim.right = trimEl.attribute("right", "0").toInt();
       trim.top = trimEl.attribute("top", "0").toInt();
       trim.bottom = trimEl.attribute("bottom", "0").toInt();
-      setTrim(imageId, trim);
+      setTrimLocked(imageId, trim);
     }
   }
 }  // Settings::load

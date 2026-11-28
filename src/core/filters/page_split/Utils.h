@@ -4,7 +4,9 @@
 #ifndef SCANTAILOR_PAGE_SPLIT_UTILS_H_
 #define SCANTAILOR_PAGE_SPLIT_UTILS_H_
 
+#include <QPointF>
 #include <QPolygonF>
+#include <QTransform>
 
 #include "ProjectPages.h"
 #include "Settings.h"
@@ -42,6 +44,15 @@ class Utils {
   static bool everyPageHasArea(const PageLayout& layout, const ImageTransformation& xform);
 
   static ProjectPages::LayoutType toPageLayoutType(const PageLayout& layout);
+
+  /**
+   * Center of the left or right sub-page in display coordinates given the two
+   * page outlines and the transform to display coordinates.
+   */
+  static QPointF subPageCenter(const QPolygonF& leftPage,
+                               const QPolygonF& rightPage,
+                               const QTransform& toDisplay,
+                               PageId::SubPage subpage);
 };
 }  // namespace page_split
 

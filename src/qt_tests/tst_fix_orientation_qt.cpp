@@ -405,7 +405,7 @@ void TestFixOrientationQt::testOrientationDetectionDialogDeliversBookRuleInSigna
   // run on it yet.
   std::vector<std::pair<std::set<PageId>, bool>> accepted;
   QObject::connect(
-      &dialog, &OrientationDetectionDialog::accepted,
+      &dialog, &OrientationDetectionDialog::detectionRequested,
       [&accepted](const std::set<PageId>& pages, const bool bookRule) { accepted.emplace_back(pages, bookRule); });
   auto* const buttonBox = dialog.findChild<QDialogButtonBox*>("buttonBox");
   QVERIFY(buttonBox != nullptr);
@@ -423,7 +423,7 @@ void TestFixOrientationQt::testOrientationDetectionDialogHidesBeforeSignal() {
   QVERIFY(dialog.isVisible());
 
   bool visibleDuringSignal = true;
-  QObject::connect(&dialog, &OrientationDetectionDialog::accepted,
+  QObject::connect(&dialog, &OrientationDetectionDialog::detectionRequested,
                    [&](const std::set<PageId>&, bool) { visibleDuringSignal = dialog.isVisible(); });
   auto* const buttonBox = dialog.findChild<QDialogButtonBox*>("buttonBox");
   QVERIFY(buttonBox != nullptr);

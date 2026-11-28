@@ -37,15 +37,7 @@ void Settings::clear() {
 void Settings::performRelinking(const AbstractRelinker& relinker) {
   QMutexLocker locker(&m_mutex);
   m_perPageParams = relinkedKeys(m_perPageParams, relinker);
-
-  // REVIEW-NOTE (2026-10): relinkedKeys() keeps the first of two pages relinked onto the same file, this
-  // loop the last one -> such a page may get the angles of one page and the pending state of the other.
-  // Not fixed because such a project already contains the same page twice.
-  std::unordered_map<PageId, bool> newPending;
-  for (const auto& kv : m_pendingAutoOblique) {
-    newPending[relinkedKey(kv.first, relinker)] = kv.second;
-  }
-  m_pendingAutoOblique.swap(newPending);
+  m_pendingAutoOblique = relinkedKeys(m_pendingAutoOblique, relinker);
 
   m_deviationProvider.clear();
   for (const PerPageParams::value_type& kv : m_perPageParams) {

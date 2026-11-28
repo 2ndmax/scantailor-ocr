@@ -9,6 +9,8 @@
 #include <QPainter>
 #include <utility>
 
+#include "../Utils.h"
+
 namespace page_split {
 Thumbnail::Thumbnail(std::shared_ptr<ThumbnailPixmapCache> thumbnailCache,
                      const QSizeF& maxSize,
@@ -55,8 +57,8 @@ void Thumbnail::prePaintOverImage(QPainter& painter,
       if (m_leftHalfRemoved || m_rightHalfRemoved) {
         painter.setWorldTransform(QTransform());
 
-        const int subpageIdx = m_leftHalfRemoved ? 0 : 1;
-        const QPointF center(subPageCenter(leftPoly, rightPoly, imageToDisplay, subpageIdx));
+        const PageId::SubPage subpage = m_leftHalfRemoved ? PageId::LEFT_PAGE : PageId::RIGHT_PAGE;
+        const QPointF center(Utils::subPageCenter(leftPoly, rightPoly, imageToDisplay, subpage));
 
         QRectF rect(m_trashPixmap.rect());
         rect.moveCenter(center);
@@ -90,18 +92,4 @@ void Thumbnail::prePaintOverImage(QPainter& painter,
     default:;
   }
 }  // Thumbnail::paintOverImage
-
-QPointF Thumbnail::subPageCenter(const QPolygonF& leftPage,
-                                 const QPolygonF& rightPage,
-                                 const QTransform& imageToDisplay,
-                                 int subpageIdx) {
-  QRectF rects[2];
-  rects[0] = leftPage.boundingRect();
-  rects[1] = rightPage.boundingRect();
-
-  const double xMid = 0.5 * (rects[0].right() + rects[1].left());
-  rects[0].setRight(xMid);
-  rects[1].setLeft(xMid);
-  return imageToDisplay.map(rects[subpageIdx].center());
-}
 }  // namespace page_split

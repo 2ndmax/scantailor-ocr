@@ -90,6 +90,18 @@ bool across(int a, int b) {
   return (a - b + 360) % 180 != 0;
 }
 
+Dpi effectiveDpi(const Dpi& metadataDpi, const QImage& image) {
+  if (!metadataDpi.isNull()) {
+    return metadataDpi;
+  }
+  const Dpm dpm(image);
+  const Dpi storedDpi(dpm);
+  if (!storedDpi.isNull()) {
+    return storedDpi;
+  }
+  return Dpi(300, 300);
+}
+
 }  // namespace
 
 std::vector<OrientationDetection::BookDecision> OrientationDetection::applyBookRule(
@@ -194,21 +206,15 @@ OrientationDetection::Result OrientationDetection::run(const std::shared_ptr<Set
       continue;
     }
 
-    int dpi = page.metadata().dpi().horizontal();
-    if (dpi <= 0) {
-      dpi = page.metadata().dpi().vertical();
-    }
-    if (dpi <= 0) {
-      const int stored = Dpi(Dpm(image)).horizontal();
-      if (stored > 0) {
-        dpi = stored;
-      } else {
-        dpi = 300;
-      }
-    }
-
-    dets[i] = OrientationDetector::detect(image, dpi);
+    dets[i] = OrientationDetector::detect(image, effectiveDpi(page.metadata().dpi(), image));
     sizes[i] = image.size();
+  }
+
+  if (!cancelled) {
+    status.throwIfCancelled();
+    if (progress && !progress(total)) {
+      cancelled = true;
+    }
   }
 
   if (cancelled) {

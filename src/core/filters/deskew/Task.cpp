@@ -23,6 +23,7 @@
 
 #include "BatchProcessingResult.h"
 #include "DebugImagesImpl.h"
+#include "Dpi.h"
 #include "Dpm.h"
 #include "Filter.h"
 #include "FilterData.h"
@@ -123,8 +124,12 @@ FilterResultPtr Task::process(const TaskStatus& status, FilterData data) {
         m_dbg->add(rotatedImage, "bw_rotated");
       }
 
-      const QSize unrotatedDpm(Dpm(data.origImage()).toSize());
-      const Dpm rotatedDpm(data.xform().preRotation().rotate(unrotatedDpm));
+      Dpm rawDpm(data.origImage());
+      if (rawDpm.isNull()) {
+        const Dpi& origDpi = data.xform().origDpi();
+        rawDpm = Dpm(origDpi.isNull() ? Dpi(300, 300) : origDpi);
+      }
+      const Dpm rotatedDpm(data.xform().preRotation().rotate(rawDpm.toSize()));
       cleanup(status, rotatedImage, Dpi(rotatedDpm));
       if (m_dbg) {
         m_dbg->add(rotatedImage, "after_cleanup");

@@ -5,13 +5,10 @@
 #include "TaskResult.h"
 #include "UiData.h"
 
-#include <UnitsProvider.h>
-
 #include <utility>
 
 #include "BatchProcessingResult.h"
 #include "DebugImagesImpl.h"
-#include "Dpm.h"
 #include "Filter.h"
 #include "FilterData.h"
 #include "PageLayoutAdapter.h"
@@ -23,7 +20,6 @@
 #include "deskew/Task.h"
 
 namespace page_split {
-using imageproc::BinaryThreshold;
 
 Task::Task(std::shared_ptr<Filter> filter,
            std::shared_ptr<Settings> settings,

@@ -56,9 +56,7 @@ void CacheDrivenTask::process(const PageInfo& pageInfo,
     // REVIEW-NOTE (2026-10): if the sub-page no longer matches the layout type, pageOutline() is empty and the whole
     // image is passed on -> one run may process the full image for a page that is about to vanish. Not fixed because
     // the page list is corrected right after and a reschedule needs pipeline changes.
-    const QPolygonF pagePoly(layout.pageOutline(pageInfo.id().subPage()).toPolygon());
-    const QPolygonF merged(Utils::intersectPreCropWithPageOutline(pagePoly, newXform.preCropArea()));
-    newXform.setPreCropArea(merged);
+    newXform.setPreCropArea(Utils::pageArea(layout, pageInfo.id().subPage(), newXform.preCropArea()));
     m_nextTask->process(pageInfo, collector, newXform);
     return;
   }

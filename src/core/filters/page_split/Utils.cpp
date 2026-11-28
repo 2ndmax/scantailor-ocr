@@ -85,3 +85,17 @@ ProjectPages::LayoutType Utils::toPageLayoutType(const PageLayout& layout) {
   assert(!"Unreachable");
   return ProjectPages::ONE_PAGE_LAYOUT;
 }
+
+QPointF Utils::subPageCenter(const QPolygonF& leftPage,
+                             const QPolygonF& rightPage,
+                             const QTransform& toDisplay,
+                             const PageId::SubPage subpage) {
+  assert(subpage == PageId::LEFT_PAGE || subpage == PageId::RIGHT_PAGE);
+  QRectF leftRect(leftPage.boundingRect());
+  QRectF rightRect(rightPage.boundingRect());
+
+  const double xMid = 0.5 * (leftRect.right() + rightRect.left());
+  leftRect.setRight(xMid);
+  rightRect.setLeft(xMid);
+  return toDisplay.map((subpage == PageId::LEFT_PAGE ? leftRect : rightRect).center());
+}

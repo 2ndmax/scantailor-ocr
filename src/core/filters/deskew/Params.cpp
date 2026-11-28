@@ -59,7 +59,8 @@ Params Params::mergedForApply(const Params* existing,
                               const bool applyDeskew,
                               const bool applyOblique,
                               const bool isCurrentPage,
-                              const SkewDetection defaultDetection) {
+                              const SkewDetection defaultDetection,
+                              const bool defaultAutoOblique) {
   // Dependencies describe the image a page was computed from, so they are never transferable
   // between pages. Keep the ones the target page already has; a page we know nothing about gets
   // empty dependencies, which makes the task recompute (auto mode) or fill them in (manual mode).
@@ -71,7 +72,8 @@ Params Params::mergedForApply(const Params* existing,
   const Dependencies deps(existing && !remeasure ? existing->dependencies() : Dependencies());
   if (!existing) {
     return Params(applyDeskew ? current.deskewAngle() : 0.0, applyOblique ? current.obliqueAngle() : 0.0, deps,
-                  applyDeskew ? current.mode() : MODE_AUTO, applyOblique ? current.obliqueMode() : MODE_AUTO,
+                  applyDeskew ? current.mode() : MODE_AUTO,
+                  applyOblique ? current.obliqueMode() : (defaultAutoOblique ? MODE_AUTO : MODE_MANUAL),
                   applyDeskew ? current.detection() : defaultDetection);
   }
   return Params(applyDeskew ? current.deskewAngle() : existing->deskewAngle(),

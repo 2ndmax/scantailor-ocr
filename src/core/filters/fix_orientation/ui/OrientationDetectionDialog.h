@@ -22,17 +22,14 @@ class OrientationDetectionDialog : public QDialog, private Ui::OrientationDetect
 
   ~OrientationDetectionDialog() override;
 
-  void setThisPageIncluded(bool included);
-
  signals:
-  void accepted(const std::set<PageId>& pages, bool bookRule);
+  void detectionRequested(const std::set<PageId>& pages, bool bookRule);
 
  private slots:
   void onSubmit();
 
  private:
   PageId m_curPage;
-  bool m_thisPageIncluded = true;
 };
 }  // namespace fix_orientation
 

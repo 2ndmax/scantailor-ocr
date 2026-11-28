@@ -8,9 +8,11 @@
 #include <QDebug>
 #include <QPainter>
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <utility>
 
+#include "../Utils.h"
 #include "ImagePresentation.h"
 #include "ImageTransformation.h"
 #include "ProjectPages.h"
@@ -209,7 +211,7 @@ QRectF ImageView::reducedWidgetArea() const {
  * Line's angle may change as a result.
  */
 QLineF ImageView::customInscribedCutterLine(const QLineF& line, const QRectF& rect) {
-  if (line.p1().y() == line.p2().y()) {
+  if (line.isNull() || (std::abs(line.p1().y() - line.p2().y()) < 1e-6)) {
     // This should not happen, but if it does, we need to handle it gracefully.
     qreal middleX = 0.5 * (line.p1().x() + line.p2().x());
     middleX = qBound(rect.left(), middleX, rect.right());
@@ -219,8 +221,12 @@ QLineF ImageView::customInscribedCutterLine(const QLineF& line, const QRectF& re
   QPointF topPt;
   QPointF bottomPt;
 
-  line.intersects(QLineF(rect.topLeft(), rect.topRight()), &topPt);
-  line.intersects(QLineF(rect.bottomLeft(), rect.bottomRight()), &bottomPt);
+  if ((line.intersects(QLineF(rect.topLeft(), rect.topRight()), &topPt) == QLineF::NoIntersection)
+      || (line.intersects(QLineF(rect.bottomLeft(), rect.bottomRight()), &bottomPt) == QLineF::NoIntersection)) {
+    qreal middleX = 0.5 * (line.p1().x() + line.p2().x());
+    middleX = qBound(rect.left(), middleX, rect.right());
+    return QLineF(QPointF(middleX, rect.top()), QPointF(middleX, rect.bottom()));
+  }
 
   const double topX = qBound(rect.left(), topPt.x(), rect.right());
   const double bottomX = qBound(rect.left(), bottomPt.x(), rect.right());
@@ -304,18 +310,31 @@ bool ImageView::crossesOtherCutter(const int lineIdx, const QLineF& virtLine) co
   const QRectF area(virtualDisplayRect());
   const QLineF topEdge(area.topLeft(), area.topRight());
   const QLineF bottomEdge(area.bottomLeft(), area.bottomRight());
-  const auto xAt = [](const QLineF& line, const QLineF& edge) {
+  const auto xAt = [](const QLineF& line, const QLineF& edge, double& x) {
     QPointF crossing;
-    line.intersects(edge, &crossing);
-    return crossing.x();
+    if (line.isNull() || (line.intersects(edge, &crossing) == QLineF::NoIntersection)) {
+      return false;
+    }
+    x = crossing.x();
+    return true;
   };
+  double virtTopX = 0.0;
+  double virtBottomX = 0.0;
+  if (!xAt(virtLine, topEdge, virtTopX) || !xAt(virtLine, bottomEdge, virtBottomX)) {
+    return false;
+  }
   for (int i = 0; i < m_virtLayout.numCutters(); ++i) {
     if (i == lineIdx) {
       continue;
     }
     const QLineF other(m_virtLayout.cutterLine(i));
-    const double distanceTop = xAt(virtLine, topEdge) - xAt(other, topEdge);
-    const double distanceBottom = xAt(virtLine, bottomEdge) - xAt(other, bottomEdge);
+    double otherTopX = 0.0;
+    double otherBottomX = 0.0;
+    if (!xAt(other, topEdge, otherTopX) || !xAt(other, bottomEdge, otherBottomX)) {
+      continue;
+    }
+    const double distanceTop = virtTopX - otherTopX;
+    const double distanceBottom = virtBottomX - otherBottomX;
     if (distanceTop * distanceBottom <= 0) {
       return true;
     }
@@ -374,8 +393,12 @@ void ImageView::lineMoveRequest(int lineIdx, QLineF line) {
   QPointF pTop;
   QPointF pBottom;
 
-  line.intersects(QLineF(validArea.topLeft(), validArea.topRight()), &pTop);
-  line.intersects(QLineF(validArea.bottomLeft(), validArea.bottomRight()), &pBottom);
+  if (line.isNull()
+      || (line.intersects(QLineF(validArea.topLeft(), validArea.topRight()), &pTop) == QLineF::NoIntersection)
+      || (line.intersects(QLineF(validArea.bottomLeft(), validArea.bottomRight()), &pBottom)
+          == QLineF::NoIntersection)) {
+    return;
+  }
 
   const CutterLimits limits(cutterLimits(lineIdx, validArea));
 
@@ -403,23 +426,13 @@ void ImageView::dragFinished() {
 }
 
 QPointF ImageView::leftPageCenter() const {
-  QRectF leftRect(m_virtLayout.leftPageOutline().boundingRect());
-  QRectF rightRect(m_virtLayout.rightPageOutline().boundingRect());
-
-  const double xMid = 0.5 * (leftRect.right() + rightRect.left());
-  leftRect.setRight(xMid);
-  rightRect.setLeft(xMid);
-  return virtualToWidget().map(leftRect.center());
+  return Utils::subPageCenter(m_virtLayout.leftPageOutline(), m_virtLayout.rightPageOutline(), virtualToWidget(),
+                              PageId::LEFT_PAGE);
 }
 
 QPointF ImageView::rightPageCenter() const {
-  QRectF leftRect(m_virtLayout.leftPageOutline().boundingRect());
-  QRectF rightRect(m_virtLayout.rightPageOutline().boundingRect());
-
-  const double xMid = 0.5 * (leftRect.right() + rightRect.left());
-  leftRect.setRight(xMid);
-  rightRect.setLeft(xMid);
-  return virtualToWidget().map(rightRect.center());
+  return Utils::subPageCenter(m_virtLayout.leftPageOutline(), m_virtLayout.rightPageOutline(), virtualToWidget(),
+                              PageId::RIGHT_PAGE);
 }
 
 void ImageView::unremoveLeftPage() {

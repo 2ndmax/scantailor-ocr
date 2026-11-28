@@ -20,20 +20,14 @@ OrientationDetectionDialog::OrientationDetectionDialog(QWidget* parent,
 
 OrientationDetectionDialog::~OrientationDetectionDialog() = default;
 
-void OrientationDetectionDialog::setThisPageIncluded(const bool included) {
-  m_thisPageIncluded = included;
-}
-
 void OrientationDetectionDialog::onSubmit() {
   const bool bookRule = bookRuleCheckBox->isChecked();
-  const std::set<PageId> pages = scopeGroupBox->isThisPageOnly()
-                                     ? (m_thisPageIncluded ? std::set<PageId>{m_curPage} : std::set<PageId>())
-                                     : scopeGroupBox->pages();
+  const std::set<PageId> pages = scopeGroupBox->isThisPageOnly() ? std::set<PageId>{m_curPage} : scopeGroupBox->pages();
 
   // Hide before emitting so synchronous progress/summary dialogs do not leave this modal dialog visible underneath.
   QPointer<OrientationDetectionDialog> self(this);
   hide();
-  emit accepted(pages, bookRule);
+  emit detectionRequested(pages, bookRule);
 
   // We assume the default connection from accepted() to accept() was removed.
   if (self) {

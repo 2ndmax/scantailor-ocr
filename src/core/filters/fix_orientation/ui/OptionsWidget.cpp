@@ -13,7 +13,6 @@
 #include <map>
 #include <utility>
 
-#include "../Filter.h"
 #include "../Settings.h"
 #include "ApplyDialog.h"
 #include "OrientationDetectionDialog.h"
@@ -29,7 +28,7 @@ OptionsWidget::OptionsWidget(std::shared_ptr<Settings> settings, const PageSelec
       m_pageSelectionAccessor(pageSelectionAccessor),
       m_connectionManager(std::bind(&OptionsWidget::setupUiConnections, this)) {
   setupUi(this);
-  onUnitsChanged(UnitsProvider::getInstance().getUnits());
+  applyUnits();
   setupIcons();
 
   setupUiConnections();
@@ -46,10 +45,14 @@ void OptionsWidget::preUpdateUI(const PageInfo& pageInfo, const OrthogonalRotati
   m_rotation = rotation;
   setRotationPixmap();
   // An image without a resolution shows pixels, so the format may change with the page.
-  onUnitsChanged(UnitsProvider::getInstance().getUnits());
+  applyUnits();
 }
 
 void OptionsWidget::onUnitsChanged(const Units /*units*/) {
+  applyUnits();
+}
+
+void OptionsWidget::applyUnits() {
   auto block = m_connectionManager.getScopedBlock();
 
   const Units units = fieldUnits();
@@ -91,8 +94,7 @@ void OptionsWidget::showApplyToDialog() {
 void OptionsWidget::orientationDetectionButtonClicked() {
   auto* dialog = new OrientationDetectionDialog(this, m_pageId, m_pageSelectionAccessor);
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setThisPageIncluded(true);
-  connect(dialog, &OrientationDetectionDialog::accepted, this,
+  connect(dialog, &OrientationDetectionDialog::detectionRequested, this,
           [this](const std::set<PageId>& pages, const bool bookRule) {
             emit orientationDetectionRequested(pages, bookRule);
           });

@@ -75,7 +75,7 @@ void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyDes
   for (const PageId& pageId : pages) {
     std::unique_ptr<Params> existing(m_settings->getPageParams(pageId));
     const Params merged(Params::mergedForApply(existing.get(), current, applyDeskew, applyOblique, pageId == m_pageId,
-                                               m_defaultParams->getDetection()));
+                                               m_defaultParams->getDetection(), m_defaultParams->isAutoOblique()));
     m_settings->setPageParams(pageId, merged);
     if (applyOblique) {
       // The applied oblique mode wins over one the page still had pending.
@@ -93,6 +93,8 @@ void OptionsWidget::appliedTo(const std::set<PageId>& pages, const bool applyDes
 }
 
 void OptionsWidget::manualDeskewAngleSetExternally(const double degrees) {
+  auto block = m_connectionManager.getScopedBlock();
+
   m_uiData.setEffectiveDeskewAngle(degrees);
   m_uiData.setMode(MODE_MANUAL);
   updateModeIndication(MODE_MANUAL);
@@ -162,7 +164,9 @@ void OptionsWidget::modeChanged(const bool autoMode) {
   if (autoMode) {
     m_uiData.setMode(MODE_AUTO);
     if (m_uiData.obliqueMode() == MODE_AUTO) {
+      auto block = m_connectionManager.getScopedBlock();
       m_uiData.setEffectiveObliqueAngle(0.0);
+      obliqueSpinBox->setValue(0.0);
     }
     m_settings->setPendingAutoOblique(m_pageId, obliqueAutoBtn->isChecked());
     // Empty dependencies make the task measure the page again. Unlike clearing the parameters,

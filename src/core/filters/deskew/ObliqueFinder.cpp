@@ -131,13 +131,37 @@ TextLines textLines(const BinaryImage& image) {
 
 /** For each column of the page: is there ink in the line? Two black pixels, so that one stray pixel is not. */
 std::vector<bool> inkColumns(const BinaryImage& image, const Band& line) {
-  std::vector<bool> ink(image.width(), false);
-  for (int x = 0; x < image.width(); ++x) {
-    int black = 0;
-    for (int y = line.top; (y <= line.bottom) && (black < 2); ++y) {
-      black += (image.getPixel(x, y) == BLACK) ? 1 : 0;
+  const int w = image.width();
+  std::vector<bool> ink(w, false);
+  if (w <= 0 || line.top > line.bottom) {
+    return ink;
+  }
+  const int wpl = image.wordsPerLine();
+  const uint32_t* const data = image.data();
+  const int fullWords = w >> 5;
+  const int tailBits = w & 31;
+
+  for (int wi = 0; wi <= fullWords; ++wi) {
+    const int nBits = (wi < fullWords) ? 32 : tailBits;
+    if (nBits == 0) {
+      break;
     }
-    ink[x] = (black >= 2);
+    uint32_t seen1 = 0;
+    uint32_t seen2 = 0;
+    for (int y = line.top; y <= line.bottom; ++y) {
+      const uint32_t word = data[y * wpl + wi];
+      seen2 |= (seen1 & word);
+      seen1 |= word;
+    }
+    if (seen2 == 0) {
+      continue;
+    }
+    const int baseX = wi << 5;
+    for (int bit = 0; bit < nBits; ++bit) {
+      if ((seen2 & (uint32_t(1) << (31 - bit))) != 0) {
+        ink[baseX + bit] = true;
+      }
+    }
   }
   return ink;
 }
@@ -217,15 +241,14 @@ Edge fitEdge(const std::vector<EdgePoint>& points,
           members.push_back(*it);
         }
       }
-      // In ascending order, as allEdges() needs them, and summed in that order, so that equal edges
-      // compare as before.
-      std::sort(members.begin(), members.end());
+      if (members.size() < edge.members.size()) {
+        continue;
+      }
       double residual = 0;
       for (const int k : members) {
         residual += distance(k);
       }
-      if ((members.size() > edge.members.size())
-          || ((members.size() == edge.members.size()) && (residual < bestResidual))) {
+      if ((members.size() > edge.members.size()) || (residual < bestResidual)) {
         edge.members.swap(members);
         bestResidual = residual;
       }
@@ -235,6 +258,8 @@ Edge fitEdge(const std::vector<EdgePoint>& points,
   if ((count < MIN_EDGE_LINES) || (3 * count < lineCount)) {
     return edge;
   }
+  // In ascending order, as allEdges() needs them via std::binary_search.
+  std::sort(edge.members.begin(), edge.members.end());
 
   double sy = 0;
   double sx = 0;
@@ -293,6 +318,7 @@ std::vector<Edge> allEdges(std::vector<EdgePoint> points,
 }  // namespace
 
 TextEdges measureTextEdges(const BinaryImage& deskewedMask, const TaskStatus& status, const double resolutionRatio) {
+  status.throwIfCancelled();
   TextEdges result;
   if (deskewedMask.isNull()) {
     return result;
@@ -307,6 +333,7 @@ TextEdges measureTextEdges(const BinaryImage& deskewedMask, const TaskStatus& st
   std::vector<EdgePoint> starts;
   std::vector<EdgePoint> ends;
   for (const Band& line : text.lines) {
+    status.throwIfCancelled();
     const std::vector<bool> ink(inkColumns(deskewedMask, line));
     const float y = 0.5f * (line.top + line.bottom);
     int segmentStart = -1;

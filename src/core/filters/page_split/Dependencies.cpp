@@ -76,6 +76,6 @@ QDomElement Dependencies::toXml(QDomDocument& doc, const QString& tagName) const
 }
 
 bool Dependencies::isNull() const {
-  return m_imageSize.isNull();
+  return !m_imageSize.isValid();
 }
 }  // namespace page_split

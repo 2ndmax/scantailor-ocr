@@ -106,13 +106,16 @@ class Params {
    * \param isCurrentPage Whether the page is the current page itself.
    * \param defaultDetection The detection method of a page without parameters when only
    *        the oblique angle is applied.
+   * \param defaultAutoOblique The oblique mode of a page without parameters when only
+   *        the deskew angle is applied.
    */
   static Params mergedForApply(const Params* existing,
                                const Params& current,
                                bool applyDeskew,
                                bool applyOblique,
                                bool isCurrentPage,
-                               SkewDetection defaultDetection);
+                               SkewDetection defaultDetection,
+                               bool defaultAutoOblique = true);
 
   QDomElement toXml(QDomDocument& doc, const QString& name) const;
 

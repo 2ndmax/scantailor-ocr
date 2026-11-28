@@ -59,6 +59,8 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
   void trimMarginsChanged(double value);
 
  private:
+  void applyUnits();
+
   void setRotation(const OrthogonalRotation& rotation);
 
   void setRotationPixmap();

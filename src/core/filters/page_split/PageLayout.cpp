@@ -101,6 +101,9 @@ QLineF PageLayout::inscribedCutterLine(int idx) const {
   }
 
   const QLineF rawLine(cutterLine(idx));
+  if (rawLine.isNull()) {
+    return QLineF();
+  }
   const QPointF origin(rawLine.p1());
   const QPointF lineVec(rawLine.p2() - origin);
 
@@ -111,9 +114,13 @@ QLineF PageLayout::inscribedCutterLine(int idx) const {
 
   QPointF p1, p2;
   double projection;
+  bool found = false;
 
   for (int i = 0; i < 4; ++i) {
     const QLineF polySegment(m_uncutOutline[i], m_uncutOutline[(i + 1) & 3]);
+    if (polySegment.isNull()) {
+      continue;
+    }
     QPointF intersection;
     auto is = polySegment.intersects(rawLine, &intersection);
     if (is == QLineF::NoIntersection) {
@@ -124,8 +131,10 @@ QLineF PageLayout::inscribedCutterLine(int idx) const {
     // if it's between its endpoints.
     p1 = polySegment.p2() - polySegment.p1();
     p2 = intersection - polySegment.p1();
+    const double segLenSq = p1.x() * p1.x() + p1.y() * p1.y();
+    const double eps = 1e-6 * segLenSq;
     projection = p1.x() * p2.x() + p1.y() * p2.y();
-    if ((projection < 0) || (projection > p1.x() * p1.x() + p1.y() * p1.y())) {
+    if ((projection < -eps) || (projection > segLenSq + eps)) {
       // Intersection point not on the polygon segment.
       continue;
     }
@@ -133,16 +142,20 @@ QLineF PageLayout::inscribedCutterLine(int idx) const {
     p1 = intersection - origin;
     p2 = lineVec;
     projection = p1.x() * p2.x() + p1.y() * p2.y();
-    if (projection <= minProj) {
+    if (!found || (projection < minProj)) {
       minProj = projection;
       minPt = intersection;
     }
-    if (projection >= maxProj) {
+    if (!found || (projection > maxProj)) {
       maxProj = projection;
       maxPt = intersection;
     }
+    found = true;
   }
 
+  if (!found) {
+    return QLineF();
+  }
   QLineF res(minPt, maxPt);
   ensureSameDirection(rawLine, res);
   return res;
@@ -198,6 +211,9 @@ QPolygonF PageLayout::rightPageOutline() const {
 }
 
 QPolygonF PageLayout::outlineBetween(const QLineF& line1, QLineF line2) const {
+  if (line1.isNull() || line2.isNull()) {
+    return QPolygonF();
+  }
   ensureSameDirection(line1, line2);
   const QLineF reverseLine1(line1.p2(), line1.p1());
   const QLineF reverseLine2(line2.p2(), line2.p1());
@@ -279,7 +295,7 @@ QString PageLayout::typeToString(const Type type) {
  * all the polygon edges it can possibly intersect.
  */
 QLineF PageLayout::extendToCover(const QLineF& line, const QPolygonF& poly) {
-  if (poly.isEmpty()) {
+  if (poly.isEmpty() || line.isNull()) {
     return line;
   }
 
