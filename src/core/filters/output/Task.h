@@ -21,9 +21,15 @@ class FilterData;
 class ThumbnailPixmapCache;
 class ImageTransformation;
 class QPolygonF;
+class QRect;
 class QSize;
 class QImage;
 class Dpi;
+class ZoneSet;
+
+namespace dewarping {
+class DistortionModel;
+}
 
 namespace imageproc {
 class BinaryImage;
@@ -31,6 +37,11 @@ class BinaryImage;
 
 namespace output {
 class Filter;
+class OutputGenerator;
+class OutputImage;
+class OutputImageParams;
+class Params;
+class RenderParams;
 class Settings;
 
 class Task {
@@ -52,6 +63,79 @@ class Task {
   FilterResultPtr process(const TaskStatus& status, const FilterData& data, const QPolygonF& contentRectPhys);
 
  private:
+  struct OutputPaths;
+
+  OutputPaths resolveOutputPaths() const;
+
+  void resetAutoPictureZonesIfShapeChanged(const Params& params) const;
+
+  bool isCacheUpToDate(const OutputPaths& paths,
+                       const OutputImageParams& newOutputImageParams,
+                       const ZoneSet& newPictureZones,
+                       const ZoneSet& newFillZones,
+                       const RenderParams& renderParams,
+                       bool needPictureEditor,
+                       bool needSpecklesImage) const;
+
+  bool loadCachedOutputs(const OutputPaths& paths,
+                         const RenderParams& renderParams,
+                         bool needPictureEditor,
+                         bool needSpecklesImage,
+                         QImage& outImg,
+                         imageproc::BinaryImage& automaskImg,
+                         imageproc::BinaryImage& specklesImg) const;
+
+  void updateDistortionAndOutputParams(const dewarping::DistortionModel& distortionModel,
+                                       Params& params,
+                                       OutputImageParams& newOutputImageParams) const;
+
+  std::unique_ptr<OutputImage> generateOutputImage(const TaskStatus& status,
+                                                   const FilterData& data,
+                                                   const OutputGenerator& generator,
+                                                   ZoneSet& newPictureZones,
+                                                   const ZoneSet& newFillZones,
+                                                   bool writeAutomask,
+                                                   bool writeSpecklesFile,
+                                                   Params& params,
+                                                   OutputImageParams& newOutputImageParams,
+                                                   imageproc::BinaryImage& automaskImg,
+                                                   imageproc::BinaryImage& specklesImg) const;
+
+  bool writeSplitOutputs(const OutputPaths& paths,
+                         const RenderParams& renderParams,
+                         const OutputImage* outputImage) const;
+
+  bool writeMainOutputImage(const QString& outFilePath, QImage& outImg);
+
+  void persistOutputParams(const OutputPaths& paths,
+                           const RenderParams& renderParams,
+                           const OutputImageParams& newOutputImageParams,
+                           const ZoneSet& newPictureZones,
+                           const ZoneSet& newFillZones,
+                           bool writeAutomask,
+                           bool writeSpecklesFile,
+                           bool invalidateParams) const;
+
+  void writeOutputs(const OutputPaths& paths,
+                    const RenderParams& renderParams,
+                    const OutputImageParams& newOutputImageParams,
+                    const ZoneSet& newPictureZones,
+                    const ZoneSet& newFillZones,
+                    bool writeAutomask,
+                    bool writeSpecklesFile,
+                    std::unique_ptr<OutputImage> outputImage,
+                    QImage& outImg,
+                    imageproc::BinaryImage& automaskImg,
+                    imageproc::BinaryImage& specklesImg);
+
+  FilterResultPtr buildResult(const Params& params,
+                              const ImageTransformation& newXform,
+                              const QRect& outputContentRect,
+                              const QImage& origImage,
+                              const QImage& outImg,
+                              const imageproc::BinaryImage& automaskImg,
+                              const imageproc::BinaryImage& specklesImg);
+
   void deleteMutuallyExclusiveOutputFiles();
 
   std::shared_ptr<Filter> m_filter;

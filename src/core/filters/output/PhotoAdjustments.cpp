@@ -10,6 +10,7 @@
 #include <QDomElement>
 #include <QImage>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <stdexcept>
 
@@ -35,6 +36,115 @@ uint8_t toByte(const double value) {
 bool isWhiteInMask(const uint32_t* maskLine, const int x) {
   const uint32_t msb = uint32_t(1) << 31;
   return !(maskLine[x >> 5] & (msb >> (x & 31)));
+}
+
+struct ChannelLuts {
+  std::array<uint8_t, 256> gray;
+  std::array<uint8_t, 256> red;
+  std::array<uint8_t, 256> green;
+  std::array<uint8_t, 256> blue;
+};
+
+ChannelLuts buildChannelLuts(const uint8_t tone[256], const int temperature, const int tint, const bool inverted) {
+  // Temperature: positive = warmer (more red, less blue). Tint: positive = magenta (less green).
+  const double redFactor = 1.0 + temperature / 100.0 * 0.30;
+  const double blueFactor = 1.0 - temperature / 100.0 * 0.30;
+  const double greenFactor = 1.0 - tint / 100.0 * 0.30;
+
+  // Tables for the values as stored in the image (inverted, if the image is processed inverted).
+  ChannelLuts luts{};
+  for (int i = 0; i < 256; ++i) {
+    const int shown = inverted ? 255 - i : i;
+    const double base = tone[shown] / 255.0;
+    uint8_t g = tone[shown];
+    uint8_t r = toByte(base * redFactor);
+    uint8_t gr = toByte(base * greenFactor);
+    uint8_t b = toByte(base * blueFactor);
+    if (inverted) {
+      g = 255 - g;
+      r = 255 - r;
+      gr = 255 - gr;
+      b = 255 - b;
+    }
+    luts.gray[i] = g;
+    luts.red[i] = r;
+    luts.green[i] = gr;
+    luts.blue[i] = b;
+  }
+  return luts;
+}
+
+bool isIdentityGrayPalette(const QVector<QRgb>& palette) {
+  if (palette.size() != 256) {
+    return false;
+  }
+  for (int i = 0; i < 256; ++i) {
+    if (palette[i] != qRgb(i, i, i)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void buildPaletteToGrayTable(const QVector<QRgb>& palette, std::array<uint8_t, 256>& toGray) {
+  for (int i = 0; i < 256; ++i) {
+    toGray[i] = i < palette.size() ? static_cast<uint8_t>(qGray(palette[i])) : 0;
+  }
+}
+
+void applyToIndexed8(QImage& image,
+                     const ChannelLuts& luts,
+                     const BinaryImage* mask,
+                     const bool keepWhite,
+                     const bool inverted) {
+  // Grayscale output has the identity gray palette; anything else is turned into it first.
+  const QVector<QRgb> palette = image.colorTable();
+  const bool identity = isIdentityGrayPalette(palette);
+  std::array<uint8_t, 256> toGray{};
+  if (!identity) {
+    buildPaletteToGrayTable(palette, toGray);
+    image.setColorTable(createGrayscalePalette());
+  }
+
+  const int width = image.width();
+  const int height = image.height();
+  const int white = inverted ? 0 : 255;
+  const uint32_t* maskLine = mask ? mask->data() : nullptr;
+  const int maskStride = mask ? mask->wordsPerLine() : 0;
+
+  for (int y = 0; y < height; ++y) {
+    auto* line = image.scanLine(y);
+    for (int x = 0; x < width; ++x) {
+      const uint8_t value = identity ? line[x] : toGray[line[x]];
+      const bool change = (!maskLine || isWhiteInMask(maskLine, x)) && !(keepWhite && value == white);
+      line[x] = change ? luts.gray[value] : value;
+    }
+    maskLine += maskStride;
+  }
+}
+
+void applyToRgb32(QImage& image,
+                  const ChannelLuts& luts,
+                  const BinaryImage* mask,
+                  const bool keepWhite,
+                  const bool inverted) {
+  const int width = image.width();
+  const int height = image.height();
+  const uint32_t* maskLine = mask ? mask->data() : nullptr;
+  const int maskStride = mask ? mask->wordsPerLine() : 0;
+  const QRgb whitePixel = inverted ? 0x000000u : 0xFFFFFFu;
+
+  for (int y = 0; y < height; ++y) {
+    auto* line = reinterpret_cast<QRgb*>(image.scanLine(y));
+    for (int x = 0; x < width; ++x) {
+      const QRgb px = line[x];
+      if ((maskLine && !isWhiteInMask(maskLine, x)) || (keepWhite && (px & 0xFFFFFFu) == whitePixel)) {
+        continue;
+      }
+      line[x] = qRgba(luts.red[qRed(px)], luts.green[qGreen(px)], luts.blue[qBlue(px)], qAlpha(px));
+    }
+    maskLine += maskStride;
+  }
 }
 }  // namespace
 
@@ -171,82 +281,16 @@ void PhotoAdjustments::applyInPlace(QImage& image, const BinaryImage* mask, cons
 
   uint8_t tone[256];
   buildToneTable(tone);
-
-  // Temperature: positive = warmer (more red, less blue). Tint: positive = magenta (less green).
-  const double redFactor = 1.0 + m_temperature / 100.0 * 0.30;
-  const double blueFactor = 1.0 - m_temperature / 100.0 * 0.30;
-  const double greenFactor = 1.0 - m_tint / 100.0 * 0.30;
-
-  // Tables for the values as stored in the image (inverted, if the image is processed inverted).
-  uint8_t gray[256], red[256], green[256], blue[256];
-  for (int i = 0; i < 256; ++i) {
-    const int shown = inverted ? 255 - i : i;
-    const double base = tone[shown] / 255.0;
-    uint8_t g = tone[shown];
-    uint8_t r = toByte(base * redFactor);
-    uint8_t gr = toByte(base * greenFactor);
-    uint8_t b = toByte(base * blueFactor);
-    if (inverted) {
-      g = 255 - g;
-      r = 255 - r;
-      gr = 255 - gr;
-      b = 255 - b;
-    }
-    gray[i] = g;
-    red[i] = r;
-    green[i] = gr;
-    blue[i] = b;
-  }
-  const int white = inverted ? 0 : 255;
-
-  const int width = image.width();
-  const int height = image.height();
-  const uint32_t* maskLine = mask ? mask->data() : nullptr;
-  const int maskStride = mask ? mask->wordsPerLine() : 0;
+  const ChannelLuts luts = buildChannelLuts(tone, m_temperature, m_tint, inverted);
 
   switch (image.format()) {
-    case QImage::Format_Indexed8: {
-      // Grayscale output has the identity gray palette; anything else is turned into it first.
-      const QVector<QRgb> palette = image.colorTable();
-      bool identity = palette.size() == 256;
-      for (int i = 0; identity && i < 256; ++i) {
-        identity = palette[i] == qRgb(i, i, i);
-      }
-      uint8_t toGray[256];
-      for (int i = 0; i < 256; ++i) {
-        toGray[i] = i < palette.size() ? static_cast<uint8_t>(qGray(palette[i])) : 0;
-      }
-      if (!identity) {
-        image.setColorTable(createGrayscalePalette());
-      }
-
-      for (int y = 0; y < height; ++y) {
-        auto* line = image.scanLine(y);
-        for (int x = 0; x < width; ++x) {
-          const uint8_t value = identity ? line[x] : toGray[line[x]];
-          const bool change = (!maskLine || isWhiteInMask(maskLine, x)) && !(m_keepWhite && value == white);
-          line[x] = change ? gray[value] : value;
-        }
-        maskLine += maskStride;
-      }
+    case QImage::Format_Indexed8:
+      applyToIndexed8(image, luts, mask, m_keepWhite, inverted);
       break;
-    }
     case QImage::Format_RGB32:
-    case QImage::Format_ARGB32: {
-      const QRgb whitePixel = inverted ? 0x000000u : 0xFFFFFFu;
-      for (int y = 0; y < height; ++y) {
-        auto* line = reinterpret_cast<QRgb*>(image.scanLine(y));
-        for (int x = 0; x < width; ++x) {
-          const QRgb px = line[x];
-          if ((maskLine && !isWhiteInMask(maskLine, x)) || (m_keepWhite && (px & 0xFFFFFFu) == whitePixel)) {
-            continue;
-          }
-          line[x] = qRgba(red[qRed(px)], green[qGreen(px)], blue[qBlue(px)], qAlpha(px));
-        }
-        maskLine += maskStride;
-      }
+    case QImage::Format_ARGB32:
+      applyToRgb32(image, luts, mask, m_keepWhite, inverted);
       break;
-    }
     default:
       throw std::invalid_argument("PhotoAdjustments: wrong image format.");
   }
