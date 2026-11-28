@@ -46,6 +46,9 @@ param(
 if (-not $OutDir) { $OutDir = $ResultsDir }
 if (-not $BuildDir) { $BuildDir = "$Root\build-analysis" }
 $tidy = "$LlvmBin\clang-tidy.exe"
+if (-not (Test-Path -LiteralPath $tidy)) {
+    throw "clang-tidy not found at $tidy; update Visual Studio or add the LLVM/Clang component."
+}
 $dbDir = "$BuildDir\tidy-db"
 $run = "$BuildDir\tidy-run"
 $fixes = "$OutDir\02-clang-tidy-fixes"
@@ -110,6 +113,7 @@ if (-not (Confirm-Run 'Analysis run 02: clang-tidy' $intro $log)) { Write-Host '
 $sel = Get-FilteredCompileDb $BuildDir @('\s/analyze\S*')
 Save-CompileDb $sel $dbDir
 New-Item -ItemType Directory -Force $run, $fixes | Out-Null
+Get-ChildItem -LiteralPath $fixes -Filter '*.yaml' -File -ErrorAction SilentlyContinue | Remove-Item -Force
 
 # Ninja file: one job per source file.
 $n = New-Object Text.StringBuilder
@@ -121,9 +125,11 @@ foreach ($e in $sel) {
     $i++
     $f = $e.file -replace '/', '\'
     $name = $f.Substring($Root.Length + 1) -replace '[\\/.]', '_'
+    $ninjaSrc = $f -replace '\$', '$$$$'
+    $ninjaYaml = "$fixes\$name.yaml" -replace '\$', '$$$$'
     [void]$n.AppendLine(('build t{0:D4}: tidy' -f $i))
-    [void]$n.AppendLine("  src = $f")
-    [void]$n.AppendLine("  yaml = $fixes\$name.yaml")
+    [void]$n.AppendLine("  src = $ninjaSrc")
+    [void]$n.AppendLine("  yaml = $ninjaYaml")
 }
 [IO.File]::WriteAllText("$run\build.ninja", $n.ToString(), $Utf8)
 

@@ -81,46 +81,8 @@ jobs:
 
       # The package cache is created by the CI workflow (ci.yml) on master; this workflow
       # only reads it. Without it vcpkg builds Qt, which takes about two hours.
-      - name: Restore vcpkg binary cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ github.workspace }}\vcpkg-binary-cache
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-${{ github.run_id }}
-          restore-keys: |
-            vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-
-            vcpkg-${{ runner.os }}-
-
-      # The package list is shared with ci.yml (scripts/setup/support/vcpkg-packages.txt), so the
-      # cached packages are used.
-      - name: Install dependencies (vcpkg)
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force "$env:VCPKG_DEFAULT_BINARY_CACHE" | Out-Null
-          $packages = Get-Content scripts/setup/support/vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' }
-          & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install `
-            --clean-after-build `
-            "--x-buildtrees-root=$env:RUNNER_TEMP\vcpkg-buildtrees" `
-            "--x-packages-root=$env:RUNNER_TEMP\vcpkg-packages" `
-            "--downloads-root=$env:RUNNER_TEMP\vcpkg-downloads" `
-            @packages
-
-      # Same as running vcvars64.bat: finds Visual Studio and passes the variables
-      # it sets on to the following steps.
-      - name: Set up MSVC environment
-        shell: pwsh
-        run: |
-          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * `
-            -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-          if (-not $vs) { throw "Visual Studio with the C++ tools was not found." }
-          $script = Join-Path $env:RUNNER_TEMP "vcvars-env.cmd"
-          Set-Content $script "@call `"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul`r`n@set" -Encoding ascii
-          $lines = cmd /c $script
-          if (-not ($lines -match '^VCToolsInstallDir=')) { throw "vcvars64.bat failed." }
-          foreach ($line in $lines) {
-            if ($line -match '^([^=]+)=(.*)$' -and [Environment]::GetEnvironmentVariable($matches[1]) -ne $matches[2]) {
-              $line >> $env:GITHUB_ENV
-            }
-          }
+      - name: Set up Windows build environment
+        uses: ./.github/actions/setup-windows-build
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5

@@ -88,76 +88,12 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Restore vcpkg binary cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ github.workspace }}\vcpkg-binary-cache
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-${{ github.run_id }}
-          restore-keys: |
-            vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-
-            vcpkg-${{ runner.os }}-
-
-      - name: Count cached vcpkg packages
-        id: cache-before
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force "$env:VCPKG_DEFAULT_BINARY_CACHE" | Out-Null
-          $count = (Get-ChildItem -Recurse -File "$env:VCPKG_DEFAULT_BINARY_CACHE" | Measure-Object).Count
-          "count=$count" >> $env:GITHUB_OUTPUT
-
       # The release workflow (release.yml) and the CodeQL workflow (codeql.yml) use the
       # cache saved here; all three read the package list from scripts/setup/support/vcpkg-packages.txt.
-      # Drive C: of the runner is too small for vcpkg's intermediate files
-      # (the first run failed with "No space left on device"). They go to
-      # the temp folder on D: and are deleted after each package.
-      - name: Install dependencies (vcpkg)
-        shell: pwsh
-        run: |
-          $packages = Get-Content scripts/setup/support/vcpkg-packages.txt | Where-Object { $_ -and $_ -notmatch '^#' }
-          & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install `
-            --clean-after-build `
-            "--x-buildtrees-root=$env:RUNNER_TEMP\vcpkg-buildtrees" `
-            "--x-packages-root=$env:RUNNER_TEMP\vcpkg-packages" `
-            "--downloads-root=$env:RUNNER_TEMP\vcpkg-downloads" `
-            @packages
-
-      # Only save a new cache (about 800 MB) when vcpkg built new packages.
-      # Also runs when the install above failed, so finished packages
-      # aren't rebuilt next time.
-      - name: Check for new vcpkg packages
-        id: cache-after
-        if: always()
-        shell: pwsh
-        run: |
-          $count = (Get-ChildItem -Recurse -File "$env:VCPKG_DEFAULT_BINARY_CACHE" | Measure-Object).Count
-          $before = [int]"${{ steps.cache-before.outputs.count }}"
-          Write-Host "Cached files: $before before, $count after."
-          "changed=$($count -gt $before)" >> $env:GITHUB_OUTPUT
-
-      - name: Save vcpkg binary cache
-        if: always() && steps.cache-after.outputs.changed == 'True'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - name: Set up Windows build environment
+        uses: ./.github/actions/setup-windows-build
         with:
-          path: ${{ github.workspace }}\vcpkg-binary-cache
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('scripts/setup/support/vcpkg-packages.txt') }}-${{ github.run_id }}
-
-      # Same as running vcvars64.bat: finds Visual Studio and passes the variables
-      # it sets on to the following steps.
-      - name: Set up MSVC environment
-        shell: pwsh
-        run: |
-          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * `
-            -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-          if (-not $vs) { throw "Visual Studio with the C++ tools was not found." }
-          $script = Join-Path $env:RUNNER_TEMP "vcvars-env.cmd"
-          Set-Content $script "@call `"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul`r`n@set" -Encoding ascii
-          $lines = cmd /c $script
-          if (-not ($lines -match '^VCToolsInstallDir=')) { throw "vcvars64.bat failed." }
-          foreach ($line in $lines) {
-            if ($line -match '^([^=]+)=(.*)$' -and [Environment]::GetEnvironmentVariable($matches[1]) -ne $matches[2]) {
-              $line >> $env:GITHUB_ENV
-            }
-          }
+          save-cache: 'true'
 
       - name: Configure
         shell: pwsh

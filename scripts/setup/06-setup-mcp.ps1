@@ -95,7 +95,7 @@ function ConvertTo-CmdArg([string]$Text) {
 
 # The CLI: -Cli, SCANTAILOR_OCR_CLI (window or user account), the build of this repository, PATH.
 function Find-McpCli {
-    if ($Cli) { return $Cli }
+    if ($Cli) { return [IO.Path]::GetFullPath($Cli) }
     $fromEnv = @($env:SCANTAILOR_OCR_CLI, [Environment]::GetEnvironmentVariable('SCANTAILOR_OCR_CLI', 'User'))
     return (Find-Tool 'scantailor-ocr-cli' ($fromEnv + @("$Root\build\scantailor-ocr-cli.exe")))
 }
@@ -103,7 +103,7 @@ function Find-McpCli {
 # '' when the CLI answers --profile-list with schema version 1 (what the server checks at its
 # start), else why not.
 function Test-McpCli([string]$Exe) {
-    if (-not $Exe -or -not (Test-Path -LiteralPath $Exe)) { return 'not found' }
+    if (-not $Exe -or -not (Test-Path -LiteralPath $Exe -PathType Leaf)) { return 'not found' }
     $output = cmd /c "`"$Exe`" --profile-list 2>nul"
     if ($LASTEXITCODE -ne 0) { return "--profile-list ended with exit code $LASTEXITCODE (too old?)" }
     try { $json = ($output -join "`n") | ConvertFrom-Json } catch { return '--profile-list printed no JSON (too old?)' }
@@ -267,10 +267,11 @@ $stepUv = {
     if ($version -and ([version]$version -ge [version]$UvMinVersion)) { return $true }
     Write-Host "uv $version is older than $UvMinVersion, which the server needs." -ForegroundColor Yellow
     if (-not (Read-YesNo 'Update it with winget now?' $true)) { return $false }
-    Add-LogLine $log "# $(Get-Stamp) winget upgrade --id astral-sh.uv --exact --source winget"
-    # Run directly in the console, so the questions of winget can be answered.
-    & winget upgrade --id astral-sh.uv --exact --source winget
-    Add-LogLine $log "# Exit code: $LASTEXITCODE"
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Host 'winget (App Installer) is not available.' -ForegroundColor Yellow
+        return $false
+    }
+    [void](Invoke-Winget -Subcommand 'upgrade' -Id 'astral-sh.uv' -Log $log)
     $version = Get-ToolVersion (Find-Uv)
     if (-not $version -or ([version]$version -lt [version]$UvMinVersion)) {
         Write-Host "uv is still $version." -ForegroundColor Red
@@ -370,13 +371,12 @@ $stepClaudeCode = {
             Write-Host "Not a folder: $folder" -ForegroundColor Yellow
         }
     }
-    $server = Get-ServerCommand
-
     if ($claude) {
         # claude mcp add refuses a name that is there already in the same scope.
         $existing = @(Get-ClaudeCodeEntries | Where-Object {
                 $_.Scope -eq $scope -and ($scope -eq 'user' -or $_.Folder -eq (Get-ClaudeProjectKey $folder)) })
         if ($existing.Count -and -not (Confirm-Replace $existing[0].Entry 'Claude Code')) { return $true }
+        $server = Get-ServerCommand
         # A local entry belongs to the folder claude is started in.
         Push-Location $folder
         try {

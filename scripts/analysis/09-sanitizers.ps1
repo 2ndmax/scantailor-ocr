@@ -154,9 +154,6 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
     Add-LogLine $Log "# Start: $(Get-Stamp)"
     $tmpOut = "$BuildDir\run-stdout.txt"
     $tmpErr = "$BuildDir\run-stderr.txt"
-    $sp = @{ FilePath = "$BuildDir\$Exe"; WorkingDirectory = $BuildDir; NoNewWindow = $true
-             PassThru = $true; RedirectStandardOutput = $tmpOut; RedirectStandardError = $tmpErr }
-    if ($ArgLine) { $sp.ArgumentList = $ArgLine }
     # A test program that fails while loading its DLLs (the known report in Qt6Widgets'
     # initialization, see above) has printed nothing yet. That depends on chance, so it is
     # started again, at most three times in all. Only these signs count: core_tests buffers its
@@ -177,21 +174,18 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
             Remove-Item -Recurse -Force $ResultDir -ErrorAction SilentlyContinue
             New-Item -ItemType Directory -Force $ResultDir | Out-Null
         }
-        $p = Start-Process @sp
-        $null = $p.Handle  # Without this, Windows PowerShell 5.1 doesn't report the exit code.
-        $timedOut = $false
-        if (-not $p.WaitForExit($TimeoutMin * 60000)) {
-            $p.Kill()
-            $p.WaitForExit()
-            $timedOut = $true
+        $res = Invoke-TimedProcess -FilePath "$BuildDir\$Exe" -ArgumentList $ArgLine `
+            -WorkingDirectory $BuildDir -StdoutPath $tmpOut -StderrPath $tmpErr `
+            -TimeoutMs ($TimeoutMin * 60000)
+        if ($res.TimedOut) {
             Add-LogLine $Log "# TIMEOUT after $TimeoutMin minutes, process killed"
         }
         $startFailed = (& $readOutput).Trim().Length -eq 0
-        if (-not $startFailed -or $timedOut -or ($start -ge $maxStarts)) { break }
+        if (-not $startFailed -or $res.TimedOut -or ($start -ge $maxStarts)) { break }
         $failedStderr = Read-Shared $tmpErr
-        $isLoadError = ($p.ExitCode -eq -1073741502) -or [regex]::IsMatch($failedStderr, $knownLoadError)
+        $isLoadError = ($res.ExitCode -eq -1073741502) -or [regex]::IsMatch($failedStderr, $knownLoadError)
         if (-not $isLoadError) { break }
-        Add-LogLine $Log "# Start $start of $maxStarts failed while loading (exit code $($p.ExitCode)); started again. Its stderr:"
+        Add-LogLine $Log "# Start $start of $maxStarts failed while loading (exit code $($res.ExitCode)); started again. Its stderr:"
         Add-LogLine $Log $failedStderr
     }
     $stdout = & $readOutput
@@ -200,13 +194,13 @@ function Invoke-Logged([string]$Log, [string]$Exe, [string]$ArgLine, [int]$Timeo
     $stderr = Read-Shared $tmpErr
     Add-LogLine $Log '# --- stderr (UBSan and ASan reports go here)'
     Add-LogLine $Log $stderr
-    Add-LogLine $Log "# Exit code: $($p.ExitCode)"
+    Add-LogLine $Log "# Exit code: $($res.ExitCode)"
     $ran = (-not $IsTest) -or (Test-TestSummary "$stdout`n$stderr")
     if (-not $ran) { Add-LogLine $Log "# NOT RUN: $Exe printed no test summary; it stopped before or during its tests." }
     # Not "# End:": that line is written once, at the end of the run (run 90 checks it).
     Add-LogLine $Log "# Program end: $(Get-Stamp)"
     $reports = ([regex]::Matches($stderr, 'runtime error:|ERROR: AddressSanitizer')).Count
-    Write-Host ("exit code {0}, {1} sanitizer reports, {2:hh\:mm\:ss}" -f $p.ExitCode, $reports, $clock.Elapsed)
+    Write-Host ("exit code {0}, {1} sanitizer reports, {2:hh\:mm\:ss}" -f $res.ExitCode, $reports, $clock.Elapsed)
     if (-not $ran) { Write-Host "  $Exe ran no tests (no test summary): see the log." -ForegroundColor Red }
 }
 

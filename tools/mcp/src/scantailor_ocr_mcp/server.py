@@ -23,7 +23,7 @@ from .cli import (
     run_cli,
 )
 from .jobs import JobManager
-from .roots import allowed_roots, resolve_allowed_path
+from .roots import allowed_roots, resolve_allowed_path, resolve_path
 from .validation import validate_cli_json
 
 logger = logging.getLogger(__name__)
@@ -225,7 +225,7 @@ def build_server(
         if job.finished.is_set():
             return {"job_id": job.id, "state": job.state, "cancel_requested": False}
         await job.cancel()
-        return {"job_id": job.id, "state": "running", "cancel_requested": True}
+        return {"job_id": job.id, "state": job.state, "cancel_requested": job.cancel_requested}
 
     return server, state
 
@@ -248,7 +248,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
         help="Logging level for server diagnostics on stderr (default INFO).",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if args.max_runs <= 0:
+        parser.error("--max-runs must be a positive integer")
+    return args
 
 
 def main() -> None:
@@ -261,11 +264,10 @@ def main() -> None:
     configured = []
     for folder in args.allow_root:
         try:
-            configured.append(Path(folder).resolve())
+            configured.append(resolve_path(folder))
         except (OSError, RuntimeError) as exc:
             logger.error("Could not resolve allowed root %s: %s", folder, exc)
-    max_runs = args.max_runs if args.max_runs and args.max_runs > 0 else 1
-    server, _state = build_server(configured, max_runs=max_runs)
+    server, _state = build_server(configured, max_runs=args.max_runs)
     server.run(transport="stdio")
 
 

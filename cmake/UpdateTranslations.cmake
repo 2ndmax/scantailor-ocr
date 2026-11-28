@@ -22,8 +22,12 @@ macro (translation_sources _target) #, _sources
   unset(${_target}_TRANSLATION_INCLUDE_DIRS)
   list(APPEND ${_target}_TRANSLATION_SOURCES ${_sources})
   list(APPEND ${_target}_TRANSLATION_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
-  list(REMOVE_DUPLICATES ${_target}_TRANSLATION_SOURCES)
-  list(REMOVE_DUPLICATES ${_target}_TRANSLATION_INCLUDE_DIRS)
+  if (${_target}_TRANSLATION_SOURCES)
+    list(REMOVE_DUPLICATES ${_target}_TRANSLATION_SOURCES)
+  endif()
+  if (${_target}_TRANSLATION_INCLUDE_DIRS)
+    list(REMOVE_DUPLICATES ${_target}_TRANSLATION_INCLUDE_DIRS)
+  endif()
   set(${_target}_TRANSLATION_SOURCES ${${_target}_TRANSLATION_SOURCES} CACHE INTERNAL "" FORCE)
   set(${_target}_TRANSLATION_INCLUDE_DIRS ${${_target}_TRANSLATION_INCLUDE_DIRS} CACHE INTERNAL "" FORCE)
   unset(${_target}_TRANSLATION_SOURCES)
@@ -39,6 +43,7 @@ endmacro()
 #
 macro (finalize_translations _target) #, _ts_files
   # A list file for lupdate: one source file per line, include directories prefixed with -I.
+  # Qt 6 lupdate reads one raw line per entry without stripping quotes (newline separation handles spaces).
   # (lupdate of Qt 6 no longer reads qmake .pro files.)
   set(_lst_content "")
   foreach (_file ${${_target}_TRANSLATION_SOURCES})
@@ -51,7 +56,7 @@ macro (finalize_translations _target) #, _ts_files
     # to parse things like boost headers leads to spurious warnings.
     file(RELATIVE_PATH _dir_rel_to_source "${CMAKE_SOURCE_DIR}" "${_dir}")
     file(RELATIVE_PATH _dir_rel_to_binary "${CMAKE_BINARY_DIR}" "${_dir}")
-    if (NOT ((_dir_rel_to_source MATCHES "\\.\\..*") AND (_dir_rel_to_binary MATCHES "\\.\\..*")))
+    if (NOT ((_dir_rel_to_source MATCHES "^\\.\\.(/|$)") AND (_dir_rel_to_binary MATCHES "^\\.\\.(/|$)")))
       string(APPEND _lst_content "-I${_dir}\n")
     endif()
   endforeach()

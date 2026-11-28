@@ -192,6 +192,8 @@ function Read-YesNo([string]$Question, [bool]$Default) {
 # time; errors are shown in full as well. Returns the exit code.
 # Code page 65001 makes the compilers write their (localized) messages as UTF-8, like the log header.
 function Invoke-Streamed([string]$CommandLine, [string]$Log, [string]$Activity = 'Running') {
+    $tmpCmd = Join-Path ([IO.Path]::GetTempPath()) ('st-cmd-' + [guid]::NewGuid().ToString('N') + '.cmd')
+    [IO.File]::WriteAllLines($tmpCmd, @('@echo off', 'chcp 65001 >nul', $CommandLine), $Utf8)
     $writer = New-Object IO.StreamWriter($Log, $true, $Utf8)
     $writer.AutoFlush = $true
     $oldEncoding = [Console]::OutputEncoding
@@ -208,13 +210,15 @@ function Invoke-Streamed([string]$CommandLine, [string]$Log, [string]$Activity =
     $errors = 0
     try {
         # ForEach-Object runs in this scope, so the counters below keep their values.
-        cmd /c "chcp 65001 >nul && $CommandLine 2>&1" | ForEach-Object {
+        cmd /c "`"$tmpCmd`" 2>&1" | ForEach-Object {
             $line = "$_"
             $writer.WriteLine($line)
             if ($line -match '^\[(\d+)/(\d+)\]\s+(.*)$' -or $line -match '^(\d+)/(\d+) files checked') {
                 # The file name alone, from e.g. "Building CXX object src\core\CMakeFiles\...\File.cpp.obj".
                 $item = if ($Matches[3]) { ($Matches[3] -split '\s+')[-1] -replace '^.*[\\/]', '' } else { '' }
-                $step = ('[{0}/{1}] {2}% {3}' -f $Matches[1], $Matches[2], [int](100 * $Matches[1] / $Matches[2]), ($item -replace '\.obj$', '')).TrimEnd()
+                if ([int]$Matches[2] -gt 0) {
+                    $step = ('[{0}/{1}] {2}% {3}' -f $Matches[1], $Matches[2], [int](100 * $Matches[1] / $Matches[2]), ($item -replace '\.obj$', '')).TrimEnd()
+                }
             }
             # ninja's "FAILED:" line names the step of an error that is already counted.
             if ($line -match ': (fatal )?error\b|^FAILED: |^CMake Error') {
@@ -235,6 +239,7 @@ function Invoke-Streamed([string]$CommandLine, [string]$Log, [string]$Activity =
         $rc = $LASTEXITCODE
     } finally {
         $writer.Close()
+        Remove-Item -LiteralPath $tmpCmd -ErrorAction SilentlyContinue
         try { [Console]::OutputEncoding = $oldEncoding } catch {}
     }
     $status = "{0} | {1} warnings, {2} errors | {3:hh\:mm\:ss}" -f $step, $warnings, $errors, $clock.Elapsed
@@ -246,7 +251,7 @@ function Invoke-Streamed([string]$CommandLine, [string]$Log, [string]$Activity =
 # Runs a command line in the Visual Studio x64 developer environment, appending all output to $Log
 # and showing the progress (see Invoke-Streamed).
 function Invoke-VsLogged([string]$CommandLine, [string]$Log, [string]$Activity = 'Running') {
-    return (Invoke-Streamed "`"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && $CommandLine" $Log $Activity)
+    return (Invoke-Streamed "call `"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && $CommandLine" $Log $Activity)
 }
 
 # The value of an environment variable inside the developer environment (e.g. INCLUDE).
@@ -346,8 +351,48 @@ function Write-RunEnd([int]$Rc, [string[]]$Results) {
 function Get-ConfigureArgs([string]$BuildDir, [string]$VcpkgRoot, [string]$BuildType = 'Release') {
     $toolchain = "$VcpkgRoot\scripts\buildsystems\vcpkg.cmake" -replace '\\', '/'
     return "-S `"$Root`" -B `"$BuildDir`" -G Ninja -DCMAKE_BUILD_TYPE=$BuildType " +
-           "-DCMAKE_TOOLCHAIN_FILE=$toolchain -DVCPKG_TARGET_TRIPLET=x64-windows " +
+           "-DCMAKE_TOOLCHAIN_FILE=`"$toolchain`" -DVCPKG_TARGET_TRIPLET=x64-windows " +
            '-DBUILD_TESTS=ON -DBUILD_DEV_TOOLS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
+}
+
+# Runs a process with optional redirected I/O and timeout (in ms). Returns ExitCode and TimedOut.
+function Invoke-TimedProcess {
+    param(
+        [Parameter(Mandatory)][string]$FilePath,
+        [string]$ArgumentList = '',
+        [string]$WorkingDirectory = '',
+        [string]$StdoutPath = '',
+        [string]$StderrPath = '',
+        [string]$StdinPath = '',
+        [int]$TimeoutMs = 0
+    )
+    $sp = @{
+        FilePath    = $FilePath
+        NoNewWindow = $true
+        PassThru    = $true
+    }
+    if ($ArgumentList) { $sp.ArgumentList = $ArgumentList }
+    if ($WorkingDirectory) { $sp.WorkingDirectory = $WorkingDirectory }
+    if ($StdoutPath) { $sp.RedirectStandardOutput = $StdoutPath }
+    if ($StderrPath) { $sp.RedirectStandardError = $StderrPath }
+    if ($StdinPath) { $sp.RedirectStandardInput = $StdinPath }
+
+    $p = Start-Process @sp
+    $null = $p.Handle  # Without this, Windows PowerShell 5.1 doesn't report the exit code.
+    $timedOut = $false
+    if ($TimeoutMs -gt 0) {
+        if (-not $p.WaitForExit($TimeoutMs)) {
+            $timedOut = $true
+            try { $p.Kill() } catch {}
+            $p.WaitForExit()
+        }
+    } else {
+        $p.WaitForExit()
+    }
+    return [pscustomobject]@{
+        ExitCode = $p.ExitCode
+        TimedOut = $timedOut
+    }
 }
 
 # Configures and builds a fresh build directory; returns the exit code of the failing step or 0.

@@ -139,7 +139,7 @@ function Get-NewestClangUml {
     $asset = @($release.assets | Where-Object { $_.name -like 'clang-uml-*-win64.exe' }) | Select-Object -First 1
     if (-not $asset) { Write-Host "Release $($release.tag_name) of clang-uml has no Windows installer." -ForegroundColor Red; return $null }
     # GitHub gives the checksum of each asset as "sha256:<hex>".
-    $sha256 = if ("$($asset.digest)" -match '^sha256:([0-9a-f]{64})$') { $Matches[1] } else { '' }
+    $sha256 = if ("$($asset.digest)" -match '^sha256:([0-9a-f]{64})$') { $Matches[1].ToLowerInvariant() } else { '' }
     return @{ Version = "$($release.tag_name)"; Url = $asset.browser_download_url; Sha256 = $sha256 }
 }
 
@@ -167,18 +167,21 @@ $stepClangUml = {
     New-Item -ItemType Directory -Force $downloadDir | Out-Null
     $installer = "$downloadDir\$(Split-Path $release.Url -Leaf)"
     if (-not (Save-Download $release.Url $installer $log)) { return $false }
-    $hash = (Get-FileHash -Algorithm SHA256 $installer).Hash.ToLowerInvariant()
-    Add-LogLine $log "# SHA-256: $hash (expected $($release.Sha256))"
-    if ($hash -ne $release.Sha256) {
-        Remove-Item -LiteralPath $installer
-        Write-Host "The download has the wrong checksum ($hash); it is deleted." -ForegroundColor Red
-        return $false
+    try {
+        $hash = (Get-FileHash -Algorithm SHA256 $installer).Hash.ToLowerInvariant()
+        $expected = $release.Sha256.ToLowerInvariant()
+        Add-LogLine $log "# SHA-256: $hash (expected $expected)"
+        if ($hash -ne $expected) {
+            Write-Host "The download has the wrong checksum ($hash); it is deleted." -ForegroundColor Red
+            return $false
+        }
+        # /S: NSIS silent switch; the installer runs without its dialogs.
+        Add-LogLine $log "# $(Get-Stamp) `"$installer`" /S"
+        $process = Start-Process -FilePath $installer -ArgumentList '/S' -Verb RunAs -Wait -PassThru
+        Add-LogLine $log "# Exit code: $($process.ExitCode)"
+    } finally {
+        Remove-Item -LiteralPath $installer -ErrorAction SilentlyContinue
     }
-    # /S: the installer runs without its dialogs.
-    Add-LogLine $log "# $(Get-Stamp) `"$installer`" /S"
-    $process = Start-Process -FilePath $installer -ArgumentList '/S' -Verb RunAs -Wait -PassThru
-    Add-LogLine $log "# Exit code: $($process.ExitCode)"
-    Remove-Item -LiteralPath $installer
     $found = Find-ClangUml
     $version = Get-ToolVersion $found
     if ($version -ne $release.Version) {
@@ -208,12 +211,9 @@ $stepGraphviz = {
     Write-Host "Installs $which with winget into $env:ProgramFiles\Graphviz. Windows asks for administrator rights."
     if (-not (Read-YesNo 'Install now?' $false)) { return $true }
     # winget updates an installed Graphviz to the newest; --force lets it change to the tested version.
-    $arguments = @('install', '--id', $GraphvizId, '--exact', '--source', 'winget')
-    if (-not $newest) { $arguments += @('--version', $GraphvizVersion, '--force') }
-    Add-LogLine $log "# $(Get-Stamp) winget $($arguments -join ' ')"
-    # Run directly in the console, so the questions of winget can be answered.
-    & winget @arguments
-    Add-LogLine $log "# Exit code: $LASTEXITCODE"
+    $extraArgs = if (-not $newest) { @('--version', $GraphvizVersion, '--force') } else { @() }
+    [void](Invoke-Winget -Subcommand 'install' -Id $GraphvizId -ExtraArgs $extraArgs -Log $log)
+    Update-Path
     $found = Find-Graphviz
     $version = Get-ToolVersion $found '-V 2>&1'
     if (-not $found -or (-not $newest -and $version -ne $GraphvizVersion)) {

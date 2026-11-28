@@ -163,10 +163,7 @@ $stepCppcheck = {
         return $false
     }
     if (-not (Read-YesNo 'Install now?' $false)) { return $false }
-    Add-LogLine $log "# $(Get-Stamp) winget install --id Cppcheck.Cppcheck --exact --source winget"
-    # Run directly in the console, so the questions of winget can be answered.
-    & winget install --id Cppcheck.Cppcheck --exact --source winget
-    Add-LogLine $log "# Exit code: $LASTEXITCODE"
+    [void](Invoke-Winget -Subcommand 'install' -Id 'Cppcheck.Cppcheck' -Log $log)
     $found = Find-Cppcheck
     if (-not $found) { Write-Host "cppcheck is not in $CppcheckFolder." -ForegroundColor Red; return $false }
     Write-Host "cppcheck: $found"

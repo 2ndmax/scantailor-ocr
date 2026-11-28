@@ -89,15 +89,17 @@ $allPrograms = @($BoostTestPrograms) + 'qt_tests.exe' + $devTools
 # appverif.exe with the given arguments; its output and exit code go to $Log (if given).
 function Invoke-AppVerif([string]$ArgLine, [string]$Log = '') {
     $tmp = [IO.Path]::GetTempFileName()
-    $p = Start-Process -FilePath $appverif -ArgumentList $ArgLine -NoNewWindow -Wait -PassThru `
-        -RedirectStandardOutput $tmp
-    $out = (Get-Content $tmp -Raw)
-    Remove-Item $tmp -ErrorAction SilentlyContinue
+    try {
+        $res = Invoke-TimedProcess -FilePath $appverif -ArgumentList $ArgLine -StdoutPath $tmp
+        $out = (Get-Content $tmp -Raw)
+    } finally {
+        Remove-Item $tmp -ErrorAction SilentlyContinue
+    }
     if ($Log) {
-        Add-LogLine $Log "# appverif $ArgLine  (exit code $($p.ExitCode))"
+        Add-LogLine $Log "# appverif $ArgLine  (exit code $($res.ExitCode))"
         if ($out) { Add-LogLine $Log ($out.TrimEnd() -replace '(?m)^', '#   ') }
     }
-    return $p.ExitCode
+    return $res.ExitCode
 }
 
 # Settings left in the registry would slow down every later start of these programs.
@@ -202,15 +204,10 @@ function Invoke-Verified([string]$Log, [string]$Exe, [string]$ArgLine, [string]$
         if ($rc -ne 0) { throw "appverif $Enable failed with exit code $rc; see $Log." }
         $cdbArgs = "-lines -cf `"$cdbStart`" -y `"$symbolPath`" `"$BuildDir\$Exe`" $ArgLine"
         Add-LogLine $Log "# cdb $cdbArgs"
-        $sp = @{ FilePath = $cdb; ArgumentList = $cdbArgs; WorkingDirectory = $BuildDir; NoNewWindow = $true
-                 PassThru = $true; RedirectStandardOutput = $tmpOut; RedirectStandardError = $tmpErr
-                 RedirectStandardInput = $cdbOnStop }
-        $p = Start-Process @sp
-        $null = $p.Handle  # Without this, Windows PowerShell 5.1 doesn't report the exit code.
-        if (-not $p.WaitForExit($TimeoutMin * 60000)) {
+        $res = Invoke-TimedProcess -FilePath $cdb -ArgumentList $cdbArgs -WorkingDirectory $BuildDir `
+            -StdoutPath $tmpOut -StderrPath $tmpErr -StdinPath $cdbOnStop -TimeoutMs ($TimeoutMin * 60000)
+        if ($res.TimedOut) {
             # Ending the debugger ends the program it debugs.
-            $p.Kill()
-            $p.WaitForExit()
             Add-LogLine $Log "# TIMEOUT after $TimeoutMin minutes, process killed"
         }
         $stdout = Read-Shared $tmpOut

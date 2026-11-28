@@ -11,7 +11,8 @@ import pytest
 from mcp.client.client import Client
 from PIL import Image, ImageDraw
 
-from scantailor_ocr_mcp.server import build_server
+from scantailor_ocr_mcp import server as server_mod
+from scantailor_ocr_mcp.server import build_server, parse_args
 
 
 def run_async(coro):
@@ -303,3 +304,38 @@ def test_a_drive_root_allows_what_is_on_it(tmp_path: Path):
 
     inside = tmp_path / "book.ScanTailor"
     assert is_allowed(inside, [Path(tmp_path.anchor)])
+
+
+@pytest.mark.parametrize("bad_max_runs", ["0", "-1"])
+def test_parse_args_rejects_non_positive_max_runs(bad_max_runs: str, capsys):
+    with pytest.raises(SystemExit) as exc:
+        parse_args(["--max-runs", bad_max_runs])
+    assert exc.value.code == 2
+    assert "--max-runs must be a positive integer" in capsys.readouterr().err
+
+
+def test_main_expands_tilde_allow_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    home = tmp_path / "fakehome"
+    books = home / "books"
+    books.mkdir(parents=True)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("USERPROFILE", str(home))
+
+    captured: dict[str, object] = {}
+
+    class _FakeServer:
+        def run(self, transport: str = "stdio") -> None:
+            captured["transport"] = transport
+
+    def _fake_build_server(configured_roots: list[Path], max_runs: int = 1):
+        captured["roots"] = configured_roots
+        captured["max_runs"] = max_runs
+        return _FakeServer(), {}
+
+    monkeypatch.setattr(server_mod, "build_server", _fake_build_server)
+    monkeypatch.setattr("sys.argv", ["scantailor-ocr-mcp", "--allow-root", "~/books"])
+    server_mod.main()
+
+    assert captured["roots"] == [books.resolve()]
+    assert captured["max_runs"] == 1
+    assert captured["transport"] == "stdio"

@@ -228,10 +228,11 @@ if (-not $SkipBuild) {
         "# Build directory: $BuildDir"
     ) + (Get-ToolVersions))
     $rc = 0
-    if (-not (Test-Path "$BuildDir\CMakeCache.txt")) {
+    $cacheFile = Join-Path $BuildDir 'CMakeCache.txt'
+    if (-not (Test-Path -LiteralPath $cacheFile -PathType Leaf)) {
         $toolchain = "$VcpkgRoot\scripts\buildsystems\vcpkg.cmake" -replace '\\', '/'
         $cfg = "cmake -S `"$Root`" -B `"$BuildDir`" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo " +
-               "-DCMAKE_TOOLCHAIN_FILE=$toolchain -DVCPKG_TARGET_TRIPLET=x64-windows " +
+               "-DCMAKE_TOOLCHAIN_FILE=`"$toolchain`" -DVCPKG_TARGET_TRIPLET=x64-windows " +
                '-DBUILD_FUZZERS=ON'
         Add-LogLine $buildLog "# Configure: $cfg`r`n"
         $rc = Invoke-VsLogged $cfg $buildLog 'Configuring with CMake'
@@ -247,19 +248,23 @@ if (-not $SkipBuild) {
     if ($rc -ne 0) { Write-RunEnd $rc @("Log: $buildLog"); exit $rc }
 }
 
+foreach ($t in $targets) {
+    $exe = "$BuildDir\$($t.Name).exe"
+    if (-not (Test-Path -LiteralPath $exe -PathType Leaf)) { throw "$exe not found: the build has no such target." }
+}
+
 # Runs a fuzz target; output to $OutFile. Returns the exit code.
 function Invoke-Fuzzer([string]$Exe, [string]$ArgLine, [string]$WorkDir, [string]$OutFile, [int]$TimeoutMin) {
-    $sp = @{ FilePath = $Exe; ArgumentList = $ArgLine; WorkingDirectory = $WorkDir; NoNewWindow = $true
-             PassThru = $true; RedirectStandardOutput = "$OutFile.stdout"; RedirectStandardError = $OutFile }
-    $p = Start-Process @sp
-    $null = $p.Handle  # Without this, Windows PowerShell 5.1 doesn't report the exit code.
-    if (-not $p.WaitForExit($TimeoutMin * 60000)) {
-        $p.Kill()
-        $p.WaitForExit()
-        Add-Content -LiteralPath $OutFile "`r`n# KILLED after $TimeoutMin minutes"
+    try {
+        $res = Invoke-TimedProcess -FilePath $Exe -ArgumentList $ArgLine -WorkingDirectory $WorkDir `
+            -StdoutPath "$OutFile.stdout" -StderrPath $OutFile -TimeoutMs ($TimeoutMin * 60000)
+        if ($res.TimedOut) {
+            Add-Content -LiteralPath $OutFile "`r`n# KILLED after $TimeoutMin minutes"
+        }
+        return $res.ExitCode
+    } finally {
+        Remove-Item -LiteralPath "$OutFile.stdout" -ErrorAction SilentlyContinue
     }
-    Remove-Item -LiteralPath "$OutFile.stdout" -ErrorAction SilentlyContinue
-    return $p.ExitCode
 }
 
 New-Log $log "10: fuzzing, $Minutes minutes per target" @(
@@ -268,57 +273,73 @@ New-Log $log "10: fuzzing, $Minutes minutes per target" @(
     "# Options: $fuzzArgs"
 )
 
-# --- Fuzzing -------------------------------------------------------------------------------------
-$targetNo = 0
-foreach ($t in $targets) {
-    $targetNo++
-    $exe = "$BuildDir\$($t.Name).exe"
-    if (-not (Test-Path $exe)) { throw "$exe not found: the build has no such target." }
-    $dir = "$fuzzDir\$($t.Name)"
-    New-Item -ItemType Directory -Force "$dir\corpus", "$dir\findings" | Out-Null
-    # The prefix ends in a backslash; doubled before the closing quote, so it doesn't escape it.
-    $argLine = "$fuzzArgs -max_total_time=$($Minutes * 60) -print_final_stats=1 -artifact_prefix=`"$dir\findings\\`""
-    if ($t.Dict) { $argLine += " -dict=`"$Root\src\fuzz\$($t.Dict)`"" }
-    if ($t.Args) { $argLine += " $($t.Args)" }
-    # New inputs go into the first folder; the seeds are only read.
-    $argLine += " `"$dir\corpus`" `"$seeds\$($t.Seeds)`""
+try {
+    # --- Fuzzing -------------------------------------------------------------------------------------
+    $targetNo = 0
+    foreach ($t in $targets) {
+        $targetNo++
+        $exe = "$BuildDir\$($t.Name).exe"
+        if (-not (Test-Path -LiteralPath $exe -PathType Leaf)) { throw "$exe not found: the build has no such target." }
+        $dir = "$fuzzDir\$($t.Name)"
+        New-Item -ItemType Directory -Force "$dir\corpus", "$dir\findings" | Out-Null
+        # The prefix ends in a backslash; doubled before the closing quote, so it doesn't escape it.
+        $argLine = "$fuzzArgs -max_total_time=$($Minutes * 60) -print_final_stats=1 -artifact_prefix=`"$dir\findings\\`""
+        if ($t.Dict) { $argLine += " -dict=`"$Root\src\fuzz\$($t.Dict)`"" }
+        if ($t.Args) { $argLine += " $($t.Args)" }
+        # New inputs go into the first folder; the seeds are only read.
+        $argLine += " `"$dir\corpus`" `"$seeds\$($t.Seeds)`""
 
-    Write-Host "[$targetNo/$($targets.Count)] Fuzzing $($t.Name) for $Minutes minutes ... " -NoNewline
-    $before = @(Get-ChildItem "$dir\findings" -File).Count
-    $rc = Invoke-Fuzzer $exe $argLine $dir "$dir\fuzz.log" ($Minutes + 10)
-    $out = [IO.File]::ReadAllText("$dir\fuzz.log")
-    $stat = { param($name) if ($out -match "stat::${name}:\s+(\d+)") { $Matches[1] } else { '?' } }
-    $ft = if ($out -match '(?s).*\bft: (\d+)') { $Matches[1] } else { '?' }
-    $corpus = @(Get-ChildItem "$dir\corpus" -File).Count
-    $new = @(Get-ChildItem "$dir\findings" -File).Count - $before
-    $summary = "runs $(& $stat 'number_of_executed_units'), $(& $stat 'average_exec_per_sec')/s, " +
-               "coverage (ft) $ft, corpus $corpus inputs, peak $(& $stat 'peak_rss_mb') MB, new findings $new"
-    Write-Host $summary -ForegroundColor $(if ($new -gt 0) { 'Yellow' } else { 'Gray' })
-    Add-LogLine $log "# ===== $($t.Name): exit code $rc, $summary"
-}
-
-# --- Reports of all findings ---------------------------------------------------------------------
-# Each input in findings\ runs once more, so its report is in this log (for 90-merge-findings.ps1),
-# and one that no longer fails shows that it was fixed.
-$total = 0
-foreach ($t in $allTargets) {
-    $dir = "$fuzzDir\$($t.Name)"
-    if (-not (Test-Path "$dir\findings")) { continue }
-    foreach ($f in Get-ChildItem "$dir\findings" -File | Sort-Object Name) {
-        $total++
-        Add-LogLine $log "`r`n# Finding: $($t.Name) $($f.FullName)"
-        $replay = "$dir\replay.log"
-        $rc = Invoke-Fuzzer "$BuildDir\$($t.Name).exe" "$fuzzArgs `"$($f.FullName)`"" $dir $replay 5
-        $text = [IO.File]::ReadAllText($replay)
-        Remove-Item -LiteralPath $replay
-        # Only the report, without libFuzzer's lines about the run itself.
-        $report = @($text -split "`r?`n" | Where-Object { $_ -notmatch '^(INFO:|Running:|Executed |\*\*\*)' -and $_ })
-        if (-not ($text -match 'ERROR: (AddressSanitizer|libFuzzer)')) { $report = @('# No report with these limits: fixed, or found with other limits.') }
-        Add-LogLine $log ($report -join "`r`n")
-        Add-LogLine $log "# Replay exit code: $rc"
+        Write-Host "[$targetNo/$($targets.Count)] Fuzzing $($t.Name) for $Minutes minutes ... " -NoNewline
+        $before = @(Get-ChildItem "$dir\findings" -File).Count
+        $rc = Invoke-Fuzzer $exe $argLine $dir "$dir\fuzz.log" ($Minutes + 10)
+        $out = [IO.File]::ReadAllText("$dir\fuzz.log")
+        $stat = { param($name) if ($out -match "stat::${name}:\s+(\d+)") { $Matches[1] } else { '?' } }
+        $ft = if ($out -match '(?s).*\bft: (\d+)') { $Matches[1] } else { '?' }
+        $corpus = @(Get-ChildItem "$dir\corpus" -File).Count
+        $new = @(Get-ChildItem "$dir\findings" -File).Count - $before
+        $summary = "runs $(& $stat 'number_of_executed_units'), $(& $stat 'average_exec_per_sec')/s, " +
+                   "coverage (ft) $ft, corpus $corpus inputs, peak $(& $stat 'peak_rss_mb') MB, new findings $new"
+        Write-Host $summary -ForegroundColor $(if ($new -gt 0) { 'Yellow' } else { 'Gray' })
+        Add-LogLine $log "# ===== $($t.Name): exit code $rc, $summary"
     }
+
+    # --- Reports of all findings ---------------------------------------------------------------------
+    # Each input in findings\ runs once more, so its report is in this log (for 90-merge-findings.ps1),
+    # and one that no longer fails shows that it was fixed.
+    $total = 0
+    foreach ($t in $allTargets) {
+        $dir = "$fuzzDir\$($t.Name)"
+        if (-not (Test-Path "$dir\findings")) { continue }
+        $replayExe = "$BuildDir\$($t.Name).exe"
+        foreach ($f in Get-ChildItem "$dir\findings" -File | Sort-Object Name) {
+            $total++
+            Add-LogLine $log "`r`n# Finding: $($t.Name) $($f.FullName)"
+            if (-not (Test-Path -LiteralPath $replayExe -PathType Leaf)) {
+                Add-LogLine $log "# Skipped replay: $replayExe not found."
+                continue
+            }
+            $replay = "$dir\replay.log"
+            $rc = Invoke-Fuzzer $replayExe "$fuzzArgs `"$($f.FullName)`"" $dir $replay 5
+            $text = [IO.File]::ReadAllText($replay)
+            Remove-Item -LiteralPath $replay
+            # Only the report, without libFuzzer's lines about the run itself.
+            $report = @($text -split "`r?`n" | Where-Object { $_ -notmatch '^(INFO:|Running:|Executed |\*\*\*)' -and $_ })
+            if ($text -match '# KILLED after') {
+                $report = @('# Replay timed out (killed after 5 minutes); unresolved.')
+            } elseif (-not ($text -match 'ERROR: (AddressSanitizer|libFuzzer)')) {
+                if ($rc -ne 0) {
+                    $report = @("# Replay exited with code $rc without a sanitizer/libFuzzer report; unresolved.")
+                } else {
+                    $report = @('# No report with these limits: fixed, or found with other limits.')
+                }
+            }
+            Add-LogLine $log ($report -join "`r`n")
+            Add-LogLine $log "# Replay exit code: $rc"
+        }
+    }
+    Add-LogLine $log "`r`n# Findings in all: $total"
+} finally {
+    Add-LogLine $log "# End: $(Get-Stamp)"
 }
-Add-LogLine $log "`r`n# Findings in all: $total"
-Add-LogLine $log "# End: $(Get-Stamp)"
 Write-RunEnd 0 @("Log: $log", "Corpora and findings: $fuzzDir")
 exit 0

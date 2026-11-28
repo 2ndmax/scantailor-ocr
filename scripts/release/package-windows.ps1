@@ -167,10 +167,12 @@ if (-not (Test-Path (Join-Path $qtTranslationsDir "qtbase_de.qm"))) {
 if (-not $CrtDir) {
   $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
   if (-not (Test-Path $vswhere)) { Fail "vswhere.exe not found. Pass -CrtDir." }
-  $vsPath = & $vswhere -latest -products * -property installationPath
+  $vsPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+  if (-not $vsPath) { Fail "No Visual Studio installation with C++ tools found. Pass -CrtDir." }
   $crtCandidates = @(Get-ChildItem -Path (Join-Path $vsPath "VC\Redist\MSVC") -Directory -ErrorAction SilentlyContinue |
-    ForEach-Object { Get-ChildItem -Path (Join-Path $_.FullName "x64") -Directory -Filter "Microsoft.VC*.CRT" -ErrorAction SilentlyContinue } |
-    Sort-Object FullName -Descending)
+    Sort-Object @{ Expression = { $v = $null; if ([version]::TryParse($_.Name, [ref]$v)) { $v } else { [version]"0.0" } }; Descending = $true },
+                @{ Expression = { $_.Name }; Descending = $true } |
+    ForEach-Object { Get-ChildItem -Path (Join-Path $_.FullName "x64") -Directory -Filter "Microsoft.VC*.CRT" -ErrorAction SilentlyContinue })
   if ($crtCandidates.Count -eq 0) { Fail "No Microsoft.VC*.CRT folder found below $vsPath\VC\Redist\MSVC. Pass -CrtDir." }
   $CrtDir = $crtCandidates[0].FullName
 }

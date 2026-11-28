@@ -42,7 +42,13 @@ function Read-Folder([string]$Question, [string]$Default) {
             $typed = Read-Host "$Question [$Default]"
             if ($typed.Trim()) { $answer = $typed.Trim().Trim('"') }
         }
-        $answer = [IO.Path]::GetFullPath($answer)
+        try {
+            $answer = [IO.Path]::GetFullPath($answer)
+        } catch {
+            if ($Unattended) { throw "Invalid folder path '$answer': $($_.Exception.Message)" }
+            Write-Host "Invalid folder path: $($_.Exception.Message)" -ForegroundColor Yellow
+            continue
+        }
         if ($answer -match '\s' -or $answer -match '[^\x21-\x7E]') {
             if ($Unattended) { throw "The folder must not contain spaces or non-English characters: $answer" }
             Write-Host 'The folder must not contain spaces or non-English characters.' -ForegroundColor Yellow
@@ -131,9 +137,16 @@ function Write-Step([string]$Text) {
 # Code page 65001 and a UTF-8 console encoding make the localized messages come out right: wsl.exe
 # writes UTF-8 (WSL_UTF8), which PowerShell would otherwise read as the OEM code page ("ÔÇ×", "├╝").
 function Invoke-Shown([string]$CommandLine, [string]$Log, [switch]$InVsEnv) {
+    if ($InVsEnv -and -not $Vs) {
+        throw 'No Visual Studio installation with the C++ tools found.'
+    }
     Add-LogLine $Log "`r`n# $(Get-Stamp) Command: $CommandLine"
     Write-Host "> $CommandLine" -ForegroundColor DarkGray
-    $full = if ($InVsEnv) { "`"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && $CommandLine" } else { $CommandLine }
+    $full = if ($InVsEnv) { "call `"$Vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && $CommandLine" } else { $CommandLine }
+    $tmpCmd = Join-Path ([IO.Path]::GetTempPath()) ('st-cmd-' + [guid]::NewGuid().ToString('N') + '.cmd')
+    [IO.File]::WriteAllLines($tmpCmd, @('@echo off', 'chcp 65001 >nul', $full), $Utf8)
+    $writer = New-Object IO.StreamWriter($Log, $true, $Utf8)
+    $writer.AutoFlush = $true
     $oldEncoding = [Console]::OutputEncoding
     # Without a console (e.g. in the ISE) the encoding can't be set; the output then may show
     # umlauts wrongly, nothing else.
@@ -143,13 +156,16 @@ function Invoke-Shown([string]$CommandLine, [string]$Log, [switch]$InVsEnv) {
         # While wsl.exe runs, a line feed in the console no longer returns the cursor to the first
         # column, so each line would start where the one before ended (a staircase). The carriage
         # return in front of every line, and one after the last, sets the column right.
-        cmd /c "chcp 65001 >nul && $full 2>&1" | ForEach-Object {
-            Write-Host "`r$_"
-            Add-LogLine $Log $_
+        cmd /c "`"$tmpCmd`" 2>&1" | ForEach-Object {
+            $line = "$_"
+            Write-Host "`r$line"
+            $writer.WriteLine($line)
         }
         $rc = $LASTEXITCODE
         Write-Host "`r" -NoNewline
     } finally {
+        $writer.Close()
+        Remove-Item -LiteralPath $tmpCmd -ErrorAction SilentlyContinue
         try { [Console]::OutputEncoding = $oldEncoding } catch {}
     }
     Add-LogLine $Log "# Exit code: $rc"
@@ -223,7 +239,27 @@ function Get-ToolVersion([string]$Exe, [string]$Arguments = '--version 2>nul') {
     return ''
 }
 
-# --- uv (05-setup-overview.ps1 and 06-setup-mcp.ps1) ------------------------------------------
+# --- winget & uv ------------------------------------------------------------------------------
+
+# Runs winget directly in the console (so agreements and prompts can be answered) and logs the call.
+function Invoke-Winget {
+    param(
+        [string]$Subcommand = 'install',
+        [Parameter(Mandatory)][string]$Id,
+        [string[]]$ExtraArgs = @(),
+        [Parameter(Mandatory)][string]$Log
+    )
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        throw 'winget (App Installer) is not available.'
+    }
+    $wingetArgs = @($Subcommand, '--id', $Id, '--exact', '--source', 'winget') + $ExtraArgs
+    Add-LogLine $Log "# $(Get-Stamp) winget $($wingetArgs -join ' ')"
+    # Run directly in the console, so the questions of winget can be answered.
+    & winget @wingetArgs
+    $rc = $LASTEXITCODE
+    Add-LogLine $Log "# Exit code: $rc"
+    return $rc
+}
 
 # Installs uv with winget unless it is there. $Purpose says what uv is needed for, shown before
 # installing. Returns $true when uv is there afterwards.
@@ -236,10 +272,7 @@ function Install-Uv([string]$Purpose, [string]$Log) {
             return $false
         }
         if (-not (Read-YesNo 'Install now?' $false)) { return $false }
-        Add-LogLine $Log "# $(Get-Stamp) winget install --id astral-sh.uv --exact --source winget"
-        # Run directly in the console, so the questions of winget can be answered.
-        & winget install --id astral-sh.uv --exact --source winget
-        Add-LogLine $Log "# Exit code: $LASTEXITCODE"
+        [void](Invoke-Winget -Subcommand 'install' -Id 'astral-sh.uv' -Log $Log)
         Update-Path
         $uv = Find-Uv
         if (-not $uv) { Write-Host 'uv is installed, but not found. Open a new window.' -ForegroundColor Red; return $false }

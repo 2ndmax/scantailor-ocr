@@ -409,7 +409,7 @@ class JobManager:
             _tool_error("Creation options cannot be used with 'project'.")
 
         # types
-        if last_step is not None and last_step not in LAST_STEPS:
+        if last_step is not None and (not isinstance(last_step, str) or last_step not in LAST_STEPS):
             _tool_error(f"Unknown last_step: {last_step}.")
         if orientation_detect is not None:
             if not isinstance(orientation_detect, str) or orientation_detect not in (
@@ -421,9 +421,11 @@ class JobManager:
             if not _is_int(threads) or threads < 1:
                 _tool_error("The threads parameter must be an integer >= 1.")
         if export_formats is not None:
-            if not isinstance(export_formats, list) or any(
-                not isinstance(f, str) or f not in EXPORT_FORMATS for f in export_formats
-            ):
+            if not isinstance(export_formats, list):
+                _tool_error("The export_formats parameter must be a list of: pdf, txt, hocr, alto.")
+            if len(export_formats) == 0:
+                _tool_error("export_formats must not be empty.")
+            if any(not isinstance(f, str) or f not in EXPORT_FORMATS for f in export_formats):
                 _tool_error("The export_formats parameter must be a list of: pdf, txt, hocr, alto.")
         if dpi is not None:
             if not isinstance(dpi, str) or not parse_dpi_value(dpi):

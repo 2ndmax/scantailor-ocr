@@ -56,11 +56,15 @@ if (-not $Only -and -not (Confirm-Run 'Analysis run 03: cppcheck' @(
 ) $log)) { Write-Host 'Not started.'; exit 1 }
 
 $vcpkgEsc = ([regex]::Escape((Get-VcpkgRoot ''))) -replace '\\\\', '[\\/]'
-$vcpkgInclude = '\s(-I|-external:I|/external:I)\s*(?:"' + $vcpkgEsc + '[^"]*"|' + $vcpkgEsc + '\S*)'
+$vcpkgInclude = '\s(-I|/I|-external:I|/external:I)\s*(?:"' + $vcpkgEsc + '[^"]*"|' + $vcpkgEsc + '\S*)'
 $sel = Get-FilteredCompileDb $BuildDir @('\s/analyze\S*', $vcpkgInclude)
 if ($Only) {
-    $o = $Only -replace '\\', '/'
-    $sel = @($sel | Where-Object { ($_.file -replace '\\', '/') -eq $o })
+    $onlyPath = if ([IO.Path]::IsPathRooted($Only)) { $Only } elseif (Test-Path -LiteralPath $Only) { [IO.Path]::GetFullPath($Only) } else { [IO.Path]::GetFullPath((Join-Path $Root $Only)) }
+    $o = $onlyPath -replace '\\', '/'
+    $sel = @($sel | Where-Object { ($_.file -replace '\\', '/').Equals($o, [StringComparison]::OrdinalIgnoreCase) })
+    if (-not $sel.Count) {
+        throw "No matching translation unit for -Only '$Only' in $BuildDir\compile_commands.json."
+    }
 }
 Save-CompileDb $sel $dbDir
 New-Item -ItemType Directory -Force $cache, $OutDir | Out-Null

@@ -141,11 +141,7 @@ function Install-VisualStudio {
     if (-not (Read-YesNo 'Install now?' $false)) { return $false }
     $adds = (@($edition.Workload) + $VsComponents | ForEach-Object { "--add $_" }) -join ' '
     $override = "--wait --passive --norestart $adds"
-    Add-LogLine $log "# $(Get-Stamp) winget install --id $($edition.Id) --exact --source winget --override `"$override`""
-    # Run directly in the console, so the questions of winget can be answered.
-    & winget install --id $edition.Id --exact --source winget --override $override
-    $rc = $LASTEXITCODE
-    Add-LogLine $log "# Exit code: $rc"
+    $rc = Invoke-Winget -Subcommand 'install' -Id $edition.Id -ExtraArgs @('--override', $override) -Log $log
     return ($rc -eq 0)
 }
 
@@ -197,11 +193,7 @@ $stepGit = {
         Write-Host 'administrator rights.'
         if (-not (Read-YesNo 'Install now?' $false)) { return $false }
         foreach ($tool in $missing) {
-            Add-LogLine $log "# $(Get-Stamp) winget install --id $($tool.Id) --exact --source winget"
-            # Run directly in the console, so the questions of winget can be answered.
-            & winget install --id $tool.Id --exact --source winget
-            $rc = $LASTEXITCODE
-            Add-LogLine $log "# Exit code: $rc"
+            $rc = Invoke-Winget -Subcommand 'install' -Id $tool.Id -Log $log
             if ($rc -ne 0) {
                 Write-Host "Installing $($tool.Name) failed (winget exit code $rc)." -ForegroundColor Red
                 return $false

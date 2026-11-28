@@ -10,10 +10,13 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
+import pytest
 from mcp.client.client import Client
 from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
+from mcp.server.mcpserver.exceptions import ToolError
 from PIL import Image, ImageDraw
 
 from scantailor_ocr_mcp.server import build_server
@@ -329,6 +332,10 @@ def test_run_tool_errors(cli, tmp_path: Path):
                 "run_start", {"folder": str(book), "export_formats": ["docx"]}
             )
             assert r.is_error is True
+            # empty export_formats
+            r = await client.call_tool("run_start", {"folder": str(book), "export_formats": []})
+            assert r.is_error is True
+            assert "empty" in r.content[0].text.lower()
             # export_folder outside
             r = await client.call_tool(
                 "run_start", {"folder": str(book), "export_folder": str(tmp_path / "outside")}
@@ -719,5 +726,50 @@ def test_profile_path_traversal_rejected(cli, tmp_path: Path):
                 )
                 assert r.is_error is True, f"profile {profile!r} should have been rejected"
             assert state["job_manager"].jobs == {}
+
+    asyncio.run(main())
+
+
+def test_non_string_last_step_rejected(cli, tmp_path: Path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    book = make_book(allowed / "book", 1)
+
+    async def main():
+        _, state = build_server([allowed])
+        with pytest.raises(ToolError, match="Unknown last_step"):
+            await state["job_manager"].start_job(
+                SimpleNamespace(session=None),
+                folder=str(book),
+                last_step=["output"],  # type: ignore[arg-type]
+            )
+
+    asyncio.run(main())
+
+
+def test_run_cancel_finished_job(cli, tmp_path: Path):
+    allowed = tmp_path / "allowed"
+    allowed.mkdir()
+    book = make_book(allowed / "book", 1)
+
+    async def main():
+        server, _ = build_server([allowed])
+        async with Client(server) as client:
+            r = await client.call_tool(
+                "run_start",
+                {"folder": str(book), "profile": "Default", "last_step": "output"},
+            )
+            assert r.is_error is False
+            job_id = r.structured_content["job_id"]
+            sc, _ = await wait_finished(client, job_id)
+            assert sc["state"] == "succeeded"
+
+            cr = await client.call_tool("run_cancel", {"job_id": job_id})
+            assert cr.is_error is False
+            assert cr.structured_content == {
+                "job_id": job_id,
+                "state": "succeeded",
+                "cancel_requested": False,
+            }
 
     asyncio.run(main())

@@ -1,16 +1,17 @@
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 
-# Every test directory calls this right after add_test(), so that every ctest run
+# Every test folder calls this right after add_test(), so that every ctest run
 # (CI, build-deb.sh, local) gets the same environment.
-# The tests show no windows, so on Linux they also run without a display.
-# Not on Windows: there is always a display, and the build directory has no offscreen plugin.
+# The tests show no windows, so on Linux they set QT_QPA_PLATFORM=offscreen to run without a display.
+# On Windows, local runs have a display (no offscreen plugin is copied to the build folder), while
+# CI sets QT_QPA_PLATFORM=offscreen and QT_PLUGIN_PATH in the runner environment.
 function(set_unit_test_environment test_name)
   if (UNIX)
-    set_tests_properties(${test_name} PROPERTIES ENVIRONMENT QT_QPA_PLATFORM=offscreen)
+    set_property(TEST ${test_name} APPEND PROPERTY ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
   elseif (WIN32)
     # Without a console, as in the CI, Qt sends qCritical() and the like to the debugger, so a failed
     # test would say nothing in the output of ctest.
-    set_tests_properties(${test_name} PROPERTIES ENVIRONMENT QT_FORCE_STDERR_LOGGING=1)
+    set_property(TEST ${test_name} APPEND PROPERTY ENVIRONMENT "QT_FORCE_STDERR_LOGGING=1")
   endif()
 endfunction()
 
