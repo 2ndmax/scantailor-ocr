@@ -102,41 +102,57 @@ void TabbedImageView::copyViewZoomAndPos(const int oldIdx, const int newIdx) con
     return;
   }
 
+  if (oldViewRect.isEmpty() || newViewRect.isEmpty()) {
+    return;
+  }
+
   if (oldImageView->zoomLevel() != 1.0) {
+    const double oldExtent = std::max(oldViewRect.width(), oldViewRect.height());
+    if (oldExtent <= 0.0) {
+      return;
+    }
     const QPointF viewFocus
         = getFocus(oldViewRect, *oldImageView->horizontalScrollBar(), *oldImageView->verticalScrollBar());
-    const double zoomFactor
-        = std::max(newViewRect.width(), newViewRect.height()) / std::max(oldViewRect.width(), oldViewRect.height());
+    const double zoomFactor = std::max(newViewRect.width(), newViewRect.height()) / oldExtent;
     newImageView->setZoomLevel(qMax(1., oldImageView->zoomLevel() * zoomFactor));
     setFocus(*newImageView->horizontalScrollBar(), *newImageView->verticalScrollBar(), newViewRect, viewFocus);
   }
 }
 
-// REVIEW-NOTE (2026-11): an empty rect or a scroll bar of length 0 -> getFocus() and setFocus() divide by
-// 0. Not fixed because both are only used by copyViewZoomAndPos() for a zoomed view, whose scroll bars
-// have a page step, with the non-empty rect of a processed page.
 QPointF TabbedImageView::getFocus(const QRectF& rect, const QScrollBar& horBar, const QScrollBar& verBar) const {
+  if ((rect.width() <= 0.0) || (rect.height() <= 0.0)) {
+    return rect.center();
+  }
   const int horBarLength = horBar.maximum() - horBar.minimum() + horBar.pageStep();
   const int verBarLength = verBar.maximum() - verBar.minimum() + verBar.pageStep();
 
-  qreal x = ((horBar.value() + (horBar.pageStep() / 2.0)) / horBarLength) * rect.width() + rect.left();
-  qreal y = ((verBar.value() + (verBar.pageStep() / 2.0)) / verBarLength) * rect.height() + rect.top();
+  const qreal x = (horBarLength > 0)
+                      ? (((horBar.value() + (horBar.pageStep() / 2.0)) / horBarLength) * rect.width() + rect.left())
+                      : rect.center().x();
+  const qreal y = (verBarLength > 0)
+                      ? (((verBar.value() + (verBar.pageStep() / 2.0)) / verBarLength) * rect.height() + rect.top())
+                      : rect.center().y();
   return QPointF(x, y);
 }
 
 void TabbedImageView::setFocus(QScrollBar& horBar, QScrollBar& verBar, const QRectF& rect, const QPointF& focal) const {
+  if ((rect.width() <= 0.0) || (rect.height() <= 0.0)) {
+    return;
+  }
   const int horBarLength = horBar.maximum() - horBar.minimum() + horBar.pageStep();
   const int verBarLength = verBar.maximum() - verBar.minimum() + verBar.pageStep();
 
-  auto horValue
-      = (int) std::round(((focal.x() - rect.left()) / rect.width()) * horBarLength - (horBar.pageStep() / 2.0));
-  auto verValue
-      = (int) std::round(((focal.y() - rect.top()) / rect.height()) * verBarLength - (verBar.pageStep() / 2.0));
-
-  horValue = qBound(horBar.minimum(), horValue, horBar.maximum());
-  verValue = qBound(verBar.minimum(), verValue, verBar.maximum());
-
-  horBar.setValue(horValue);
-  verBar.setValue(verValue);
+  if (horBarLength > 0) {
+    int horValue = static_cast<int>(
+        std::round(((focal.x() - rect.left()) / rect.width()) * horBarLength - (horBar.pageStep() / 2.0)));
+    horValue = qBound(horBar.minimum(), horValue, horBar.maximum());
+    horBar.setValue(horValue);
+  }
+  if (verBarLength > 0) {
+    int verValue = static_cast<int>(
+        std::round(((focal.y() - rect.top()) / rect.height()) * verBarLength - (verBar.pageStep() / 2.0)));
+    verValue = qBound(verBar.minimum(), verValue, verBar.maximum());
+    verBar.setValue(verValue);
+  }
 }
 }  // namespace output

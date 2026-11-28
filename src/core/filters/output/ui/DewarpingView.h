@@ -23,10 +23,13 @@
 #include "ZoomHandler.h"
 
 class QShortcut;
+class TestOutputQt;
 
 namespace output {
 class DewarpingView : public ImageViewBase, protected InteractionHandler {
   Q_OBJECT
+  friend class ::TestOutputQt;
+
  public:
   DewarpingView(const QImage& image,
                 const ImagePixmapUnion& downscaledImage,

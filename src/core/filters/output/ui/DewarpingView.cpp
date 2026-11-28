@@ -68,8 +68,14 @@ DewarpingView::DewarpingView(const QImage& image,
 
   m_removeControlPointShortcut = new QShortcut(Qt::Key_D, this);
   QObject::connect(m_removeControlPointShortcut, &QShortcut::activated, [this]() {
+    const int topBefore = m_topSpline.spline().numControlPoints();
+    const int bottomBefore = m_bottomSpline.spline().numControlPoints();
     m_topSpline.removeControlPointUnderMouse();
     m_bottomSpline.removeControlPointUnderMouse();
+    if ((m_topSpline.spline().numControlPoints() != topBefore)
+        || (m_bottomSpline.spline().numControlPoints() != bottomBefore)) {
+      dragFinished();
+    }
   });
 }
 
@@ -105,7 +111,7 @@ void DewarpingView::initNewSpline(XSpline& spline,
                                   const DewarpingOptions* dewarpingOptions) {
   const QLineF line(p1, p2);
   spline.appendControlPoint(line.p1(), 0);
-  if ((*dewarpingOptions).dewarpingMode() == AUTO) {
+  if ((dewarpingOptions != nullptr) && (dewarpingOptions->dewarpingMode() == AUTO)) {
     spline.appendControlPoint(line.pointAt(1.0 / 4.0), 1);
     spline.appendControlPoint(line.pointAt(2.0 / 4.0), 1);
     spline.appendControlPoint(line.pointAt(3.0 / 4.0), 1);
@@ -204,12 +210,18 @@ void DewarpingView::onPaint(QPainter& painter, const InteractionState& interacti
   }  // validModel
   if (!validModel) {
     // Just draw the frame.
-    const dewarping::Curve& topCurve = m_distortionModel.topCurve();
-    const dewarping::Curve& bottomCurve = m_distortionModel.bottomCurve();
-    painter.drawLine(topCurve.polyline().front(), bottomCurve.polyline().front());
-    painter.drawLine(topCurve.polyline().back(), bottomCurve.polyline().back());
-    painter.drawPolyline(QVector<QPointF>(topCurve.polyline().begin(), topCurve.polyline().end()));
-    painter.drawPolyline(QVector<QPointF>(bottomCurve.polyline().begin(), bottomCurve.polyline().end()));
+    const std::vector<QPointF>& topPoly = m_distortionModel.topCurve().polyline();
+    const std::vector<QPointF>& bottomPoly = m_distortionModel.bottomCurve().polyline();
+    if (!topPoly.empty() && !bottomPoly.empty()) {
+      painter.drawLine(topPoly.front(), bottomPoly.front());
+      painter.drawLine(topPoly.back(), bottomPoly.back());
+    }
+    if (!topPoly.empty()) {
+      painter.drawPolyline(QVector<QPointF>(topPoly.begin(), topPoly.end()));
+    }
+    if (!bottomPoly.empty()) {
+      painter.drawPolyline(QVector<QPointF>(bottomPoly.begin(), bottomPoly.end()));
+    }
   }
 
   paintXSpline(painter, interaction, m_topSpline);
@@ -287,16 +299,19 @@ QPointF DewarpingView::widgetToSource(const QPointF& pt) const {
 }
 
 QPolygonF DewarpingView::virtMarginArea(int marginIdx) const {
-  const dewarping::Curve& topCurve = m_distortionModel.topCurve();
-  const dewarping::Curve& bottomCurve = m_distortionModel.bottomCurve();
+  const std::vector<QPointF>& topPoly = m_distortionModel.topCurve().polyline();
+  const std::vector<QPointF>& bottomPoly = m_distortionModel.bottomCurve().polyline();
+  if (topPoly.empty() || bottomPoly.empty() || m_virtDisplayArea.isEmpty()) {
+    return QPolygonF();
+  }
 
   QLineF vertBoundary;   // From top to bottom, that's important!
   if (marginIdx == 0) {  // Left margin.
-    vertBoundary.setP1(topCurve.polyline().front());
-    vertBoundary.setP2(bottomCurve.polyline().front());
+    vertBoundary.setP1(topPoly.front());
+    vertBoundary.setP2(bottomPoly.front());
   } else {  // Right margin.
-    vertBoundary.setP1(topCurve.polyline().back());
-    vertBoundary.setP2(bottomCurve.polyline().back());
+    vertBoundary.setP1(topPoly.back());
+    vertBoundary.setP2(bottomPoly.back());
   }
 
   vertBoundary = imageToVirtual().map(vertBoundary);

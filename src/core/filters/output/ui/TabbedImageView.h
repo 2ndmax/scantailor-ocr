@@ -14,10 +14,13 @@
 
 class ImageViewBase;
 class QShortcut;
+class TestOutputQt;
 
 namespace output {
 class TabbedImageView : public QTabWidget {
   Q_OBJECT
+  friend class ::TestOutputQt;
+
  private:
   using TabImageRectMap = std::unordered_map<ImageViewTab, QRectF, std::hash<int>>;
 
