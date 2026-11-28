@@ -41,6 +41,101 @@ bool isColored(const QRgb rgb) {
   return (mx - mn >= 40) && (mx >= 60);
 }
 
+uint32_t findLargestPictureLabel(const ConnectivityMap& cmap, const double total, double& largestPicture) {
+  std::vector<int> areas(cmap.maxLabel() + 1, 0);
+  const uint32_t* line = cmap.data();
+  for (int y = 0; y < cmap.size().height(); ++y, line += cmap.stride()) {
+    for (int x = 0; x < cmap.size().width(); ++x) {
+      ++areas[line[x]];
+    }
+  }
+  uint32_t largestLabel = 0;
+  for (size_t label = 1; label < areas.size(); ++label) {
+    if (areas[label] / total > largestPicture) {
+      largestPicture = areas[label] / total;
+      largestLabel = static_cast<uint32_t>(label);
+    }
+  }
+  return largestLabel;
+}
+
+// Brightness and its spread inside the largest picture area: pictures have dark parts and
+// structure, while empty paper taken for a picture is light and even.
+void measureLargestPictureTone(const GrayImage& gray300,
+                               const ConnectivityMap& cmap,
+                               const uint32_t largestLabel,
+                               ColorModeDetector::Evidence& ev) {
+  if (largestLabel == 0) {
+    return;
+  }
+  double sum = 0;
+  double sumSq = 0;
+  long dark = 0;
+  long count = 0;
+  const uint32_t* labelLine = cmap.data();
+  for (int y = 0; y < gray300.height(); ++y, labelLine += cmap.stride()) {
+    const uint8_t* grayLine = gray300.data() + y * gray300.stride();
+    for (int x = 0; x < gray300.width(); ++x) {
+      if (labelLine[x] == largestLabel) {
+        const int v = grayLine[x];
+        sum += v;
+        sumSq += double(v) * v;
+        dark += (v < 128) ? 1 : 0;
+        ++count;
+      }
+    }
+  }
+  if (count > 0) {
+    ev.largestPictureMean = sum / count;
+    ev.largestPictureStdDev = std::sqrt(std::max(0.0, sumSq / count - ev.largestPictureMean * ev.largestPictureMean));
+    ev.largestPictureDark = double(dark) / count;
+  }
+}
+
+// Dark pixels outside the pictures: text such as captions.
+double measureTextOutsidePictures(const GrayImage& gray300, const BinaryImage& pictureMask, const double total) {
+  long text = 0;
+  const uint32_t* maskLine = pictureMask.data();
+  const int maskWpl = pictureMask.wordsPerLine();
+  const uint32_t msb = uint32_t(1) << 31;
+  for (int y = 0; y < gray300.height(); ++y, maskLine += maskWpl) {
+    const uint8_t* grayLine = gray300.data() + y * gray300.stride();
+    for (int x = 0; x < gray300.width(); ++x) {
+      if ((grayLine[x] < TEXT_GRAY) && !(maskLine[x >> 5] & (msb >> (x & 31)))) {
+        ++text;
+      }
+    }
+  }
+  return text / total;
+}
+
+void measureColorInPictures(const QImage& content,
+                            const QSize& size300,
+                            const BinaryImage& pictureMask,
+                            const double total,
+                            ColorModeDetector::Evidence& ev) {
+  if (content.allGray()) {
+    return;
+  }
+  const QImage color300
+      = content.scaled(size300, Qt::IgnoreAspectRatio, Qt::SmoothTransformation).convertToFormat(QImage::Format_RGB32);
+  long inPictures = 0;
+  long outside = 0;
+  const uint32_t* maskLine = pictureMask.data();
+  const int maskWpl = pictureMask.wordsPerLine();
+  const uint32_t msb = uint32_t(1) << 31;
+  for (int y = 0; y < color300.height(); ++y, maskLine += maskWpl) {
+    const auto* colorLine = reinterpret_cast<const QRgb*>(color300.constScanLine(y));
+    for (int x = 0; x < color300.width(); ++x) {
+      if (isColored(colorLine[x])) {
+        ++((maskLine[x >> 5] & (msb >> (x & 31))) ? inPictures : outside);
+      }
+    }
+  }
+  ev.colorInPictures = inPictures / total;
+  ev.colorOutside = outside / total;
+}
+
 // Sets the values of ev that belong to the picture areas.
 void measurePictures(const QImage& content, const TaskStatus& status, ColorModeDetector::Evidence& ev) {
   if (content.isNull() || content.size().isEmpty()) {
@@ -72,84 +167,10 @@ void measurePictures(const QImage& content, const TaskStatus& status, ColorModeD
   ev.pictureShare = pictureMask.countBlackPixels() / total;
 
   const ConnectivityMap cmap(pictureMask, CONN8);
-  std::vector<int> areas(cmap.maxLabel() + 1, 0);
-  const uint32_t* line = cmap.data();
-  for (int y = 0; y < cmap.size().height(); ++y, line += cmap.stride()) {
-    for (int x = 0; x < cmap.size().width(); ++x) {
-      ++areas[line[x]];
-    }
-  }
-  uint32_t largestLabel = 0;
-  for (size_t label = 1; label < areas.size(); ++label) {
-    if (areas[label] / total > ev.largestPicture) {
-      ev.largestPicture = areas[label] / total;
-      largestLabel = static_cast<uint32_t>(label);
-    }
-  }
-
-  // Brightness and its spread inside the largest picture area: pictures have dark parts and
-  // structure, while empty paper taken for a picture is light and even.
-  if (largestLabel != 0) {
-    double sum = 0;
-    double sumSq = 0;
-    long dark = 0;
-    long count = 0;
-    const uint32_t* labelLine = cmap.data();
-    for (int y = 0; y < gray300.height(); ++y, labelLine += cmap.stride()) {
-      const uint8_t* grayLine = gray300.data() + y * gray300.stride();
-      for (int x = 0; x < gray300.width(); ++x) {
-        if (labelLine[x] == largestLabel) {
-          const int v = grayLine[x];
-          sum += v;
-          sumSq += double(v) * v;
-          dark += (v < 128) ? 1 : 0;
-          ++count;
-        }
-      }
-    }
-    if (count > 0) {
-      ev.largestPictureMean = sum / count;
-      ev.largestPictureStdDev = std::sqrt(std::max(0.0, sumSq / count - ev.largestPictureMean * ev.largestPictureMean));
-      ev.largestPictureDark = double(dark) / count;
-    }
-  }
-
-  // Dark pixels outside the pictures: text such as captions.
-  {
-    long text = 0;
-    const uint32_t* maskLine = pictureMask.data();
-    const int maskWpl = pictureMask.wordsPerLine();
-    const uint32_t msb = uint32_t(1) << 31;
-    for (int y = 0; y < gray300.height(); ++y, maskLine += maskWpl) {
-      const uint8_t* grayLine = gray300.data() + y * gray300.stride();
-      for (int x = 0; x < gray300.width(); ++x) {
-        if ((grayLine[x] < TEXT_GRAY) && !(maskLine[x >> 5] & (msb >> (x & 31)))) {
-          ++text;
-        }
-      }
-    }
-    ev.textOutside = text / total;
-  }
-
-  if (!content.allGray()) {
-    const QImage color300 = content.scaled(size300, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
-                                .convertToFormat(QImage::Format_RGB32);
-    long inPictures = 0;
-    long outside = 0;
-    const uint32_t* maskLine = pictureMask.data();
-    const int maskWpl = pictureMask.wordsPerLine();
-    const uint32_t msb = uint32_t(1) << 31;
-    for (int y = 0; y < color300.height(); ++y, maskLine += maskWpl) {
-      const auto* colorLine = reinterpret_cast<const QRgb*>(color300.constScanLine(y));
-      for (int x = 0; x < color300.width(); ++x) {
-        if (isColored(colorLine[x])) {
-          ++((maskLine[x >> 5] & (msb >> (x & 31))) ? inPictures : outside);
-        }
-      }
-    }
-    ev.colorInPictures = inPictures / total;
-    ev.colorOutside = outside / total;
-  }
+  const uint32_t largestLabel = findLargestPictureLabel(cmap, total, ev.largestPicture);
+  measureLargestPictureTone(gray300, cmap, largestLabel, ev);
+  ev.textOutside = measureTextOutsidePictures(gray300, pictureMask, total);
+  measureColorInPictures(content, size300, pictureMask, total, ev);
   ev.picturesMeasured = true;
 }
 

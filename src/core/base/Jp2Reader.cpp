@@ -143,6 +143,49 @@ struct HeaderInfo {
   Dpm dpm;  // Null if not specified.
 };
 
+void parseImageHeaderBox(QIODevice& device, const Box& ihdrBox, QSize& size) {
+  unsigned char data[8];
+  if ((ihdrBox.dataEnd - ihdrBox.dataPos >= 8) && readAt(device, ihdrBox.dataPos, data, 8)) {
+    const uint32_t height = readBe32(data);
+    const uint32_t width = readBe32(data + 4);
+    if ((width > 0) && (height > 0) && (width <= INT_MAX) && (height <= INT_MAX)) {
+      size = QSize(static_cast<int>(width), static_cast<int>(height));
+    }
+  }
+}
+
+void parseResolutionBox(QIODevice& device, const Box& resSuperBox, Dpm& captureDpm, Dpm& displayDpm) {
+  Box resBox;
+  for (qint64 resPos = resSuperBox.dataPos; readBox(device, resPos, resSuperBox.dataEnd, resBox);
+       resPos = resBox.dataEnd) {
+    unsigned char data[10];
+    if ((resBox.dataEnd - resBox.dataPos < 10) || !readAt(device, resBox.dataPos, data, 10)) {
+      continue;
+    }
+    if (resBox.type == boxType("resc")) {
+      captureDpm = parseResolution(data);
+    } else if (resBox.type == boxType("resd")) {
+      displayDpm = parseResolution(data);
+    }
+  }
+}
+
+bool parseJp2hBox(QIODevice& device, const Box& jp2hBox, HeaderInfo& info) {
+  Dpm captureDpm;
+  Dpm displayDpm;
+  Box child;
+  for (qint64 childPos = jp2hBox.dataPos; readBox(device, childPos, jp2hBox.dataEnd, child); childPos = child.dataEnd) {
+    if (child.type == boxType("ihdr")) {
+      parseImageHeaderBox(device, child, info.size);
+    } else if (child.type == boxType("res ")) {
+      parseResolutionBox(device, child, captureDpm, displayDpm);
+    }
+  }
+  // The capture resolution is what a scanner writes.
+  info.dpm = !captureDpm.isNull() ? captureDpm : displayDpm;
+  return !info.size.isEmpty();
+}
+
 bool parseJp2Header(QIODevice& device, HeaderInfo& info) {
   const qint64 fileSize = device.size();
   Box box;
@@ -151,41 +194,9 @@ bool parseJp2Header(QIODevice& device, HeaderInfo& info) {
       // The header box has to come before the codestream.
       break;
     }
-    if (box.type != boxType("jp2h")) {
-      continue;
+    if (box.type == boxType("jp2h")) {
+      return parseJp2hBox(device, box, info);
     }
-
-    Dpm captureDpm;
-    Dpm displayDpm;
-    Box child;
-    for (qint64 childPos = box.dataPos; readBox(device, childPos, box.dataEnd, child); childPos = child.dataEnd) {
-      if (child.type == boxType("ihdr")) {
-        unsigned char data[8];
-        if ((child.dataEnd - child.dataPos >= 8) && readAt(device, child.dataPos, data, 8)) {
-          const uint32_t height = readBe32(data);
-          const uint32_t width = readBe32(data + 4);
-          if ((width > 0) && (height > 0) && (width <= INT_MAX) && (height <= INT_MAX)) {
-            info.size = QSize(static_cast<int>(width), static_cast<int>(height));
-          }
-        }
-      } else if (child.type == boxType("res ")) {
-        Box resBox;
-        for (qint64 resPos = child.dataPos; readBox(device, resPos, child.dataEnd, resBox); resPos = resBox.dataEnd) {
-          unsigned char data[10];
-          if ((resBox.dataEnd - resBox.dataPos < 10) || !readAt(device, resBox.dataPos, data, 10)) {
-            continue;
-          }
-          if (resBox.type == boxType("resc")) {
-            captureDpm = parseResolution(data);
-          } else if (resBox.type == boxType("resd")) {
-            displayDpm = parseResolution(data);
-          }
-        }
-      }
-    }
-    // The capture resolution is what a scanner writes.
-    info.dpm = !captureDpm.isNull() ? captureDpm : displayDpm;
-    return !info.size.isEmpty();
   }
   return false;
 }
@@ -471,19 +482,109 @@ int clampTo8Bit(const int v) {
   return std::min(std::max(v, 0), 255);
 }
 
-QImage toQImage(const opj_image_t& image) {
+enum class ColorModel { GRAY, RGB, YCC, CMYK };
+
+bool validateComponents(const opj_image_t& image) {
   const auto numComps = static_cast<int>(image.numcomps);
-  if (numComps < 1) {
-    return QImage();
-  }
   for (int i = 0; i < numComps; ++i) {
     const opj_image_comp_t& comp = image.comps[i];
     if (!comp.data || (comp.w == 0) || (comp.h == 0) || (comp.w > INT_MAX) || (comp.h > INT_MAX) || (comp.prec < 1)
         || (comp.prec > 31)) {
       ImageLoadErrorCapture::addError(
           QCoreApplication::translate("Jp2Reader", "The image contains a component that could not be decoded."));
-      return QImage();
+      return false;
     }
+  }
+  return true;
+}
+
+ColorModel detectColorModel(const opj_image_t& image, const int numComps) {
+  if ((numComps < 3) || (image.color_space == OPJ_CLRSPC_GRAY)) {
+    return ColorModel::GRAY;
+  }
+  if ((image.color_space == OPJ_CLRSPC_SYCC) || (image.color_space == OPJ_CLRSPC_EYCC)) {
+    return ColorModel::YCC;
+  }
+  if ((image.color_space == OPJ_CLRSPC_CMYK) && (numComps >= 4)) {
+    return ColorModel::CMYK;
+  }
+  return ColorModel::RGB;
+}
+
+int channelCountFor(const ColorModel model, const bool hasAlpha) {
+  if (model == ColorModel::GRAY) {
+    return 1;
+  }
+  return ((model == ColorModel::CMYK) || hasAlpha) ? 4 : 3;
+}
+
+QImage::Format qImageFormatFor(const ColorModel model, const bool hasAlpha) {
+  if (model == ColorModel::GRAY) {
+    return QImage::Format_Indexed8;
+  }
+  return hasAlpha ? QImage::Format_ARGB32 : QImage::Format_RGB32;
+}
+
+QImage createGrayQImage(const Channel& grayChannel, const int outWidth, const int outHeight) {
+  QImage result(outWidth, outHeight, QImage::Format_Indexed8);
+  if (result.isNull()) {
+    throw std::bad_alloc();
+  }
+  result.setColorCount(256);
+  for (int i = 0; i < 256; ++i) {
+    result.setColor(i, qRgb(i, i, i));
+  }
+  for (int y = 0; y < outHeight; ++y) {
+    const OPJ_INT32* src = grayChannel.row(y);
+    uint8_t* dst = result.scanLine(y);
+    for (int x = 0; x < outWidth; ++x) {
+      dst[x] = static_cast<uint8_t>(grayChannel.value(src, x));
+    }
+  }
+  return result;
+}
+
+void fillColorScanline(const ColorModel model,
+                       const bool hasAlpha,
+                       const std::vector<Channel>& channels,
+                       const std::vector<const OPJ_INT32*>& rows,
+                       const int outWidth,
+                       QRgb* dst) {
+  for (int x = 0; x < outWidth; ++x) {
+    const int v0 = channels[0].value(rows[0], x);
+    const int v1 = channels[1].value(rows[1], x);
+    const int v2 = channels[2].value(rows[2], x);
+    switch (model) {
+      case ColorModel::YCC: {
+        // ITU-R BT.601 (JFIF) YCbCr to RGB, in 16.16 fixed point.
+        const int cb = v1 - 128;
+        const int cr = v2 - 128;
+        const int r = v0 + ((91881 * cr + 32768) >> 16);
+        const int g = v0 - ((22554 * cb + 46802 * cr + 32768) >> 16);
+        const int b = v0 + ((116130 * cb + 32768) >> 16);
+        dst[x] = qRgb(clampTo8Bit(r), clampTo8Bit(g), clampTo8Bit(b));
+        break;
+      }
+      case ColorModel::CMYK: {
+        const int k = 255 - channels[3].value(rows[3], x);
+        dst[x] = qRgb((255 - v0) * k / 255, (255 - v1) * k / 255, (255 - v2) * k / 255);
+        break;
+      }
+      default:
+        if (hasAlpha) {
+          dst[x] = qRgba(v0, v1, v2, channels[3].value(rows[3], x));
+        } else {
+          dst[x] = qRgb(v0, v1, v2);
+        }
+        break;
+    }
+  }
+}
+
+QImage toQImage(const opj_image_t& image) {
+  const auto numComps = static_cast<int>(image.numcomps);
+  if ((numComps < 1) || !validateComponents(image)) {
+    return QImage();
   }
 
   const opj_image_comp_t& first = image.comps[0];
@@ -495,48 +596,23 @@ QImage toQImage(const opj_image_t& image) {
   const auto outWidth = static_cast<int>(outWidth64);
   const auto outHeight = static_cast<int>(outHeight64);
 
-  enum ColorModel { GRAY, RGB, YCC, CMYK };
-  ColorModel model = RGB;
-  if ((numComps < 3) || (image.color_space == OPJ_CLRSPC_GRAY)) {
-    model = GRAY;
-  } else if ((image.color_space == OPJ_CLRSPC_SYCC) || (image.color_space == OPJ_CLRSPC_EYCC)) {
-    model = YCC;
-  } else if ((image.color_space == OPJ_CLRSPC_CMYK) && (numComps >= 4)) {
-    model = CMYK;
-  }
-  const bool hasAlpha = (model == RGB) && (numComps >= 4) && (image.comps[3].alpha != 0);
+  const ColorModel model = detectColorModel(image, numComps);
+  const bool hasAlpha = (model == ColorModel::RGB) && (numComps >= 4) && (image.comps[3].alpha != 0);
+  const int numChannels = channelCountFor(model, hasAlpha);
 
   std::vector<Channel> channels;
-  const int numChannels = (model == GRAY) ? 1 : ((model == CMYK) || hasAlpha) ? 4 : 3;
   channels.reserve(numChannels);
   for (int i = 0; i < numChannels; ++i) {
     channels.emplace_back(image.comps[i], outWidth, outHeight);
   }
 
-  QImage::Format format = QImage::Format_RGB32;
-  if (model == GRAY) {
-    format = QImage::Format_Indexed8;
-  } else if (hasAlpha) {
-    format = QImage::Format_ARGB32;
-  }
-  QImage result(outWidth, outHeight, format);
-  if (result.isNull()) {
-    throw std::bad_alloc();
+  if (model == ColorModel::GRAY) {
+    return createGrayQImage(channels[0], outWidth, outHeight);
   }
 
-  if (model == GRAY) {
-    result.setColorCount(256);
-    for (int i = 0; i < 256; ++i) {
-      result.setColor(i, qRgb(i, i, i));
-    }
-    for (int y = 0; y < outHeight; ++y) {
-      const OPJ_INT32* src = channels[0].row(y);
-      uint8_t* dst = result.scanLine(y);
-      for (int x = 0; x < outWidth; ++x) {
-        dst[x] = static_cast<uint8_t>(channels[0].value(src, x));
-      }
-    }
-    return result;
+  QImage result(outWidth, outHeight, qImageFormatFor(model, hasAlpha));
+  if (result.isNull()) {
+    throw std::bad_alloc();
   }
 
   std::vector<const OPJ_INT32*> rows(numChannels);
@@ -544,36 +620,7 @@ QImage toQImage(const opj_image_t& image) {
     for (int c = 0; c < numChannels; ++c) {
       rows[c] = channels[c].row(y);
     }
-    auto* dst = reinterpret_cast<QRgb*>(result.scanLine(y));
-    for (int x = 0; x < outWidth; ++x) {
-      const int v0 = channels[0].value(rows[0], x);
-      const int v1 = channels[1].value(rows[1], x);
-      const int v2 = channels[2].value(rows[2], x);
-      switch (model) {
-        case YCC: {
-          // ITU-R BT.601 (JFIF) YCbCr to RGB, in 16.16 fixed point.
-          const int cb = v1 - 128;
-          const int cr = v2 - 128;
-          const int r = v0 + ((91881 * cr + 32768) >> 16);
-          const int g = v0 - ((22554 * cb + 46802 * cr + 32768) >> 16);
-          const int b = v0 + ((116130 * cb + 32768) >> 16);
-          dst[x] = qRgb(clampTo8Bit(r), clampTo8Bit(g), clampTo8Bit(b));
-          break;
-        }
-        case CMYK: {
-          const int k = 255 - channels[3].value(rows[3], x);
-          dst[x] = qRgb((255 - v0) * k / 255, (255 - v1) * k / 255, (255 - v2) * k / 255);
-          break;
-        }
-        default:
-          if (hasAlpha) {
-            dst[x] = qRgba(v0, v1, v2, channels[3].value(rows[3], x));
-          } else {
-            dst[x] = qRgb(v0, v1, v2);
-          }
-          break;
-      }
-    }
+    fillColorScanline(model, hasAlpha, channels, rows, outWidth, reinterpret_cast<QRgb*>(result.scanLine(y)));
   }
   return result;
 }  // toQImage
@@ -642,8 +689,70 @@ bool hasSubsampledComponents(const opj_image_t& image) {
   return false;
 }
 
+bool hasValidImageBounds(const opj_image_t& image) {
+  const auto maxCoord = static_cast<OPJ_UINT32>(INT32_MAX);
+  return (image.x0 < image.x1) && (image.y0 < image.y1) && (image.x1 <= maxCoord) && (image.y1 <= maxCoord);
+}
+
+bool hasChannelAlpha(const opj_image_t& image, const OPJ_UINT32 numComps) {
+  for (OPJ_UINT32 i = 0; i < numComps; ++i) {
+    if (image.comps[i].alpha) {
+      return true;
+    }
+  }
+  return false;
+}
+
+struct StripImageMeta {
+  OPJ_UINT32 x0;
+  OPJ_UINT32 y0;
+  OPJ_UINT32 x1;
+  OPJ_UINT32 y1;
+  OPJ_UINT32 numComps;
+};
+
+bool decodeNextStrip(opj_codec_t* codec,
+                     opj_stream_t* stream,
+                     opj_image_t* image,
+                     const StripImageMeta& meta,
+                     const OPJ_UINT32 stripY0,
+                     const OPJ_UINT32 stripY1,
+                     QImage& result) {
+  if (!opj_set_decode_area(codec, image, static_cast<OPJ_INT32>(meta.x0), static_cast<OPJ_INT32>(stripY0),
+                           static_cast<OPJ_INT32>(meta.x1), static_cast<OPJ_INT32>(stripY1))
+      || !opj_decode(codec, stream, image)) {
+    return false;
+  }
+  // Palettes or channel definitions reorder/expand components unpredictably across strips.
+  if ((image->numcomps != meta.numComps) || hasChannelAlpha(*image, meta.numComps)) {
+    return false;
+  }
+
+  const QImage strip = toQImage(*image);
+  if (strip.isNull()) {
+    return false;
+  }
+  if (result.isNull()) {
+    result = QImage(static_cast<int>(meta.x1 - meta.x0), static_cast<int>(meta.y1 - meta.y0), strip.format());
+    if (result.isNull()) {
+      throw std::bad_alloc();
+    }
+    result.setColorTable(strip.colorTable());
+  }
+  if ((strip.format() != result.format()) || (strip.width() != result.width())
+      || (strip.height() != static_cast<int>(stripY1 - stripY0))) {
+    return false;
+  }
+
+  const auto bytesToCopy = static_cast<size_t>(std::min(strip.bytesPerLine(), result.bytesPerLine()));
+  for (int y = 0; y < strip.height(); ++y) {
+    std::memcpy(result.scanLine(static_cast<int>(stripY0 - meta.y0) + y), strip.constScanLine(y), bytesToCopy);
+  }
+  return true;
+}
+
 /**
- * \brief Decodes a single-tiled image strip by strip.
+ * \brief Decodes a single-tiled image strip by strip into the final QImage.
  *
  * OpenJPEG (2.3+) allows repeated opj_set_decode_area() / opj_decode() calls
  * for single-tiled images, allocating memory for the requested area only.
@@ -654,58 +763,20 @@ bool hasSubsampledComponents(const opj_image_t& image) {
  */
 QImage decodeInStrips(opj_codec_t* codec, opj_stream_t* stream, opj_image_t* image, bool& fallbackNeeded) {
   fallbackNeeded = true;
-
-  const OPJ_UINT32 x0 = image->x0;
-  const OPJ_UINT32 y0 = image->y0;
-  const OPJ_UINT32 x1 = image->x1;
-  const OPJ_UINT32 y1 = image->y1;
-  if ((x0 >= x1) || (y0 >= y1) || (x1 > static_cast<OPJ_UINT32>(INT32_MAX))
-      || (y1 > static_cast<OPJ_UINT32>(INT32_MAX))) {
+  if (!hasValidImageBounds(*image)) {
     return QImage();
   }
-  const OPJ_UINT32 numComps = image->numcomps;
-  const uint64_t bytesPerRow = static_cast<uint64_t>(x1 - x0) * numComps * sizeof(OPJ_INT32);
+
+  const StripImageMeta meta{image->x0, image->y0, image->x1, image->y1, image->numcomps};
+  const uint64_t bytesPerRow = static_cast<uint64_t>(meta.x1 - meta.x0) * meta.numComps * sizeof(OPJ_INT32);
   const auto rowsPerStrip = static_cast<OPJ_UINT32>(
       std::max<uint64_t>(g_minStripRows.load(), g_stripBytes.load() / std::max<uint64_t>(bytesPerRow, 1)));
 
   QImage result;
-  for (OPJ_UINT32 stripY0 = y0; stripY0 < y1;) {
-    const OPJ_UINT32 stripY1 = (y1 - stripY0 > rowsPerStrip) ? stripY0 + rowsPerStrip : y1;
-    if (!opj_set_decode_area(codec, image, static_cast<OPJ_INT32>(x0), static_cast<OPJ_INT32>(stripY0),
-                             static_cast<OPJ_INT32>(x1), static_cast<OPJ_INT32>(stripY1))
-        || !opj_decode(codec, stream, image)) {
+  for (OPJ_UINT32 stripY0 = meta.y0; stripY0 < meta.y1;) {
+    const OPJ_UINT32 stripY1 = (meta.y1 - stripY0 > rowsPerStrip) ? stripY0 + rowsPerStrip : meta.y1;
+    if (!decodeNextStrip(codec, stream, image, meta, stripY0, stripY1, result)) {
       return QImage();
-    }
-    if (image->numcomps != numComps) {
-      // A palette was expanded into several components.
-      return QImage();
-    }
-    for (OPJ_UINT32 i = 0; i < numComps; ++i) {
-      if (image->comps[i].alpha) {
-        // Channel definitions may reorder the components.
-        return QImage();
-      }
-    }
-
-    const QImage strip = toQImage(*image);
-    if (strip.isNull()) {
-      return QImage();
-    }
-    if (result.isNull()) {
-      result = QImage(static_cast<int>(x1 - x0), static_cast<int>(y1 - y0), strip.format());
-      if (result.isNull()) {
-        throw std::bad_alloc();
-      }
-      result.setColorTable(strip.colorTable());
-    }
-    if ((strip.format() != result.format()) || (strip.width() != result.width())
-        || (strip.height() != static_cast<int>(stripY1 - stripY0))) {
-      return QImage();
-    }
-
-    const auto bytesToCopy = static_cast<size_t>(std::min(strip.bytesPerLine(), result.bytesPerLine()));
-    for (int y = 0; y < strip.height(); ++y) {
-      std::memcpy(result.scanLine(static_cast<int>(stripY0 - y0) + y), strip.constScanLine(y), bytesToCopy);
     }
     ++g_decodedStrips;
     stripY0 = stripY1;
@@ -717,6 +788,26 @@ QImage decodeInStrips(opj_codec_t* codec, opj_stream_t* stream, opj_image_t* ima
   fallbackNeeded = false;
   return result;
 }  // decodeInStrips
+
+int applyThumbnailReduceFactor(opj_codec_t* codec,
+                               const opj_image_t& image,
+                               const int64_t fullWidth,
+                               const int64_t fullHeight,
+                               const QSize& minSize) {
+  if (!minSize.isValid() || minSize.isEmpty()) {
+    return 0;
+  }
+  int reduce = 0;
+  const int maxReduce = maxReduceFactor(codec, static_cast<int>(image.numcomps));
+  while ((reduce < maxReduce) && (((fullWidth + (int64_t(1) << (reduce + 1)) - 1) >> (reduce + 1)) >= minSize.width())
+         && (((fullHeight + (int64_t(1) << (reduce + 1)) - 1) >> (reduce + 1)) >= minSize.height())) {
+    ++reduce;
+  }
+  if ((reduce > 0) && !opj_set_decoded_resolution_factor(codec, static_cast<OPJ_UINT32>(reduce))) {
+    return 0;
+  }
+  return reduce;
+}
 
 /**
  * \param allowStrips Whether huge images may be decoded in strips.
@@ -778,8 +869,7 @@ QImage decode(QIODevice& device,
   // The size of the codestream, not that of the JP2 header, as OpenJPEG allocates by this one.
   // Components with subsampling are scaled up to it by toQImage(). Checked again here for the
   // codestreams codestreamExceedsLimits() couldn't read.
-  if ((image->x0 >= image->x1) || (image->y0 >= image->y1) || (image->x1 > static_cast<OPJ_UINT32>(INT32_MAX))
-      || (image->y1 > static_cast<OPJ_UINT32>(INT32_MAX))) {
+  if (!hasValidImageBounds(*image)) {
     ImageLoadErrorCapture::addError(
         QCoreApplication::translate("Jp2Reader", "The JPEG 2000 file header is damaged or incomplete."));
     return QImage();
@@ -791,16 +881,7 @@ QImage decode(QIODevice& device,
     return QImage();
   }
 
-  if (minSize.isValid() && !minSize.isEmpty()) {
-    const int maxReduce = maxReduceFactor(codec.get(), static_cast<int>(image->numcomps));
-    while ((reduce < maxReduce) && (((fullWidth + (int64_t(1) << (reduce + 1)) - 1) >> (reduce + 1)) >= minSize.width())
-           && (((fullHeight + (int64_t(1) << (reduce + 1)) - 1) >> (reduce + 1)) >= minSize.height())) {
-      ++reduce;
-    }
-    if ((reduce > 0) && !opj_set_decoded_resolution_factor(codec.get(), static_cast<OPJ_UINT32>(reduce))) {
-      reduce = 0;
-    }
-  }
+  reduce = applyThumbnailReduceFactor(codec.get(), *image, fullWidth, fullHeight, minSize);
 
   if (allowStrips && (reduce == 0)) {
     const std::optional<uint64_t> decodeBytes = fullDecodeBytes(*image);
@@ -809,8 +890,7 @@ QImage decode(QIODevice& device,
     }
     if ((*decodeBytes > g_stripDecodingThreshold.load()) && !hasSubsampledComponents(*image)
         && isSingleTile(codec.get())) {
-      QImage result = decodeInStrips(codec.get(), stream.get(), image.get(), stripsFailed);
-      return result;
+      return decodeInStrips(codec.get(), stream.get(), image.get(), stripsFailed);
     }
   }
 

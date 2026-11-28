@@ -195,91 +195,86 @@ void TiffWriter::setPredictor(const TiffHandle& tif, const int compression) {
   }
 }
 
+static uint16_t selectBitonalOrIndexed8Photometric(const QImage& image, const bool isMono) {
+  if (!isMono) {
+    return image.isGrayscale() ? PHOTOMETRIC_MINISBLACK : PHOTOMETRIC_PALETTE;
+  }
+  if (image.colorCount() < 2) {
+    // Without a color table Qt treats bit 0 as black and bit 1 as white (MINISBLACK).
+    return PHOTOMETRIC_MINISBLACK;
+  }
+  // Some programs don't understand
+  // palettized binary images, so don't
+  // use a palette for black and white images.
+  const uint32_t c0 = image.color(0);
+  const uint32_t c1 = image.color(1);
+  if ((c0 == 0xffffffff) && (c1 == 0xff000000)) {
+    return PHOTOMETRIC_MINISWHITE;
+  }
+  if ((c0 == 0xff000000) && (c1 == 0xffffffff)) {
+    return PHOTOMETRIC_MINISBLACK;
+  }
+  return image.isGrayscale() ? PHOTOMETRIC_MINISBLACK : PHOTOMETRIC_PALETTE;
+}
+
+static void writePaletteColorMap(TIFF* tif, const QImage& image, const int bitsPerSample) {
+  const int numColors = 1 << bitsPerSample;
+  QVector<QRgb> colorTable(image.colorTable());
+  if (colorTable.size() > numColors) {
+    colorTable.resize(numColors);
+  }
+  std::vector<uint16_t> pr(numColors, 0);
+  std::vector<uint16_t> pg(numColors, 0);
+  std::vector<uint16_t> pb(numColors, 0);
+  for (int i = 0; i < colorTable.size(); ++i) {
+    const QRgb rgb = colorTable[i];
+    pr[i] = static_cast<unsigned short>((0xFFFF * qRed(rgb) + 128) / 255);
+    pg[i] = static_cast<unsigned short>((0xFFFF * qGreen(rgb) + 128) / 255);
+    pb[i] = static_cast<unsigned short>((0xFFFF * qBlue(rgb) + 128) / 255);
+  }
+  TIFFSetField(tif, TIFFTAG_COLORMAP, &pr[0], &pg[0], &pb[0]);
+}
+
 bool TiffWriter::writeBitonalOrIndexed8Image(const TiffHandle& tif,
                                              const QImage& image,
                                              const Compression& compression) {
   TIFFSetField(tif.handle(), TIFFTAG_SAMPLESPERPIXEL, uint16_t(1));
 
-  uint16_t bitsPerSample = 8;
-  uint16_t photometric = PHOTOMETRIC_PALETTE;
-  if (image.isGrayscale()) {
-    photometric = PHOTOMETRIC_MINISBLACK;
-  }
+  const bool isMono = (image.format() == QImage::Format_Mono) || (image.format() == QImage::Format_MonoLSB);
+  uint16_t bitsPerSample = isMono ? 1 : 8;
+  const uint16_t photometric = selectBitonalOrIndexed8Photometric(image, isMono);
 
-  switch (image.format()) {
-    case QImage::Format_Mono:
-    case QImage::Format_MonoLSB:
-      bitsPerSample = 1;
-      if (image.colorCount() < 2) {
-        // Without a color table Qt treats bit 0 as black and bit 1 as white (MINISBLACK).
-        photometric = PHOTOMETRIC_MINISBLACK;
-      } else {
-        // Some programs don't understand
-        // palettized binary images, so don't
-        // use a palette for black and white images.
-        const uint32_t c0 = image.color(0);
-        const uint32_t c1 = image.color(1);
-        if ((c0 == 0xffffffff) && (c1 == 0xff000000)) {
-          photometric = PHOTOMETRIC_MINISWHITE;
-        } else if ((c0 == 0xff000000) && (c1 == 0xffffffff)) {
-          photometric = PHOTOMETRIC_MINISBLACK;
-        }
-      }
-      break;
-    default:;
-  }
-
-  if (image.format() == QImage::Format_Indexed8) {
-    if (photometric == PHOTOMETRIC_PALETTE) {
-      // Palette images, such as posterized ones, have their own setting.
-      int method = compression.palette;
-      if (method == COMPRESSION_JPEG) {
-        // JPEG can't store them.
-        method = COMPRESSION_LZW;
-      }
-      setCompression(tif, method, compression.jpegQuality);
-      // Up to 16 colors fit into 4 bits, which every TIFF reader understands.
-      if (maxColorIndex(image) < 16) {
-        bitsPerSample = 4;
-      }
-    } else {
-      setCompression(tif, compression.color, compression.jpegQuality);
-      setPredictor(tif, compression.color);
+  if (isMono) {
+    setCompression(tif, compression.bw, compression.jpegQuality);
+  } else if (photometric == PHOTOMETRIC_PALETTE) {
+    // Palette images, such as posterized ones, have their own setting.
+    int method = compression.palette;
+    if (method == COMPRESSION_JPEG) {
+      // JPEG can't store them.
+      method = COMPRESSION_LZW;
+    }
+    setCompression(tif, method, compression.jpegQuality);
+    // Up to 16 colors fit into 4 bits, which every TIFF reader understands.
+    if (maxColorIndex(image) < 16) {
+      bitsPerSample = 4;
     }
   } else {
-    setCompression(tif, compression.bw, compression.jpegQuality);
+    setCompression(tif, compression.color, compression.jpegQuality);
+    setPredictor(tif, compression.color);
   }
 
   TIFFSetField(tif.handle(), TIFFTAG_BITSPERSAMPLE, bitsPerSample);
   TIFFSetField(tif.handle(), TIFFTAG_PHOTOMETRIC, photometric);
 
   if (photometric == PHOTOMETRIC_PALETTE) {
-    const int numColors = 1 << bitsPerSample;
-    QVector<QRgb> colorTable(image.colorTable());
-    if (colorTable.size() > numColors) {
-      colorTable.resize(numColors);
-    }
-    std::vector<uint16_t> pr(numColors, 0);
-    std::vector<uint16_t> pg(numColors, 0);
-    std::vector<uint16_t> pb(numColors, 0);
-    for (int i = 0; i < colorTable.size(); ++i) {
-      const QRgb rgb = colorTable[i];
-      pr[i] = static_cast<unsigned short>((0xFFFF * qRed(rgb) + 128) / 255);
-      pg[i] = static_cast<unsigned short>((0xFFFF * qGreen(rgb) + 128) / 255);
-      pb[i] = static_cast<unsigned short>((0xFFFF * qBlue(rgb) + 128) / 255);
-    }
-    TIFFSetField(tif.handle(), TIFFTAG_COLORMAP, &pr[0], &pg[0], &pb[0]);
+    writePaletteColorMap(tif.handle(), image, bitsPerSample);
   }
 
   if (image.format() == QImage::Format_Indexed8) {
     return (bitsPerSample == 4) ? write4bitLines(tif, image) : write8bitLines(tif, image);
-  } else {
-    if (image.format() == QImage::Format_MonoLSB) {
-      return writeBinaryLinesReversed(tif, image);
-    } else {
-      return writeBinaryLinesAsIs(tif, image);
-    }
   }
+  return (image.format() == QImage::Format_MonoLSB) ? writeBinaryLinesReversed(tif, image)
+                                                    : writeBinaryLinesAsIs(tif, image);
 }  // TiffWriter::writeBitonalOrIndexed8Image
 
 bool TiffWriter::writeRGB32Image(const TiffHandle& tif, const QImage& image, const Compression& compression) {

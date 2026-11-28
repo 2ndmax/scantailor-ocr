@@ -217,6 +217,142 @@ bool rgbaImageHasAlpha(TIFF* tif) {
   return hasAlpha;
 }
 
+size_t checkedBandBytes(const uint64_t rows, const uint64_t rowBytes64) {
+  const uint64_t bytes = rows * rowBytes64;
+  if ((rowBytes64 != 0) && ((bytes / rowBytes64 != rows) || (bytes > std::numeric_limits<size_t>::max() / 2))) {
+    throw std::bad_alloc();
+  }
+  return static_cast<size_t>(bytes);
+}
+
+// REVIEW-NOTE (2026-10): p >= numPlanes -> planes[p] and planeRows[p] are out of bounds
+// (cppcheck objectIndex). Not fixed because both vectors are created with numPlanes entries
+// and the loop stops at numPlanes.
+template <typename RowFunc>
+void emitBandRows(const uint32_t y0,
+                  const uint32_t rows,
+                  const int numPlanes,
+                  const size_t rowBytes,
+                  const std::vector<std::vector<uint8_t>>& planes,
+                  std::vector<const uint8_t*>& planeRows,
+                  RowFunc& rowFunc) {
+  for (uint32_t r = 0; r < rows; ++r) {
+    for (int p = 0; p < numPlanes; ++p) {
+      planeRows[p] = planes[p].data() + r * rowBytes;
+    }
+    rowFunc(static_cast<int>(y0 + r), planeRows.data());
+  }
+}
+
+bool readTiledBand(TIFF* tif,
+                   const uint32_t y0,
+                   const uint32_t rows,
+                   const uint32_t width,
+                   const uint32_t tileWidth,
+                   const uint64_t tileRowBytes,
+                   const uint64_t rowBytes64,
+                   const int numPlanes,
+                   const int bitsPerPixel,
+                   std::vector<uint8_t>& tile,
+                   std::vector<std::vector<uint8_t>>& planes) {
+  const auto rowBytes = static_cast<size_t>(rowBytes64);
+  for (int p = 0; p < numPlanes; ++p) {
+    for (uint32_t x0 = 0; x0 < width; x0 += tileWidth) {
+      if (TIFFReadTile(tif, tile.data(), x0, y0, 0, static_cast<uint16_t>(p)) < 0) {
+        return false;
+      }
+      // Tile widths are multiples of 16, so a tile always starts at a byte boundary.
+      const uint64_t offset = static_cast<uint64_t>(x0) * bitsPerPixel / 8;
+      if (offset >= rowBytes64) {
+        break;
+      }
+      const auto numBytes = static_cast<size_t>(std::min<uint64_t>(tileRowBytes, rowBytes64 - offset));
+      for (uint32_t r = 0; r < rows; ++r) {
+        std::memcpy(planes[p].data() + r * rowBytes + offset, tile.data() + r * tileRowBytes, numBytes);
+      }
+    }
+  }
+  return true;
+}
+
+template <typename RowFunc>
+bool readTiledRasterRows(TIFF* tif,
+                         const int width,
+                         const int height,
+                         const int numPlanes,
+                         const int bitsPerPixel,
+                         const uint64_t rowBytes64,
+                         std::vector<std::vector<uint8_t>>& planes,
+                         std::vector<const uint8_t*>& planeRows,
+                         RowFunc& rowFunc) {
+  uint32_t tileWidth = 0;
+  uint32_t tileHeight = 0;
+  TIFFGetField(tif, TIFFTAG_TILEWIDTH, &tileWidth);
+  TIFFGetField(tif, TIFFTAG_TILELENGTH, &tileHeight);
+  const tmsize_t tileSize = TIFFTileSize(tif);
+  const uint64_t tileRowBytes = TIFFTileRowSize64(tif);
+  if ((tileWidth == 0) || (tileHeight == 0) || (tileSize <= 0) || (tileRowBytes == 0)
+      || (static_cast<uint64_t>(tileSize) < tileRowBytes * std::min<uint64_t>(tileHeight, height))) {
+    ImageLoadErrorCapture::addError(QCoreApplication::translate("TiffReader", "Invalid tile layout."));
+    return false;
+  }
+  const uint32_t bandRows = std::min<uint32_t>(tileHeight, static_cast<uint32_t>(height));
+
+  std::vector<uint8_t> tile(static_cast<size_t>(tileSize));
+  for (auto& plane : planes) {
+    plane.resize(checkedBandBytes(bandRows, rowBytes64));
+  }
+
+  const auto rowBytes = static_cast<size_t>(rowBytes64);
+  for (uint32_t y0 = 0; y0 < static_cast<uint32_t>(height); y0 += tileHeight) {
+    const uint32_t rows = std::min<uint32_t>(tileHeight, static_cast<uint32_t>(height) - y0);
+    if (!readTiledBand(tif, y0, rows, static_cast<uint32_t>(width), tileWidth, tileRowBytes, rowBytes64, numPlanes,
+                       bitsPerPixel, tile, planes)) {
+      return false;
+    }
+    emitBandRows(y0, rows, numPlanes, rowBytes, planes, planeRows, rowFunc);
+  }
+  return true;
+}
+
+template <typename RowFunc>
+bool readStripedRasterRows(TIFF* tif,
+                           const int height,
+                           const int numPlanes,
+                           const uint64_t rowBytes64,
+                           std::vector<std::vector<uint8_t>>& planes,
+                           std::vector<const uint8_t*>& planeRows,
+                           RowFunc& rowFunc) {
+  uint32_t rowsPerStrip = 0;
+  TIFFGetFieldDefaulted(tif, TIFFTAG_ROWSPERSTRIP, &rowsPerStrip);
+  if ((rowsPerStrip == 0) || (rowsPerStrip > static_cast<uint32_t>(height))) {
+    rowsPerStrip = static_cast<uint32_t>(height);
+  }
+
+  for (auto& plane : planes) {
+    plane.resize(checkedBandBytes(rowsPerStrip, rowBytes64));
+  }
+
+  const auto rowBytes = static_cast<size_t>(rowBytes64);
+  for (uint32_t y0 = 0; y0 < static_cast<uint32_t>(height); y0 += rowsPerStrip) {
+    const uint32_t rows = std::min<uint32_t>(rowsPerStrip, static_cast<uint32_t>(height) - y0);
+    const tmsize_t expected = static_cast<tmsize_t>(checkedBandBytes(rows, rowBytes64));
+    for (int p = 0; p < numPlanes; ++p) {
+      const uint32_t strip = TIFFComputeStrip(tif, y0, static_cast<uint16_t>(p));
+      const tmsize_t numRead = TIFFReadEncodedStrip(tif, strip, planes[p].data(), expected);
+      if (numRead < 0) {
+        return false;
+      }
+      if (numRead < expected) {
+        // A short strip. Don't expose whatever was left in the buffer.
+        std::memset(planes[p].data() + numRead, 0, static_cast<size_t>(expected - numRead));
+      }
+    }
+    emitBandRows(y0, rows, numPlanes, rowBytes, planes, planeRows, rowFunc);
+  }
+  return true;
+}
+
 /**
  * \brief Decodes the image row by row, regardless of whether it's stored
  *        in strips or in tiles.
@@ -248,100 +384,13 @@ bool readRasterRows(TIFF* tif,
     ImageLoadErrorCapture::addError(QCoreApplication::translate("TiffReader", "Inconsistent image layout."));
     return false;
   }
-  const auto rowBytes = static_cast<size_t>(rowBytes64);
 
   std::vector<std::vector<uint8_t>> planes(numPlanes);
   std::vector<const uint8_t*> planeRows(numPlanes);
-
-  auto bandBytes = [&](const uint64_t rows) -> size_t {
-    const uint64_t bytes = rows * rowBytes64;
-    if ((rowBytes64 != 0) && ((bytes / rowBytes64 != rows) || (bytes > std::numeric_limits<size_t>::max() / 2))) {
-      throw std::bad_alloc();
-    }
-    return static_cast<size_t>(bytes);
-  };
-
   if (TIFFIsTiled(tif)) {
-    uint32_t tileWidth = 0;
-    uint32_t tileHeight = 0;
-    TIFFGetField(tif, TIFFTAG_TILEWIDTH, &tileWidth);
-    TIFFGetField(tif, TIFFTAG_TILELENGTH, &tileHeight);
-    const tmsize_t tileSize = TIFFTileSize(tif);
-    const uint64_t tileRowBytes = TIFFTileRowSize64(tif);
-    if ((tileWidth == 0) || (tileHeight == 0) || (tileSize <= 0) || (tileRowBytes == 0)
-        || (static_cast<uint64_t>(tileSize) < tileRowBytes * std::min<uint64_t>(tileHeight, height))) {
-      ImageLoadErrorCapture::addError(QCoreApplication::translate("TiffReader", "Invalid tile layout."));
-      return false;
-    }
-    const uint32_t bandRows = std::min<uint32_t>(tileHeight, static_cast<uint32_t>(height));
-
-    std::vector<uint8_t> tile(static_cast<size_t>(tileSize));
-    for (auto& plane : planes) {
-      plane.resize(bandBytes(bandRows));
-    }
-
-    for (uint32_t y0 = 0; y0 < static_cast<uint32_t>(height); y0 += tileHeight) {
-      const uint32_t rows = std::min<uint32_t>(tileHeight, static_cast<uint32_t>(height) - y0);
-      for (int p = 0; p < numPlanes; ++p) {
-        for (uint32_t x0 = 0; x0 < static_cast<uint32_t>(width); x0 += tileWidth) {
-          if (TIFFReadTile(tif, tile.data(), x0, y0, 0, static_cast<uint16_t>(p)) < 0) {
-            return false;
-          }
-          // Tile widths are multiples of 16, so a tile always starts at a byte boundary.
-          const uint64_t offset = static_cast<uint64_t>(x0) * bitsPerPixel / 8;
-          if (offset >= rowBytes64) {
-            break;
-          }
-          const auto numBytes = static_cast<size_t>(std::min<uint64_t>(tileRowBytes, rowBytes64 - offset));
-          for (uint32_t r = 0; r < rows; ++r) {
-            std::memcpy(planes[p].data() + r * rowBytes + offset, tile.data() + r * tileRowBytes, numBytes);
-          }
-        }
-      }
-      // REVIEW-NOTE (2026-10): p >= numPlanes -> planes[p] and planeRows[p] are out of bounds
-      // (cppcheck objectIndex, here and in the strip loop below). Not fixed because both vectors
-      // are created with numPlanes entries and the loop stops at numPlanes.
-      for (uint32_t r = 0; r < rows; ++r) {
-        for (int p = 0; p < numPlanes; ++p) {
-          planeRows[p] = planes[p].data() + r * rowBytes;
-        }
-        rowFunc(static_cast<int>(y0 + r), planeRows.data());
-      }
-    }
-  } else {
-    uint32_t rowsPerStrip = 0;
-    TIFFGetFieldDefaulted(tif, TIFFTAG_ROWSPERSTRIP, &rowsPerStrip);
-    if ((rowsPerStrip == 0) || (rowsPerStrip > static_cast<uint32_t>(height))) {
-      rowsPerStrip = static_cast<uint32_t>(height);
-    }
-
-    for (auto& plane : planes) {
-      plane.resize(bandBytes(rowsPerStrip));
-    }
-
-    for (uint32_t y0 = 0; y0 < static_cast<uint32_t>(height); y0 += rowsPerStrip) {
-      const uint32_t rows = std::min<uint32_t>(rowsPerStrip, static_cast<uint32_t>(height) - y0);
-      const tmsize_t expected = static_cast<tmsize_t>(bandBytes(rows));
-      for (int p = 0; p < numPlanes; ++p) {
-        const uint32_t strip = TIFFComputeStrip(tif, y0, static_cast<uint16_t>(p));
-        const tmsize_t numRead = TIFFReadEncodedStrip(tif, strip, planes[p].data(), expected);
-        if (numRead < 0) {
-          return false;
-        }
-        if (numRead < expected) {
-          // A short strip. Don't expose whatever was left in the buffer.
-          std::memset(planes[p].data() + numRead, 0, static_cast<size_t>(expected - numRead));
-        }
-      }
-      for (uint32_t r = 0; r < rows; ++r) {
-        for (int p = 0; p < numPlanes; ++p) {
-          planeRows[p] = planes[p].data() + r * rowBytes;
-        }
-        rowFunc(static_cast<int>(y0 + r), planeRows.data());
-      }
-    }
+    return readTiledRasterRows(tif, width, height, numPlanes, bitsPerPixel, rowBytes64, planes, planeRows, rowFunc);
   }
-  return true;
+  return readStripedRasterRows(tif, height, numPlanes, rowBytes64, planes, planeRows, rowFunc);
 }  // readRasterRows
 
 using SampleReader = double (*)(const uint8_t* row, size_t index);
@@ -416,6 +465,225 @@ SampleReader sampleReaderFor(const uint16_t sampleFormat, const uint16_t bitsPer
       break;
   }
   return nullptr;
+}
+
+bool applyPaletteColorMap(TIFF* tif, const int numColors, QImage& image) {
+  uint16_t* pr = nullptr;
+  uint16_t* pg = nullptr;
+  uint16_t* pb = nullptr;
+  TIFFGetField(tif, TIFFTAG_COLORMAP, &pr, &pg, &pb);
+  if (!pr || !pg || !pb) {
+    ImageLoadErrorCapture::addError(
+        QCoreApplication::translate("TiffReader", "The color palette of the image is missing."));
+    return false;
+  }
+  // Note: libtiff delivers the colormap already converted to the host
+  // byte order, so no byte swapping must be done here.
+
+  // Some writers store 8-bit instead of 16-bit palette entries. Detect
+  // that the same way libtiff's RGBA interface does.
+  bool eightBitPalette = true;
+  for (int i = 0; i < numColors; ++i) {
+    if ((pr[i] >= 256) || (pg[i] >= 256) || (pb[i] >= 256)) {
+      eightBitPalette = false;
+      break;
+    }
+  }
+
+  const double f = eightBitPalette ? 1.0 : 255.0 / 65535.0;
+  for (int i = 0; i < numColors; ++i) {
+    const auto r = (uint32_t) std::lround(pr[i] * f);
+    const auto g = (uint32_t) std::lround(pg[i] * f);
+    const auto b = (uint32_t) std::lround(pb[i] * f);
+    const uint32_t a = 0xFF000000;
+    image.setColor(i, a | (r << 16) | (g << 8) | b);
+  }
+  return true;
+}
+
+bool applyBinaryOrIndexed8ColorTable(TIFF* tif, const uint16_t photometric, const int numColors, QImage& image) {
+  if (photometric == PHOTOMETRIC_PALETTE) {
+    return applyPaletteColorMap(tif, numColors, image);
+  }
+  if (photometric == PHOTOMETRIC_MINISBLACK) {
+    const double f = 255.0 / (numColors - 1);
+    for (int i = 0; i < numColors; ++i) {
+      const auto gray = (int) std::lround(i * f);
+      image.setColor(i, qRgb(gray, gray, gray));
+    }
+    return true;
+  }
+  if (photometric == PHOTOMETRIC_MINISWHITE) {
+    const double f = 255.0 / (numColors - 1);
+    int c = numColors - 1;
+    for (int i = 0; i < numColors; ++i, --c) {
+      const auto gray = (int) std::lround(c * f);
+      image.setColor(i, qRgb(gray, gray, gray));
+    }
+    return true;
+  }
+  return false;
+}
+
+void unpackBinaryOrIndexed8Row(const uint8_t* src,
+                               uint8_t* dst,
+                               const int width,
+                               const int bitsPerSample,
+                               const unsigned dstMask) {
+  if (bitsPerSample == 1) {
+    std::memcpy(dst, src, static_cast<size_t>((width + 7) / 8));
+    return;
+  }
+  if (bitsPerSample == 8) {
+    std::memcpy(dst, src, static_cast<size_t>(width));
+    return;
+  }
+  unsigned accum = 0;
+  int bitsInAccum = 0;
+  for (int i = width; i > 0; --i, ++dst) {
+    while (bitsInAccum < bitsPerSample) {
+      accum <<= 8;
+      accum |= *src;
+      bitsInAccum += 8;
+      ++src;
+    }
+    bitsInAccum -= bitsPerSample;
+    *dst = static_cast<uint8_t>((accum >> bitsInAccum) & dstMask);
+  }
+}
+
+struct NumericLayout {
+  SampleReader readSample;
+  bool separate;
+  int pixelStride;
+  int channels;
+
+  double sampleAt(const uint8_t* const* planeRows, const int x, const int c) const {
+    if (separate) {
+      return readSample(planeRows[c], static_cast<size_t>(x));
+    }
+    return readSample(planeRows[0], static_cast<size_t>(x) * pixelStride + c);
+  }
+};
+
+struct NumericScaler {
+  double lo;
+  double hi;
+  double halfLo;
+  double span;
+  bool useHalf;
+  bool invert;
+
+  static NumericScaler create(const double lo, const double hi, const bool invert) {
+    // If hi - lo overflows double (e.g. float64 spanning [-1e308, +1e308]), work in halves
+    // to avoid +inf / NaN in (v - lo) * scale.
+    const double fullSpan = hi - lo;
+    const bool useHalf = !std::isfinite(fullSpan);
+    const double halfLo = lo * 0.5;
+    const double span = useHalf ? (hi * 0.5 - halfLo) : fullSpan;
+    return {lo, hi, halfLo, span, useHalf, invert};
+  }
+
+  int to8Bit(double v) const {
+    if (std::isnan(v)) {
+      v = lo;
+    }
+    v = std::min(std::max(v, lo), hi);
+    const double offset = useHalf ? (v * 0.5 - halfLo) : (v - lo);
+    const double t = (span > 0.0) ? (offset / span) : 0.0;
+    const int level = std::clamp(static_cast<int>(std::lround(t * 255.0)), 0, 255);
+    return invert ? 255 - level : level;
+  }
+};
+
+bool scanNumericMinMax(TIFF* tif,
+                       const int width,
+                       const int height,
+                       const int numPlanes,
+                       const int bitsPerPixel,
+                       const NumericLayout& layout,
+                       double& minValue,
+                       double& maxValue) {
+  minValue = std::numeric_limits<double>::infinity();
+  maxValue = -std::numeric_limits<double>::infinity();
+  return readRasterRows(tif, width, height, numPlanes, bitsPerPixel, [&](int, const uint8_t* const* rows) {
+    for (int x = 0; x < width; ++x) {
+      for (int c = 0; c < layout.channels; ++c) {
+        const double v = layout.sampleAt(rows, x, c);
+        if (std::isfinite(v)) {
+          minValue = std::min(minValue, v);
+          maxValue = std::max(maxValue, v);
+        }
+      }
+    }
+  });
+}
+
+bool determineNumericRange(TIFF* tif,
+                           const int width,
+                           const int height,
+                           const int numPlanes,
+                           const int bitsPerPixel,
+                           const uint16_t sampleFormat,
+                           const NumericLayout& layout,
+                           double& lo,
+                           double& hi) {
+  double sMin = 0.0;
+  double sMax = 0.0;
+  bool haveRange = false;
+  if (TIFFGetField(tif, TIFFTAG_SMINSAMPLEVALUE, &sMin) && TIFFGetField(tif, TIFFTAG_SMAXSAMPLEVALUE, &sMax)
+      && std::isfinite(sMin) && std::isfinite(sMax) && (sMax > sMin)) {
+    lo = sMin;
+    hi = sMax;
+    haveRange = true;
+  }
+
+  if (!haveRange) {
+    // No usable hints in the file, so we have to look at the data.
+    double minValue = 0.0;
+    double maxValue = 0.0;
+    if (!scanNumericMinMax(tif, width, height, numPlanes, bitsPerPixel, layout, minValue, maxValue)) {
+      return false;
+    }
+    if (!(minValue <= maxValue)) {
+      // Not a single finite value.
+      minValue = 0.0;
+      maxValue = 1.0;
+    }
+    if ((sampleFormat == SAMPLEFORMAT_IEEEFP) && (minValue >= 0.0) && (maxValue <= 1.0)) {
+      // The usual convention for floating point images.
+      lo = 0.0;
+      hi = 1.0;
+    } else {
+      lo = minValue;
+      hi = maxValue;
+    }
+  }
+  if (!(hi > lo)) {
+    hi = lo + 1.0;
+  }
+  return true;
+}
+
+void writeNumericRow(const int y,
+                     const uint8_t* const* rows,
+                     const NumericLayout& layout,
+                     const NumericScaler& scaler,
+                     const int width,
+                     const bool rgb,
+                     QImage& image) {
+  if (rgb) {
+    auto* dst = reinterpret_cast<QRgb*>(image.scanLine(y));
+    for (int x = 0; x < width; ++x) {
+      dst[x] = qRgb(scaler.to8Bit(layout.sampleAt(rows, x, 0)), scaler.to8Bit(layout.sampleAt(rows, x, 1)),
+                    scaler.to8Bit(layout.sampleAt(rows, x, 2)));
+    }
+  } else {
+    uint8_t* dst = image.scanLine(y);
+    for (int x = 0; x < width; ++x) {
+      dst[x] = static_cast<uint8_t>(scaler.to8Bit(layout.sampleAt(rows, x, 0)));
+    }
+  }
 }
 }  // namespace
 
@@ -704,52 +972,7 @@ QImage TiffReader::extractBinaryOrIndexed8Image(const TiffHandle& tif, const Tif
 
   const int numColors = 1 << info.bitsPerSample;
   image.setColorCount(numColors);
-
-  if (info.photometric == PHOTOMETRIC_PALETTE) {
-    uint16_t* pr = nullptr;
-    uint16_t* pg = nullptr;
-    uint16_t* pb = nullptr;
-    TIFFGetField(tif.handle(), TIFFTAG_COLORMAP, &pr, &pg, &pb);
-    if (!pr || !pg || !pb) {
-      ImageLoadErrorCapture::addError(
-          QCoreApplication::translate("TiffReader", "The color palette of the image is missing."));
-      return QImage();
-    }
-    // Note: libtiff delivers the colormap already converted to the host
-    // byte order, so no byte swapping must be done here.
-
-    // Some writers store 8-bit instead of 16-bit palette entries. Detect
-    // that the same way libtiff's RGBA interface does.
-    bool eightBitPalette = true;
-    for (int i = 0; i < numColors; ++i) {
-      if ((pr[i] >= 256) || (pg[i] >= 256) || (pb[i] >= 256)) {
-        eightBitPalette = false;
-        break;
-      }
-    }
-
-    const double f = eightBitPalette ? 1.0 : 255.0 / 65535.0;
-    for (int i = 0; i < numColors; ++i) {
-      const auto r = (uint32_t) std::lround(pr[i] * f);
-      const auto g = (uint32_t) std::lround(pg[i] * f);
-      const auto b = (uint32_t) std::lround(pb[i] * f);
-      const uint32_t a = 0xFF000000;
-      image.setColor(i, a | (r << 16) | (g << 8) | b);
-    }
-  } else if (info.photometric == PHOTOMETRIC_MINISBLACK) {
-    const double f = 255.0 / (numColors - 1);
-    for (int i = 0; i < numColors; ++i) {
-      const auto gray = (int) std::lround(i * f);
-      image.setColor(i, qRgb(gray, gray, gray));
-    }
-  } else if (info.photometric == PHOTOMETRIC_MINISWHITE) {
-    const double f = 255.0 / (numColors - 1);
-    int c = numColors - 1;
-    for (int i = 0; i < numColors; ++i, --c) {
-      const auto gray = (int) std::lround(c * f);
-      image.setColor(i, qRgb(gray, gray, gray));
-    }
-  } else {
+  if (!applyBinaryOrIndexed8ColorTable(tif.handle(), info.photometric, numColors, image)) {
     return QImage();
   }
 
@@ -757,30 +980,10 @@ QImage TiffReader::extractBinaryOrIndexed8Image(const TiffHandle& tif, const Tif
   const int bitsPerSample = info.bitsPerSample;
   const unsigned dstMask = (1u << bitsPerSample) - 1;
 
-  const bool ok = readRasterRows(tif.handle(), width, info.height, 1, bitsPerSample,
-                                 [&](const int y, const uint8_t* const* planeRows) {
-                                   const uint8_t* src = planeRows[0];
-                                   uint8_t* dst = image.scanLine(y);
-
-                                   if (bitsPerSample == 1) {
-                                     std::memcpy(dst, src, static_cast<size_t>((width + 7) / 8));
-                                   } else if (bitsPerSample == 8) {
-                                     std::memcpy(dst, src, static_cast<size_t>(width));
-                                   } else {
-                                     unsigned accum = 0;
-                                     int bitsInAccum = 0;
-                                     for (int i = width; i > 0; --i, ++dst) {
-                                       while (bitsInAccum < bitsPerSample) {
-                                         accum <<= 8;
-                                         accum |= *src;
-                                         bitsInAccum += 8;
-                                         ++src;
-                                       }
-                                       bitsInAccum -= bitsPerSample;
-                                       *dst = static_cast<uint8_t>((accum >> bitsInAccum) & dstMask);
-                                     }
-                                   }
-                                 });
+  const bool ok = readRasterRows(
+      tif.handle(), width, info.height, 1, bitsPerSample, [&](const int y, const uint8_t* const* planeRows) {
+        unpackBinaryOrIndexed8Row(planeRows[0], image.scanLine(y), width, bitsPerSample, dstMask);
+      });
 
   if (!ok) {
     // QImage doesn't zero its buffer, so a partially read image would
@@ -808,84 +1011,16 @@ QImage TiffReader::extractNumericImage(const TiffHandle& tif, const TiffInfo& in
   const int bitsPerPixel = info.bitsPerSample * pixelStride;
   const int width = info.width;
   const int height = info.height;
-
-  auto sampleAt = [&](const uint8_t* const* planeRows, const int x, const int c) -> double {
-    if (separate) {
-      return readSample(planeRows[c], static_cast<size_t>(x));
-    }
-    return readSample(planeRows[0], static_cast<size_t>(x) * pixelStride + c);
-  };
+  const NumericLayout layout{readSample, separate, pixelStride, channels};
 
   // Figure out the range of values to map onto 0..255.
   double lo = 0.0;
   double hi = 0.0;
-  bool haveRange = false;
-
-  double sMin = 0.0;
-  double sMax = 0.0;
-  if (TIFFGetField(tif.handle(), TIFFTAG_SMINSAMPLEVALUE, &sMin)
-      && TIFFGetField(tif.handle(), TIFFTAG_SMAXSAMPLEVALUE, &sMax) && std::isfinite(sMin) && std::isfinite(sMax)
-      && (sMax > sMin)) {
-    lo = sMin;
-    hi = sMax;
-    haveRange = true;
+  if (!determineNumericRange(tif.handle(), width, height, numPlanes, bitsPerPixel, info.sampleFormat, layout, lo, hi)) {
+    return QImage();
   }
 
-  if (!haveRange) {
-    // No usable hints in the file, so we have to look at the data.
-    double minValue = std::numeric_limits<double>::infinity();
-    double maxValue = -std::numeric_limits<double>::infinity();
-    const bool ok
-        = readRasterRows(tif.handle(), width, height, numPlanes, bitsPerPixel, [&](int, const uint8_t* const* rows) {
-            for (int x = 0; x < width; ++x) {
-              for (int c = 0; c < channels; ++c) {
-                const double v = sampleAt(rows, x, c);
-                if (std::isfinite(v)) {
-                  minValue = std::min(minValue, v);
-                  maxValue = std::max(maxValue, v);
-                }
-              }
-            }
-          });
-    if (!ok) {
-      return QImage();
-    }
-
-    if (!(minValue <= maxValue)) {
-      // Not a single finite value.
-      minValue = 0.0;
-      maxValue = 1.0;
-    }
-    if ((info.sampleFormat == SAMPLEFORMAT_IEEEFP) && (minValue >= 0.0) && (maxValue <= 1.0)) {
-      // The usual convention for floating point images.
-      lo = 0.0;
-      hi = 1.0;
-    } else {
-      lo = minValue;
-      hi = maxValue;
-    }
-  }
-  if (!(hi > lo)) {
-    hi = lo + 1.0;
-  }
-
-  // If hi - lo overflows double (e.g. float64 spanning [-1e308, +1e308]), work in halves
-  // to avoid +inf / NaN in (v - lo) * scale.
-  const double fullSpan = hi - lo;
-  const bool useHalf = !std::isfinite(fullSpan);
-  const double halfLo = lo * 0.5;
-  const double span = useHalf ? (hi * 0.5 - halfLo) : fullSpan;
-  const bool invert = info.photometric == PHOTOMETRIC_MINISWHITE;
-  auto to8Bit = [&](double v) -> int {
-    if (std::isnan(v)) {
-      v = lo;
-    }
-    v = std::min(std::max(v, lo), hi);
-    const double offset = useHalf ? (v * 0.5 - halfLo) : (v - lo);
-    const double t = (span > 0.0) ? (offset / span) : 0.0;
-    const int level = std::clamp(static_cast<int>(std::lround(t * 255.0)), 0, 255);
-    return invert ? 255 - level : level;
-  };
+  const NumericScaler scaler = NumericScaler::create(lo, hi, info.photometric == PHOTOMETRIC_MINISWHITE);
 
   QImage image(width, height, rgb ? QImage::Format_RGB32 : QImage::Format_Indexed8);
   if (image.isNull()) {
@@ -899,19 +1034,8 @@ QImage TiffReader::extractNumericImage(const TiffHandle& tif, const TiffInfo& in
   }
 
   const bool ok = readRasterRows(
-      tif.handle(), width, height, numPlanes, bitsPerPixel, [&](const int y, const uint8_t* const* rows) {
-        if (rgb) {
-          auto* dst = reinterpret_cast<QRgb*>(image.scanLine(y));
-          for (int x = 0; x < width; ++x) {
-            dst[x] = qRgb(to8Bit(sampleAt(rows, x, 0)), to8Bit(sampleAt(rows, x, 1)), to8Bit(sampleAt(rows, x, 2)));
-          }
-        } else {
-          uint8_t* dst = image.scanLine(y);
-          for (int x = 0; x < width; ++x) {
-            dst[x] = static_cast<uint8_t>(to8Bit(sampleAt(rows, x, 0)));
-          }
-        }
-      });
+      tif.handle(), width, height, numPlanes, bitsPerPixel,
+      [&](const int y, const uint8_t* const* rows) { writeNumericRow(y, rows, layout, scaler, width, rgb, image); });
   if (!ok) {
     return QImage();
   }

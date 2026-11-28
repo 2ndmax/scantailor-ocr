@@ -140,6 +140,119 @@ static void morphologicalPreprocessingInPlace(GrayImage& image, DebugImages* dbg
   }
 }  // morphologicalPreprocessingInPlace
 
+static void maskOutliersAlongColumns(const GrayImage& background, BinaryImage& mask, std::vector<uint8_t>& line) {
+  const int width = background.width();
+  const int height = background.height();
+  const uint8_t* const bgData = background.data();
+  const int bgStride = background.stride();
+  uint32_t* const maskData = mask.data();
+  const int maskStride = mask.wordsPerLine();
+  const uint32_t msb = uint32_t(1) << 31;
+
+  // Smooth every horizontal line with a polynomial,
+  // then mask pixels that became significantly lighter.
+  for (int x = 0; x < width; ++x) {
+    const uint32_t clearBit = ~(msb >> (x & 31));
+
+    const int degree = 2;
+    PolynomialLine pl(degree, bgData + x, height, bgStride);
+    pl.output(&line[0], height, 1);
+
+    const uint8_t* pBg = bgData + x;
+    uint32_t* pMask = maskData + (x >> 5);
+    for (int y = 0; y < height; ++y) {
+      if (*pBg + 30 < line[y]) {
+        *pMask &= clearBit;
+      }
+      pBg += bgStride;
+      pMask += maskStride;
+    }
+  }
+}
+
+static void maskOutliersAlongRows(const GrayImage& background, BinaryImage& mask, std::vector<uint8_t>& line) {
+  const int width = background.width();
+  const int height = background.height();
+  const int bgStride = background.stride();
+  const int maskStride = mask.wordsPerLine();
+  const uint32_t msb = uint32_t(1) << 31;
+
+  // Smooth every vertical line with a polynomial,
+  // then mask pixels that became significantly lighter.
+  const uint8_t* bgLine = background.data();
+  uint32_t* maskLine = mask.data();
+  for (int y = 0; y < height; ++y) {
+    const int degree = 4;
+    PolynomialLine pl(degree, bgLine, width, 1);
+    pl.output(&line[0], width, 1);
+
+    for (int x = 0; x < width; ++x) {
+      if (bgLine[x] + 30 < line[x]) {
+        maskLine[x >> 5] &= ~(msb >> (x & 31));
+      }
+    }
+
+    bgLine += bgStride;
+    maskLine += maskStride;
+  }
+}
+
+static void clearSparseHorizontalLines(BinaryImage& mask) {
+  const int width = mask.width();
+  const int height = mask.height();
+  const int maskStride = mask.wordsPerLine();
+  // Check each horizontal line. If it's mostly
+  // white (ignored), then make it completely white.
+  const int lastWordIdx = (width - 1) >> 5;
+  // The last word holds width - 32 * lastWordIdx pixels, in its upper bits.
+  const uint32_t lastWordMask = ~uint32_t(0) << (32 - width + (lastWordIdx << 5));
+  uint32_t* maskLine = mask.data();
+  for (int y = 0; y < height; ++y, maskLine += maskStride) {
+    int blackCount = 0;
+    int i = 0;
+
+    // Complete words.
+    for (; i < lastWordIdx; ++i) {
+      blackCount += countNonZeroBits(maskLine[i]);
+    }
+
+    // The last (possible incomplete) word.
+    blackCount += countNonZeroBits(maskLine[i] & lastWordMask);
+
+    if (blackCount < width / 4) {
+      memset(maskLine, 0, (lastWordIdx + 1) * sizeof(*maskLine));
+    }
+  }
+}
+
+static void clearSparseVerticalLines(BinaryImage& mask) {
+  const int width = mask.width();
+  const int height = mask.height();
+  uint32_t* const maskData = mask.data();
+  const int maskStride = mask.wordsPerLine();
+  const uint32_t msb = uint32_t(1) << 31;
+
+  // Check each vertical line. If it's mostly
+  // white (ignored), then make it completely white.
+  for (int x = 0; x < width; ++x) {
+    const uint32_t bit = msb >> (x & 31);
+    uint32_t* pMask = maskData + (x >> 5);
+    int blackCount = 0;
+    for (int y = 0; y < height; ++y) {
+      if (*pMask & bit) {
+        ++blackCount;
+      }
+      pMask += maskStride;
+    }
+    if (blackCount < height / 4) {
+      for (int y = height - 1; y >= 0; --y) {
+        pMask -= maskStride;
+        *pMask &= ~bit;
+      }
+    }
+  }
+}
+
 imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
                                                 const QPolygonF& areaToConsider,
                                                 const TaskStatus& status,
@@ -165,12 +278,6 @@ imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
 
   status.throwIfCancelled();
 
-  const int width = background.width();
-  const int height = background.height();
-
-  const uint8_t* const bgData = background.data();
-  const int bgStride = background.stride();
-
   BinaryImage mask(background.size(), BLACK);
 
   if (!areaToConsider.isEmpty()) {
@@ -183,53 +290,13 @@ imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
     dbg->add(mask, "areaToConsider");
   }
 
-  uint32_t* maskData = mask.data();
-  int maskStride = mask.wordsPerLine();
-
-  std::vector<uint8_t> line(std::max(width, height), 0);
-  const uint32_t msb = uint32_t(1) << 31;
+  std::vector<uint8_t> line(std::max(background.width(), background.height()), 0);
 
   status.throwIfCancelled();
-
-  // Smooth every horizontal line with a polynomial,
-  // then mask pixels that became significantly lighter.
-  for (int x = 0; x < width; ++x) {
-    const uint32_t clearBit = ~(msb >> (x & 31));
-
-    const int degree = 2;
-    PolynomialLine pl(degree, bgData + x, height, bgStride);
-    pl.output(&line[0], height, 1);
-
-    const uint8_t* pBg = bgData + x;
-    uint32_t* pMask = maskData + (x >> 5);
-    for (int y = 0; y < height; ++y) {
-      if (*pBg + 30 < line[y]) {
-        *pMask &= clearBit;
-      }
-      pBg += bgStride;
-      pMask += maskStride;
-    }
-  }
+  maskOutliersAlongColumns(background, mask, line);
 
   status.throwIfCancelled();
-  // Smooth every vertical line with a polynomial,
-  // then mask pixels that became significantly lighter.
-  const uint8_t* bgLine = bgData;
-  uint32_t* maskLine = maskData;
-  for (int y = 0; y < height; ++y) {
-    const int degree = 4;
-    PolynomialLine pl(degree, bgLine, width, 1);
-    pl.output(&line[0], width, 1);
-
-    for (int x = 0; x < width; ++x) {
-      if (bgLine[x] + 30 < line[x]) {
-        maskLine[x >> 5] &= ~(msb >> (x & 31));
-      }
-    }
-
-    bgLine += bgStride;
-    maskLine += maskStride;
-  }
+  maskOutliersAlongRows(background, mask, line);
 
   if (dbg) {
     dbg->add(mask, "mask");
@@ -243,53 +310,10 @@ imageproc::PolynomialSurface estimateBackground(const GrayImage& input,
   }
 
   status.throwIfCancelled();
-
-  // Update those because mask was overwritten.
-  maskData = mask.data();
-  maskStride = mask.wordsPerLine();
-  // Check each horizontal line. If it's mostly
-  // white (ignored), then make it completely white.
-  const int lastWordIdx = (width - 1) >> 5;
-  // The last word holds width - 32 * lastWordIdx pixels, in its upper bits.
-  const uint32_t lastWordMask = ~uint32_t(0) << (32 - width + (lastWordIdx << 5));
-  maskLine = maskData;
-  for (int y = 0; y < height; ++y, maskLine += maskStride) {
-    int blackCount = 0;
-    int i = 0;
-
-    // Complete words.
-    for (; i < lastWordIdx; ++i) {
-      blackCount += countNonZeroBits(maskLine[i]);
-    }
-
-    // The last (possible incomplete) word.
-    blackCount += countNonZeroBits(maskLine[i] & lastWordMask);
-
-    if (blackCount < width / 4) {
-      memset(maskLine, 0, (lastWordIdx + 1) * sizeof(*maskLine));
-    }
-  }
+  clearSparseHorizontalLines(mask);
 
   status.throwIfCancelled();
-  // Check each vertical line. If it's mostly
-  // white (ignored), then make it completely white.
-  for (int x = 0; x < width; ++x) {
-    const uint32_t bit = msb >> (x & 31);
-    uint32_t* pMask = maskData + (x >> 5);
-    int blackCount = 0;
-    for (int y = 0; y < height; ++y) {
-      if (*pMask & bit) {
-        ++blackCount;
-      }
-      pMask += maskStride;
-    }
-    if (blackCount < height / 4) {
-      for (int y = height - 1; y >= 0; --y) {
-        pMask -= maskStride;
-        *pMask &= ~bit;
-      }
-    }
-  }
+  clearSparseVerticalLines(mask);
 
   if (dbg) {
     dbg->add(mask, "lines_extended");

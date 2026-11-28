@@ -267,6 +267,16 @@ class Despeckler {
 
   void findNeighbours();
 
+  void recordVoronoiGap(const NearestSeedMap::Cell& cell,
+                        const NearestSeedMap::Cell& other,
+                        int dx,
+                        int dy,
+                        std::unordered_map<uint64_t, uint32_t>& gaps) const;
+
+  std::unordered_map<uint64_t, uint32_t> collectVoronoiGaps() const;
+
+  void buildAdjacencyList(const std::unordered_map<uint64_t, uint32_t>& gaps);
+
   // The line of text a letter stands on: its baseline and x-height. xHeight == 0: unknown.
   struct TextLine {
     int baseline = 0;
@@ -389,49 +399,54 @@ void Despeckler::sortOutBigAndTiny() {
   }
 }
 
-// Neighbours are components whose Voronoi regions touch. The gap between them is the smallest
-// distance between the seeds (nearest component pixels) of two touching cells of their regions.
-void Despeckler::findNeighbours() {
+void Despeckler::recordVoronoiGap(const NearestSeedMap::Cell& cell,
+                                  const NearestSeedMap::Cell& other,
+                                  const int dx,
+                                  const int dy,
+                                  std::unordered_map<uint64_t, uint32_t>& gaps) const {
+  if ((cell.label == other.label) || (cell.label == 0) || (other.label == 0)) {
+    return;
+  }
+  const bool bothKept
+      = (m_components[cell.label].state == Component::KEPT) && (m_components[other.label].state == Component::KEPT);
+  if (bothKept) {
+    return;
+  }
+  const int64_t seedDx = int64_t(cell.dx) - (dx + other.dx);
+  const int64_t seedDy = int64_t(cell.dy) - (dy + other.dy);
+  const auto gapSq
+      = uint32_t(std::min<int64_t>(seedDx * seedDx + seedDy * seedDy, std::numeric_limits<uint32_t>::max()));
+  const uint64_t key = (uint64_t(std::min(cell.label, other.label)) << 32) | std::max(cell.label, other.label);
+  const auto [it, inserted] = gaps.emplace(key, gapSq);
+  if (!inserted && (gapSq < it->second)) {
+    it->second = gapSq;
+  }
+}
+
+std::unordered_map<uint64_t, uint32_t> Despeckler::collectVoronoiGaps() const {
   std::unordered_map<uint64_t, uint32_t> gaps;  // (lesser label, greater label) -> squared gap
-  {
-    const NearestSeedMap seeds(m_cmap, [](uint32_t) { return true; });
-    if (m_dbg) {
-      m_dbg->add(seeds.visualized(), "voronoi");
-    }
-    const int width = seeds.width();
-    const int height = seeds.height();
-    for (int y = 0; y < height; ++y) {
-      for (int x = 0; x < width; ++x) {
-        const NearestSeedMap::Cell& cell = seeds.at(x, y);
-        // The right and the lower neighbour; the other two see this cell as theirs.
-        const std::array<std::pair<int, int>, 2> offsets{{{1, 0}, {0, 1}}};
-        for (const auto& [dx, dy] : offsets) {
-          if ((x + dx >= width) || (y + dy >= height)) {
-            continue;
-          }
-          const NearestSeedMap::Cell& other = seeds.at(x + dx, y + dy);
-          if ((cell.label == other.label) || (cell.label == 0) || (other.label == 0)) {
-            continue;
-          }
-          const bool bothKept = (m_components[cell.label].state == Component::KEPT)
-                                && (m_components[other.label].state == Component::KEPT);
-          if (bothKept) {
-            continue;
-          }
-          const int64_t seedDx = int64_t(cell.dx) - (dx + other.dx);
-          const int64_t seedDy = int64_t(cell.dy) - (dy + other.dy);
-          const auto gapSq
-              = uint32_t(std::min<int64_t>(seedDx * seedDx + seedDy * seedDy, std::numeric_limits<uint32_t>::max()));
-          const uint64_t key = (uint64_t(std::min(cell.label, other.label)) << 32) | std::max(cell.label, other.label);
-          const auto [it, inserted] = gaps.emplace(key, gapSq);
-          if (!inserted && (gapSq < it->second)) {
-            it->second = gapSq;
-          }
+  const NearestSeedMap seeds(m_cmap, [](uint32_t) { return true; });
+  if (m_dbg) {
+    m_dbg->add(seeds.visualized(), "voronoi");
+  }
+  const int width = seeds.width();
+  const int height = seeds.height();
+  const std::array<std::pair<int, int>, 2> offsets{{{1, 0}, {0, 1}}};
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const NearestSeedMap::Cell& cell = seeds.at(x, y);
+      // The right and the lower neighbour; the other two see this cell as theirs.
+      for (const auto& [dx, dy] : offsets) {
+        if ((x + dx < width) && (y + dy < height)) {
+          recordVoronoiGap(cell, seeds.at(x + dx, y + dy), dx, dy, gaps);
         }
       }
     }
   }
+  return gaps;
+}
 
+void Despeckler::buildAdjacencyList(const std::unordered_map<uint64_t, uint32_t>& gaps) {
   // Into adjacency lists, both directions.
   m_firstEdge.assign(m_components.size() + 1, 0);
   for (const auto& [key, gapSq] : gaps) {
@@ -452,6 +467,12 @@ void Despeckler::findNeighbours() {
     m_edges[next[a]++] = {b, gapSq};
     m_edges[next[b]++] = {a, gapSq};
   }
+}
+
+// Neighbours are components whose Voronoi regions touch. The gap between them is the smallest
+// distance between the seeds (nearest component pixels) of two touching cells of their regions.
+void Despeckler::findNeighbours() {
+  buildAdjacencyList(collectVoronoiGaps());
 }
 
 // A big component outside the text and on no line of text, such as a clump of dirt at the edge of

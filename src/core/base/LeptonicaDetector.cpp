@@ -92,19 +92,107 @@ float normalizedEntropy(const std::array<int, 16>& histogram, const int total) {
   return entropy / 4.0f;
 }
 
-/**
- * Measure overlapping 20%-page tiles on a 10%-page stride. The 4% inset
- * suppresses scanner margins and binding gutters explicitly, while tiles
- * still reach every content edge. Candidate tiles are joined in the 9x9
- * overlap graph so classification can use coverage and topology rather than
- * one position-sensitive cell.
- */
-void collectConnectedToneEvidence(PIX* gray, LeptonicaDetector::DetectionEvidence* evidence) {
+void measureTilePixels(l_uint32* data,
+                       const int wpl,
+                       const LeptonicaDetector::ToneTileEvidence& tile,
+                       std::array<int, 16>& histogram,
+                       int& total,
+                       int& broadMidtones,
+                       int& edges,
+                       int& edgeHaloMidtones) {
+  const int sampleStep = 2;
+  for (int y = tile.y + 1; y < tile.y + tile.height - 1; y += sampleStep) {
+    l_uint32* line = data + y * wpl;
+    l_uint32* nextLine = data + (y + 1) * wpl;
+    for (int x = tile.x + 1; x < tile.x + tile.width - 1; x += sampleStep) {
+      const int value = GET_DATA_BYTE(line, x);
+      const int gradient = std::abs(value - GET_DATA_BYTE(line, x + 1)) + std::abs(value - GET_DATA_BYTE(nextLine, x));
+      ++histogram[std::min(15, value / 16)];
+      ++total;
+      if (value > 40 && value < 216) {
+        ++broadMidtones;
+        if (gradient > 55)
+          ++edgeHaloMidtones;
+      }
+      if (gradient > 70)
+        ++edges;
+    }
+  }
+}
+
+int sample8x8BlockAverage(l_uint32* data, const int wpl, const int bx, const int by) {
+  const int blurStep = 8;
+  int sum = 0;
+  for (int yy = 0; yy < blurStep; yy += 2) {
+    l_uint32* line = data + (by + yy) * wpl;
+    for (int xx = 0; xx < blurStep; xx += 2) {
+      sum += GET_DATA_BYTE(line, bx + xx);
+    }
+  }
+  return sum / 16;
+}
+
+void measureTileBlurBlocks(l_uint32* data,
+                           const int wpl,
+                           const LeptonicaDetector::ToneTileEvidence& tile,
+                           std::array<int, 16>& blurredHistogram,
+                           double& blockSum,
+                           double& blockSumSquares,
+                           int& blockCount) {
+  const int blurStep = 8;
+  for (int by = tile.y; by + blurStep <= tile.y + tile.height; by += blurStep) {
+    for (int bx = tile.x; bx + blurStep <= tile.x + tile.width; bx += blurStep) {
+      const int average = sample8x8BlockAverage(data, wpl, bx, by);
+      ++blurredHistogram[std::min(15, average / 16)];
+      blockSum += average;
+      blockSumSquares += average * average;
+      ++blockCount;
+    }
+  }
+}
+
+void evaluateToneTile(l_uint32* data, const int wpl, LeptonicaDetector::ToneTileEvidence& tile) {
+  std::array<int, 16> histogram{};
+  std::array<int, 16> blurredHistogram{};
+  int total = 0;
+  int broadMidtones = 0;
+  int edges = 0;
+  int edgeHaloMidtones = 0;
+  measureTilePixels(data, wpl, tile, histogram, total, broadMidtones, edges, edgeHaloMidtones);
+
+  double blockSum = 0.0;
+  double blockSumSquares = 0.0;
+  int blockCount = 0;
+  measureTileBlurBlocks(data, wpl, tile, blurredHistogram, blockSum, blockSumSquares, blockCount);
+
+  tile.broadMidtoneRatio = total ? static_cast<float>(broadMidtones) / total : 0.0f;
+  tile.histogramEntropy = normalizedEntropy(histogram, total);
+  tile.blurredEntropy = normalizedEntropy(blurredHistogram, blockCount);
+  tile.edgeDensity = total ? static_cast<float>(edges) / total : 0.0f;
+  tile.edgeHaloMidtoneRatio = broadMidtones ? static_cast<float>(edgeHaloMidtones) / broadMidtones : 0.0f;
+  for (const int count : blurredHistogram) {
+    if (count >= std::max(2, blockCount / 200))
+      ++tile.occupiedBins;
+  }
+  if (blockCount) {
+    const double mean = blockSum / blockCount;
+    tile.lowFrequencyVariance
+        = static_cast<float>(std::max(0.0, blockSumSquares / blockCount - mean * mean) / (255.0 * 255.0));
+  }
+
+  // Photos retain a broad distribution after an 8px box integration.
+  // Line art instead has few blurred bins or concentrates its intermediate
+  // samples in high-contrast edge halos. Very flat fills also fail.
+  tile.lineArtRejected = tile.occupiedBins < 7 || tile.blurredEntropy < 0.55f || tile.lowFrequencyVariance < 0.012f
+                         || tile.broadMidtoneRatio > 0.76f
+                         || (tile.edgeDensity > 0.18f && tile.edgeHaloMidtoneRatio > 0.30f);
+  tile.continuousTone = tile.broadMidtoneRatio >= 0.05f && tile.histogramEntropy >= 0.62f
+                        && tile.blurredEntropy >= 0.55f && tile.occupiedBins >= 7 && !tile.lineArtRejected;
+}
+
+void collectToneTiles(PIX* gray, LeptonicaDetector::DetectionEvidence* evidence) {
   const int width = pixGetWidth(gray);
   const int height = pixGetHeight(gray);
-  if (width < 100 || height < 100)
-    return;
-
   const int marginX = std::max(2, width * 4 / 100);
   const int marginY = std::max(2, height * 4 / 100);
   const int contentWidth = width - 2 * marginX;
@@ -125,143 +213,114 @@ void collectConnectedToneEvidence(PIX* gray, LeptonicaDetector::DetectionEvidenc
       tile.y = marginY + gy * strideY;
       tile.width = std::min(tileWidth, width - marginX - tile.x);
       tile.height = std::min(tileHeight, height - marginY - tile.y);
-
-      std::array<int, 16> histogram{};
-      std::array<int, 16> blurredHistogram{};
-      int total = 0;
-      int broadMidtones = 0;
-      int edges = 0;
-      int edgeHaloMidtones = 0;
-      double blockSum = 0.0;
-      double blockSumSquares = 0.0;
-      int blockCount = 0;
-      const int sampleStep = 2;
-      const int blurStep = 8;
-
-      for (int y = tile.y + 1; y < tile.y + tile.height - 1; y += sampleStep) {
-        l_uint32* line = data + y * wpl;
-        l_uint32* nextLine = data + (y + 1) * wpl;
-        for (int x = tile.x + 1; x < tile.x + tile.width - 1; x += sampleStep) {
-          const int value = GET_DATA_BYTE(line, x);
-          const int gradient
-              = std::abs(value - GET_DATA_BYTE(line, x + 1)) + std::abs(value - GET_DATA_BYTE(nextLine, x));
-          ++histogram[std::min(15, value / 16)];
-          ++total;
-          if (value > 40 && value < 216) {
-            ++broadMidtones;
-            if (gradient > 55)
-              ++edgeHaloMidtones;
-          }
-          if (gradient > 70)
-            ++edges;
-        }
-      }
-
-      for (int by = tile.y; by + blurStep <= tile.y + tile.height; by += blurStep) {
-        for (int bx = tile.x; bx + blurStep <= tile.x + tile.width; bx += blurStep) {
-          int sum = 0;
-          for (int yy = 0; yy < blurStep; yy += 2) {
-            l_uint32* line = data + (by + yy) * wpl;
-            for (int xx = 0; xx < blurStep; xx += 2) {
-              sum += GET_DATA_BYTE(line, bx + xx);
-            }
-          }
-          const int average = sum / 16;
-          ++blurredHistogram[std::min(15, average / 16)];
-          blockSum += average;
-          blockSumSquares += average * average;
-          ++blockCount;
-        }
-      }
-
-      tile.broadMidtoneRatio = total ? static_cast<float>(broadMidtones) / total : 0.0f;
-      tile.histogramEntropy = normalizedEntropy(histogram, total);
-      tile.blurredEntropy = normalizedEntropy(blurredHistogram, blockCount);
-      tile.edgeDensity = total ? static_cast<float>(edges) / total : 0.0f;
-      tile.edgeHaloMidtoneRatio = broadMidtones ? static_cast<float>(edgeHaloMidtones) / broadMidtones : 0.0f;
-      for (const int count : blurredHistogram) {
-        if (count >= std::max(2, blockCount / 200))
-          ++tile.occupiedBins;
-      }
-      if (blockCount) {
-        const double mean = blockSum / blockCount;
-        tile.lowFrequencyVariance
-            = static_cast<float>(std::max(0.0, blockSumSquares / blockCount - mean * mean) / (255.0 * 255.0));
-      }
-
-      // Photos retain a broad distribution after an 8px box integration.
-      // Line art instead has few blurred bins or concentrates its intermediate
-      // samples in high-contrast edge halos. Very flat fills also fail.
-      tile.lineArtRejected = tile.occupiedBins < 7 || tile.blurredEntropy < 0.55f || tile.lowFrequencyVariance < 0.012f
-                             || tile.broadMidtoneRatio > 0.76f
-                             || (tile.edgeDensity > 0.18f && tile.edgeHaloMidtoneRatio > 0.30f);
-      tile.continuousTone = tile.broadMidtoneRatio >= 0.05f && tile.histogramEntropy >= 0.62f
-                            && tile.blurredEntropy >= 0.55f && tile.occupiedBins >= 7 && !tile.lineArtRejected;
+      evaluateToneTile(data, wpl, tile);
       if (tile.continuousTone)
         ++evidence->continuousToneTileCount;
     }
   }
+}
 
+void markTileCoverage(const int index, std::array<bool, 100>& regionCovered, std::array<bool, 100>& covered) {
+  const int x = index % 9;
+  const int y = index / 9;
+  for (int yy = y; yy <= y + 1; ++yy) {
+    for (int xx = x; xx <= x + 1; ++xx) {
+      regionCovered[yy * 10 + xx] = true;
+      covered[yy * 10 + xx] = true;
+    }
+  }
+}
+
+void enqueueToneNeighbors(const int index,
+                          const std::array<LeptonicaDetector::ToneTileEvidence, 81>& toneTiles,
+                          std::array<bool, 81>& visited,
+                          std::queue<int>& pending) {
+  const int x = index % 9;
+  const int y = index / 9;
+  constexpr int dx[] = {-1, 1, 0, 0};
+  constexpr int dy[] = {0, 0, -1, 1};
+  for (int direction = 0; direction < 4; ++direction) {
+    const int nx = x + dx[direction];
+    const int ny = y + dy[direction];
+    if (nx < 0 || nx >= 9 || ny < 0 || ny >= 9)
+      continue;
+    const int neighbor = ny * 9 + nx;
+    if (!visited[neighbor] && toneTiles[neighbor].continuousTone) {
+      visited[neighbor] = true;
+      pending.push(neighbor);
+    }
+  }
+}
+
+void exploreContinuousToneRegion(const int start,
+                                 const int width,
+                                 const int height,
+                                 std::array<bool, 81>& visited,
+                                 std::array<bool, 100>& covered,
+                                 LeptonicaDetector::DetectionEvidence* evidence) {
+  ++evidence->continuousToneRegionCount;
+  int regionTiles = 0;
+  std::array<bool, 100> regionCovered{};
+  int regionLeft = width;
+  int regionTop = height;
+  int regionRight = 0;
+  int regionBottom = 0;
+  std::queue<int> pending;
+  pending.push(start);
+  visited[start] = true;
+  while (!pending.empty()) {
+    const int index = pending.front();
+    pending.pop();
+    ++regionTiles;
+    const auto& tile = evidence->toneTiles[index];
+    regionLeft = std::min(regionLeft, tile.x);
+    regionTop = std::min(regionTop, tile.y);
+    regionRight = std::max(regionRight, tile.x + tile.width);
+    regionBottom = std::max(regionBottom, tile.y + tile.height);
+    markTileCoverage(index, regionCovered, covered);
+    enqueueToneNeighbors(index, evidence->toneTiles, visited, pending);
+  }
+  int regionCells = 0;
+  for (const bool cell : regionCovered)
+    regionCells += cell ? 1 : 0;
+  const QRect bounds(regionLeft, regionTop, regionRight - regionLeft, regionBottom - regionTop);
+  evidence->regionBounds.push_back(bounds);
+  if (regionTiles > evidence->largestRegionTileCount) {
+    evidence->largestRegionTileCount = regionTiles;
+    evidence->largestRegionCoverage = regionCells / 100.0f;
+    evidence->largestRegionBounds = bounds;
+  }
+}
+
+void collectToneRegions(const int width, const int height, LeptonicaDetector::DetectionEvidence* evidence) {
   std::array<bool, 81> visited{};
   std::array<bool, 100> covered{};
   for (int start = 0; start < 81; ++start) {
     if (visited[start] || !evidence->toneTiles[start].continuousTone)
       continue;
-    ++evidence->continuousToneRegionCount;
-    int regionTiles = 0;
-    std::array<bool, 100> regionCovered{};
-    int regionLeft = width;
-    int regionTop = height;
-    int regionRight = 0;
-    int regionBottom = 0;
-    std::queue<int> pending;
-    pending.push(start);
-    visited[start] = true;
-    while (!pending.empty()) {
-      const int index = pending.front();
-      pending.pop();
-      ++regionTiles;
-      const auto& tile = evidence->toneTiles[index];
-      regionLeft = std::min(regionLeft, tile.x);
-      regionTop = std::min(regionTop, tile.y);
-      regionRight = std::max(regionRight, tile.x + tile.width);
-      regionBottom = std::max(regionBottom, tile.y + tile.height);
-      const int x = index % 9;
-      const int y = index / 9;
-      for (int yy = y; yy <= y + 1; ++yy) {
-        for (int xx = x; xx <= x + 1; ++xx) {
-          regionCovered[yy * 10 + xx] = true;
-          covered[yy * 10 + xx] = true;
-        }
-      }
-      constexpr int dx[] = {-1, 1, 0, 0};
-      constexpr int dy[] = {0, 0, -1, 1};
-      for (int direction = 0; direction < 4; ++direction) {
-        const int nx = x + dx[direction];
-        const int ny = y + dy[direction];
-        if (nx < 0 || nx >= 9 || ny < 0 || ny >= 9)
-          continue;
-        const int neighbor = ny * 9 + nx;
-        if (!visited[neighbor] && evidence->toneTiles[neighbor].continuousTone) {
-          visited[neighbor] = true;
-          pending.push(neighbor);
-        }
-      }
-    }
-    int regionCells = 0;
-    for (const bool cell : regionCovered)
-      regionCells += cell ? 1 : 0;
-    evidence->regionBounds.push_back(QRect(regionLeft, regionTop, regionRight - regionLeft, regionBottom - regionTop));
-    if (regionTiles > evidence->largestRegionTileCount) {
-      evidence->largestRegionTileCount = regionTiles;
-      evidence->largestRegionCoverage = regionCells / 100.0f;
-      evidence->largestRegionBounds = QRect(regionLeft, regionTop, regionRight - regionLeft, regionBottom - regionTop);
-    }
+    exploreContinuousToneRegion(start, width, height, visited, covered, evidence);
   }
   int coveredCells = 0;
   for (const bool cell : covered)
     coveredCells += cell ? 1 : 0;
   evidence->continuousToneCoverage = coveredCells / 100.0f;
+}
+
+/**
+ * Measure overlapping 20%-page tiles on a 10%-page stride. The 4% inset
+ * suppresses scanner margins and binding gutters explicitly, while tiles
+ * still reach every content edge. Candidate tiles are joined in the 9x9
+ * overlap graph so classification can use coverage and topology rather than
+ * one position-sensitive cell.
+ */
+void collectConnectedToneEvidence(PIX* gray, LeptonicaDetector::DetectionEvidence* evidence) {
+  const int width = pixGetWidth(gray);
+  const int height = pixGetHeight(gray);
+  if (width < 100 || height < 100)
+    return;
+
+  collectToneTiles(gray, evidence);
+  collectToneRegions(width, height, evidence);
 }
 
 /**
