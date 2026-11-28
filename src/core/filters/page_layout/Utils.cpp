@@ -95,6 +95,84 @@ Margins Utils::calcMarginsMM(const ImageTransformation& xform, const QRectF& pag
   return Margins(lMM, tMM, rMM, bMM);
 }
 
+namespace {
+enum class AxisAlign { START, CENTER, END, AUTO, ORIGINAL };
+
+AxisAlign toAxisAlign(const Alignment::Horizontal h) {
+  switch (h) {
+    case Alignment::LEFT:
+      return AxisAlign::START;
+    case Alignment::HCENTER:
+      return AxisAlign::CENTER;
+    case Alignment::RIGHT:
+      return AxisAlign::END;
+    case Alignment::HAUTO:
+      return AxisAlign::AUTO;
+    case Alignment::HORIGINAL:
+      return AxisAlign::ORIGINAL;
+  }
+  return AxisAlign::CENTER;
+}
+
+AxisAlign toAxisAlign(const Alignment::Vertical v) {
+  switch (v) {
+    case Alignment::TOP:
+      return AxisAlign::START;
+    case Alignment::VCENTER:
+      return AxisAlign::CENTER;
+    case Alignment::BOTTOM:
+      return AxisAlign::END;
+    case Alignment::VAUTO:
+      return AxisAlign::AUTO;
+    case Alignment::VORIGINAL:
+      return AxisAlign::ORIGINAL;
+  }
+  return AxisAlign::CENTER;
+}
+
+std::pair<double, double> calcAxisSoftMarginsMM(const double hardLengthMm,
+                                                const double aggregateHardLengthMm,
+                                                const AxisAlign align,
+                                                const double contentCenterOffsetPx,
+                                                const double pageLengthPx,
+                                                const bool hasOriginalGeometry) {
+  const double delta = aggregateHardLengthMm - hardLengthMm;
+  if (delta <= 0.0) {
+    return {0.0, 0.0};
+  }
+
+  double origStart = 0.0;
+  double origEnd = delta;
+  if (hasOriginalGeometry) {
+    origStart = ((contentCenterOffsetPx / pageLengthPx) * aggregateHardLengthMm) - (hardLengthMm / 2.0);
+    origStart = qBound(0.0, origStart, delta);
+    origEnd = delta - origStart;
+  }
+
+  AxisAlign resolved = align;
+  if (resolved == AxisAlign::AUTO) {
+    if (3 * origStart < origEnd) {
+      resolved = AxisAlign::START;
+    } else if (3 * origEnd < origStart) {
+      resolved = AxisAlign::END;
+    } else {
+      resolved = AxisAlign::CENTER;
+    }
+  }
+
+  switch (resolved) {
+    case AxisAlign::START:
+      return {0.0, delta};
+    case AxisAlign::CENTER:
+      return {0.5 * delta, 0.5 * delta};
+    case AxisAlign::END:
+      return {delta, 0.0};
+    default:
+      return {origStart, origEnd};
+  }
+}
+}  // namespace
+
 Margins Utils::calcSoftMarginsMM(const QSizeF& hardSizeMm,
                                  const QSizeF& aggregateHardSizeMm,
                                  const Alignment& alignment,
@@ -106,101 +184,13 @@ Margins Utils::calcSoftMarginsMM(const QSizeF& hardSizeMm,
     return Margins();
   }
 
-  double top = 0.0;
-  double bottom = 0.0;
-  double left = 0.0;
-  double right = 0.0;
-
-  const double deltaWidth = aggregateHardSizeMm.width() - hardSizeMm.width();
-  const double deltaHeight = aggregateHardSizeMm.height() - hardSizeMm.height();
-
-  double aggLeftBorder = 0.0;
-  double aggRightBorder = deltaWidth;
-  double aggTopBorder = 0.0;
-  double aggBottomBorder = deltaHeight;
-
-  Alignment correctedAlignment = alignment;
-
-  if (!contentSizeMm.isEmpty() && !contentRect.isEmpty() && !pageRect.isEmpty()) {
-    const double pixelsPerMmHorizontal = contentRect.width() / contentSizeMm.width();
-    const double pixelsPerMmVertical = contentRect.height() / contentSizeMm.height();
-
-    const QSizeF pageRectSizeMm(pageRect.width() / pixelsPerMmHorizontal, pageRect.height() / pixelsPerMmVertical);
-
-    const double contentRectCenterXInMm
-        = ((contentRect.center().x() - pageRect.left()) / pageRect.width()) * pageRectSizeMm.width();
-    const double contentRectCenterYInMm
-        = ((contentRect.center().y() - pageRect.top()) / pageRect.height()) * pageRectSizeMm.height();
-
-    if (deltaWidth > .0) {
-      aggLeftBorder = ((contentRectCenterXInMm / pageRectSizeMm.width()) * aggregateHardSizeMm.width())
-                      - (hardSizeMm.width() / 2);
-      aggLeftBorder = qBound(.0, aggLeftBorder, deltaWidth);
-      aggRightBorder = deltaWidth - aggLeftBorder;
-    }
-    if (deltaHeight > .0) {
-      aggTopBorder = ((contentRectCenterYInMm / pageRectSizeMm.height()) * aggregateHardSizeMm.height())
-                     - (hardSizeMm.height() / 2);
-      aggTopBorder = qBound(.0, aggTopBorder, deltaHeight);
-      aggBottomBorder = deltaHeight - aggTopBorder;
-    }
-  }
-
-  if (deltaWidth > .0) {
-    if (correctedAlignment.horizontal() == Alignment::HAUTO) {
-      if (3 * aggLeftBorder < aggRightBorder) {
-        correctedAlignment.setHorizontal(Alignment::LEFT);
-      } else if (3 * aggRightBorder < aggLeftBorder) {
-        correctedAlignment.setHorizontal(Alignment::RIGHT);
-      } else {
-        correctedAlignment.setHorizontal(Alignment::HCENTER);
-      }
-    }
-
-    switch (correctedAlignment.horizontal()) {
-      case Alignment::LEFT:
-        right = deltaWidth;
-        break;
-      case Alignment::HCENTER:
-        left = right = 0.5 * deltaWidth;
-        break;
-      case Alignment::RIGHT:
-        left = deltaWidth;
-        break;
-      default:
-        left = aggLeftBorder;
-        right = aggRightBorder;
-        break;
-    }
-  }
-
-  if (deltaHeight > .0) {
-    if (correctedAlignment.vertical() == Alignment::VAUTO) {
-      if (3 * aggTopBorder < aggBottomBorder) {
-        correctedAlignment.setVertical(Alignment::TOP);
-      } else if (3 * aggBottomBorder < aggTopBorder) {
-        correctedAlignment.setVertical(Alignment::BOTTOM);
-      } else {
-        correctedAlignment.setVertical(Alignment::VCENTER);
-      }
-    }
-
-    switch (correctedAlignment.vertical()) {
-      case Alignment::TOP:
-        bottom = deltaHeight;
-        break;
-      case Alignment::VCENTER:
-        top = bottom = 0.5 * deltaHeight;
-        break;
-      case Alignment::BOTTOM:
-        top = deltaHeight;
-        break;
-      default:
-        top = aggTopBorder;
-        bottom = aggBottomBorder;
-        break;
-    }
-  }
+  const bool hasOriginalGeometry = !contentSizeMm.isEmpty() && !contentRect.isEmpty() && !pageRect.isEmpty();
+  const auto [left, right]
+      = calcAxisSoftMarginsMM(hardSizeMm.width(), aggregateHardSizeMm.width(), toAxisAlign(alignment.horizontal()),
+                              contentRect.center().x() - pageRect.left(), pageRect.width(), hasOriginalGeometry);
+  const auto [top, bottom]
+      = calcAxisSoftMarginsMM(hardSizeMm.height(), aggregateHardSizeMm.height(), toAxisAlign(alignment.vertical()),
+                              contentRect.center().y() - pageRect.top(), pageRect.height(), hasOriginalGeometry);
   return Margins(left, top, right, bottom);
 }  // Utils::calcSoftMarginsMM
 

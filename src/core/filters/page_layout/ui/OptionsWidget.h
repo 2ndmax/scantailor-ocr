@@ -9,6 +9,7 @@
 
 #include <QIcon>
 #include <QPalette>
+#include <QPointer>
 #include <QSize>
 #include <QWidget>
 #include <memory>
@@ -170,7 +171,7 @@ class OptionsWidget : public FilterOptionsWidget, public UnitsListener, private 
   QSize m_sourceImagePixelSize;
   QPalette m_sourceDpiNormalPalette;
   QPalette m_sourceDpiErrorPalette;
-  QWidget* m_sourceDpiFocusWidget;
+  QPointer<QWidget> m_sourceDpiFocusWidget;
   Margins m_marginsMM;
   Alignment m_alignment;
   bool m_leftRightLinked;

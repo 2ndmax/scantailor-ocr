@@ -8,7 +8,6 @@
 
 #include "NonCopyable.h"
 
-class QSizeF;
 class PageInfo;
 class AbstractFilterDataCollector;
 class ImageTransformation;

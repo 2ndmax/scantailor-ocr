@@ -207,7 +207,7 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
       if (ws.isNull()) {
         break;
       }
-      if (ws.width() * ws.height() < areaThreshold) {
+      if (static_cast<int64_t>(ws.width()) * ws.height() < areaThreshold) {
         break;
       }
       contentBlocks.fill(ws, WHITE);
@@ -226,7 +226,7 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
       if (ws.isNull()) {
         break;
       }
-      if (ws.width() * ws.height() < areaThreshold) {
+      if (static_cast<int64_t>(ws.width()) * ws.height() < areaThreshold) {
         break;
       }
       contentBlocks.fill(ws, WHITE);
@@ -258,7 +258,7 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
       if (ws.isNull()) {
         break;
       }
-      if (ws.width() * ws.height() < areaThreshold) {
+      if (static_cast<int64_t>(ws.width()) * ws.height() < areaThreshold) {
         break;
       }
       contentBlocks.fill(ws, WHITE);
@@ -280,7 +280,7 @@ QRectF ContentBoxFinder::findContentBox(const TaskStatus& status,
     dbg->add(contentBlocks, "except_bordering");
   }
 
-  BinaryImage textMask(estimateTextMask(content, contentBlocks, maxFillFactor, dbg));
+  BinaryImage textMask(estimateTextMask(status, content, contentBlocks, maxFillFactor, dbg));
   if (dbg) {
     QImage textMaskVisualized(content.size(), QImage::Format_ARGB32_Premultiplied);
     textMaskVisualized.fill(0xffffffff);  // Opaque white.
@@ -683,7 +683,8 @@ void ContentBoxFinder::segmentGarbage(const imageproc::BinaryImage& garbage,
   rasterOp<RopOr<RopSrc, RopDst>>(vertGarbage, unconnectedGarbage);
 }  // ContentBoxFinder::segmentGarbage
 
-imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const imageproc::BinaryImage& content,
+imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const TaskStatus& status,
+                                                          const imageproc::BinaryImage& content,
                                                           const imageproc::BinaryImage& contentBlocks,
                                                           const double maxFillFactor,
                                                           DebugImages* dbg) {
@@ -692,6 +693,7 @@ imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const imageproc::Binar
   // presence of ultimate eroded points.
 
   const BinaryImage ueps(SEDM(content, SEDM::DIST_TO_BLACK, SEDM::DIST_TO_NO_BORDERS).findPeaksDestructive());
+  status.throwIfCancelled();
   if (dbg) {
     QImage canvas(contentBlocks.toQImage().convertToFormat(QImage::Format_ARGB32_Premultiplied));
     QPainter painter;
@@ -722,6 +724,7 @@ imageproc::BinaryImage ContentBoxFinder::estimateTextMask(const imageproc::Binar
     if (cc.isNull()) {
       break;
     }
+    status.throwIfCancelled();
 
     BinaryImage ccImg(eraser.computeConnCompImage());
     BinaryImage contentImg(ccImg.size());
@@ -1007,15 +1010,11 @@ QRect ContentBoxFinder::trim(const imageproc::BinaryImage& content,
   }
 
   // Don't trim too much.
-  while (removedArea.width() * removedArea.height() > 0.3 * (newArea.width() * newArea.height())) {
-    // It's a loop just to be able to break from it.
-
-    // There is a special case when there is nothing but
-    // garbage on the page. Let's try to handle it here.
-    if ((removedArea.width() < 6) || (removedArea.height() < 6)) {
-      break;
-    }
-
+  // There is a special case when there is nothing but garbage on the page: keep trimming tiny cuts.
+  const int64_t removedRectArea = static_cast<int64_t>(removedArea.width()) * removedArea.height();
+  const int64_t newRectArea = static_cast<int64_t>(newArea.width()) * newArea.height();
+  if ((static_cast<double>(removedRectArea) > 0.3 * static_cast<double>(newRectArea)) && (removedArea.width() >= 6)
+      && (removedArea.height() >= 6)) {
     if (dbg) {
       QPainter painter(&visualized);
       painter.setPen(Qt::NoPen);
@@ -1131,7 +1130,7 @@ QRect ContentBoxFinder::trim(const imageproc::BinaryImage& content,
   }
 }  // ContentBoxFinder::trim
 
-void ContentBoxFinder::filterShadows([[maybe_unused]] const TaskStatus& status,
+void ContentBoxFinder::filterShadows(const TaskStatus& status,
                                      imageproc::BinaryImage& shadows,
                                      DebugImages* const dbg) {
   // The input image should only contain shadows from the edges
@@ -1139,12 +1138,12 @@ void ContentBoxFinder::filterShadows([[maybe_unused]] const TaskStatus& status,
   // a black table header which white letters on it. Here we
   // try to filter them out.
 
-#if 1
   // Shadows that touch borders are genuine and should not be removed.
   BinaryImage borders(shadows.size(), WHITE);
   borders.fillExcept(borders.rect().adjusted(1, 1, -1, -1), BLACK);
 
   BinaryImage touchingShadows(seedFill(borders, shadows, CONN8));
+  status.throwIfCancelled();
   rasterOp<RopXor<RopSrc, RopDst>>(shadows, touchingShadows);
   if (dbg) {
     dbg->add(shadows, "non_border_shadows");
@@ -1153,16 +1152,19 @@ void ContentBoxFinder::filterShadows([[maybe_unused]] const TaskStatus& status,
   if (shadows.countBlackPixels()) {
     BinaryImage invShadows(shadows.inverted());
     BinaryImage mask(seedFill(borders, invShadows, CONN8));
+    status.throwIfCancelled();
     borders.release();
     rasterOp<RopOr<RopNot<RopDst>, RopSrc>>(mask, shadows);
     if (dbg) {
       dbg->add(mask, "shadows_no_holes");
     }
 
-    BinaryImage textMask(estimateTextMask(invShadows, mask, DetectionOptions::DEFAULT_FILL_FACTOR / 100.0, dbg));
+    BinaryImage textMask(
+        estimateTextMask(status, invShadows, mask, DetectionOptions::DEFAULT_FILL_FACTOR / 100.0, dbg));
     invShadows.release();
     mask.release();
     textMask = seedFill(textMask, shadows, CONN8);
+    status.throwIfCancelled();
     if (dbg) {
       dbg->add(textMask, "misclassified_shadows");
     }
@@ -1170,71 +1172,6 @@ void ContentBoxFinder::filterShadows([[maybe_unused]] const TaskStatus& status,
   }
 
   rasterOp<RopOr<RopSrc, RopDst>>(shadows, touchingShadows);
-#else   // if 1
-        // White dots on black background may be a problem for us.
-        // They may be misclassified as parts of white letters.
-  BinaryImage reducedDithering(closeBrick(shadows, QSize(1, 2), BLACK));
-  reducedDithering = closeBrick(reducedDithering, QSize(2, 1), BLACK);
-  if (dbg) {
-    dbg->add(reducedDithering, "reducedDithering");
-  }
-
-  status.throwIfCancelled();
-
-  // Long white vertical lines are definately not spaces between letters.
-  BinaryImage vertWhitespace(closeBrick(reducedDithering, QSize(1, 150), BLACK));
-  if (dbg) {
-    dbg->add(vertWhitespace, "vertWhitespace");
-  }
-
-  status.throwIfCancelled();
-
-  // Join neighboring white letters.
-  BinaryImage opened(openBrick(reducedDithering, QSize(10, 4), BLACK));
-  reducedDithering.release();
-  if (dbg) {
-    dbg->add(opened, "opened");
-  }
-
-  status.throwIfCancelled();
-
-  // Extract areas that became white as a result of the last operation.
-  rasterOp<RopSubtract<RopNot<RopDst>, RopNot<RopSrc>>>(opened, shadows);
-  if (dbg) {
-    dbg->add(opened, "became white");
-  }
-
-  status.throwIfCancelled();
-  // Join the spacings between words together.
-  BinaryImage closed(closeBrick(opened, QSize(20, 1), WHITE));
-  opened.release();
-  rasterOp<RopAnd<RopSrc, RopDst>>(closed, vertWhitespace);
-  vertWhitespace.release();
-  if (dbg) {
-    dbg->add(closed, "closed");
-  }
-
-  status.throwIfCancelled();
-  // If we've got long enough and tall enough blocks, we assume they
-  // are the text lines.
-  opened = openBrick(closed, QSize(50, 10), WHITE);
-  closed.release();
-  if (dbg) {
-    dbg->add(opened, "reopened");
-  }
-
-  status.throwIfCancelled();
-
-  BinaryImage nonShadows(seedFill(opened, shadows, CONN8));
-  opened.release();
-  if (dbg) {
-    dbg->add(nonShadows, "nonShadows");
-  }
-
-  status.throwIfCancelled();
-
-  rasterOp<RopSubtract<RopDst, RopSrc>>(shadows, nonShadows);
-#endif  // if 1
 }  // ContentBoxFinder::filterShadows
 
 /*====================== ContentBoxFinder::Garbage =====================*/

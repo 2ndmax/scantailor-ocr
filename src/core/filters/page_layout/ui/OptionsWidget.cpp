@@ -4,6 +4,7 @@
 #include "OptionsWidget.h"
 
 #include <ColorSchemeManager.h>
+#include <UnitsConverter.h>
 #include <UnitsProvider.h>
 #include <core/gui/IconProvider.h>
 
@@ -179,6 +180,11 @@ void OptionsWidget::onUnitsChanged(Units units) {
   for (QDoubleSpinBox* spinBox : {targetWidthSpinBox, targetHeightSpinBox}) {
     core::WidgetUtils::setUpLengthField(spinBox, units, widestSize);
   }
+  double maxTargetWidth = OutputSizeOptions::MAX_TARGET_SIZE_MM;
+  double maxTargetHeight = OutputSizeOptions::MAX_TARGET_SIZE_MM;
+  UnitsConverter(m_dpi).convert(maxTargetWidth, maxTargetHeight, MILLIMETRES, units);
+  targetWidthSpinBox->setMaximum(maxTargetWidth);
+  targetHeightSpinBox->setMaximum(maxTargetHeight);
 
   updateMarginsDisplay();
   updateCommonSizeDisplay();
@@ -275,7 +281,6 @@ void OptionsWidget::ownTargetSizeToggled(const bool checked) {
     options.setTargetSizeMM(m_settings->getAggregateHardSizeMM());
   }
   m_settings->setOutputSizeOptions(options);
-  updateOutputSizeDisplay();
   updateScaleFactorDisplay();
 
   emit aggregateHardSizeChanged();
@@ -312,9 +317,7 @@ void OptionsWidget::updateOutputSizeDisplay() {
   const QSizeF sizeMm(options.hasOwnTargetSize() ? options.targetSizeMM() : m_settings->getAggregateHardSizeMM());
   double width = sizeMm.width();
   double height = sizeMm.height();
-  if (!m_dpi.isNull()) {
-    UnitsProvider::getInstance().convertFrom(width, height, MILLIMETRES, m_dpi);
-  }
+  UnitsProvider::getInstance().convertFrom(width, height, MILLIMETRES, m_dpi);
   targetWidthSpinBox->setValue(width);
   targetHeightSpinBox->setValue(height);
   targetSizeLabel->setEnabled(options.hasOwnTargetSize());

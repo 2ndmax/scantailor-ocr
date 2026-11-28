@@ -26,6 +26,7 @@ class OutputSizeOptions {
  public:
   static constexpr int DEFAULT_MAX_ENLARGE_PERCENT = 150;
   static constexpr int DEFAULT_MIN_REDUCE_PERCENT = 50;
+  static constexpr double MAX_TARGET_SIZE_MM = 99999.0;
 
   OutputSizeOptions() = default;
 
@@ -47,7 +48,7 @@ class OutputSizeOptions {
   /** The own target size in millimeters, including the margins. */
   const QSizeF& targetSizeMM() const { return m_targetSizeMm; }
 
-  void setTargetSizeMM(const QSizeF& sizeMm) { m_targetSizeMm = sizeMm; }
+  void setTargetSizeMM(const QSizeF& sizeMm);
 
   /** Enlarge to at most this percentage. */
   int maxEnlargePercent() const { return m_maxEnlargePercent; }

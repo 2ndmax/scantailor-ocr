@@ -4,11 +4,7 @@
 #ifndef SCANTAILOR_SELECT_CONTENT_PAGEFINDER_H_
 #define SCANTAILOR_SELECT_CONTENT_PAGEFINDER_H_
 
-#include <BinaryThreshold.h>
-
 #include <Qt>
-
-#include "Margins.h"
 
 class TaskStatus;
 class DebugImages;
@@ -18,10 +14,6 @@ class QRect;
 class QRectF;
 class QSizeF;
 class QSize;
-
-namespace imageproc {
-class BinaryImage;
-}
 
 namespace select_content {
 class PageFinder {

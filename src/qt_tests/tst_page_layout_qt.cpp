@@ -203,7 +203,7 @@ void TestPageLayoutQt::testGuidesRespectScaleAndDoNotShrinkSettings() {
   settings->setContentSizeMM(pageId, QSizeF(100.0, 150.0));
   settings->updateContentSizeAndGetParams(pageId, QRectF(0, 0, 1000, 1500), QRectF(0, 0, 1000, 1500),
                                           QSizeF(100.0, 150.0));
-  settings->guides().emplace_back(Qt::Vertical, 90.0);
+  settings->setGuides({Guide(Qt::Vertical, 90.0)});
 
   OptionsWidget optWidget(settings, largePages, PageSelectionAccessor(nullptr));
   optWidget.preUpdateUI(largePage, Margins(0, 0, 0, 0), scaledCenter);
@@ -215,12 +215,12 @@ void TestPageLayoutQt::testGuidesRespectScaleAndDoNotShrinkSettings() {
   view.alignmentChanged(scaledCenter);
   view.aggregateHardSizeChanged();
 
-  QCOMPARE(settings->guides().size(), size_t(1));
-  QCOMPARE(settings->guides()[0].getPosition(), 90.0);
+  const std::vector<Guide> guides = settings->guides();
+  QCOMPARE(guides.size(), size_t(1));
+  QCOMPARE(guides[0].getPosition(), 90.0);
 
   // Snapping a scaled page verifies guidePosInVirtual divides by m_scaleFactor = 2.0 (1 mm output = 5 virtual px).
-  settings->guides().clear();
-  settings->guides().emplace_back(Qt::Vertical, -80.0);
+  settings->setGuides({Guide(Qt::Vertical, -80.0)});
   ImageTransformation snapXform(QRectF(0, 0, 1000, 1500), Dpi(254, 254));
   QImage blockImg(1000, 1500, QImage::Format_RGB32);
   blockImg.fill(Qt::white);
@@ -307,7 +307,7 @@ void TestPageLayoutQt::testAttachContentToNearestGuideWithEdgeAlignment() {
                                           QSizeF(40.0, 40.0));
   // Outer rect starts at inner.left = 500 (50 mm), width = 200 mm -> center at 150 mm.
   // Vertical guide at -80 mm sits at 70 mm (= 700 px, 20 mm to the right of content left = 500 px).
-  settings->guides().emplace_back(Qt::Vertical, -80.0);
+  settings->setGuides({Guide(Qt::Vertical, -80.0)});
 
   OptionsWidget optWidget(settings, pages, PageSelectionAccessor(nullptr));
   optWidget.preUpdateUI(pageInfo, Margins(0, 0, 0, 0), topLeft);
@@ -347,7 +347,6 @@ void TestPageLayoutQt::testApplyDialogEmitsSelectedPages() {
     explicit StubProvider(PageSequence seq) : pages(std::move(seq)) {}
     PageSequence allPages() const override { return pages; }
     std::set<PageId> selectedPages() const override { return selected; }
-    std::vector<PageRange> selectedRanges() const override { return {}; }
   };
 
   std::vector<ImageInfo> infos;

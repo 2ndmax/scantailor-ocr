@@ -4,8 +4,6 @@
 #ifndef SCANTAILOR_SELECT_CONTENT_TASK_H_
 #define SCANTAILOR_SELECT_CONTENT_TASK_H_
 
-#include <QRectF>
-#include <QSizeF>
 #include <memory>
 
 #include "DetectionOptions.h"
@@ -17,7 +15,6 @@ class TaskStatus;
 class FilterData;
 class DebugImages;
 class ImageTransformation;
-class Dpi;
 
 namespace page_layout {
 class Task;

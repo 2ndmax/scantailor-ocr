@@ -5,9 +5,6 @@
 #include "TaskResult.h"
 #include "UiData.h"
 
-#include <UnitsProvider.h>
-
-#include <iostream>
 #include <utility>
 
 #include "BatchProcessingResult.h"
@@ -19,8 +16,6 @@
 #include "PageFinder.h"
 #include "TaskStatus.h"
 #include "page_layout/Task.h"
-
-using namespace imageproc;
 
 namespace select_content {
 Task::Task(std::shared_ptr<Filter> filter,

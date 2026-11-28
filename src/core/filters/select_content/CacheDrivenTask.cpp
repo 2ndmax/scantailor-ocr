@@ -5,7 +5,6 @@
 
 #include <ApplicationSettings.h>
 
-#include <iostream>
 #include <utility>
 
 #include "AbstractFilterDataCollector.h"

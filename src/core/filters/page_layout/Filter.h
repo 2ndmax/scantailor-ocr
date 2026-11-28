@@ -6,13 +6,8 @@
 
 #include <QCoreApplication>
 #include <memory>
-#include <vector>
 
 #include "AbstractFilter.h"
-
-namespace page_layout {
-class PageLayoutParams;
-}
 #include "FilterResult.h"
 #include "NonCopyable.h"
 #include "PageLayoutParams.h"

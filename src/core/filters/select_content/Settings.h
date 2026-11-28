@@ -57,6 +57,9 @@ class Settings {
  private:
   using PageParams = std::unordered_map<PageId, Params>;
 
+  void clearLocked();
+  void setPageParamsLocked(const PageId& pageId, const Params& params);
+
   mutable QMutex m_mutex;
   PageParams m_pageParams;
   QSizeF m_pageDetectionBox;

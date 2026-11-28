@@ -6,7 +6,7 @@
 #include <XmlUnmarshaller.h>
 
 #include <QDomElement>
-#include <iostream>
+#include <cmath>
 
 #include "CoreUtils.h"
 #include "ProjectIdReader.h"
@@ -32,6 +32,10 @@ Settings::~Settings() = default;
 
 void Settings::clear() {
   QMutexLocker locker(&m_mutex);
+  clearLocked();
+}
+
+void Settings::clearLocked() {
   m_pageParams.clear();
   m_deviationProvider.clear();
 }
@@ -48,6 +52,10 @@ void Settings::performRelinking(const AbstractRelinker& relinker) {
 
 void Settings::setPageParams(const PageId& pageId, const Params& params) {
   QMutexLocker locker(&m_mutex);
+  setPageParamsLocked(pageId, params);
+}
+
+void Settings::setPageParamsLocked(const PageId& pageId, const Params& params) {
   CoreUtils::mapSetValue(m_pageParams, pageId, params);
   m_deviationProvider.addOrUpdate(pageId);
 }
@@ -102,12 +110,13 @@ const DeviationProvider<PageId>& Settings::deviationProvider() const {
 
 
 void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
-  clear();
+  QMutexLocker locker(&m_mutex);
+  clearLocked();
 
-  setPageDetectionBox(XmlUnmarshaller::sizeF(filterEl.namedItem("page-detection-box").toElement()));
+  m_pageDetectionBox = XmlUnmarshaller::sizeF(filterEl.namedItem("page-detection-box").toElement());
   // Only a damaged or hand-edited file holds a tolerance outside 0..1; a huge one made the page finder
   // cast an out-of-range product to int.
-  setPageDetectionTolerance(XmlUnmarshaller::numberInRange(filterEl, "pageDetectionTolerance", 0.0, 1.0, 0.1));
+  m_pageDetectionTolerance = XmlUnmarshaller::numberInRange(filterEl, "pageDetectionTolerance", 0.0, 1.0, 0.1);
 
   const QString pageTagName("page");
   QDomNode node(filterEl.firstChild());
@@ -137,7 +146,7 @@ void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) 
     }
 
     const Params params(paramsEl);
-    setPageParams(pageId, params);
+    setPageParamsLocked(pageId, params);
   }
 }  // Settings::load
 }  // namespace select_content

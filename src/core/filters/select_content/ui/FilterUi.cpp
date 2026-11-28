@@ -15,8 +15,6 @@
 #include "PageInfo.h"
 #include "Thumbnail.h"
 
-using namespace imageproc;
-
 namespace select_content {
 FilterUi::FilterUi(std::shared_ptr<Filter> filter, const PageSelectionAccessor& pageSelectionAccessor)
     : m_filter(std::move(filter)), m_pageSelectionAccessor(pageSelectionAccessor) {}

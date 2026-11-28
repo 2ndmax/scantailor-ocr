@@ -41,10 +41,6 @@ void Thumbnail::paintOverImage(QPainter& painter,
 
   const QRectF innerRect(virtToDisplay.map(m_virtContentRect).boundingRect());
 
-  // We extend the outer rectangle because otherwise we may get white
-  // thin lines near the edges due to rounding errors and the lack
-  // of subpixel accuracy. Doing that is actually OK, because what
-  // we paint will be clipped anyway.
   const QRectF outerRect(virtToDisplay.map(m_virtOuterRect).boundingRect());
 
   QPainterPath outerOutline;

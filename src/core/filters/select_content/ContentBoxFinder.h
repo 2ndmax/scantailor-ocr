@@ -47,7 +47,8 @@ class ContentBoxFinder {
 
   static void trimContentBlocksInPlace(const imageproc::BinaryImage& content, imageproc::BinaryImage& contentBlocks);
 
-  static imageproc::BinaryImage estimateTextMask(const imageproc::BinaryImage& content,
+  static imageproc::BinaryImage estimateTextMask(const TaskStatus& status,
+                                                 const imageproc::BinaryImage& content,
                                                  const imageproc::BinaryImage& contentBlocks,
                                                  double maxFillFactor,
                                                  DebugImages* dbg);

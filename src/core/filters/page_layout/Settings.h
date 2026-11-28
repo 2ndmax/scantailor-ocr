@@ -7,13 +7,13 @@
 #include <DeviationProvider.h>
 
 #include <memory>
+#include <vector>
 
 #include "Margins.h"
 #include "NonCopyable.h"
 #include "OutputSizeOptions.h"
 
 class PageId;
-class Margins;
 class PageSequence;
 class AbstractRelinker;
 class ProjectIdReader;
@@ -156,7 +156,9 @@ class Settings {
 
   const DeviationProvider<PageId>& deviationProvider() const;
 
-  std::vector<Guide>& guides();
+  std::vector<Guide> guides() const;
+
+  void setGuides(const std::vector<Guide>& guides);
 
   /** Target size and scaling limits of the pages matched to others, for the whole project. */
   OutputSizeOptions outputSizeOptions() const;

@@ -68,6 +68,8 @@ class Settings::Impl {
 
   void clear();
 
+  void load(const ProjectIdReader& reader, const QDomElement& filterEl);
+
   void performRelinking(const AbstractRelinker& relinker);
 
   void removePagesMissingFrom(const PageSequence& pages);
@@ -112,7 +114,9 @@ class Settings::Impl {
 
   const DeviationProvider<PageId>& deviationProvider() const;
 
-  std::vector<Guide>& guides();
+  std::vector<Guide> guides() const;
+
+  void setGuides(const std::vector<Guide>& guides);
 
   OutputSizeOptions outputSizeOptions() const {
     const QMutexLocker locker(&m_mutex);
@@ -158,6 +162,10 @@ class Settings::Impl {
   template <typename Modifier>
   Container::iterator modifyOrInsertLocked(const PageId& pageId, Modifier modify);
 
+  void clearLocked();
+
+  void setPageParamsLocked(const PageId& pageId, const Params& params);
+
   mutable QMutex m_mutex;
   Container m_items;
   UnorderedItems& m_unorderedItems;
@@ -182,6 +190,10 @@ Settings::~Settings() = default;
 
 void Settings::clear() {
   return m_impl->clear();
+}
+
+void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
+  m_impl->load(reader, filterEl);
 }
 
 void Settings::performRelinking(const AbstractRelinker& relinker) {
@@ -266,8 +278,12 @@ const DeviationProvider<PageId>& Settings::deviationProvider() const {
   return m_impl->deviationProvider();
 }
 
-std::vector<Guide>& Settings::guides() {
+std::vector<Guide> Settings::guides() const {
   return m_impl->guides();
+}
+
+void Settings::setGuides(const std::vector<Guide>& guides) {
+  m_impl->setGuides(guides);
 }
 
 OutputSizeOptions Settings::outputSizeOptions() const {
@@ -360,6 +376,10 @@ Settings::AggregateSizeChanged aggregateSizeChange(const QSizeF& before, const Q
 
 void Settings::Impl::clear() {
   const QMutexLocker locker(&m_mutex);
+  clearLocked();
+}
+
+void Settings::Impl::clearLocked() {
   m_items.clear();
   m_deviationProvider.clear();
   // A loaded project sets its own afterwards, a new one takes them from its start values.
@@ -439,7 +459,10 @@ std::unique_ptr<Params> Settings::Impl::getPageParams(const PageId& pageId) cons
 
 void Settings::Impl::setPageParams(const PageId& pageId, const Params& params) {
   const QMutexLocker locker(&m_mutex);
+  setPageParamsLocked(pageId, params);
+}
 
+void Settings::Impl::setPageParamsLocked(const PageId& pageId, const Params& params) {
   const Item newItem(pageId, params.hardMarginsMM(), params.pageRect(), params.contentRect(), params.contentSizeMM(),
                      params.alignment(), params.isAutoMarginsEnabled());
 
@@ -622,16 +645,21 @@ const DeviationProvider<PageId>& Settings::Impl::deviationProvider() const {
   return m_deviationProvider;
 }
 
-std::vector<Guide>& Settings::Impl::guides() {
-  // REVIEW-NOTE (2026-10): returns a mutable reference without holding m_mutex -> concurrent save and sync
-  // would race. Not fixed because all callers run in the GUI thread.
+std::vector<Guide> Settings::Impl::guides() const {
+  const QMutexLocker locker(&m_mutex);
   return m_guides;
 }
 
-void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
-  clear();
+void Settings::Impl::setGuides(const std::vector<Guide>& guides) {
+  const QMutexLocker locker(&m_mutex);
+  m_guides = guides;
+}
 
-  setOutputSizeOptions(OutputSizeOptions(filterEl.namedItem("output-size").toElement()));
+void Settings::Impl::load(const ProjectIdReader& reader, const QDomElement& filterEl) {
+  const QMutexLocker locker(&m_mutex);
+  clearLocked();
+
+  m_outputSizeOptions = OutputSizeOptions(filterEl.namedItem("output-size").toElement());
 
   const QDomElement guidesEl = filterEl.namedItem("guides").toElement();
   if (!guidesEl.isNull()) {
@@ -640,7 +668,7 @@ void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) 
       if (!node.isElement() || (node.nodeName() != "guide")) {
         continue;
       }
-      guides().emplace_back(node.toElement());
+      m_guides.emplace_back(node.toElement());
     }
   }
 
@@ -672,7 +700,7 @@ void Settings::load(const ProjectIdReader& reader, const QDomElement& filterEl) 
     }
 
     const Params params(paramsEl);
-    setPageParams(pageId, params);
+    setPageParamsLocked(pageId, params);
   }
-}  // Settings::load
+}  // Settings::Impl::load
 }  // namespace page_layout

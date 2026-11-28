@@ -5,6 +5,8 @@
 
 #include <foundation/Utils.h>
 
+#include <cmath>
+
 #include "XmlUnmarshaller.h"
 
 using namespace foundation;

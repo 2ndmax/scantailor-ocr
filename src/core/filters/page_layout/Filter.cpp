@@ -58,9 +58,10 @@ void Filter::performRelinking(const AbstractRelinker& relinker) {
 QDomElement Filter::saveSettings(const ProjectIdWriter& writer, QDomDocument& doc) const {
   QDomElement filterEl(doc.createElement("page-layout"));
 
-  if (!m_settings->guides().empty()) {
+  const std::vector<Guide> guides(m_settings->guides());
+  if (!guides.empty()) {
     QDomElement guidesEl(doc.createElement("guides"));
-    for (const Guide& guide : m_settings->guides()) {
+    for (const Guide& guide : guides) {
       guidesEl.appendChild(guide.toXml(doc, "guide"));
     }
     filterEl.appendChild(guidesEl);

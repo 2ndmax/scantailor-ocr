@@ -8,10 +8,6 @@ class QDomDocument;
 class QDomElement;
 class QString;
 
-#include <iostream>
-
-class CommandLine;
-
 namespace page_layout {
 class Alignment {
  public:
@@ -20,7 +16,7 @@ class Alignment {
   enum Horizontal { LEFT, HCENTER, RIGHT, HAUTO, HORIGINAL };
 
   /**
-   * \brief Constructs a null alignment.
+   * \brief Constructs a centered, non-null alignment.
    */
   Alignment();
 

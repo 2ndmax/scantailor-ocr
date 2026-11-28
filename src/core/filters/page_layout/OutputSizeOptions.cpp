@@ -16,13 +16,8 @@ namespace page_layout {
 namespace {
 // The largest target size in mm. NaN from a damaged project file would pass
 // the check for an empty size and become the scale factor of the page.
-// REVIEW-NOTE (2026-11): the target size fields allow 99999 in the selected unit, e.g. 99999 cm = 999990 mm ->
-// such a size is cut to 99999 mm when the project is opened again. Not fixed because target sizes beyond 100 m
-// are no real use, and a larger limit needs a new check against the geometry overflows this guards.
-const double MAX_TARGET_SIZE_MM = 99999.0;
-
 double targetSizeFromXml(const QDomElement& el, const QString& name) {
-  return XmlUnmarshaller::numberInRange(el, name, 0.0, MAX_TARGET_SIZE_MM);
+  return XmlUnmarshaller::numberInRange(el, name, 0.0, OutputSizeOptions::MAX_TARGET_SIZE_MM);
 }
 }  // namespace
 
@@ -57,6 +52,16 @@ bool OutputSizeOptions::operator!=(const OutputSizeOptions& other) const {
 
 bool OutputSizeOptions::isDefault() const {
   return *this == OutputSizeOptions();
+}
+
+void OutputSizeOptions::setTargetSizeMM(const QSizeF& sizeMm) {
+  if (!sizeMm.isValid()) {
+    m_targetSizeMm = QSizeF();
+    return;
+  }
+  const double width = std::isfinite(sizeMm.width()) ? std::clamp(sizeMm.width(), 0.0, MAX_TARGET_SIZE_MM) : 0.0;
+  const double height = std::isfinite(sizeMm.height()) ? std::clamp(sizeMm.height(), 0.0, MAX_TARGET_SIZE_MM) : 0.0;
+  m_targetSizeMm = QSizeF(width, height);
 }
 
 void OutputSizeOptions::setMaxEnlargePercent(const int percent) {

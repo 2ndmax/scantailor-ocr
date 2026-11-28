@@ -5,7 +5,9 @@
 #define SCANTAILOR_PAGE_LAYOUT_GUIDE_H_
 
 #include <QDomElement>
-#include <QtCore>
+#include <QLineF>
+#include <QString>
+#include <Qt>
 
 namespace page_layout {
 class Guide {

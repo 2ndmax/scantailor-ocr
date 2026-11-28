@@ -8,12 +8,10 @@
 
 #include <QRectF>
 #include <QSizeF>
-#include <cmath>
 #include <optional>
 
 #include "Dependencies.h"
 #include "DetectionOptions.h"
-#include "Margins.h"
 
 class QDomDocument;
 class QDomElement;
