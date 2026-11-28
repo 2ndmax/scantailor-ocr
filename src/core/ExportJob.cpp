@@ -257,6 +257,476 @@ QString currentExceptionMessage() {
     return ExportJob::tr("Unknown error.");
   }
 }
+
+bool prepareSingleImagePage(const ExportPage& page,
+                            const ExportOptions& options,
+                            PdfWriter::Page* result,
+                            QStringList* errors,
+                            OcrEngine* ocrEngine,
+                            const std::atomic<bool>* cancel,
+                            const int position,
+                            OcrPageTexts* texts) {
+  const QImage image = loadImage(page.mainFile(), errors);
+  if (image.isNull()) {
+    return false;
+  }
+  const QSizeF perPoint = pixelsPerPoint(image);
+  result->size = QSizeF(image.width() / perPoint.width(), image.height() / perPoint.height());
+  const QRectF rect(QPointF(0, 0), result->size);
+
+  if (options.formats.pdf) {
+    PdfWriter::Image pdfImage;
+    // The kind was determined from the file header; decide by the actual image to be safe.
+    bool ok;
+    if (PdfImageEncoder::isBitonal(image)) {
+      ok = makeBitonalImage(image, page.mainFile(), false, options.pdf.bitonalCompression, rect, &pdfImage, errors);
+    } else if (PdfImageEncoder::isPalette(image)) {
+      ok = makeColorImage(image, page.mainFile(), options.pdf.paletteCompression, options.pdf.paletteQuality, rect,
+                          &pdfImage, errors);
+    } else {
+      ok = makeColorImage(image, page.mainFile(), options.pdf.colorCompression, options.pdf.colorQuality, rect,
+                          &pdfImage, errors);
+    }
+    if (!ok) {
+      return false;
+    }
+    result->images.push_back(std::move(pdfImage));
+  }
+  return recognizeText(image, page.mainFile(), page, position, perPoint, options, ocrEngine, cancel, result, texts,
+                       errors);
+}
+
+bool addMrcBackground(QImage background,
+                      const ExportPage& page,
+                      const QSizeF& perPoint,
+                      const ExportOptions& options,
+                      PdfWriter::Page* result,
+                      QStringList* errors) {
+  // Only the part with pictures is stored, the rest of the background is white.
+  const QRect content = PdfImageEncoder::contentRect(background);
+  if (content.isEmpty()) {
+    return true;
+  }
+  QImage part = background.copy(content);
+  background = QImage();
+  // Posterized pictures keep their palette.
+  const bool palette = PdfImageEncoder::isPalette(part);
+  if (!palette) {
+    part = part.convertToFormat(part.isGrayscale() ? QImage::Format_Grayscale8 : QImage::Format_RGB32);
+  }
+  const int scale = std::max(1, options.pdf.backgroundScale);
+  if (scale > 1) {
+    const int width = std::max(1, static_cast<int>(std::ceil(part.width() / static_cast<double>(scale))));
+    const int height = std::max(1, static_cast<int>(std::ceil(part.height() / static_cast<double>(scale))));
+    part = palette ? scalePaletteImage(part, width, height)
+                   : part.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+  }
+  PdfWriter::Image pdfImage;
+  const PdfCompression compression = palette ? options.pdf.paletteCompression : options.pdf.colorCompression;
+  const int quality = palette ? options.pdf.paletteQuality : options.pdf.colorQuality;
+  if (!makeColorImage(part, page.backgroundFile(), compression, quality, toPoints(QRectF(content), perPoint), &pdfImage,
+                      errors)) {
+    return false;
+  }
+  result->images.push_back(std::move(pdfImage));
+  return true;
+}
+
+bool addMrcPdfImages(const ExportPage& page,
+                     const QImage& foreground,
+                     const QSizeF& perPoint,
+                     const ExportOptions& options,
+                     PdfWriter::Page* result,
+                     QStringList* errors) {
+  QImage background = loadImage(page.backgroundFile(), errors);
+  if (background.isNull()) {
+    return false;
+  }
+  // The page was checked when the dialog opened, but the files may have been written again since.
+  if (background.size() != foreground.size()) {
+    errors->push_back(
+        describeFailure(ExportJob::tr("The split output files of %1 differ in size. Process the page again."),
+                        page.mainFile(), QStringList()));
+    return false;
+  }
+  if (!addMrcBackground(std::move(background), page, perPoint, options, result, errors)) {
+    return false;
+  }
+  background = QImage();  // Pages are large; it isn't needed while the mask is compressed.
+
+  PdfWriter::Image mask;
+  if (!makeBitonalImage(foreground, page.foregroundFile(), true, options.pdf.bitonalCompression,
+                        QRectF(QPointF(0, 0), result->size), &mask, errors)) {
+    return false;
+  }
+  result->images.push_back(std::move(mask));
+  return true;
+}
+
+bool prepareMrcPage(const ExportPage& page,
+                    const ExportOptions& options,
+                    PdfWriter::Page* result,
+                    QStringList* errors,
+                    OcrEngine* ocrEngine,
+                    const std::atomic<bool>* cancel,
+                    const int position,
+                    OcrPageTexts* texts) {
+  const QImage foreground = loadImage(page.foregroundFile(), errors);
+  if (foreground.isNull()) {
+    return false;
+  }
+  const QSizeF perPoint = pixelsPerPoint(foreground);
+  result->size = QSizeF(foreground.width() / perPoint.width(), foreground.height() / perPoint.height());
+
+  if (!options.formats.pdf) {
+    // Without a PDF the background isn't loaded, and so isn't compared below. The text formats
+    // name the output file for the coordinates of the foreground, so it must have the same size.
+    QSize mainSize;
+    if (!PdfImageEncoder::readTiffInfo(page.mainFile(), &mainSize, nullptr, nullptr, nullptr)
+        || (mainSize != foreground.size())) {
+      errors->push_back(
+          describeFailure(ExportJob::tr("The split output files of %1 differ in size. Process the page again."),
+                          page.mainFile(), QStringList()));
+      return false;
+    }
+  } else if (!addMrcPdfImages(page, foreground, perPoint, options, result, errors)) {
+    return false;
+  }
+  // The foreground holds only the text, without the pictures, which helps recognition. So
+  // hOCR and ALTO have no picture areas for these pages, unlike for pages stored as one image.
+  return recognizeText(foreground, page.foregroundFile(), page, position, perPoint, options, ocrEngine, cancel, result,
+                       texts, errors);
+}
+
+struct PreparedItem {
+  bool ok = false;
+  PdfWriter::Page page;
+  OcrPageTexts texts;
+  QStringList errors;
+
+  qint64 bytes() const {
+    qint64 sum = texts.bytes();
+    for (const PdfWriter::Image& image : page.images) {
+      sum += image.data.size();
+    }
+    return sum;
+  }
+};
+
+bool hasCancelRequest(const std::atomic<bool>& internalCancel, const std::atomic<bool>* externalCancel) {
+  return internalCancel.load() || ((externalCancel != nullptr) && externalCancel->load());
+}
+
+// Workers prepare pages in parallel, the writer thread writes them in order.
+// To limit memory usage, workers don't run too far ahead of the writer,
+// neither in pages nor in bytes: uncompressed pages can be dozens of MB.
+struct PreparePipeline {
+  const std::vector<ExportPage>& pages;
+  const ExportOptions& options;
+  const std::atomic<bool>& internalCancel;
+  const std::atomic<bool>* externalCancel;
+  const int pageCount;
+  const int maxAhead;
+  const qint64 maxPreparedBytes = qint64(512) * 1024 * 1024;
+
+  std::mutex mutex;
+  std::condition_variable condition;
+  std::map<int, PreparedItem> prepared;
+  qint64 preparedBytes = 0;
+  int nextToPrepare = 0;
+  int nextToWrite = 0;
+  bool stop = false;
+
+  PreparePipeline(const std::vector<ExportPage>& pagesIn,
+                  const ExportOptions& optionsIn,
+                  const std::atomic<bool>& internalCancelIn,
+                  const std::atomic<bool>* externalCancelIn,
+                  const int pageCountIn,
+                  const int maxAheadIn)
+      : pages(pagesIn),
+        options(optionsIn),
+        internalCancel(internalCancelIn),
+        externalCancel(externalCancelIn),
+        pageCount(pageCountIn),
+        maxAhead(maxAheadIn) {}
+
+  bool isCancelRequested() const { return hasCancelRequest(internalCancel, externalCancel); }
+
+  const std::atomic<bool>* cancelFlag() const { return externalCancel ? externalCancel : &internalCancel; }
+
+  bool canWakeWorkerLocked() const {
+    return stop
+           || ((nextToPrepare < std::min(pageCount, nextToWrite + maxAhead))
+               && ((preparedBytes < maxPreparedBytes) || prepared.empty()));
+  }
+
+  bool claimNextPage(int* index) {
+    std::unique_lock<std::mutex> lock(mutex);
+    // The page the writer waits for is always being prepared already, so waiting
+    // for memory to be freed can't block the writer.
+    condition.wait(lock, [this] { return canWakeWorkerLocked(); });
+    if (stop || (nextToPrepare >= pageCount)) {
+      return false;
+    }
+    *index = nextToPrepare++;
+    return true;
+  }
+
+  void publishPrepared(const int index, PreparedItem item) {
+    {
+      std::lock_guard<std::mutex> lock(mutex);
+      preparedBytes += item.bytes();
+      prepared[index] = std::move(item);
+    }
+    condition.notify_all();
+  }
+
+  bool takeNextPrepared(PreparedItem* item, bool* cancelled) {
+    {
+      std::unique_lock<std::mutex> lock(mutex);
+      // Wake up regularly to notice a cancellation request.
+      while (!isCancelRequested() && (prepared.find(nextToWrite) == prepared.end())) {
+        condition.wait_for(lock, std::chrono::milliseconds(100));
+      }
+      if (isCancelRequested()) {
+        *cancelled = true;
+        return false;
+      }
+      auto it = prepared.find(nextToWrite);
+      *item = std::move(it->second);
+      prepared.erase(it);
+      preparedBytes -= item->bytes();
+      ++nextToWrite;
+    }
+    condition.notify_all();
+    return true;
+  }
+
+  void requestStop() {
+    {
+      std::lock_guard<std::mutex> lock(mutex);
+      stop = true;
+    }
+    condition.notify_all();
+  }
+};
+
+bool ensureWorkerOcrEngine(const ExportOptions& options, std::unique_ptr<OcrEngine>* ocrEngine, QString* ocrInitError) {
+  if (!options.runsTextRecognition() || *ocrEngine || !ocrInitError->isEmpty()) {
+    return ocrInitError->isEmpty();
+  }
+  auto newEngine = std::make_unique<OcrEngine>();
+  if (newEngine->init(options.ocrDataDir, options.ocrLanguages, ocrInitError)) {
+    *ocrEngine = std::move(newEngine);
+    return true;
+  }
+  if (ocrInitError->isEmpty()) {
+    *ocrInitError = ExportJob::tr("Text recognition could not be started.");
+  }
+  return false;
+}
+
+PreparedItem prepareSingleItem(const PreparePipeline& pipeline,
+                               const int index,
+                               std::unique_ptr<OcrEngine>* ocrEngine,
+                               QString* ocrInitError) {
+  PreparedItem item;
+  if (pipeline.isCancelRequested()) {
+    return item;
+  }
+  try {
+    if (!ensureWorkerOcrEngine(pipeline.options, ocrEngine, ocrInitError)) {
+      item.ok = false;
+      item.errors.push_back(*ocrInitError);
+    } else {
+      item.ok = ExportJob::preparePage(pipeline.pages[index], pipeline.options, &item.page, &item.errors,
+                                       ocrEngine->get(), pipeline.cancelFlag(), index + 1, &item.texts);
+    }
+  } catch (...) {
+    // An exception escaping a std::thread would terminate the program.
+    item.ok = false;
+    item.errors.push_back(currentExceptionMessage());
+  }
+  return item;
+}
+
+void runWorker(PreparePipeline* pipeline) {
+  // The pages prepared side by side share the threads of the image filters and decoders.
+  const ThreadBudget::TaskScope taskScope;
+  // Each thread has its own recognizer, created when it prepares its first page.
+  std::unique_ptr<OcrEngine> ocrEngine;
+  QString ocrInitError;
+
+  int index = 0;
+  while (pipeline->claimNextPage(&index)) {
+    PreparedItem item = prepareSingleItem(*pipeline, index, &ocrEngine, &ocrInitError);
+    pipeline->publishPrepared(index, std::move(item));
+  }
+}
+
+bool validateRunInputs(const std::vector<ExportPage>& pages, const ExportOptions& options, QStringList* errors) {
+  if (pages.empty()) {
+    errors->push_back(ExportJob::tr("No pages are selected."));
+    return false;
+  }
+  if (!options.formats.any()) {
+    errors->push_back(ExportJob::tr("No format is selected."));
+    return false;
+  }
+  if (options.formats.hasTextFormat() && !options.ocr) {
+    errors->push_back(ExportJob::tr("Text recognition isn't initialized."));
+    return false;
+  }
+  return true;
+}
+
+bool openPdfWriter(const ExportPaths& paths,
+                   const ExportOptions& options,
+                   std::unique_ptr<QSaveFile>* file,
+                   std::unique_ptr<PdfWriter>* writer,
+                   QStringList* errors,
+                   bool* writerOk) {
+  if (!options.formats.pdf) {
+    return true;
+  }
+  *file = std::make_unique<QSaveFile>(paths.pdf);
+  if (!(*file)->open(QIODevice::WriteOnly)) {
+    errors->push_back(
+        describeFailure(ExportJob::tr("Could not create %1."), paths.pdf, QStringList((*file)->errorString())));
+    return false;
+  }
+  *writer = std::make_unique<PdfWriter>(**file);
+  (*writer)->setProducer(QStringLiteral("ScanTailor OCR"));
+  (*writer)->setPdfA(options.pdf.pdfA);
+  *writerOk = (*writer)->begin();
+  return true;
+}
+
+OcrTextOutputs::Settings makeTextOutputSettings(const ExportPaths& paths,
+                                                const ProcessingOptions::Formats& formats,
+                                                const int pageCount) {
+  OcrTextOutputs::Settings textSettings;
+  textSettings.txtFile = formats.txt ? paths.txt : QString();
+  textSettings.hocrFile = formats.hocr ? paths.hocr : QString();
+  textSettings.altoDir = formats.alto ? paths.altoDir : QString();
+  textSettings.pageCount = pageCount;
+  textSettings.tesseractVersion = OcrEngine::tesseractVersion();
+  return textSettings;
+}
+
+bool writePreparedPage(const PreparedItem& item,
+                       const QString& pageFileName,
+                       PdfWriter* writer,
+                       OcrTextOutputs* textOutputs,
+                       QStringList* errors) {
+  if (!item.ok) {
+    errors->append(item.errors);
+    return false;
+  }
+  if (writer && !writer->addPage(item.page)) {
+    return false;
+  }
+  QString textError;
+  if (!textOutputs->addPage(pageFileName, item.texts, &textError)) {
+    errors->push_back(textError);
+    return false;
+  }
+  return true;
+}
+
+void stopAndJoinWorkers(PreparePipeline* pipeline, std::vector<std::thread>* threads) {
+  pipeline->requestStop();
+  for (std::thread& thread : *threads) {
+    thread.join();
+  }
+}
+
+bool finishOutputs(PdfWriter* writer, OcrTextOutputs* textOutputs, QStringList* errors) {
+  try {
+    if (writer && !writer->finish()) {
+      return false;
+    }
+    QString textError;
+    if (!textOutputs->finish(&textError)) {
+      errors->push_back(textError);
+      return false;
+    }
+    return true;
+  } catch (...) {
+    errors->push_back(currentExceptionMessage());
+    return false;
+  }
+}
+
+bool commitOutputs(QSaveFile* file, const QString& pdfPath, OcrTextOutputs* textOutputs, QStringList* errors) {
+  QStringList replaced;
+  if (file) {
+    if (!file->commit()) {
+      errors->push_back(
+          describeFailure(ExportJob::tr("Could not write %1."), pdfPath, QStringList(file->errorString())));
+      textOutputs->cancel();
+      return false;
+    }
+    replaced.push_back(QDir::toNativeSeparators(pdfPath));
+  }
+  QString textError;
+  if (textOutputs->commit(&replaced, &textError)) {
+    return true;
+  }
+  errors->push_back(textError);
+  if (!replaced.isEmpty()) {
+    errors->push_back(ExportJob::tr("These were already replaced: %1").arg(replaced.join(QStringLiteral(", "))));
+  }
+  textOutputs->cancel();
+  return false;
+}
+
+void cancelOutputs(QSaveFile* file,
+                   const QString& pdfPath,
+                   OcrTextOutputs* textOutputs,
+                   const bool cancelled,
+                   QStringList* errors) {
+  textOutputs->cancel();
+  if (file) {
+    file->cancelWriting();
+    if (!cancelled && errors->isEmpty()) {
+      errors->push_back(
+          describeFailure(ExportJob::tr("Could not write %1."), pdfPath, QStringList(file->errorString())));
+    }
+  }
+}
+
+void finalizeOutputs(PdfWriter* writer,
+                     QSaveFile* file,
+                     const QString& pdfPath,
+                     OcrTextOutputs* textOutputs,
+                     const std::atomic<bool>& internalCancel,
+                     const std::atomic<bool>* externalCancel,
+                     bool ok,
+                     bool* cancelled,
+                     bool* succeeded,
+                     QStringList* errors) {
+  // A cancel request can arrive after the last page left the queue: while that page is written, from its
+  // progress signal (the command line tool passes Ctrl+C on there), or during finish(). No file has been
+  // replaced yet, so it is still honored.
+  if (ok && hasCancelRequest(internalCancel, externalCancel)) {
+    *cancelled = true;
+  }
+
+  // Everything is written completely before the first existing file is replaced.
+  if (ok && !*cancelled) {
+    ok = finishOutputs(writer, textOutputs, errors);
+  }
+  if (ok && hasCancelRequest(internalCancel, externalCancel)) {
+    *cancelled = true;
+  }
+  if (ok && !*cancelled) {
+    *succeeded = commitOutputs(file, pdfPath, textOutputs, errors);
+    return;
+  }
+
+  cancelOutputs(file, pdfPath, textOutputs, *cancelled, errors);
+}
 }  // namespace
 
 ExportPaths ExportPaths::fromBase(const QString& base) {
@@ -340,105 +810,10 @@ bool ExportJob::preparePage(const ExportPage& page,
     }
     case ExportPage::BITONAL:
     case ExportPage::PALETTE:
-    case ExportPage::IMAGE: {
-      const QImage image = loadImage(page.mainFile(), errors);
-      if (image.isNull()) {
-        return false;
-      }
-      const QSizeF perPoint = pixelsPerPoint(image);
-      result->size = QSizeF(image.width() / perPoint.width(), image.height() / perPoint.height());
-      const QRectF rect(QPointF(0, 0), result->size);
-
-      if (options.formats.pdf) {
-        PdfWriter::Image pdfImage;
-        // The kind was determined from the file header; decide by the actual image to be safe.
-        bool ok;
-        if (PdfImageEncoder::isBitonal(image)) {
-          ok = makeBitonalImage(image, page.mainFile(), false, options.pdf.bitonalCompression, rect, &pdfImage, errors);
-        } else if (PdfImageEncoder::isPalette(image)) {
-          ok = makeColorImage(image, page.mainFile(), options.pdf.paletteCompression, options.pdf.paletteQuality, rect,
-                              &pdfImage, errors);
-        } else {
-          ok = makeColorImage(image, page.mainFile(), options.pdf.colorCompression, options.pdf.colorQuality, rect,
-                              &pdfImage, errors);
-        }
-        if (!ok) {
-          return false;
-        }
-        result->images.push_back(std::move(pdfImage));
-      }
-      return recognizeText(image, page.mainFile(), page, position, perPoint, options, ocrEngine, cancel, result, texts,
-                           errors);
-    }
-    case ExportPage::MRC: {
-      const QImage foreground = loadImage(page.foregroundFile(), errors);
-      if (foreground.isNull()) {
-        return false;
-      }
-      const QSizeF perPoint = pixelsPerPoint(foreground);
-      result->size = QSizeF(foreground.width() / perPoint.width(), foreground.height() / perPoint.height());
-
-      if (!options.formats.pdf) {
-        // Without a PDF the background isn't loaded, and so isn't compared below. The text formats
-        // name the output file for the coordinates of the foreground, so it must have the same size.
-        QSize mainSize;
-        if (!PdfImageEncoder::readTiffInfo(page.mainFile(), &mainSize, nullptr, nullptr, nullptr)
-            || (mainSize != foreground.size())) {
-          errors->push_back(describeFailure(tr("The split output files of %1 differ in size. Process the page again."),
-                                            page.mainFile(), QStringList()));
-          return false;
-        }
-      } else {
-        QImage background = loadImage(page.backgroundFile(), errors);
-        if (background.isNull()) {
-          return false;
-        }
-        // The page was checked when the dialog opened, but the files may have been written again since.
-        if (background.size() != foreground.size()) {
-          errors->push_back(describeFailure(tr("The split output files of %1 differ in size. Process the page again."),
-                                            page.mainFile(), QStringList()));
-          return false;
-        }
-        // Only the part with pictures is stored, the rest of the background is white.
-        const QRect content = PdfImageEncoder::contentRect(background);
-        if (!content.isEmpty()) {
-          QImage part = background.copy(content);
-          background = QImage();
-          // Posterized pictures keep their palette.
-          const bool palette = PdfImageEncoder::isPalette(part);
-          if (!palette) {
-            part = part.convertToFormat(part.isGrayscale() ? QImage::Format_Grayscale8 : QImage::Format_RGB32);
-          }
-          const int scale = std::max(1, options.pdf.backgroundScale);
-          if (scale > 1) {
-            const int width = std::max(1, static_cast<int>(std::ceil(part.width() / static_cast<double>(scale))));
-            const int height = std::max(1, static_cast<int>(std::ceil(part.height() / static_cast<double>(scale))));
-            part = palette ? scalePaletteImage(part, width, height)
-                           : part.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-          }
-          PdfWriter::Image pdfImage;
-          const PdfCompression compression = palette ? options.pdf.paletteCompression : options.pdf.colorCompression;
-          const int quality = palette ? options.pdf.paletteQuality : options.pdf.colorQuality;
-          if (!makeColorImage(part, page.backgroundFile(), compression, quality, toPoints(QRectF(content), perPoint),
-                              &pdfImage, errors)) {
-            return false;
-          }
-          result->images.push_back(std::move(pdfImage));
-        }
-        background = QImage();  // Pages are large; it isn't needed while the mask is compressed.
-
-        PdfWriter::Image mask;
-        if (!makeBitonalImage(foreground, page.foregroundFile(), true, options.pdf.bitonalCompression,
-                              QRectF(QPointF(0, 0), result->size), &mask, errors)) {
-          return false;
-        }
-        result->images.push_back(std::move(mask));
-      }
-      // The foreground holds only the text, without the pictures, which helps recognition. So
-      // hOCR and ALTO have no picture areas for these pages, unlike for pages stored as one image.
-      return recognizeText(foreground, page.foregroundFile(), page, position, perPoint, options, ocrEngine, cancel,
-                           result, texts, errors);
-    }
+    case ExportPage::IMAGE:
+      return prepareSingleImagePage(page, options, result, errors, ocrEngine, cancel, position, texts);
+    case ExportPage::MRC:
+      return prepareMrcPage(page, options, result, errors, ocrEngine, cancel, position, texts);
   }
   return false;
 }  // ExportJob::preparePage
@@ -448,136 +823,27 @@ void ExportJob::run() {
   m_cancelled = false;
   m_errors.clear();
 
+  if (!validateRunInputs(m_pages, m_options, &m_errors)) {
+    return;
+  }
+
   const int pageCount = static_cast<int>(m_pages.size());
-  if (pageCount == 0) {
-    m_errors.push_back(tr("No pages are selected."));
-    return;
-  }
-
-  const ProcessingOptions::Formats& formats = m_options.formats;
-  if (!formats.any()) {
-    m_errors.push_back(tr("No format is selected."));
-    return;
-  }
-  if (formats.hasTextFormat() && !m_options.ocr) {
-    m_errors.push_back(tr("Text recognition isn't initialized."));
-    return;
-  }
-
   std::unique_ptr<QSaveFile> file;
   std::unique_ptr<PdfWriter> writer;
   bool ok = true;
-  if (formats.pdf) {
-    file = std::make_unique<QSaveFile>(m_paths.pdf);
-    if (!file->open(QIODevice::WriteOnly)) {
-      m_errors.push_back(describeFailure(tr("Could not create %1."), m_paths.pdf, QStringList(file->errorString())));
-      return;
-    }
-    writer = std::make_unique<PdfWriter>(*file);
-    writer->setProducer(QStringLiteral("ScanTailor OCR"));
-    writer->setPdfA(m_options.pdf.pdfA);
-    ok = writer->begin();
+  if (!openPdfWriter(m_paths, m_options, &file, &writer, &m_errors, &ok)) {
+    return;
   }
 
-  OcrTextOutputs::Settings textSettings;
-  textSettings.txtFile = formats.txt ? m_paths.txt : QString();
-  textSettings.hocrFile = formats.hocr ? m_paths.hocr : QString();
-  textSettings.altoDir = formats.alto ? m_paths.altoDir : QString();
-  textSettings.pageCount = pageCount;
-  textSettings.tesseractVersion = OcrEngine::tesseractVersion();
-  OcrTextOutputs textOutputs(textSettings);
+  OcrTextOutputs textOutputs(makeTextOutputSettings(m_paths, m_options.formats, pageCount));
   QString textError;
   if (!textOutputs.begin(&textError)) {
     m_errors.push_back(textError);
     return;
   }
 
-  struct Prepared {
-    bool ok = false;
-    PdfWriter::Page page;
-    OcrPageTexts texts;
-    QStringList errors;
-
-    qint64 bytes() const {
-      qint64 sum = texts.bytes();
-      for (const PdfWriter::Image& image : page.images) {
-        sum += image.data.size();
-      }
-      return sum;
-    }
-  };
-
-  // Workers prepare pages in parallel, this thread writes them in order.
-  // To limit memory usage, workers don't run too far ahead of the writer,
-  // neither in pages nor in bytes: uncompressed pages can be dozens of MB.
-  std::mutex mutex;
-  std::condition_variable condition;
-  std::map<int, Prepared> prepared;
-  qint64 preparedBytes = 0;
-  const qint64 maxPreparedBytes = qint64(512) * 1024 * 1024;
-  int nextToPrepare = 0;
-  int nextToWrite = 0;
-  bool stop = false;
   const int threadCount = std::clamp(m_options.threadCount, 1, pageCount);
-  const int maxAhead = threadCount * 2;
-
-  auto worker = [&]() {
-    // The pages prepared side by side share the threads of the image filters and decoders.
-    const ThreadBudget::TaskScope taskScope;
-    // Each thread has its own recognizer, created when it prepares its first page.
-    std::unique_ptr<OcrEngine> ocrEngine;
-    QString ocrInitError;
-
-    while (true) {
-      int index;
-      {
-        std::unique_lock<std::mutex> lock(mutex);
-        // The page the writer waits for is always being prepared already, so waiting
-        // for memory to be freed can't block the writer.
-        condition.wait(lock, [&] {
-          return stop
-                 || ((nextToPrepare < std::min(pageCount, nextToWrite + maxAhead))
-                     && ((preparedBytes < maxPreparedBytes) || prepared.empty()));
-        });
-        if (stop || (nextToPrepare >= pageCount)) {
-          return;
-        }
-        index = nextToPrepare++;
-      }
-
-      Prepared item;
-      if (!isCancelRequested()) {
-        try {
-          if (m_options.runsTextRecognition() && !ocrEngine && ocrInitError.isEmpty()) {
-            auto newEngine = std::make_unique<OcrEngine>();
-            if (newEngine->init(m_options.ocrDataDir, m_options.ocrLanguages, &ocrInitError)) {
-              ocrEngine = std::move(newEngine);
-            } else if (ocrInitError.isEmpty()) {
-              ocrInitError = tr("Text recognition could not be started.");
-            }
-          }
-          if (!ocrInitError.isEmpty()) {
-            item.ok = false;
-            item.errors.push_back(ocrInitError);
-          } else {
-            item.ok = preparePage(m_pages[index], m_options, &item.page, &item.errors, ocrEngine.get(),
-                                  m_externalCancel ? m_externalCancel : &m_cancelRequested, index + 1, &item.texts);
-          }
-        } catch (...) {
-          // An exception escaping a std::thread would terminate the program.
-          item.ok = false;
-          item.errors.push_back(currentExceptionMessage());
-        }
-      }
-
-      {
-        std::lock_guard<std::mutex> lock(mutex);
-        preparedBytes += item.bytes();
-        prepared[index] = std::move(item);
-      }
-      condition.notify_all();
-    }
-  };
+  PreparePipeline pipeline{m_pages, m_options, m_cancelRequested, m_externalCancel, pageCount, threadCount * 2};
 
   std::vector<std::thread> threads;
   // Writing can throw too (e.g. std::bad_alloc). The workers are stopped and joined in any case:
@@ -585,110 +851,27 @@ void ExportJob::run() {
   try {
     threads.reserve(threadCount);
     for (int i = 0; i < threadCount; ++i) {
-      threads.emplace_back(worker);
+      threads.emplace_back(runWorker, &pipeline);
     }
 
-    while (ok && (nextToWrite < pageCount)) {
-      Prepared item;
-      {
-        std::unique_lock<std::mutex> lock(mutex);
-        // Wake up regularly to notice a cancellation request.
-        while (!isCancelRequested() && (prepared.find(nextToWrite) == prepared.end())) {
-          condition.wait_for(lock, std::chrono::milliseconds(100));
-        }
-        if (isCancelRequested()) {
-          m_cancelled = true;
-          break;
-        }
-        auto it = prepared.find(nextToWrite);
-        item = std::move(it->second);
-        prepared.erase(it);
-        preparedBytes -= item.bytes();
-        ++nextToWrite;
+    while (ok && (pipeline.nextToWrite < pageCount)) {
+      PreparedItem item;
+      if (!pipeline.takeNextPrepared(&item, &m_cancelled)) {
+        break;
       }
-      condition.notify_all();
-
-      if (!item.ok) {
-        m_errors.append(item.errors);
+      const QString pageFileName = QFileInfo(m_pages[pipeline.nextToWrite - 1].mainFile()).fileName();
+      if (!writePreparedPage(item, pageFileName, writer.get(), &textOutputs, &m_errors)) {
         ok = false;
         break;
       }
-      if (writer && !writer->addPage(item.page)) {
-        ok = false;
-        break;
-      }
-      if (!textOutputs.addPage(QFileInfo(m_pages[nextToWrite - 1].mainFile()).fileName(), item.texts, &textError)) {
-        m_errors.push_back(textError);
-        ok = false;
-        break;
-      }
-      emit progress(nextToWrite, pageCount);
+      emit progress(pipeline.nextToWrite, pageCount);
     }
   } catch (...) {
     m_errors.push_back(currentExceptionMessage());
     ok = false;
   }
 
-  {
-    std::lock_guard<std::mutex> lock(mutex);
-    stop = true;
-  }
-  condition.notify_all();
-  for (std::thread& thread : threads) {
-    thread.join();
-  }
-
-  // A cancel request can arrive after the last page left the queue: while that page is written, from its
-  // progress signal (the command line tool passes Ctrl+C on there), or during finish(). No file has been
-  // replaced yet, so it is still honored.
-  const auto takeLateCancelRequest = [&]() {
-    if (ok && isCancelRequested()) {
-      m_cancelled = true;
-    }
-  };
-  takeLateCancelRequest();
-
-  // Everything is written completely before the first existing file is replaced.
-  if (ok && !m_cancelled) {
-    try {
-      ok = !writer || writer->finish();
-      if (ok && !textOutputs.finish(&textError)) {
-        m_errors.push_back(textError);
-        ok = false;
-      }
-    } catch (...) {
-      m_errors.push_back(currentExceptionMessage());
-      ok = false;
-    }
-  }
-  takeLateCancelRequest();
-  if (ok && !m_cancelled) {
-    QStringList replaced;
-    if (file) {
-      if (!file->commit()) {
-        m_errors.push_back(describeFailure(tr("Could not write %1."), m_paths.pdf, QStringList(file->errorString())));
-        textOutputs.cancel();
-        return;
-      }
-      replaced.push_back(QDir::toNativeSeparators(m_paths.pdf));
-    }
-    if (textOutputs.commit(&replaced, &textError)) {
-      m_succeeded = true;
-      return;
-    }
-    m_errors.push_back(textError);
-    if (!replaced.isEmpty()) {
-      m_errors.push_back(tr("These were already replaced: %1").arg(replaced.join(QStringLiteral(", "))));
-    }
-    textOutputs.cancel();
-    return;
-  }
-
-  textOutputs.cancel();
-  if (file) {
-    file->cancelWriting();
-    if (!m_cancelled && m_errors.isEmpty()) {
-      m_errors.push_back(describeFailure(tr("Could not write %1."), m_paths.pdf, QStringList(file->errorString())));
-    }
-  }
+  stopAndJoinWorkers(&pipeline, &threads);
+  finalizeOutputs(writer.get(), file.get(), m_paths.pdf, &textOutputs, m_cancelRequested, m_externalCancel, ok,
+                  &m_cancelled, &m_succeeded, &m_errors);
 }  // ExportJob::run

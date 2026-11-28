@@ -221,6 +221,201 @@ void appendSegmentHeader(QByteArray& out, const uint32_t number, const int type,
   appendU32(out, dataLength);
 }
 
+/*============================ rawSamples & deflate helpers ============================*/
+
+QByteArray rawBitonalSamples(const QImage& image, int* bitsPerComponent) {
+  bool oneIsBlack = true;
+  const QImage mono = toMono(image, &oneIsBlack);
+  const int width = image.width();
+  const int height = image.height();
+  const int bytesPerRow = (width + 7) / 8;
+  QByteArray out(static_cast<qsizetype>(bytesPerRow) * height, Qt::Uninitialized);
+  for (int y = 0; y < height; ++y) {
+    const uchar* src = mono.constScanLine(y);
+    auto* dst = reinterpret_cast<uchar*>(out.data()) + static_cast<qsizetype>(y) * bytesPerRow;
+    for (int i = 0; i < bytesPerRow; ++i) {
+      // PDF's gray has black as 0.
+      dst[i] = oneIsBlack ? static_cast<uchar>(~src[i]) : src[i];
+    }
+  }
+  *bitsPerComponent = 1;
+  return out;
+}
+
+int usedPaletteColorCount(const QImage& image) {
+  // TIFF files always have a palette of 256 colours, even if only a few are used.
+  // Leaving out the unused ones at the end allows fewer bits per pixel.
+  const int width = image.width();
+  const int height = image.height();
+  int maxIndex = 0;
+  for (int y = 0; (y < height) && (maxIndex < 255); ++y) {
+    const uchar* src = image.constScanLine(y);
+    maxIndex = std::max<int>(maxIndex, *std::max_element(src, src + width));
+  }
+  return std::min({image.colorCount(), 256, maxIndex + 1});
+}
+
+QByteArray rawPaletteSamples(const QImage& image, int* bitsPerComponent, QByteArray* palette) {
+  const int width = image.width();
+  const int height = image.height();
+  const int colorCount = usedPaletteColorCount(image);
+  const int bits = (colorCount <= 2) ? 1 : (colorCount <= 4) ? 2 : (colorCount <= 16) ? 4 : 8;
+  for (int i = 0; i < colorCount; ++i) {
+    const QRgb rgb = image.color(i);
+    palette->append(static_cast<char>(qRed(rgb)));
+    palette->append(static_cast<char>(qGreen(rgb)));
+    palette->append(static_cast<char>(qBlue(rgb)));
+  }
+  const int bytesPerRow = (width * bits + 7) / 8;
+  QByteArray out(static_cast<qsizetype>(bytesPerRow) * height, 0);
+  for (int y = 0; y < height; ++y) {
+    const uchar* src = image.constScanLine(y);
+    auto* dst = reinterpret_cast<uchar*>(out.data()) + static_cast<qsizetype>(y) * bytesPerRow;
+    for (int x = 0; x < width; ++x) {
+      const int index = std::min<int>(src[x], colorCount - 1);
+      const int bitPos = x * bits;
+      dst[bitPos / 8] |= static_cast<uchar>(index << (8 - bits - bitPos % 8));
+    }
+  }
+  *bitsPerComponent = bits;
+  return out;
+}
+
+QByteArray rawColorOrGraySamples(const QImage& image, int* components) {
+  const int width = image.width();
+  const int height = image.height();
+  const bool gray = image.isGrayscale();
+  const QImage src = image.convertToFormat(gray ? QImage::Format_Grayscale8 : QImage::Format_RGB888);
+  const int bytesPerRow = width * (gray ? 1 : 3);
+  QByteArray out(static_cast<qsizetype>(bytesPerRow) * height, Qt::Uninitialized);
+  for (int y = 0; y < height; ++y) {
+    std::memcpy(out.data() + static_cast<qsizetype>(y) * bytesPerRow, src.constScanLine(y), bytesPerRow);
+  }
+  *components = gray ? 1 : 3;
+  return out;
+}
+
+QByteArray compressZlib(const QByteArray& input, const int level) {
+  // qCompress() prepends the uncompressed size as 4 bytes, the rest is a zlib stream.
+  QByteArray out = qCompress(input, level);
+  return (out.size() <= 4) ? QByteArray() : out.remove(0, 4);
+}
+
+bool computePredictedRowLayout(const qsizetype sampleSize,
+                               const int width,
+                               const int height,
+                               const int components,
+                               const int bitsPerComponent,
+                               qsizetype* bytesPerRow,
+                               int* bytesPerPixel) {
+  if (components > (std::numeric_limits<int64_t>::max() / bitsPerComponent)) {
+    return false;
+  }
+  const int64_t bitsPerPixel = static_cast<int64_t>(components) * bitsPerComponent;
+  if (width > ((std::numeric_limits<int64_t>::max() - 7) / bitsPerPixel)) {
+    return false;
+  }
+  const int64_t bytesPerRow64 = (static_cast<int64_t>(width) * bitsPerPixel + 7) / 8;
+  if ((bytesPerRow64 <= 0) || (bytesPerRow64 > std::numeric_limits<int>::max() - 1)) {
+    return false;
+  }
+  const qsizetype rowBytes = static_cast<qsizetype>(bytesPerRow64);
+  if (static_cast<qsizetype>(height) > (std::numeric_limits<qsizetype>::max() / (rowBytes + 1))) {
+    return false;
+  }
+  if (sampleSize < rowBytes * static_cast<qsizetype>(height)) {
+    return false;
+  }
+  *bytesPerRow = rowBytes;
+  *bytesPerPixel = static_cast<int>(std::max<int64_t>(1, bitsPerPixel / 8));
+  return true;
+}
+
+int paethPredictor(const int a, const int b, const int c) {
+  const int p = a + b - c;
+  const int pa = std::abs(p - a);
+  const int pb = std::abs(p - b);
+  const int pc = std::abs(p - c);
+  if ((pa <= pb) && (pa <= pc)) {
+    return a;
+  }
+  return (pb <= pc) ? b : c;
+}
+
+int pngPrediction(const int type, const int a, const int b, const int c) {
+  switch (type) {
+    case 1:
+      return a;
+    case 2:
+      return b;
+    case 3:
+      return (a + b) / 2;
+    case 4:
+      return paethPredictor(a, b, c);
+    default:
+      return 0;
+  }
+}
+
+long long applyPngFilter(const int type,
+                         const uchar* cur,
+                         const uchar* up,
+                         const qsizetype bytesPerRow,
+                         const int bytesPerPixel,
+                         std::vector<uchar>* candidate) {
+  long long sum = 0;
+  for (qsizetype i = 0; i < bytesPerRow; ++i) {
+    const int a = (i >= bytesPerPixel) ? cur[i - bytesPerPixel] : 0;
+    const int b = up[i];
+    const int c = (i >= bytesPerPixel) ? up[i - bytesPerPixel] : 0;
+    const int prediction = pngPrediction(type, a, b, c);
+    const auto value = static_cast<uchar>(cur[i] - prediction);
+    (*candidate)[static_cast<size_t>(i)] = value;
+    sum += std::abs(static_cast<signed char>(value));
+  }
+  return sum;
+}
+
+int selectBestPngFilter(const uchar* cur,
+                        const uchar* up,
+                        const qsizetype bytesPerRow,
+                        const int bytesPerPixel,
+                        std::vector<uchar>* candidate,
+                        std::vector<uchar>* best) {
+  int bestType = 0;
+  long long bestSum = -1;
+  for (int type = 0; type < 5; ++type) {
+    const long long sum = applyPngFilter(type, cur, up, bytesPerRow, bytesPerPixel, candidate);
+    if ((bestSum < 0) || (sum < bestSum)) {
+      bestSum = sum;
+      bestType = type;
+      best->swap(*candidate);
+    }
+  }
+  return bestType;
+}
+
+QByteArray applyPngPredictors(const QByteArray& samples,
+                              const int height,
+                              const qsizetype bytesPerRow,
+                              const int bytesPerPixel) {
+  // Each row gets a leading byte with its predictor (PNG filter type), chosen by the
+  // usual heuristic: the smallest sum of the absolute (signed) differences.
+  QByteArray filtered((bytesPerRow + 1) * static_cast<qsizetype>(height), Qt::Uninitialized);
+  const std::vector<uchar> zeroRow(bytesPerRow, 0);
+  std::vector<uchar> candidate(bytesPerRow);
+  std::vector<uchar> best(bytesPerRow);
+  for (int y = 0; y < height; ++y) {
+    const auto* cur = reinterpret_cast<const uchar*>(samples.constData()) + static_cast<qsizetype>(y) * bytesPerRow;
+    const uchar* up = (y > 0) ? cur - bytesPerRow : zeroRow.data();
+    const int bestType = selectBestPngFilter(cur, up, bytesPerRow, bytesPerPixel, &candidate, &best);
+    char* dst = filtered.data() + static_cast<qsizetype>(y) * (bytesPerRow + 1);
+    dst[0] = static_cast<char>(bestType);
+    std::memcpy(dst + 1, best.data(), bytesPerRow);
+  }
+  return filtered;
+}
+
 }  // namespace
 
 bool PdfImageEncoder::isBitonal(const QImage& image) {
@@ -241,66 +436,13 @@ QByteArray PdfImageEncoder::rawSamples(const QImage& image,
   if (image.isNull()) {
     return QByteArray();
   }
-  const int width = image.width();
-  const int height = image.height();
-
   if (isBitonal(image)) {
-    bool oneIsBlack = true;
-    const QImage mono = toMono(image, &oneIsBlack);
-    const int bytesPerRow = (width + 7) / 8;
-    QByteArray out(static_cast<qsizetype>(bytesPerRow) * height, Qt::Uninitialized);
-    for (int y = 0; y < height; ++y) {
-      const uchar* src = mono.constScanLine(y);
-      auto* dst = reinterpret_cast<uchar*>(out.data()) + static_cast<qsizetype>(y) * bytesPerRow;
-      for (int i = 0; i < bytesPerRow; ++i) {
-        // PDF's gray has black as 0.
-        dst[i] = oneIsBlack ? static_cast<uchar>(~src[i]) : src[i];
-      }
-    }
-    *bitsPerComponent = 1;
-    return out;
+    return rawBitonalSamples(image, bitsPerComponent);
   }
-
   if (isPalette(image)) {
-    // TIFF files always have a palette of 256 colours, even if only a few are used.
-    // Leaving out the unused ones at the end allows fewer bits per pixel.
-    int maxIndex = 0;
-    for (int y = 0; (y < height) && (maxIndex < 255); ++y) {
-      const uchar* src = image.constScanLine(y);
-      maxIndex = std::max<int>(maxIndex, *std::max_element(src, src + width));
-    }
-    const int colorCount = std::min({image.colorCount(), 256, maxIndex + 1});
-    const int bits = (colorCount <= 2) ? 1 : (colorCount <= 4) ? 2 : (colorCount <= 16) ? 4 : 8;
-    for (int i = 0; i < colorCount; ++i) {
-      const QRgb rgb = image.color(i);
-      palette->append(static_cast<char>(qRed(rgb)));
-      palette->append(static_cast<char>(qGreen(rgb)));
-      palette->append(static_cast<char>(qBlue(rgb)));
-    }
-    const int bytesPerRow = (width * bits + 7) / 8;
-    QByteArray out(static_cast<qsizetype>(bytesPerRow) * height, 0);
-    for (int y = 0; y < height; ++y) {
-      const uchar* src = image.constScanLine(y);
-      auto* dst = reinterpret_cast<uchar*>(out.data()) + static_cast<qsizetype>(y) * bytesPerRow;
-      for (int x = 0; x < width; ++x) {
-        const int index = std::min<int>(src[x], colorCount - 1);
-        const int bitPos = x * bits;
-        dst[bitPos / 8] |= static_cast<uchar>(index << (8 - bits - bitPos % 8));
-      }
-    }
-    *bitsPerComponent = bits;
-    return out;
+    return rawPaletteSamples(image, bitsPerComponent, palette);
   }
-
-  const bool gray = image.isGrayscale();
-  const QImage src = image.convertToFormat(gray ? QImage::Format_Grayscale8 : QImage::Format_RGB888);
-  const int bytesPerRow = width * (gray ? 1 : 3);
-  QByteArray out(static_cast<qsizetype>(bytesPerRow) * height, Qt::Uninitialized);
-  for (int y = 0; y < height; ++y) {
-    std::memcpy(out.data() + static_cast<qsizetype>(y) * bytesPerRow, src.constScanLine(y), bytesPerRow);
-  }
-  *components = gray ? 1 : 3;
-  return out;
+  return rawColorOrGraySamples(image, components);
 }  // PdfImageEncoder::rawSamples
 
 QByteArray PdfImageEncoder::deflate(const QByteArray& samples,
@@ -313,92 +455,21 @@ QByteArray PdfImageEncoder::deflate(const QByteArray& samples,
     return QByteArray();
   }
 
-  // qCompress() prepends the uncompressed size as 4 bytes, the rest is a zlib stream.
   // Level 6 is zlib's usual compromise; 9 is much slower for little gain on images.
   const int level = 6;
   if (!pngPredictors) {
-    QByteArray out = qCompress(samples, level);
-    return (out.size() <= 4) ? QByteArray() : out.remove(0, 4);
+    return compressZlib(samples, level);
   }
 
-  if (components > (std::numeric_limits<int64_t>::max() / bitsPerComponent)) {
-    return QByteArray();
-  }
-  const int64_t bitsPerPixel = static_cast<int64_t>(components) * bitsPerComponent;
-  if (width > ((std::numeric_limits<int64_t>::max() - 7) / bitsPerPixel)) {
-    return QByteArray();
-  }
-  const int64_t bytesPerRow64 = (static_cast<int64_t>(width) * bitsPerPixel + 7) / 8;
-  if ((bytesPerRow64 <= 0) || (bytesPerRow64 > std::numeric_limits<int>::max() - 1)) {
-    return QByteArray();
-  }
-  const qsizetype bytesPerRow = static_cast<qsizetype>(bytesPerRow64);
-  const int bytesPerPixel = static_cast<int>(std::max<int64_t>(1, bitsPerPixel / 8));
-  if (static_cast<qsizetype>(height) > (std::numeric_limits<qsizetype>::max() / (bytesPerRow + 1))) {
-    return QByteArray();
-  }
-  if (samples.size() < bytesPerRow * static_cast<qsizetype>(height)) {
+  qsizetype bytesPerRow = 0;
+  int bytesPerPixel = 1;
+  if (!computePredictedRowLayout(samples.size(), width, height, components, bitsPerComponent, &bytesPerRow,
+                                 &bytesPerPixel)) {
     return QByteArray();
   }
 
-  // Each row gets a leading byte with its predictor (PNG filter type), chosen by the
-  // usual heuristic: the smallest sum of the absolute (signed) differences.
-  QByteArray filtered((bytesPerRow + 1) * static_cast<qsizetype>(height), Qt::Uninitialized);
-  const std::vector<uchar> zeroRow(bytesPerRow, 0);
-  std::vector<uchar> candidate(bytesPerRow);
-  std::vector<uchar> best(bytesPerRow);
-  auto paeth = [](const int a, const int b, const int c) {
-    const int p = a + b - c;
-    const int pa = std::abs(p - a);
-    const int pb = std::abs(p - b);
-    const int pc = std::abs(p - c);
-    return ((pa <= pb) && (pa <= pc)) ? a : (pb <= pc) ? b : c;
-  };
-  for (int y = 0; y < height; ++y) {
-    const auto* cur = reinterpret_cast<const uchar*>(samples.constData()) + static_cast<qsizetype>(y) * bytesPerRow;
-    const uchar* up = (y > 0) ? cur - bytesPerRow : zeroRow.data();
-    int bestType = 0;
-    long long bestSum = -1;
-    for (int type = 0; type < 5; ++type) {
-      long long sum = 0;
-      for (int i = 0; i < bytesPerRow; ++i) {
-        const int a = (i >= bytesPerPixel) ? cur[i - bytesPerPixel] : 0;
-        const int b = up[i];
-        const int c = (i >= bytesPerPixel) ? up[i - bytesPerPixel] : 0;
-        int prediction = 0;
-        switch (type) {
-          case 1:
-            prediction = a;
-            break;
-          case 2:
-            prediction = b;
-            break;
-          case 3:
-            prediction = (a + b) / 2;
-            break;
-          case 4:
-            prediction = paeth(a, b, c);
-            break;
-          default:
-            break;
-        }
-        const auto value = static_cast<uchar>(cur[i] - prediction);
-        candidate[i] = value;
-        sum += std::abs(static_cast<signed char>(value));
-      }
-      if ((bestSum < 0) || (sum < bestSum)) {
-        bestSum = sum;
-        bestType = type;
-        best.swap(candidate);
-      }
-    }
-    char* dst = filtered.data() + static_cast<qsizetype>(y) * (bytesPerRow + 1);
-    dst[0] = static_cast<char>(bestType);
-    std::memcpy(dst + 1, best.data(), bytesPerRow);
-  }
-
-  QByteArray out = qCompress(filtered, level);
-  return (out.size() <= 4) ? QByteArray() : out.remove(0, 4);
+  const QByteArray filtered = applyPngPredictors(samples, height, bytesPerRow, bytesPerPixel);
+  return compressZlib(filtered, level);
 }  // PdfImageEncoder::deflate
 
 QByteArray PdfImageEncoder::encodeG4(const QImage& image) {

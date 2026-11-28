@@ -236,6 +236,240 @@ bool loadFolderFiles(const QString& inputDir,
   return true;
 }
 
+/** Resolves and validates the output folder for a new folder-mode project. */
+std::optional<QString> resolveOutputFolder(const CommandLineRun::Options& options,
+                                           const QString& inputDir,
+                                           QTextStream& err) {
+  QString outDir = project_files::defaultOutputDir(inputDir);
+  if (!options.outputFolder) {
+    return outDir;
+  }
+  const QString folder = QFileInfo(*options.outputFolder).absoluteFilePath();
+  const QString reason = path_names::invalidNewPathReason(folder);
+  if (!reason.isEmpty()) {
+    err << reason << Qt::endl;
+    return std::nullopt;
+  }
+  if (isSameFolder(folder, inputDir)) {
+    err << CommandLineRun::tr("The input and the output folders can't be the same.") << Qt::endl;
+    return std::nullopt;
+  }
+  return folder;
+}
+
+/** Validates that \p projectFile can be created as a new project file. */
+bool validateNewProjectFile(const QString& projectFile, QTextStream& err) {
+  const QString reason = path_names::invalidNewPathReason(projectFile);
+  if (!reason.isEmpty()) {
+    err << reason << Qt::endl;
+    return false;
+  }
+  if (QFileInfo(projectFile).exists()) {
+    err << CommandLineRun::tr("The project file exists: %1. Run scantailor-ocr-cli with it to process the project.")
+               .arg(nativePath(projectFile))
+        << Qt::endl;
+    return false;
+  }
+  if (!QFileInfo(projectFile).absoluteDir().exists()) {
+    err << CommandLineRun::tr("The folder of the project file doesn't exist: %1")
+               .arg(nativePath(QFileInfo(projectFile).absoluteDir().absolutePath()))
+        << Qt::endl;
+    return false;
+  }
+  if (!path_names::canWriteFile(projectFile)) {
+    err << projectNotSavableMessage(projectFile) << Qt::endl;
+    return false;
+  }
+  return true;
+}
+
+/** Loads a profile passed via --profile (either a .stp file or a built-in/named profile). */
+bool loadNamedOrFileProfile(const CommandLineRun::Options& options,
+                            QTextStream& err,
+                            DefaultParams* startValues,
+                            QString* profileName) {
+  const std::unique_ptr<DefaultParamsProfileManager> manager = profileManager(options.profileFolder);
+  std::unique_ptr<DefaultParams> profile;
+  if (options.profile.endsWith(QStringLiteral(".stp"), Qt::CaseInsensitive)) {
+    QFile file(options.profile);
+    if (file.open(QIODevice::ReadOnly)) {
+      profile = DefaultParamsProfileManager::readProfile(file);
+    }
+    if (!profile) {
+      err << CommandLineRun::tr("The profile file doesn't exist or can't be read: %1").arg(nativePath(options.profile))
+          << Qt::endl;
+      return false;
+    }
+    *profileName = options.profile;
+    *startValues = std::move(*profile);
+    return true;
+  }
+
+  const QString canonical = builtinProfileCanonicalName(options.profile);
+  if (!canonical.isEmpty()) {
+    profile
+        = (canonical == QLatin1String("Default")) ? manager->createDefaultProfile() : manager->createMinimalProfile();
+  } else {
+    profile = manager->readProfile(options.profile);
+  }
+  if (!profile) {
+    err << CommandLineRun::tr("The profile %1 isn't available.").arg(options.profile) << Qt::endl;
+    return false;
+  }
+  *profileName = canonical.isEmpty() ? options.profile : canonical;
+  *startValues = std::move(*profile);
+  return true;
+}
+
+/** Resolves the start values and profile name from --profile or the program's profile. */
+bool resolveStartValues(const CommandLineRun::Options& options,
+                        QTextStream& out,
+                        QTextStream& err,
+                        DefaultParams* startValues,
+                        QString* profileName) {
+  if (!options.profile.isEmpty()) {
+    if (!loadNamedOrFileProfile(options, err, startValues, profileName)) {
+      return false;
+    }
+  } else {
+    // The profile of the program: refuse it when it is unreadable.
+    const std::optional<QString> programProfile = programProfileName();
+    if (!programProfile) {
+      err << CommandLineRun::tr(
+          "The profile of the program isn't readable; pass --profile with the name or the "
+          "file of one.")
+          << Qt::endl;
+      return false;
+    }
+    *startValues = DefaultParamsProvider::getInstance().getParams();
+    *profileName = *programProfile;
+  }
+  out << CommandLineRun::tr("Profile: %1").arg(*profileName) << Qt::endl;
+  return true;
+}
+
+/** Collects doubtful (yellow) DPI files and whether any file has a missing/too-small (red) DPI. */
+void collectDpiWarnings(const std::vector<ImageFileInfo>& files, QStringList* yellowFiles, bool* redFound) {
+  for (const ImageFileInfo& file : files) {
+    bool yellow = false;
+    for (const ImageMetadata& metadata : file.imageInfo()) {
+      if (!metadata.isDpiOK()) {
+        *redFound = true;
+      } else if (metadata.worseDpiStatus() != ImageMetadata::DPI_OK) {
+        yellow = true;
+      }
+    }
+    if (yellow) {
+      yellowFiles->append(nativePath(file.fileInfo().absoluteFilePath()));
+    }
+  }
+}
+
+/** Checks that an override DPI (--dpi or --dpi-fix) is not red for the target images. */
+bool checkOverrideDpiNotRed(const std::vector<ImageFileInfo>& files,
+                            const Dpi& dpi,
+                            const bool onlyFixing,
+                            QTextStream& err) {
+  for (const ImageFileInfo& file : files) {
+    for (const ImageMetadata& metadata : file.imageInfo()) {
+      if (onlyFixing && !metadata.needsFixing()) {
+        continue;
+      }
+      if (dpiIsRedFor(metadata.size(), dpi)) {
+        err << CommandLineRun::tr(
+                   "The DPI value %1 is red for the image %2: it is missing or too small to "
+                   "process.")
+                   .arg(core::CoreUtils::dpiText(dpi.horizontal()))
+                   .arg(nativePath(file.fileInfo().absoluteFilePath()))
+            << Qt::endl;
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/** Prints the images whose DPI is missing or too small to process. */
+void reportMissingDpi(const std::vector<ImageFileInfo>& files, QTextStream& err) {
+  err << CommandLineRun::tr(
+      "The resolution (DPI) of these images is missing or too small to process; set it "
+      "once in ScanTailor OCR, or pass --dpi:")
+      << Qt::endl;
+  for (const ImageFileInfo& file : files) {
+    for (const ImageMetadata& metadata : file.imageInfo()) {
+      if (!metadata.isDpiOK()) {
+        err << "  " << nativePath(file.fileInfo().absoluteFilePath()) << Qt::endl;
+        break;
+      }
+    }
+  }
+}
+
+/** Applies --dpi or --dpi-fix to \p files and records the files changed by --dpi-fix. */
+void applyDpiOverrides(const CommandLineRun::Options& options,
+                       std::vector<ImageFileInfo>& files,
+                       QStringList* fixedFiles) {
+  for (ImageFileInfo& file : files) {
+    for (ImageMetadata& metadata : file.imageInfo()) {
+      if (options.dpi) {
+        metadata.setDpi(*options.dpi);
+      } else if (options.dpiFix && metadata.needsFixing()) {
+        metadata.setDpi(*options.dpiFix);
+        if (!fixedFiles->contains(file.fileInfo().absoluteFilePath())) {
+          fixedFiles->append(file.fileInfo().absoluteFilePath());
+        }
+      }
+    }
+  }
+}
+
+/** Validates image DPIs against --dpi / --dpi-fix, applies overrides, and prints notices. */
+bool validateAndApplyDpi(const CommandLineRun::Options& options,
+                         QTextStream& out,
+                         QTextStream& err,
+                         std::vector<ImageFileInfo>& files,
+                         QStringList* fixedFiles) {
+  // The red and the yellow of the files: red is no DPI at all or too small to process, yellow a
+  // doubtful one.
+  QStringList yellowFiles;
+  bool redFound = false;
+  collectDpiWarnings(files, &yellowFiles, &redFound);
+
+  // --dpi: the value must not be red for any image; it is the DPI of all of them.
+  if (options.dpi && !checkOverrideDpiNotRed(files, *options.dpi, false, err)) {
+    return false;
+  }
+  // --dpi-fix: the value for the images that need fixing; one that is red for them is refused.
+  if (options.dpiFix && !checkOverrideDpiNotRed(files, *options.dpiFix, true, err)) {
+    return false;
+  }
+  if (!options.dpi && !options.dpiFix && redFound) {
+    reportMissingDpi(files, err);
+    return false;
+  }
+  // The DPI of the files: --dpi for all of them, --dpi-fix for the ones that need fixing.
+  applyDpiOverrides(options, files, fixedFiles);
+
+  if (!options.dpi && !options.dpiFix && !yellowFiles.isEmpty()) {
+    err << CommandLineRun::tr("Warning: the resolution of these files is doubtful:") << Qt::endl;
+    for (const QString& file : yellowFiles) {
+      err << "  " << file << Qt::endl;
+    }
+  }
+  if (options.dpi) {
+    out << CommandLineRun::tr("DPI: %1").arg(core::CoreUtils::dpiText(options.dpi->horizontal())) << Qt::endl;
+  }
+  if (options.dpiFix && !fixedFiles->isEmpty()) {
+    out << CommandLineRun::tr("Fixed the DPI of %n file(s) to %1:", nullptr, fixedFiles->size())
+               .arg(core::CoreUtils::dpiText(options.dpiFix->horizontal()))
+        << Qt::endl;
+    for (const QString& file : *fixedFiles) {
+      out << "  " << nativePath(file) << Qt::endl;
+    }
+  }
+  return true;
+}
+
 /**
  * The new project of the folder: the files of the input folder, the profile and the output
  * folder, as the Project Files dialog of the app has them, without its questions. Returns false
@@ -255,94 +489,22 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
     return std::nullopt;
   }
   // The output folder: --output-folder, created, or the default <input>/out.
-  QString outDir = project_files::defaultOutputDir(inputDir);
-  if (options.outputFolder) {
-    const QString folder = QFileInfo(*options.outputFolder).absoluteFilePath();
-    const QString reason = path_names::invalidNewPathReason(folder);
-    if (!reason.isEmpty()) {
-      err << reason << Qt::endl;
-      return std::nullopt;
-    }
-    if (isSameFolder(folder, inputDir)) {
-      err << CommandLineRun::tr("The input and the output folders can't be the same.") << Qt::endl;
-      return std::nullopt;
-    }
-    outDir = folder;
+  const std::optional<QString> outDir = resolveOutputFolder(options, inputDir, err);
+  if (!outDir) {
+    return std::nullopt;
   }
   // The project file: --project-file or the default of the folder; the default the app creates
   // on the fly, here it must not exist yet.
-  const QString reason = path_names::invalidNewPathReason(projectFile);
-  if (!reason.isEmpty()) {
-    err << reason << Qt::endl;
-    return std::nullopt;
-  }
-  if (QFileInfo(projectFile).exists()) {
-    err << CommandLineRun::tr("The project file exists: %1. Run scantailor-ocr-cli with it to process the project.")
-               .arg(nativePath(projectFile))
-        << Qt::endl;
-    return std::nullopt;
-  }
-  if (!QFileInfo(projectFile).absoluteDir().exists()) {
-    err << CommandLineRun::tr("The folder of the project file doesn't exist: %1")
-               .arg(nativePath(QFileInfo(projectFile).absoluteDir().absolutePath()))
-        << Qt::endl;
-    return std::nullopt;
-  }
-  if (!path_names::canWriteFile(projectFile)) {
-    err << projectNotSavableMessage(projectFile) << Qt::endl;
+  if (!validateNewProjectFile(projectFile, err)) {
     return std::nullopt;
   }
 
   // The profile: --profile or the one of the program.
   DefaultParams startValues;
   QString profileName;
-  if (!options.profile.isEmpty()) {
-    const std::unique_ptr<DefaultParamsProfileManager> manager = profileManager(options.profileFolder);
-    std::unique_ptr<DefaultParams> profile;
-    if (options.profile.endsWith(QStringLiteral(".stp"), Qt::CaseInsensitive)) {
-      QFile file(options.profile);
-      if (file.open(QIODevice::ReadOnly)) {
-        profile = DefaultParamsProfileManager::readProfile(file);
-      }
-      if (!profile) {
-        err << CommandLineRun::tr("The profile file doesn't exist or can't be read: %1")
-                   .arg(nativePath(options.profile))
-            << Qt::endl;
-        return std::nullopt;
-      }
-      profileName = options.profile;
-    } else {
-      const QString canonical = builtinProfileCanonicalName(options.profile);
-      if (!canonical.isEmpty()) {
-        if (canonical == QLatin1String("Default")) {
-          profile = manager->createDefaultProfile();
-        } else {
-          profile = manager->createMinimalProfile();
-        }
-      } else {
-        profile = manager->readProfile(options.profile);
-      }
-      if (!profile) {
-        err << CommandLineRun::tr("The profile %1 isn't available.").arg(options.profile) << Qt::endl;
-        return std::nullopt;
-      }
-      profileName = canonical.isEmpty() ? options.profile : canonical;
-    }
-    startValues = std::move(*profile);
-  } else {
-    // The profile of the program: refuse it when it is unreadable.
-    const std::optional<QString> programProfile = programProfileName();
-    if (!programProfile) {
-      err << CommandLineRun::tr(
-          "The profile of the program isn't readable; pass --profile with the name or the "
-          "file of one.")
-          << Qt::endl;
-      return std::nullopt;
-    }
-    startValues = DefaultParamsProvider::getInstance().getParams();
-    profileName = *programProfile;
+  if (!resolveStartValues(options, out, err, &startValues, &profileName)) {
+    return std::nullopt;
   }
-  out << CommandLineRun::tr("Profile: %1").arg(profileName) << Qt::endl;
   // The report names the profile that was used, not the spelling of --profile.
   *profileOut = profileName;
 
@@ -350,108 +512,15 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
   if (!loadFolderFiles(inputDir, err, &files, passedOver)) {
     return std::nullopt;
   }
-
-  // The red and the yellow of the files: red is no DPI at all or too small to process, yellow a
-  // doubtful one.
-  QStringList yellowFiles;
-  bool redFound = false;
-  for (const ImageFileInfo& file : files) {
-    bool yellow = false;
-    for (const ImageMetadata& metadata : file.imageInfo()) {
-      if (!metadata.isDpiOK()) {
-        redFound = true;
-      } else if (metadata.worseDpiStatus() != ImageMetadata::DPI_OK) {
-        yellow = true;
-      }
-    }
-    if (yellow) {
-      yellowFiles.append(nativePath(file.fileInfo().absoluteFilePath()));
-    }
-  }
-
-  // --dpi: the value must not be red for any image; it is the DPI of all of them.
-  if (options.dpi) {
-    for (const ImageFileInfo& file : files) {
-      for (const ImageMetadata& metadata : file.imageInfo()) {
-        if (dpiIsRedFor(metadata.size(), *options.dpi)) {
-          err << CommandLineRun::tr(
-                     "The DPI value %1 is red for the image %2: it is missing or too small to "
-                     "process.")
-                     .arg(core::CoreUtils::dpiText(options.dpi->horizontal()))
-                     .arg(nativePath(file.fileInfo().absoluteFilePath()))
-              << Qt::endl;
-          return std::nullopt;
-        }
-      }
-    }
-  }
-  // --dpi-fix: the value for the images that need fixing; one that is red for them is refused.
-  if (options.dpiFix) {
-    for (const ImageFileInfo& file : files) {
-      for (const ImageMetadata& metadata : file.imageInfo()) {
-        if (metadata.needsFixing() && dpiIsRedFor(metadata.size(), *options.dpiFix)) {
-          err << CommandLineRun::tr(
-                     "The DPI value %1 is red for the image %2: it is missing or too small to "
-                     "process.")
-                     .arg(core::CoreUtils::dpiText(options.dpiFix->horizontal()))
-                     .arg(nativePath(file.fileInfo().absoluteFilePath()))
-              << Qt::endl;
-          return std::nullopt;
-        }
-      }
-    }
-  }
-  if (!options.dpi && !options.dpiFix && redFound) {
-    err << CommandLineRun::tr(
-        "The resolution (DPI) of these images is missing or too small to process; set it "
-        "once in ScanTailor OCR, or pass --dpi:")
-        << Qt::endl;
-    for (const ImageFileInfo& file : files) {
-      for (const ImageMetadata& metadata : file.imageInfo()) {
-        if (!metadata.isDpiOK()) {
-          err << "  " << nativePath(file.fileInfo().absoluteFilePath()) << Qt::endl;
-          break;
-        }
-      }
-    }
-    return std::nullopt;
-  }
-  // The DPI of the files: --dpi for all of them, --dpi-fix for the ones that need fixing.
   QStringList fixedFiles;
-  for (ImageFileInfo& file : files) {
-    for (ImageMetadata& metadata : file.imageInfo()) {
-      if (options.dpi) {
-        metadata.setDpi(*options.dpi);
-      } else if (options.dpiFix && metadata.needsFixing()) {
-        metadata.setDpi(*options.dpiFix);
-        if (!fixedFiles.contains(file.fileInfo().absoluteFilePath())) {
-          fixedFiles.append(file.fileInfo().absoluteFilePath());
-        }
-      }
-    }
-  }
-  if (!options.dpi && !options.dpiFix && !yellowFiles.isEmpty()) {
-    err << CommandLineRun::tr("Warning: the resolution of these files is doubtful:") << Qt::endl;
-    for (const QString& file : yellowFiles) {
-      err << "  " << file << Qt::endl;
-    }
-  }
-  if (options.dpi) {
-    out << CommandLineRun::tr("DPI: %1").arg(core::CoreUtils::dpiText(options.dpi->horizontal())) << Qt::endl;
-  }
-  if (options.dpiFix && !fixedFiles.isEmpty()) {
-    out << CommandLineRun::tr("Fixed the DPI of %n file(s) to %1:", nullptr, fixedFiles.size())
-               .arg(core::CoreUtils::dpiText(options.dpiFix->horizontal()))
-        << Qt::endl;
-    for (const QString& file : fixedFiles) {
-      out << "  " << nativePath(file) << Qt::endl;
-    }
+  if (!validateAndApplyDpi(options, out, err, files, &fixedFiles)) {
+    return std::nullopt;
   }
 
   // Create the folder only now that the project is known to be usable; a refused one leaves no
   // empty folder behind.
-  if (options.outputFolder && !QDir(outDir).mkpath(outDir)) {
-    err << CommandLineRun::tr("Unable to create the output folder: %1").arg(nativePath(outDir)) << Qt::endl;
+  if (options.outputFolder && !QDir(*outDir).mkpath(*outDir)) {
+    err << CommandLineRun::tr("Unable to create the output folder: %1").arg(nativePath(*outDir)) << Qt::endl;
     return std::nullopt;
   }
 
@@ -462,7 +531,7 @@ std::optional<ProjectSession> createFolderProject(const CommandLineRun::Options&
   }
   const std::shared_ptr<ProjectPages> pages
       = ProjectPages::createNew(files, startValues.getPageSplitParams().getPageOrder());
-  return ProjectSession::createNew(pages, outDir, inputDir, startValues, false);
+  return ProjectSession::createNew(pages, *outDir, inputDir, startValues, false);
 }
 
 /**
@@ -980,6 +1049,555 @@ bool projectNeedsRelinking(const ProjectSession& session) {
   return false;
 }
 
+/** Temporarily overrides ThreadBudget::maxThreads() for the lifetime of one CLI run. */
+class ThreadBudgetGuard {
+ public:
+  explicit ThreadBudgetGuard(const std::optional<int> threads) {
+    if (threads) {
+      m_previous = ThreadBudget::maxThreads();
+      ThreadBudget::setMaxThreads(*threads);
+    }
+  }
+  ~ThreadBudgetGuard() {
+    if (m_previous) {
+      ThreadBudget::setMaxThreads(*m_previous);
+    }
+  }
+  ThreadBudgetGuard(const ThreadBudgetGuard&) = delete;
+  ThreadBudgetGuard& operator=(const ThreadBudgetGuard&) = delete;
+
+ private:
+  std::optional<int> m_previous;
+};
+
+/** Checks that --report-file, if given, can be written at the end of the run. */
+bool validateReportFile(const CommandLineRun::Options& options, QTextStream& err) {
+  // REVIEW-NOTE (2026-11): a usage error or an unusable project returns before the report is written
+  // -> exit codes 1 and 2 have no report. Not fixed because the spec leaves this open; a report with
+  // only "run" would give scripts one artifact for every exit.
+  // The folder of the report file must exist; the tool writes the report into it at the end, so
+  // that it must be possible is checked now, before a long run.
+  if (!options.reportFile) {
+    return true;
+  }
+  if (options.reportFile->trimmed().isEmpty()) {
+    err << CommandLineRun::tr("The report file could not be written: %1").arg(nativePath(*options.reportFile))
+        << Qt::endl;
+    return false;
+  }
+  const QString reason = path_names::invalidNewPathReason(*options.reportFile);
+  if (!reason.isEmpty()) {
+    err << reason << Qt::endl;
+    return false;
+  }
+  const QFileInfo report(*options.reportFile);
+  if (!report.absoluteDir().exists()) {
+    err << CommandLineRun::tr("The folder of the report file doesn't exist: %1").arg(nativePath(report.absolutePath()))
+        << Qt::endl;
+    return false;
+  }
+  if (!path_names::canWriteFile(*options.reportFile)) {
+    err << CommandLineRun::tr("The report file could not be written: %1").arg(nativePath(*options.reportFile))
+        << Qt::endl;
+    return false;
+  }
+  return true;
+}
+
+/** Validates options that only apply to folder mode (--output-folder, --profile, --dpi, --dpi-fix). */
+bool validateFolderModeOnlyOptions(const CommandLineRun::Options& options, QTextStream& err) {
+  if (!options.inputFolder.isEmpty()) {
+    if (options.dpi && options.dpiFix) {
+      err << CommandLineRun::tr("The options --dpi and --dpi-fix exclude each other.") << Qt::endl;
+      return false;
+    }
+    return true;
+  }
+  // The project of a file: its values are its own; the options of the creation don't apply.
+  if (options.outputFolder) {
+    err << CommandLineRun::tr("The option --output-folder is only for the folder mode, which creates the project.")
+        << Qt::endl;
+    return false;
+  }
+  if (!options.profile.isEmpty()) {
+    err << CommandLineRun::tr("The option --profile is only for the folder mode; the project knows its start values.")
+        << Qt::endl;
+    return false;
+  }
+  if (options.dpi) {
+    err << CommandLineRun::tr("The option --dpi is only for the folder mode; the project knows the DPI of its images.")
+        << Qt::endl;
+    return false;
+  }
+  if (options.dpiFix) {
+    err << CommandLineRun::tr(
+        "The option --dpi-fix is only for the folder mode; the project knows the DPI of its images.")
+        << Qt::endl;
+    return false;
+  }
+  return true;
+}
+
+/** Validates all command-line options before opening or creating a project. */
+bool validateRunOptions(const CommandLineRun::Options& options, QTextStream& err) {
+  if (!validateReportFile(options, err)) {
+    return false;
+  }
+  // ---- The usage checks of the command line ----
+  if (!validateFolderModeOnlyOptions(options, err)) {
+    return false;
+  }
+  const bool folderMode = !options.inputFolder.isEmpty();
+  // --color-mode-detect runs from the Margins step on, the geometry only exists there.
+  if (options.colorModeDetect) {
+    if (!folderMode) {
+      err << CommandLineRun::tr("The option --color-mode-detect is only for the folder mode.") << Qt::endl;
+      return false;
+    }
+    if (options.lastStep < CommandLineRun::Options::MARGINS) {
+      err << CommandLineRun::tr("The option --color-mode-detect needs --last-step margins or later.") << Qt::endl;
+      return false;
+    }
+  }
+  // --orientation-detect runs in the folder mode, before the first step.
+  if (!options.orientationDetect.isEmpty()) {
+    if (!folderMode) {
+      err << CommandLineRun::tr("The option --orientation-detect is only for the folder mode.") << Qt::endl;
+      return false;
+    }
+    if (options.orientationDetect != QStringLiteral("pages") && options.orientationDetect != QStringLiteral("book")) {
+      err << CommandLineRun::tr("Unknown method after --orientation-detect: %1. The methods are: pages and book.")
+                 .arg(options.orientationDetect)
+          << Qt::endl;
+      return false;
+    }
+  }
+  // --threads: the budget of this run; the setting of the program stays as it is.
+  if (options.threads && (*options.threads < 1)) {
+    err << CommandLineRun::tr("The number of threads after --threads is too small; it must be at least 1.") << Qt::endl;
+    return false;
+  }
+  // The export options lead the run to the export; an explicit earlier last step contradicts them.
+  if ((options.exportDir || options.exportName || options.formats)
+      && (options.lastStep != CommandLineRun::Options::EXPORT)) {
+    err << CommandLineRun::tr(
+        "The options --export-folder, --export-name and --export-formats need --last-step export.")
+        << Qt::endl;
+    return false;
+  }
+  return true;
+}
+
+/** Opens an existing project file or creates a new folder-mode project and checks output writability. */
+std::optional<ProjectSession> openRunSession(const CommandLineRun::Options& options,
+                                             const QString& projectFile,
+                                             QTextStream& out,
+                                             QTextStream& err,
+                                             QString* usedProfile,
+                                             QStringList* passedOver,
+                                             QStringList* fixedFiles) {
+  const bool folderMode = !options.inputFolder.isEmpty();
+  std::optional<ProjectSession> session;
+  if (folderMode) {
+    session = createFolderProject(options, projectFile, out, err, usedProfile, passedOver, fixedFiles);
+  } else {
+    const ProjectReader::FileResult read = ProjectReader::readFile(projectFile);
+    if (read.error != ProjectReader::FileError::NONE) {
+      err << nativePath(projectFile) << ": " << ProjectReader::errorMessage(read.error) << Qt::endl;
+      return std::nullopt;
+    }
+    if (!path_names::canWriteFile(projectFile)) {
+      err << projectNotSavableMessage(projectFile) << Qt::endl;
+      return std::nullopt;
+    }
+    session = loadExistingProject(*read.reader, err, ProjectSession::LoadMode::Normal);
+  }
+  if (!session) {
+    return std::nullopt;
+  }
+  // The output folder takes the output and the cache of the pages; one that takes no files would
+  // fail every page. A missing one of a project is left to the relinking check below, which tells
+  // what to do; a missing one of a new project is created during processing.
+  // REVIEW-NOTE (2026-11): an existing output folder that takes no new files -> refused here. Not
+  // tested because a test can't make a folder unwritable on Windows without changing its access
+  // rights; path_names::isWritableDir, which decides it, is tested on its own.
+  const QString outDir = session->outFileNameGen.outDir();
+  if (QFileInfo(outDir).isDir() ? !path_names::isWritableDir(outDir)
+                                : (folderMode && !path_names::canCreateOrWriteDir(outDir))) {
+    err << CommandLineRun::tr("The output folder can't be written to: %1").arg(nativePath(outDir)) << Qt::endl;
+    return std::nullopt;
+  }
+  if (folderMode && !passedOver->isEmpty()) {
+    out << CommandLineRun::tr("%n other file(s) passed over.", nullptr, passedOver->size()) << Qt::endl;
+  }
+  return session;
+}
+
+/** Resolves export formats/paths and verifies OCR languages and overwrite safety; nullopt on success. */
+std::optional<CommandLineRun::ExitCode> prepareRunExport(const CommandLineRun::Options& options,
+                                                         const QString& projectFile,
+                                                         const QString& exportBase,
+                                                         const ProjectSession& session,
+                                                         QTextStream& out,
+                                                         QTextStream& err,
+                                                         ProcessingOptions::Formats* formats,
+                                                         ExportPaths* exportPaths) {
+  if (!options.formats) {
+    // REVIEW-NOTE (2026-11): a project saved by 1.0.9 or 1.0.10 has no <processing-options> and no <default-params>,
+    // one saved by 1.0.11 or 1.0.12 no <formats> -> the built-in defaults fill them in here, the default profile in
+    // the app, so here only PDF is exported. Not fixed because no such projects are in use.
+    *formats = session.stages->processingOptions()->formats;
+    if (!formats->any()) {
+      err << CommandLineRun::tr(
+          "The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them "
+          "with --export-formats.")
+          << Qt::endl;
+      return CommandLineRun::PROJECT_UNUSABLE;
+    }
+  }
+  *exportPaths = ExportPaths::fromBase(exportBase);
+  if (exportReplacesProjectFile(*exportPaths, *formats, projectFile, *session.pages, err)) {
+    return CommandLineRun::USAGE_ERROR;
+  }
+  // The languages text recognition needs are known from the project; setting it up, which may
+  // copy language files, waits for the export.
+  const ProcessingOptions& project = *session.stages->processingOptions();
+  if (formats->needsTextRecognition(project.pdf.textLayer) && !checkOcrLanguages(project.ocr.languages, err)) {
+    return CommandLineRun::PROJECT_UNUSABLE;
+  }
+  // Before the processing, which may take long: a wrong name is noticed right away.
+  out << CommandLineRun::tr("The export will create: %1").arg(describeOutputs(*exportPaths, *formats)) << Qt::endl;
+  return std::nullopt;
+}
+
+/** Writes pass-start (when entering a new pass) and page progress JSON lines for stage processing. */
+void emitStageProgressJson(const StageSequence& stages,
+                           const OutputFileNameGenerator& outFileNameGen,
+                           const StageSequence::PageProgress& p,
+                           int& lastProgressPassFilterIdx,
+                           QTextStream& progressJson) {
+  const QString step = stepNameForFilterIndex(stages, p.lastFilterIdx);
+  if (p.lastFilterIdx != lastProgressPassFilterIdx) {
+    lastProgressPassFilterIdx = p.lastFilterIdx;
+    QJsonObject passStart;
+    passStart["step"] = step;
+    passStart["total"] = p.total;
+    writeProgressLine(progressJson, QStringLiteral("pass-start"), passStart);
+  }
+  QJsonObject pageObj = pageIdentity(p.page);
+  pageObj["step"] = step;
+  pageObj["done"] = p.done;
+  pageObj["total"] = p.total;
+  if (p.status == StageSequence::PageProgress::OK) {
+    pageObj["status"] = QStringLiteral("ok");
+  } else if (p.status == StageSequence::PageProgress::FAILED) {
+    pageObj["status"] = QStringLiteral("failed");
+    pageObj["errorKind"] = errorKindName(p.failure.kind);
+    pageObj["reasons"] = QJsonArray::fromStringList(p.failure.reasons);
+  } else {
+    pageObj["status"] = QStringLiteral("skipped");
+  }
+  if (step == QStringLiteral("output")) {
+    pageObj["outputFile"] = nativePath(outFileNameGen.filePathFor(p.page.id()));
+  }
+  writeProgressLine(progressJson, QStringLiteral("page"), pageObj);
+}
+
+/** Builds the StageSequence progress callback that writes stdout progress and optional JSON lines. */
+StageSequence::ProgressCallback makeStageProgressCallback(const StageSequence& stages,
+                                                          const OutputFileNameGenerator& outFileNameGen,
+                                                          QTextStream& out,
+                                                          const std::atomic<bool>& cancel,
+                                                          QTextStream* progressJson) {
+  const auto lastProgressPassFilterIdx = std::make_shared<int>(-1);
+  return [&stages, &outFileNameGen, &out, &cancel, progressJson,
+          lastProgressPassFilterIdx](const StageSequence::PageProgress& p) {
+    out << CommandLineRun::tr("%1: %2 of %3").arg(stages.filterAt(p.lastFilterIdx)->getName()).arg(p.done).arg(p.total)
+        << Qt::endl;
+    if (progressJson) {
+      emitStageProgressJson(stages, outFileNameGen, p, *lastProgressPassFilterIdx, *progressJson);
+    }
+    return !cancel;
+  };
+}
+
+/** Emits one page progress JSON line for orientation detection. */
+void emitOrientationProgressJson(const PageInfo& page,
+                                 const fix_orientation::OrientationDetection::PageResult& pr,
+                                 const int done,
+                                 const int total,
+                                 QTextStream& progressJson) {
+  QJsonObject pageObj = pageIdentity(page);
+  pageObj["step"] = QStringLiteral("orientation-detect");
+  pageObj["done"] = done;
+  pageObj["total"] = total;
+  if (pr.status == fix_orientation::OrientationDetection::PageResult::DETECTED
+      || pr.status == fix_orientation::OrientationDetection::PageResult::BOOK_RULE) {
+    pageObj["status"] = QStringLiteral("ok");
+    pageObj["rotation"] = pr.angle;
+    pageObj["rotationDetection"] = (pr.status == fix_orientation::OrientationDetection::PageResult::DETECTED)
+                                       ? QStringLiteral("detected")
+                                       : QStringLiteral("book-rule");
+  } else if (pr.status == fix_orientation::OrientationDetection::PageResult::UNDECIDED) {
+    pageObj["status"] = QStringLiteral("uncertain");
+  } else {
+    pageObj["status"] = QStringLiteral("failed");
+  }
+  writeProgressLine(progressJson, QStringLiteral("page"), pageObj);
+}
+
+/** Runs --orientation-detect before the first stage pass; returns whether detection was cancelled. */
+bool runOrientationDetection(
+    const QString& method,
+    const ProjectSession& session,
+    QTextStream& out,
+    const std::atomic<bool>& cancel,
+    QTextStream* progressJson,
+    std::vector<std::pair<ImageId, fix_orientation::OrientationDetection::PageResult>>* detectedOrientations) {
+  const bool bookRule = (method == QStringLiteral("book"));
+  std::vector<PageInfo> pages;
+  for (const PageInfo& page : session.pages->toPageSequence(IMAGE_VIEW)) {
+    pages.push_back(page);
+  }
+  std::set<PageId> selection;
+  for (const PageInfo& page : pages) {
+    selection.insert(page.id());
+  }
+  const int total = static_cast<int>(pages.size());
+  if (progressJson) {
+    QJsonObject passStart;
+    passStart["step"] = QStringLiteral("orientation-detect");
+    passStart["total"] = total;
+    writeProgressLine(*progressJson, QStringLiteral("pass-start"), passStart);
+  }
+  int orientationDone = 0;
+  const fix_orientation::OrientationDetection::Result result = fix_orientation::OrientationDetection::run(
+      session.stages->fixOrientationFilter()->settings(), pages, selection, bookRule, NullTaskStatus(),
+      [&cancel](const int) { return !cancel; },
+      [&](const PageInfo& page, const fix_orientation::OrientationDetection::PageResult& pr) {
+        detectedOrientations->emplace_back(page.imageId(), pr);
+        if (progressJson) {
+          ++orientationDone;
+          emitOrientationProgressJson(page, pr, orientationDone, total, *progressJson);
+        }
+      });
+
+  // Summary on stdout, shared with the app.
+  out << fix_orientation::OrientationDetection::summary(result, selection, bookRule, [](const PageId& pageId) {
+    return pageName(pageId);
+  }) << Qt::endl;
+  return result.cancelled;
+}
+
+/** Emits one page progress JSON line for color mode detection. */
+void emitColorModeProgressJson(const PageInfo& page,
+                               const output::ColorModeDetection::PageResult& pr,
+                               const int done,
+                               const int total,
+                               QTextStream& progressJson) {
+  QJsonObject pageObj = pageIdentity(page);
+  pageObj["step"] = QStringLiteral("color-mode-detect");
+  pageObj["done"] = done;
+  pageObj["total"] = total;
+  if (pr.status == output::ColorModeDetection::PageResult::DETECTED) {
+    pageObj["status"] = QStringLiteral("ok");
+    pageObj["colorMode"] = colorModeName(pr.mode);
+  } else if (pr.status == output::ColorModeDetection::PageResult::SKIPPED) {
+    pageObj["status"] = QStringLiteral("skipped");
+  } else {
+    pageObj["status"] = QStringLiteral("failed");
+    pageObj["errorKind"] = QStringLiteral("LOAD_FAILED");
+  }
+  writeProgressLine(progressJson, QStringLiteral("page"), pageObj);
+}
+
+/** Formats the human-readable summary for --color-mode-detect. */
+QString formatColorModeSummary(const output::ColorModeDetection::Result& result) {
+  QString summary
+      = CommandLineRun::tr("Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.",
+                           nullptr, result.blackAndWhite + result.colorGrayscale + result.mixed)
+            .arg(result.blackAndWhite)
+            .arg(result.colorGrayscale)
+            .arg(result.mixed);
+  if (result.skipped > 0) {
+    summary += "\n\n"
+               + CommandLineRun::tr("%n page(s) skipped because the steps before the detection have no result yet.",
+                                    nullptr, result.skipped);
+  }
+  if (result.failed > 0) {
+    summary += "\n\n" + CommandLineRun::tr("%n page(s) could not be loaded.", nullptr, result.failed);
+  }
+  if (result.cancelled) {
+    summary += "\n\n" + CommandLineRun::tr("The detection was canceled.");
+  }
+  return summary;
+}
+
+/** Runs --color-mode-detect after the Margins pass; returns false if cancelled. */
+bool runColorModeDetection(const ProjectSession& session,
+                           QTextStream& out,
+                           const std::atomic<bool>& cancel,
+                           QTextStream* progressJson,
+                           std::vector<std::pair<PageId, output::ColorMode>>* detectedPages,
+                           bool* detectionCancelled) {
+  std::vector<PageInfo> pages;
+  for (const PageInfo& page : session.pages->toPageSequence(PAGE_VIEW)) {
+    pages.push_back(page);
+  }
+  const StageSequence& stages = *session.stages;
+  const std::shared_ptr<CompositeCacheDrivenTask> geometryTask(
+      stages.createCacheDrivenTask(stages.outputFilterIdx(), session.outFileNameGen));
+  const NullTaskStatus status;
+  const int total = static_cast<int>(pages.size());
+  if (progressJson) {
+    QJsonObject passStart;
+    passStart["step"] = QStringLiteral("color-mode-detect");
+    passStart["total"] = total;
+    writeProgressLine(*progressJson, QStringLiteral("pass-start"), passStart);
+  }
+  int colorModeDone = 0;
+  const output::ColorModeDetection::Result result = output::ColorModeDetection::run(
+      stages.outputFilter(), pages, geometryTask, status, [&cancel](const int) { return !cancel; },
+      [&](const PageInfo& page, const output::ColorModeDetection::PageResult& pr) {
+        if (!progressJson) {
+          return;
+        }
+        ++colorModeDone;
+        emitColorModeProgressJson(page, pr, colorModeDone, total, *progressJson);
+      });
+  *detectedPages = result.detected;
+  *detectionCancelled = result.cancelled;
+  out << formatColorModeSummary(result) << Qt::endl;
+  return !result.cancelled && !cancel;
+}
+
+/** Creates the export folder if needed and runs the export job. */
+CommandLineRun::ExitCode runExportStep(const CommandLineRun::Options& options,
+                                       const QString& exportBase,
+                                       const ExportPaths& exportPaths,
+                                       const ProcessingOptions::Formats& formats,
+                                       const ProjectSession& session,
+                                       QTextStream& out,
+                                       QTextStream& err,
+                                       const std::atomic<bool>& cancel,
+                                       QTextStream* progressJson,
+                                       QStringList* exportedFiles) {
+  // The folder was checked at the start; this only fails if it changed during the run. The
+  // pages are processed by then, so it is a failed export, told in the report too.
+  // Fixed without a test: a failure here returned exit code 1 and wrote no report; no test can
+  // make a folder that passed the check at the start fail to be created at the end.
+  const QString folder = QFileInfo(exportBase).absolutePath();
+  if (options.exportDir && !QFileInfo(folder).isDir() && !QDir().mkpath(folder)) {
+    err << CommandLineRun::tr("Unable to create the export folder: %1").arg(nativePath(folder)) << Qt::endl;
+    return CommandLineRun::EXPORT_FAILED;
+  }
+  const CommandLineRun::ExitCode exitCode = exportFiles(exportPaths, formats, session, out, err, cancel, progressJson);
+  if (exitCode == CommandLineRun::SUCCESS) {
+    *exportedFiles = selectedOutputs(exportPaths, formats);
+  }
+  return exitCode;
+}
+
+/** Reports processing outcome, runs export if applicable, and returns the resulting exit code. */
+CommandLineRun::ExitCode determineProcessingExitCode(const CommandLineRun::Options& options,
+                                                     const QString& exportBase,
+                                                     const ExportPaths& exportPaths,
+                                                     const ProcessingOptions::Formats& formats,
+                                                     const ProjectSession& session,
+                                                     const StageSequence::ProcessAllResult& processed,
+                                                     const bool cancelled,
+                                                     QTextStream& out,
+                                                     QTextStream& err,
+                                                     const std::atomic<bool>& cancel,
+                                                     QTextStream* progressJson,
+                                                     QStringList* exportedFiles) {
+  const bool exporting = options.exports();
+  // The exit code of the run; the report file is written with it, also when pages failed or the
+  // run was cancelled.
+  std::optional<CommandLineRun::ExitCode> exitCode;
+  if (cancelled) {
+    err << CommandLineRun::tr("Canceled. The pages output so far keep their output files.") << Qt::endl;
+    exitCode = CommandLineRun::CANCELLED;
+  }
+  if (!processed.failures.empty()) {
+    err << CommandLineRun::tr("Pages that failed: %1").arg(processed.failures.size()) << Qt::endl;
+    if (exporting) {
+      err << CommandLineRun::tr("Nothing was exported, as not all pages were output.") << Qt::endl;
+    }
+    if (!exitCode) {
+      exitCode = CommandLineRun::PAGES_FAILED;
+    }
+  }
+  // A run that stops before the Output step ends there by design; without failures it is a
+  // success. At the Output step or later, success also means the pages got output.
+  const bool needsOutput
+      = (options.lastStep == CommandLineRun::Options::OUTPUT) || (options.lastStep == CommandLineRun::Options::EXPORT);
+  if (needsOutput && !processed.output && !exitCode) {
+    err << CommandLineRun::tr("No page was output.") << Qt::endl;
+    if (exporting) {
+      err << CommandLineRun::tr("Nothing was exported, as not all pages were output.") << Qt::endl;
+    }
+    exitCode = CommandLineRun::PAGES_FAILED;
+  }
+  if (exitCode) {
+    return *exitCode;
+  }
+  if (needsOutput) {
+    out << CommandLineRun::tr("Done. The output is in %1").arg(nativePath(session.outFileNameGen.outDir())) << Qt::endl;
+  } else {
+    out << CommandLineRun::tr("Done.") << Qt::endl;
+  }
+  if (exporting) {
+    return runExportStep(options, exportBase, exportPaths, formats, session, out, err, cancel, progressJson,
+                         exportedFiles);
+  }
+  return CommandLineRun::SUCCESS;
+}
+
+/** Finalizes exit code, optional report file, and optional progress JSON run-end line. */
+CommandLineRun::ExitCode finalizeRun(
+    const CommandLineRun::Options& options,
+    const QString& projectFile,
+    const QString& usedProfile,
+    const QString& exportBase,
+    const ExportPaths& exportPaths,
+    const ProcessingOptions::Formats& formats,
+    const ProjectSession& session,
+    const StageSequence::ProcessAllResult& processed,
+    const bool cancelled,
+    const QStringList& passedOver,
+    const std::vector<std::pair<PageId, output::ColorMode>>& detectedPages,
+    const std::vector<std::pair<ImageId, fix_orientation::OrientationDetection::PageResult>>& detectedOrientations,
+    const QStringList& fixedFiles,
+    QTextStream& out,
+    QTextStream& err,
+    const std::atomic<bool>& cancel,
+    QTextStream* progressJson) {
+  QStringList exportedFiles;
+  CommandLineRun::ExitCode exitCode
+      = determineProcessingExitCode(options, exportBase, exportPaths, formats, session, processed, cancelled, out, err,
+                                    cancel, progressJson, &exportedFiles);
+  if (options.reportFile) {
+    // cancelled follows the exit code: any cancellation, including one during the export, is exit 5.
+    if (!writeReportFile(*options.reportFile, projectFile, usedProfile, options, exitCode,
+                         exitCode == CommandLineRun::CANCELLED, session, passedOver, detectedPages,
+                         detectedOrientations, exportedFiles, processed.failures, fixedFiles, err)
+        && (exitCode == CommandLineRun::SUCCESS)) {
+      exitCode = CommandLineRun::EXPORT_FAILED;
+    }
+  }
+  // Exit codes 1 and 2 return earlier, and the late PROJECT_UNUSABLE from saving the project returns
+  // before this point, so only 0, 3, 4 and 5 reach here.
+  if (progressJson) {
+    QJsonObject runEnd;
+    runEnd["exitCode"] = static_cast<int>(exitCode);
+    runEnd["exports"] = QJsonArray::fromStringList(exportedFiles);
+    runEnd["passedOver"] = nativePaths(passedOver);
+    writeProgressLine(*progressJson, QStringLiteral("run-end"), runEnd);
+  }
+  return exitCode;
+}
+
 }  // namespace
 
 bool CommandLineRun::parseFormats(const QString& list, ProcessingOptions::Formats* formats) {
@@ -1050,88 +1668,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
                                              QTextStream& err,
                                              const std::atomic<bool>& cancel,
                                              QTextStream* progressJson) {
-  // REVIEW-NOTE (2026-11): a usage error or an unusable project returns before the report is written
-  // -> exit codes 1 and 2 have no report. Not fixed because the spec leaves this open; a report with
-  // only "run" would give scripts one artifact for every exit.
-  // The folder of the report file must exist; the tool writes the report into it at the end, so
-  // that it must be possible is checked now, before a long run.
-  if (options.reportFile) {
-    if (options.reportFile->trimmed().isEmpty()) {
-      err << tr("The report file could not be written: %1").arg(nativePath(*options.reportFile)) << Qt::endl;
-      return USAGE_ERROR;
-    }
-    const QString reason = path_names::invalidNewPathReason(*options.reportFile);
-    if (!reason.isEmpty()) {
-      err << reason << Qt::endl;
-      return USAGE_ERROR;
-    }
-    const QFileInfo report(*options.reportFile);
-    if (!report.absoluteDir().exists()) {
-      err << tr("The folder of the report file doesn't exist: %1").arg(nativePath(report.absolutePath())) << Qt::endl;
-      return USAGE_ERROR;
-    }
-    if (!path_names::canWriteFile(*options.reportFile)) {
-      err << tr("The report file could not be written: %1").arg(nativePath(*options.reportFile)) << Qt::endl;
-      return USAGE_ERROR;
-    }
-  }
-  // ---- The usage checks of the command line ----
-  const bool folderMode = !options.inputFolder.isEmpty();
-  if (!folderMode) {
-    // The project of a file: its values are its own; the options of the creation don't apply.
-    if (options.outputFolder) {
-      err << tr("The option --output-folder is only for the folder mode, which creates the project.") << Qt::endl;
-      return USAGE_ERROR;
-    }
-    if (!options.profile.isEmpty()) {
-      err << tr("The option --profile is only for the folder mode; the project knows its start values.") << Qt::endl;
-      return USAGE_ERROR;
-    }
-    if (options.dpi) {
-      err << tr("The option --dpi is only for the folder mode; the project knows the DPI of its images.") << Qt::endl;
-      return USAGE_ERROR;
-    }
-    if (options.dpiFix) {
-      err << tr("The option --dpi-fix is only for the folder mode; the project knows the DPI of its images.")
-          << Qt::endl;
-      return USAGE_ERROR;
-    }
-  } else if (options.dpi && options.dpiFix) {
-    err << tr("The options --dpi and --dpi-fix exclude each other.") << Qt::endl;
-    return USAGE_ERROR;
-  }
-  // --color-mode-detect runs from the Margins step on, the geometry only exists there.
-  if (options.colorModeDetect) {
-    if (!folderMode) {
-      err << tr("The option --color-mode-detect is only for the folder mode.") << Qt::endl;
-      return USAGE_ERROR;
-    }
-    if (options.lastStep < Options::MARGINS) {
-      err << tr("The option --color-mode-detect needs --last-step margins or later.") << Qt::endl;
-      return USAGE_ERROR;
-    }
-  }
-  // --orientation-detect runs in the folder mode, before the first step.
-  if (!options.orientationDetect.isEmpty()) {
-    if (!folderMode) {
-      err << tr("The option --orientation-detect is only for the folder mode.") << Qt::endl;
-      return USAGE_ERROR;
-    }
-    if (options.orientationDetect != QStringLiteral("pages") && options.orientationDetect != QStringLiteral("book")) {
-      err << tr("Unknown method after --orientation-detect: %1. The methods are: pages and book.")
-                 .arg(options.orientationDetect)
-          << Qt::endl;
-      return USAGE_ERROR;
-    }
-  }
-  // --threads: the budget of this run; the setting of the program stays as it is.
-  if (options.threads && (*options.threads < 1)) {
-    err << tr("The number of threads after --threads is too small; it must be at least 1.") << Qt::endl;
-    return USAGE_ERROR;
-  }
-  // The export options lead the run to the export; an explicit earlier last step contradicts them.
-  if ((options.exportDir || options.exportName || options.formats) && (options.lastStep != Options::EXPORT)) {
-    err << tr("The options --export-folder, --export-name and --export-formats need --last-step export.") << Qt::endl;
+  if (!validateRunOptions(options, err)) {
     return USAGE_ERROR;
   }
   const bool exporting = options.exports();
@@ -1140,99 +1677,29 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   const QString projectFile
       = options.projectFile.isEmpty() ? project_files::defaultProjectFile(options.inputFolder) : options.projectFile;
   QString exportBase;
-  ProcessingOptions::Formats namedFormats;
-  if (!checkExportOptions(options, projectFile, &exportBase, &namedFormats, err)) {
+  ProcessingOptions::Formats formats;
+  if (!checkExportOptions(options, projectFile, &exportBase, &formats, err)) {
     return USAGE_ERROR;
   }
   // Only now that all usage checks passed does the budget of this run replace the program's one.
-  class ThreadBudgetGuard {
-   public:
-    explicit ThreadBudgetGuard(const std::optional<int> threads) {
-      if (threads) {
-        m_previous = ThreadBudget::maxThreads();
-        ThreadBudget::setMaxThreads(*threads);
-      }
-    }
-    ~ThreadBudgetGuard() {
-      if (m_previous) {
-        ThreadBudget::setMaxThreads(*m_previous);
-      }
-    }
-    ThreadBudgetGuard(const ThreadBudgetGuard&) = delete;
-    ThreadBudgetGuard& operator=(const ThreadBudgetGuard&) = delete;
-
-   private:
-    std::optional<int> m_previous;
-  } const threadBudgetGuard(options.threads);
+  const ThreadBudgetGuard threadBudgetGuard(options.threads);
 
   // The project session: of the file, or new of the folder.
   QStringList passedOver;
   QStringList fixedFiles;
   QString usedProfile;
-  std::optional<ProjectSession> session;
-  if (folderMode) {
-    session = createFolderProject(options, projectFile, out, err, &usedProfile, &passedOver, &fixedFiles);
-  } else {
-    const ProjectReader::FileResult read = ProjectReader::readFile(projectFile);
-    if (read.error != ProjectReader::FileError::NONE) {
-      err << nativePath(projectFile) << ": " << ProjectReader::errorMessage(read.error) << Qt::endl;
-      return PROJECT_UNUSABLE;
-    }
-    if (!path_names::canWriteFile(projectFile)) {
-      err << projectNotSavableMessage(projectFile) << Qt::endl;
-      return PROJECT_UNUSABLE;
-    }
-    session = loadExistingProject(*read.reader, err, ProjectSession::LoadMode::Normal);
-  }
+  std::optional<ProjectSession> session
+      = openRunSession(options, projectFile, out, err, &usedProfile, &passedOver, &fixedFiles);
   if (!session) {
     return PROJECT_UNUSABLE;
   }
-  // The output folder takes the output and the cache of the pages; one that takes no files would
-  // fail every page. A missing one of a project is left to the relinking check below, which tells
-  // what to do; a missing one of a new project is created during processing.
-  // REVIEW-NOTE (2026-11): an existing output folder that takes no new files -> refused here. Not
-  // tested because a test can't make a folder unwritable on Windows without changing its access
-  // rights; path_names::isWritableDir, which decides it, is tested on its own.
-  {
-    const QString outDir = session->outFileNameGen.outDir();
-    if (QFileInfo(outDir).isDir() ? !path_names::isWritableDir(outDir)
-                                  : (folderMode && !path_names::canCreateOrWriteDir(outDir))) {
-      err << tr("The output folder can't be written to: %1").arg(nativePath(outDir)) << Qt::endl;
-      return PROJECT_UNUSABLE;
-    }
-  }
-  if (folderMode && !passedOver.isEmpty()) {
-    out << tr("%n other file(s) passed over.", nullptr, passedOver.size()) << Qt::endl;
-  }
-  ProcessingOptions::Formats formats = namedFormats;
   ExportPaths exportPaths;
-  QStringList exportedFiles;
   if (exporting) {
-    if (!options.formats) {
-      // REVIEW-NOTE (2026-11): a project saved by 1.0.9 or 1.0.10 has no <processing-options> and no <default-params>,
-      // one saved by 1.0.11 or 1.0.12 no <formats> -> the built-in defaults fill them in here, the default profile in
-      // the app, so here only PDF is exported. Not fixed because no such projects are in use.
-      formats = session->stages->processingOptions()->formats;
-      if (!formats.any()) {
-        err << tr(
-            "The project has no format ticked. Tick one in ScanTailor OCR, in the Export step, or name them "
-            "with --export-formats.")
-            << Qt::endl;
-        return PROJECT_UNUSABLE;
-      }
+    const std::optional<ExitCode> exportError
+        = prepareRunExport(options, projectFile, exportBase, *session, out, err, &formats, &exportPaths);
+    if (exportError) {
+      return *exportError;
     }
-    exportPaths = ExportPaths::fromBase(exportBase);
-    if (exportReplacesProjectFile(exportPaths, formats, projectFile, *session->pages, err)) {
-      return USAGE_ERROR;
-    }
-    // The languages text recognition needs are known from the project; setting it up, which may
-    // copy language files, waits for the export.
-    const ProcessingOptions& project = *session->stages->processingOptions();
-    if (formats.needsTextRecognition(project.pdf.textLayer) && !checkOcrLanguages(project.ocr.languages, err)) {
-      return PROJECT_UNUSABLE;
-    }
-    // Before the processing, which may take long: a wrong name is noticed right away.
-    out << tr("The export will create: %1").arg(describeOutputs(exportPaths, formats)) << Qt::endl;
   }
 
   const StageSequence& stages = *session->stages;
@@ -1246,38 +1713,8 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     return PROJECT_UNUSABLE;
   }
 
-  int lastProgressPassFilterIdx = -1;
-  const StageSequence::ProgressCallback progress = [&](const StageSequence::PageProgress& p) {
-    out << tr("%1: %2 of %3").arg(stages.filterAt(p.lastFilterIdx)->getName()).arg(p.done).arg(p.total) << Qt::endl;
-    if (progressJson) {
-      const QString step = stepNameForFilterIndex(stages, p.lastFilterIdx);
-      if (p.lastFilterIdx != lastProgressPassFilterIdx) {
-        lastProgressPassFilterIdx = p.lastFilterIdx;
-        QJsonObject passStart;
-        passStart["step"] = step;
-        passStart["total"] = p.total;
-        writeProgressLine(*progressJson, QStringLiteral("pass-start"), passStart);
-      }
-      QJsonObject pageObj = pageIdentity(p.page);
-      pageObj["step"] = step;
-      pageObj["done"] = p.done;
-      pageObj["total"] = p.total;
-      if (p.status == StageSequence::PageProgress::OK) {
-        pageObj["status"] = QStringLiteral("ok");
-      } else if (p.status == StageSequence::PageProgress::FAILED) {
-        pageObj["status"] = QStringLiteral("failed");
-        pageObj["errorKind"] = errorKindName(p.failure.kind);
-        pageObj["reasons"] = QJsonArray::fromStringList(p.failure.reasons);
-      } else {
-        pageObj["status"] = QStringLiteral("skipped");
-      }
-      if (step == QStringLiteral("output")) {
-        pageObj["outputFile"] = nativePath(session->outFileNameGen.filePathFor(p.page.id()));
-      }
-      writeProgressLine(*progressJson, QStringLiteral("page"), pageObj);
-    }
-    return !cancel;
-  };
+  const StageSequence::ProgressCallback progress
+      = makeStageProgressCallback(stages, session->outFileNameGen, out, cancel, progressJson);
   // The filter of the run's last step; the export runs after the Output step.
   const int runLastFilterIdx = filterIndexForLastStep(stages, options.lastStep);
 
@@ -1285,54 +1722,8 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   std::vector<std::pair<ImageId, fix_orientation::OrientationDetection::PageResult>> detectedOrientations;
   bool orientationDetectionCancelled = false;
   if (!options.orientationDetect.isEmpty()) {
-    const bool bookRule = (options.orientationDetect == QStringLiteral("book"));
-    std::vector<PageInfo> pages;
-    for (const PageInfo& page : session->pages->toPageSequence(IMAGE_VIEW)) {
-      pages.push_back(page);
-    }
-    std::set<PageId> selection;
-    for (const PageInfo& page : pages) {
-      selection.insert(page.id());
-    }
-    if (progressJson) {
-      QJsonObject passStart;
-      passStart["step"] = QStringLiteral("orientation-detect");
-      passStart["total"] = static_cast<int>(pages.size());
-      writeProgressLine(*progressJson, QStringLiteral("pass-start"), passStart);
-    }
-    int orientationDone = 0;
-    const fix_orientation::OrientationDetection::Result result = fix_orientation::OrientationDetection::run(
-        stages.fixOrientationFilter()->settings(), pages, selection, bookRule, NullTaskStatus(),
-        [&cancel](const int) { return !cancel; },
-        [&](const PageInfo& page, const fix_orientation::OrientationDetection::PageResult& pr) {
-          detectedOrientations.emplace_back(page.imageId(), pr);
-          if (progressJson) {
-            ++orientationDone;
-            QJsonObject pageObj = pageIdentity(page);
-            pageObj["step"] = QStringLiteral("orientation-detect");
-            pageObj["done"] = orientationDone;
-            pageObj["total"] = static_cast<int>(pages.size());
-            if (pr.status == fix_orientation::OrientationDetection::PageResult::DETECTED
-                || pr.status == fix_orientation::OrientationDetection::PageResult::BOOK_RULE) {
-              pageObj["status"] = QStringLiteral("ok");
-              pageObj["rotation"] = pr.angle;
-              pageObj["rotationDetection"] = (pr.status == fix_orientation::OrientationDetection::PageResult::DETECTED)
-                                                 ? QStringLiteral("detected")
-                                                 : QStringLiteral("book-rule");
-            } else if (pr.status == fix_orientation::OrientationDetection::PageResult::UNDECIDED) {
-              pageObj["status"] = QStringLiteral("uncertain");
-            } else {
-              pageObj["status"] = QStringLiteral("failed");
-            }
-            writeProgressLine(*progressJson, QStringLiteral("page"), pageObj);
-          }
-        });
-    orientationDetectionCancelled = result.cancelled;
-
-    // Summary on stdout, shared with the app.
-    out << fix_orientation::OrientationDetection::summary(result, selection, bookRule, [](const PageId& pageId) {
-      return pageName(pageId);
-    }) << Qt::endl;
+    orientationDetectionCancelled = runOrientationDetection(options.orientationDetect, *session, out, cancel,
+                                                            progressJson, &detectedOrientations);
   }
 
   // --color-mode-detect: as the app's Detect Color Mode, between the Margins and the Output passes.
@@ -1342,62 +1733,7 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
   StageSequence::AfterMarginsCallback afterMargins;
   if (options.colorModeDetect) {
     afterMargins = [&] {
-      std::vector<PageInfo> pages;
-      for (const PageInfo& page : session->pages->toPageSequence(PAGE_VIEW)) {
-        pages.push_back(page);
-      }
-      const std::shared_ptr<CompositeCacheDrivenTask> geometryTask(
-          stages.createCacheDrivenTask(stages.outputFilterIdx(), session->outFileNameGen));
-      const NullTaskStatus status;
-      if (progressJson) {
-        QJsonObject passStart;
-        passStart["step"] = QStringLiteral("color-mode-detect");
-        passStart["total"] = static_cast<int>(pages.size());
-        writeProgressLine(*progressJson, QStringLiteral("pass-start"), passStart);
-      }
-      int colorModeDone = 0;
-      const output::ColorModeDetection::Result result = output::ColorModeDetection::run(
-          stages.outputFilter(), pages, geometryTask, status, [&cancel](const int) { return !cancel; },
-          [&](const PageInfo& page, const output::ColorModeDetection::PageResult& pr) {
-            if (!progressJson) {
-              return;
-            }
-            ++colorModeDone;
-            QJsonObject pageObj = pageIdentity(page);
-            pageObj["step"] = QStringLiteral("color-mode-detect");
-            pageObj["done"] = colorModeDone;
-            pageObj["total"] = static_cast<int>(pages.size());
-            if (pr.status == output::ColorModeDetection::PageResult::DETECTED) {
-              pageObj["status"] = QStringLiteral("ok");
-              pageObj["colorMode"] = colorModeName(pr.mode);
-            } else if (pr.status == output::ColorModeDetection::PageResult::SKIPPED) {
-              pageObj["status"] = QStringLiteral("skipped");
-            } else {
-              pageObj["status"] = QStringLiteral("failed");
-              pageObj["errorKind"] = QStringLiteral("LOAD_FAILED");
-            }
-            writeProgressLine(*progressJson, QStringLiteral("page"), pageObj);
-          });
-      detectedPages = result.detected;
-      detectionCancelled = result.cancelled;
-      QString summary = tr("Color mode detected for %n page(s): %1 black and white, %2 color / grayscale, %3 mixed.",
-                           nullptr, result.blackAndWhite + result.colorGrayscale + result.mixed)
-                            .arg(result.blackAndWhite)
-                            .arg(result.colorGrayscale)
-                            .arg(result.mixed);
-      if (result.skipped > 0) {
-        summary += "\n\n"
-                   + tr("%n page(s) skipped because the steps before the detection have no result yet.", nullptr,
-                        result.skipped);
-      }
-      if (result.failed > 0) {
-        summary += "\n\n" + tr("%n page(s) could not be loaded.", nullptr, result.failed);
-      }
-      if (result.cancelled) {
-        summary += "\n\n" + tr("The detection was canceled.");
-      }
-      out << summary << Qt::endl;
-      return !detectionCancelled && !cancel;
+      return runColorModeDetection(*session, out, cancel, progressJson, &detectedPages, &detectionCancelled);
     };
   }
 
@@ -1419,76 +1755,9 @@ CommandLineRun::ExitCode CommandLineRun::run(const Options& options,
     return PROJECT_UNUSABLE;
   }
 
-  // The exit code of the run; the report file is written with it, also when pages failed or the
-  // run was cancelled.
-  std::optional<ExitCode> exitCode;
-  if (cancelled) {
-    err << tr("Canceled. The pages output so far keep their output files.") << Qt::endl;
-    exitCode = CANCELLED;
-  }
-  if (!processed.failures.empty()) {
-    err << tr("Pages that failed: %1").arg(processed.failures.size()) << Qt::endl;
-    if (exporting) {
-      err << tr("Nothing was exported, as not all pages were output.") << Qt::endl;
-    }
-    if (!exitCode) {
-      exitCode = PAGES_FAILED;
-    }
-  }
-  // A run that stops before the Output step ends there by design; without failures it is a
-  // success. At the Output step or later, success also means the pages got output.
-  const bool needsOutput = (options.lastStep == Options::OUTPUT) || (options.lastStep == Options::EXPORT);
-  if (needsOutput && !processed.output && !exitCode) {
-    err << tr("No page was output.") << Qt::endl;
-    if (exporting) {
-      err << tr("Nothing was exported, as not all pages were output.") << Qt::endl;
-    }
-    exitCode = PAGES_FAILED;
-  }
-  if (!exitCode) {
-    if (needsOutput) {
-      out << tr("Done. The output is in %1").arg(nativePath(session->outFileNameGen.outDir())) << Qt::endl;
-    } else {
-      out << tr("Done.") << Qt::endl;
-    }
-    if (exporting) {
-      // The folder was checked at the start; this only fails if it changed during the run. The
-      // pages are processed by then, so it is a failed export, told in the report too.
-      // Fixed without a test: a failure here returned exit code 1 and wrote no report; no test can
-      // make a folder that passed the check at the start fail to be created at the end.
-      const QString folder = QFileInfo(exportBase).absolutePath();
-      if (options.exportDir && !QFileInfo(folder).isDir() && !QDir().mkpath(folder)) {
-        err << tr("Unable to create the export folder: %1").arg(nativePath(folder)) << Qt::endl;
-        exitCode = EXPORT_FAILED;
-      } else {
-        exitCode = exportFiles(exportPaths, formats, *session, out, err, cancel, progressJson);
-        if (exitCode == SUCCESS) {
-          exportedFiles = selectedOutputs(exportPaths, formats);
-        }
-      }
-    } else {
-      exitCode = SUCCESS;
-    }
-  }
-  if (options.reportFile) {
-    // cancelled follows the exit code: any cancellation, including one during the export, is exit 5.
-    if (!writeReportFile(*options.reportFile, projectFile, usedProfile, options, *exitCode, *exitCode == CANCELLED,
-                         *session, passedOver, detectedPages, detectedOrientations, exportedFiles, processed.failures,
-                         fixedFiles, err)
-        && (*exitCode == SUCCESS)) {
-      exitCode = EXPORT_FAILED;
-    }
-  }
-  // Exit codes 1 and 2 return earlier, and the late PROJECT_UNUSABLE from saving the project returns
-  // before this point, so only 0, 3, 4 and 5 reach here.
-  if (progressJson) {
-    QJsonObject runEnd;
-    runEnd["exitCode"] = static_cast<int>(*exitCode);
-    runEnd["exports"] = QJsonArray::fromStringList(exportedFiles);
-    runEnd["passedOver"] = nativePaths(passedOver);
-    writeProgressLine(*progressJson, QStringLiteral("run-end"), runEnd);
-  }
-  return *exitCode;
+  return finalizeRun(options, projectFile, usedProfile, exportBase, exportPaths, formats, *session, processed,
+                     cancelled, passedOver, detectedPages, detectedOrientations, fixedFiles, out, err, cancel,
+                     progressJson);
 }
 
 CommandLineRun::ExitCode CommandLineRun::profileList(QTextStream& out, QTextStream&, const QString& profileDir) {

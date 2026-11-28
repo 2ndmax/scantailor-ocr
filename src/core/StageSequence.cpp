@@ -283,6 +283,137 @@ class PassFailures {
   std::map<int, StageSequence::PageFailure> m_failures;
   std::map<ImageId, int> m_firstPageOfImage;
 };
+
+/** Mutable state of one StageSequence::processPass() execution. */
+struct PassState {
+  PassState(const StageSequence& stages,
+            const std::shared_ptr<ProjectPages>& projectPages,
+            const int lastFilterIdx,
+            const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
+            const OutputFileNameGenerator& outFileNameGen,
+            std::set<ImageId>& failedImages,
+            const StageSequence::ProgressCallback& progress,
+            std::vector<PageInfo> pages)
+      : stages(stages),
+        projectPages(projectPages),
+        lastFilterIdx(lastFilterIdx),
+        thumbnailCache(thumbnailCache),
+        outFileNameGen(outFileNameGen),
+        failedImages(failedImages),
+        progress(progress),
+        pages(std::move(pages)),
+        total(static_cast<int>(this->pages.size())) {}
+
+  const StageSequence& stages;
+  const std::shared_ptr<ProjectPages>& projectPages;
+  const int lastFilterIdx;
+  const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache;
+  const OutputFileNameGenerator& outFileNameGen;
+  std::set<ImageId>& failedImages;
+  const StageSequence::ProgressCallback& progress;
+  std::vector<PageInfo> pages;
+  const int total;
+  int done = 0;
+  int nextPage = 0;
+  int running = 0;
+  bool cancelled = false;
+  int outOfMemoryPage = -1;
+  std::exception_ptr exception;
+  // Set by this thread only. Once set, no page starts any more and the outcomes of those still
+  // running are only waited for: so no output file is left half-written.
+  std::atomic<bool> stopping{false};
+  OutcomeQueue outcomes;
+  PassFailures failures;
+};
+
+/** Records one completed or skipped page and returns false if processing is to be cancelled. */
+bool reportPageProgress(PassState& state,
+                        const PageInfo& page,
+                        const StageSequence::PageProgress::Status status,
+                        const StageSequence::PageFailure* failure = nullptr) {
+  ++state.done;
+  // A cancel after the last page changes nothing: all pages are done, so the result counts as complete.
+  const bool lastPage = (state.lastFilterIdx == state.stages.outputFilterIdx()) && (state.done == state.total);
+  if (!state.progress) {
+    return true;
+  }
+  StageSequence::PageProgress p;
+  p.lastFilterIdx = state.lastFilterIdx;
+  p.done = state.done;
+  p.total = state.total;
+  p.page = page;
+  p.status = status;
+  if (failure) {
+    p.failure = *failure;
+  }
+  return state.progress(p) || lastPage;
+}
+
+/** Starts page tasks up to the pool's thread limit, skipping pages of already-failed images. */
+void startAvailableTasks(PassState& state, QThreadPool& pool) {
+  // Start pages while there are free threads. Not all at once: the default settings of a page
+  // are loaded right before it starts, and a stop leaves the others untouched.
+  while (!state.stopping && (state.nextPage < state.total) && (state.running < pool.maxThreadCount())) {
+    const int pageIndex = state.nextPage++;
+    const PageInfo& page = state.pages[pageIndex];
+    if (state.failedImages.count(page.imageId()) != 0) {
+      // The image failed in an earlier pass or with its other page.
+      if (!reportPageProgress(state, page, StageSequence::PageProgress::SKIPPED)) {
+        state.cancelled = true;
+        state.stopping = true;
+      }
+      continue;
+    }
+    // The pages that only exist after the split get their start values in the second pass;
+    // in the output pass all pages have their parameters.
+    if (state.lastFilterIdx != state.stages.outputFilterIdx()) {
+      state.stages.loadDefaultSettings(page);
+    }
+    pool.start(new PageRunnable(pageIndex,
+                                state.stages.createTask(page, state.lastFilterIdx, state.thumbnailCache,
+                                                        state.outFileNameGen, state.projectPages, true, false),
+                                state.outcomes, state.stopping));
+    ++state.running;
+  }
+}
+
+/** Processes one completed page outcome from the worker pool and updates pass state. */
+void handlePageOutcome(PassState& state, const PageOutcome& outcome) {
+  if (state.stopping) {
+    return;
+  }
+  if (outcome.exception) {
+    state.exception = outcome.exception;
+    state.stopping = true;
+    return;
+  }
+  if (outcome.outOfMemory) {
+    // Further pages would most likely fail the same way.
+    state.outOfMemoryPage = outcome.pageIndex;
+    state.stopping = true;
+    return;
+  }
+  const PageInfo& page = state.pages[outcome.pageIndex];
+  QStringList reasons;
+  LoadFileTask::Failure failure = LoadFileTask::Failure::LOAD;
+  std::optional<StageSequence::PageFailure> pageFailure;
+  if (LoadFileTask::isFailure(outcome.result, &reasons, &failure)) {
+    state.failedImages.insert(page.imageId());
+    pageFailure = StageSequence::PageFailure{page.id(), toPageFailureKind(failure), reasons};
+    state.failures.addImageFailure(outcome.pageIndex, page, *pageFailure);
+  } else if ((state.lastFilterIdx == state.stages.outputFilterIdx())
+             && !state.stages.outputFilter()->hasOutputParams(page.id())) {
+    pageFailure = StageSequence::PageFailure{page.id(), StageSequence::PageFailure::OUTPUT_NOT_WRITTEN, {}};
+    state.failures.addOtherFailure(outcome.pageIndex, *pageFailure);
+  }
+  const StageSequence::PageProgress::Status status
+      = pageFailure ? StageSequence::PageProgress::FAILED : StageSequence::PageProgress::OK;
+  const StageSequence::PageFailure* failurePtr = pageFailure ? &*pageFailure : nullptr;
+  if (!reportPageProgress(state, page, status, failurePtr)) {
+    state.cancelled = true;
+    state.stopping = true;
+  }
+}
 }  // namespace
 
 bool StageSequence::processPass(const PageView view,
@@ -296,37 +427,8 @@ bool StageSequence::processPass(const PageView view,
   for (const PageInfo& page : m_pages->toPageSequence(view)) {
     pages.push_back(page);
   }
-  const int total = static_cast<int>(pages.size());
-  int done = 0;
-  // Returns false if processing is to be cancelled.
-  const auto countDone = [&](const PageInfo& page, const StageSequence::PageProgress::Status status,
-                             const StageSequence::PageFailure* failure = nullptr) {
-    ++done;
-    // A cancel after the last page changes nothing: all pages are done, so the result counts as complete.
-    const bool lastPage = (lastFilterIdx == m_outputFilterIdx) && (done == total);
-    if (!progress) {
-      return true;
-    }
-    StageSequence::PageProgress p;
-    p.lastFilterIdx = lastFilterIdx;
-    p.done = done;
-    p.total = total;
-    p.page = page;
-    p.status = status;
-    if (failure) {
-      p.failure = *failure;
-    }
-    return progress(p) || lastPage;
-  };
-
-  PassFailures failures;
-  bool cancelled = false;
-  int outOfMemoryPage = -1;
-  std::exception_ptr exception;
-  // Set by this thread only. Once set, no page starts any more and the outcomes of those still
-  // running are only waited for: so no output file is left half-written.
-  std::atomic<bool> stopping(false);
-  OutcomeQueue outcomes;
+  PassState state(*this, m_pages, lastFilterIdx, thumbnailCache, outFileNameGen, failedImages, progress,
+                  std::move(pages));
   // After what its tasks use, so that leaving early waits for them first.
   QThreadPool pool;
   // REVIEW-NOTE (2026-11): large scans processed several at once -> memory grows with the number of
@@ -335,85 +437,31 @@ bool StageSequence::processPass(const PageView view,
   // settings, which the user can lower.
   pool.setMaxThreadCount(ThreadBudget::maxThreads());
 
-  int nextPage = 0;
-  int running = 0;
   while (true) {
-    // Start pages while there are free threads. Not all at once: the default settings of a page
-    // are loaded right before it starts, and a stop leaves the others untouched.
-    while (!stopping && (nextPage < total) && (running < pool.maxThreadCount())) {
-      const int pageIndex = nextPage++;
-      const PageInfo& page = pages[pageIndex];
-      if (failedImages.count(page.imageId()) != 0) {
-        // The image failed in an earlier pass or with its other page.
-        if (!countDone(page, StageSequence::PageProgress::SKIPPED)) {
-          cancelled = true;
-          stopping = true;
-        }
-        continue;
-      }
-      // The pages that only exist after the split get their start values in the second pass;
-      // in the output pass all pages have their parameters.
-      if (lastFilterIdx != m_outputFilterIdx) {
-        loadDefaultSettings(page);
-      }
-      pool.start(new PageRunnable(pageIndex,
-                                  createTask(page, lastFilterIdx, thumbnailCache, outFileNameGen, m_pages, true, false),
-                                  outcomes, stopping));
-      ++running;
-    }
-    if (running == 0) {
+    startAvailableTasks(state, pool);
+    if (state.running == 0) {
       break;
     }
 
-    const PageOutcome outcome = outcomes.waitAndPop();
-    --running;
-    if (stopping) {
-      continue;
-    }
-    if (outcome.exception) {
-      exception = outcome.exception;
-      stopping = true;
-      continue;
-    }
-    if (outcome.outOfMemory) {
-      // Further pages would most likely fail the same way.
-      outOfMemoryPage = outcome.pageIndex;
-      stopping = true;
-      continue;
-    }
-    const PageInfo& page = pages[outcome.pageIndex];
-    QStringList reasons;
-    LoadFileTask::Failure failure = LoadFileTask::Failure::LOAD;
-    std::optional<PageFailure> pageFailure;
-    if (LoadFileTask::isFailure(outcome.result, &reasons, &failure)) {
-      failedImages.insert(page.imageId());
-      pageFailure = PageFailure{page.id(), toPageFailureKind(failure), reasons};
-      failures.addImageFailure(outcome.pageIndex, page, *pageFailure);
-    } else if ((lastFilterIdx == m_outputFilterIdx) && !m_outputFilter->hasOutputParams(page.id())) {
-      pageFailure = PageFailure{page.id(), PageFailure::OUTPUT_NOT_WRITTEN, {}};
-      failures.addOtherFailure(outcome.pageIndex, *pageFailure);
-    }
-    if (!countDone(page, pageFailure ? PageProgress::FAILED : PageProgress::OK,
-                   pageFailure ? &*pageFailure : nullptr)) {
-      cancelled = true;
-      stopping = true;
-    }
+    const PageOutcome outcome = state.outcomes.waitAndPop();
+    --state.running;
+    handlePageOutcome(state, outcome);
   }
 
-  if (outOfMemoryPage >= 0) {
-    const PageInfo& page = pages[outOfMemoryPage];
-    failures.addImageFailure(
-        outOfMemoryPage, page,
+  if (state.outOfMemoryPage >= 0) {
+    const PageInfo& page = state.pages[state.outOfMemoryPage];
+    state.failures.addImageFailure(
+        state.outOfMemoryPage, page,
         {page.id(), PageFailure::PROCESSING_FAILED, {QCoreApplication::translate("StageSequence", "Out of memory.")}});
   }
-  failures.appendTo(result.failures);
-  if (cancelled) {
+  state.failures.appendTo(result.failures);
+  if (state.cancelled) {
     result.cancelled = true;
   }
-  if (exception) {
-    std::rethrow_exception(exception);
+  if (state.exception) {
+    std::rethrow_exception(state.exception);
   }
-  return !stopping;
+  return !state.stopping;
 }
 
 StageSequence::ProcessAllResult StageSequence::processAll(const std::shared_ptr<ThumbnailPixmapCache>& thumbnailCache,
