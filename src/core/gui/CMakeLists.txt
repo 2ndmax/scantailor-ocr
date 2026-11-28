@@ -7,6 +7,8 @@ set(gui_sources
     ProcessingIndicationWidget.cpp ProcessingIndicationWidget.h
     NonOwningWidget.cpp NonOwningWidget.h
     ImageViewBase.cpp ImageViewBase.h
+    ImageViewCoordMapper.cpp ImageViewCoordMapper.h
+    HqImageCache.cpp HqImageCache.h
     BasicImageView.cpp BasicImageView.h
     StageListView.cpp StageListView.h
     DebugImageView.cpp DebugImageView.h

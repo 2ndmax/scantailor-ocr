@@ -14,17 +14,28 @@ class IconPack;
 
 class IconProvider {
   DECLARE_NON_COPYABLE(IconProvider)
- private:
+ public:
+  class ScopedOverride {
+    DECLARE_NON_COPYABLE(ScopedOverride)
+   public:
+    explicit ScopedOverride(IconProvider& replacement);
+    ~ScopedOverride();
+
+   private:
+    IconProvider* m_previous = nullptr;
+  };
+
   IconProvider();
 
   ~IconProvider();
 
- public:
   static IconProvider& getInstance();
 
   void setIconPack(std::unique_ptr<IconPack> pack);
 
   void addIconPack(std::unique_ptr<IconPack> pack);
+
+  void reset();
 
   QIcon getIcon(const QString& iconKey) const;
 

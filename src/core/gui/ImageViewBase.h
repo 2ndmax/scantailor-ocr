@@ -7,20 +7,21 @@
 #include <QAbstractScrollArea>
 #include <QImage>
 #include <QPixmap>
-#include <QPoint>
 #include <QPointF>
+#include <QRect>
 #include <QRectF>
-#include <QSizeF>
+#include <QSize>
 #include <QString>
 #include <QTimer>
 #include <QTransform>
 #include <QWidget>
 #include <Qt>
-#include <memory>
 #include <optional>
 #include <vector>
 
+#include "HqImageCache.h"
 #include "ImagePixmapUnion.h"
+#include "ImageViewCoordMapper.h"
 #include "ImageViewInfoProvider.h"
 #include "InteractionHandler.h"
 #include "InteractionState.h"
@@ -29,6 +30,7 @@
 class QPainter;
 class BackgroundExecutor;
 class ImagePresentation;
+class ImageViewInfoListener;
 class ZoomHandler;
 
 /**
@@ -73,7 +75,8 @@ class ImageViewBase : public QAbstractScrollArea {
   ImageViewBase(const QImage& image,
                 const ImagePixmapUnion& downscaledVersion,
                 const ImagePresentation& presentation,
-                const Margins& margins = Margins());
+                const Margins& margins = Margins(),
+                BackgroundExecutor* backgroundExecutor = nullptr);
 
   ~ImageViewBase() override;
 
@@ -89,21 +92,21 @@ class ImageViewBase : public QAbstractScrollArea {
 
   const InteractionState& interactionState() const { return m_interactionState; }
 
-  const QTransform& imageToVirtual() const { return m_imageToVirtual; }
+  const QTransform& imageToVirtual() const { return m_coordMapper.imageToVirtual(); }
 
-  const QTransform& virtualToImage() const { return m_virtualToImage; }
+  const QTransform& virtualToImage() const { return m_coordMapper.virtualToImage(); }
 
-  const QTransform& virtualToWidget() const { return m_virtualToWidget; }
+  const QTransform& virtualToWidget() const { return m_coordMapper.virtualToWidget(); }
 
-  const QTransform& widgetToVirtual() const { return m_widgetToVirtual; }
+  const QTransform& widgetToVirtual() const { return m_coordMapper.widgetToVirtual(); }
 
-  QTransform imageToWidget() const { return m_imageToVirtual * m_virtualToWidget; }
+  QTransform imageToWidget() const { return m_coordMapper.imageToWidget(); }
 
-  QTransform widgetToImage() const { return m_widgetToVirtual * m_virtualToImage; }
+  QTransform widgetToImage() const { return m_coordMapper.widgetToImage(); }
 
   void updateViewport() { viewport()->update(); }
 
-  const QRectF& virtualDisplayRect() const { return m_virtualDisplayArea; }
+  const QRectF& virtualDisplayRect() const { return m_coordMapper.virtualDisplayRect(); }
 
   /**
    * Get the bounding box of the image as it appears on the screen,
@@ -141,7 +144,7 @@ class ImageViewBase : public QAbstractScrollArea {
    * \endcode
    * As a result, the image will be moved by delta widget pixels.
    */
-  QPointF getWidgetFocalPoint() const { return m_widgetFocalPoint; }
+  QPointF getWidgetFocalPoint() const { return m_coordMapper.widgetFocalPoint(); }
 
   /**
    * \brief Set the focal point in widget coordinates.
@@ -200,7 +203,7 @@ class ImageViewBase : public QAbstractScrollArea {
    * \brief Returns the current zoom level.
    * \see setZoomLevel()
    */
-  double zoomLevel() const { return m_zoom; }
+  double zoomLevel() const { return m_coordMapper.zoomLevel(); }
 
   /**
    * The image is considered ideally positioned when as little as possible
@@ -214,6 +217,8 @@ class ImageViewBase : public QAbstractScrollArea {
   static BackgroundExecutor& backgroundExecutor();
 
   ImageViewInfoProvider& infoProvider();
+
+  void setInfoListener(ImageViewInfoListener* listener);
 
  protected:
   void paintEvent(QPaintEvent* event) override;
@@ -255,19 +260,14 @@ class ImageViewBase : public QAbstractScrollArea {
 
  private slots:
 
-  void initiateBuildingHqVersion();
-
   void updateScrollBars();
 
   void reactToScrollBars();
 
  private:
-  class HqTransformTask;
   class TempFocalPointAdjuster;
 
   class TransformChangeWatcher;
-
-  QRectF dynamicViewportRect() const;
 
   void transformChanged();
 
@@ -275,24 +275,7 @@ class ImageViewBase : public QAbstractScrollArea {
 
   void updateWidgetTransformAndFixFocalPoint(FocalPointMode mode);
 
-  QPointF getIdealWidgetFocalPoint(FocalPointMode mode) const;
-
-  void setNewWidgetFP(QPointF widgetFp, bool update = false);
-
-  void adjustAndSetNewWidgetFP(QPointF proposedWidgetFp, bool update = false);
-
-  QPointF centeredWidgetFocalPoint() const;
-
-  bool validateHqPixmap() const;
-
-  bool canBuildHqVersion() const;
-
-  /** The current viewport size in screen pixels, which an HQ pixmap is built for. */
-  QSize hqTargetSize() const;
-
-  void scheduleHqVersionRebuild();
-
-  void hqVersionBuilt(const QPoint& origin, const QImage& image);
+  HqImageCache::RenderRequest buildHqRenderRequest() const;
 
   void updateStatusTipAndCursor();
 
@@ -307,128 +290,14 @@ class ImageViewBase : public QAbstractScrollArea {
   InteractionState m_interactionState;
 
   /**
-   * The client-side image. Used to build a high-quality version
-   * for delayed rendering.
-   */
-  QImage m_image;
-
-  /**
-   * This timer is used for delaying the construction of
-   * a high quality image version.
-   */
-  QTimer m_timer;
-
-  /**
    * The image handle. Note that the actual data of a QPixmap lives
    * in another process on most platforms.
    */
   QPixmap m_pixmap;
 
-  /**
-   * The high quality, pre-transformed version of m_pixmap.
-   */
-  QPixmap m_hqPixmap;
+  ImageViewCoordMapper m_coordMapper;
 
-  /**
-   * The position, in widget coordinates, where m_hqPixmap is to be drawn.
-   */
-  QPointF m_hqPixmapPos;
-
-  /**
-   * The transformation used to build m_hqPixmap.
-   * It's used to detect if m_hqPixmap needs to be rebuild.
-   */
-  QTransform m_hqXform;
-
-  /**
-   * The device pixel ratio m_hqPixmap is built for. It has screen pixels,
-   * so that it maps one to one to them on scaled screens too.
-   */
-  qreal m_hqDevicePixelRatio = 1.0;
-
-  /**
-   * The viewport size in screen pixels m_hqPixmap is built for. It is cut to that size,
-   * so a larger viewport (e.g. a scroll bar disappeared) needs a new one.
-   */
-  QSize m_hqTargetSize;
-
-  /**
-   * Used to check if we need to extend the delay before building m_hqPixmap.
-   */
-  QTransform m_potentialHqXform;
-
-  /**
-   * The ID (QImage::cacheKey()) of the image that was used
-   * to build m_hqPixmap. It's used to detect if m_hqPixmap
-   * needs to be rebuilt.
-   */
-  qint64 m_hqSourceId;
-
-  /**
-   * The pending (if any) high quality transformation task.
-   */
-  std::shared_ptr<HqTransformTask> m_hqTransformTask;
-
-  /**
-   * Transformation from m_pixmap coordinates to m_image coordinates.
-   */
-  QTransform m_pixmapToImage;
-
-  /**
-   * The area of the virtual image to be displayed.
-   * Everything outside of it will be cropped.
-   */
-  QPolygonF m_virtualImageCropArea;
-
-  /**
-   * The area in virtual image coordinates to be displayed.
-   * The idea is that it can be larger than m_virtualImageCropArea
-   * to reserve space for custom drawing or controls.
-   */
-  QRectF m_virtualDisplayArea;
-
-  /**
-   * A transformation from original to virtual image coordinates.
-   */
-  QTransform m_imageToVirtual;
-
-  /**
-   * A transformation from virtual to original image coordinates.
-   */
-  QTransform m_virtualToImage;
-
-  /**
-   * Transformation from virtual image coordinates to widget coordinates.
-   */
-  QTransform m_virtualToWidget;
-
-  /**
-   * Transformation from widget coordinates to virtual image coordinates.
-   */
-  QTransform m_widgetToVirtual;
-
-  /**
-   * Transforms scroll bar values to corresponding positions of the display
-   * area (its central point) in widget coordinates.
-   */
-  QTransform m_scrollTransform;
-
-  /**
-   * An arbitrary point in widget coordinates that corresponds
-   * to m_pixmapFocalPoint in m_pixmap coordinates.
-   * Moving m_widgetFocalPoint followed by updateWidgetTransform()
-   * will cause the image to move on screen.
-   */
-  QPointF m_widgetFocalPoint;
-
-  /**
-   * An arbitrary point in m_pixmap coordinates that corresponds
-   * to m_widgetFocalPoint in widget coordinates.
-   * Unlike m_widgetFocalPoint, this one is not supposed to be
-   * moved independently. It's supposed to moved together with
-   * m_widgetFocalPoint for zooming into a specific position.
-   */
-  QPointF m_pixmapFocalPoint;
+  HqImageCache m_hqCache;
 
   /**
    * Used to distinguish between resizes induced by scrollbars (dis)appearing
@@ -436,17 +305,9 @@ class ImageViewBase : public QAbstractScrollArea {
    */
   QSize m_lastMaximumViewportSize;
 
-  /**
-   * The number of pixels to be left blank at each side of the widget.
-   */
-  Margins m_margins;
-
-  /**
-   * The zoom factor. A value of 1.0 corresponds to fit-to-widget zoom.
-   */
-  double m_zoom;
-
   ImageViewInfoProvider m_infoProvider;
+
+  ImageViewInfoListener* m_infoListener = nullptr;
 
   /**
    * This timer is used for tracking the cursor position.

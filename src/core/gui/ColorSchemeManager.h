@@ -13,13 +13,27 @@
 
 class ColorSchemeManager {
   DECLARE_NON_COPYABLE(ColorSchemeManager)
- private:
-  ColorSchemeManager() = default;
-
  public:
+  class ScopedOverride {
+    DECLARE_NON_COPYABLE(ScopedOverride)
+   public:
+    explicit ScopedOverride(ColorSchemeManager& replacement);
+    ~ScopedOverride();
+
+   private:
+    ColorSchemeManager* m_previous = nullptr;
+  };
+
+  ColorSchemeManager() = default;
+  ~ColorSchemeManager() = default;
+
   static ColorSchemeManager& instance();
 
   void setColorScheme(const ColorScheme& colorScheme);
+
+  void applyColorSchemeParams(const ColorScheme& colorScheme);
+
+  void reset();
 
   /**
    * \brief A color for an element that doesn't support styling, as the color scheme sets it.

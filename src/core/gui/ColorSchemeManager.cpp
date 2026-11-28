@@ -8,25 +8,54 @@
 
 #include "NativeColorScheme.h"
 
+namespace {
+ColorSchemeManager*& overrideInstance() {
+  static ColorSchemeManager* overridePtr = nullptr;
+  return overridePtr;
+}
+}  // namespace
+
+ColorSchemeManager::ScopedOverride::ScopedOverride(ColorSchemeManager& replacement) : m_previous(overrideInstance()) {
+  overrideInstance() = &replacement;
+}
+
+ColorSchemeManager::ScopedOverride::~ScopedOverride() {
+  overrideInstance() = m_previous;
+}
+
 ColorSchemeManager& ColorSchemeManager::instance() {
+  if (ColorSchemeManager* overridePtr = overrideInstance()) {
+    return *overridePtr;
+  }
   static ColorSchemeManager instance;
   return instance;
 }
 
 void ColorSchemeManager::setColorScheme(const ColorScheme& colorScheme) {
-  if (QStyle* style = colorScheme.getStyle()) {
-    qApp->setStyle(style);
+  if (qApp) {
+    if (QStyle* style = colorScheme.getStyle()) {
+      qApp->setStyle(style);
+    }
+    if (const QPalette* palette = colorScheme.getPalette()) {
+      qApp->setPalette(*palette);
+    }
+    if (const QString* styleSheet = colorScheme.getStyleSheet()) {
+      qApp->setStyleSheet(*styleSheet);
+    }
   }
-  if (const QPalette* palette = colorScheme.getPalette()) {
-    qApp->setPalette(*palette);
-  }
-  if (const QString* styleSheet = colorScheme.getStyleSheet()) {
-    qApp->setStyleSheet(*styleSheet);
-  }
+  applyColorSchemeParams(colorScheme);
+}
+
+void ColorSchemeManager::applyColorSchemeParams(const ColorScheme& colorScheme) {
   m_roundedCorners = colorScheme.hasRoundedCorners();
   if (const ColorScheme::ColorParams* colorParams = colorScheme.getColorParams()) {
     m_colorParams = std::make_unique<ColorScheme::ColorParams>(*colorParams);
   }
+}
+
+void ColorSchemeManager::reset() {
+  m_colorParams.reset();
+  m_roundedCorners = false;
 }
 
 QColor ColorSchemeManager::getColorParam(const QString& colorParam) const {

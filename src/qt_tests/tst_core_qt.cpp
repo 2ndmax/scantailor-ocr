@@ -4,9 +4,20 @@
 #include "tst_core_qt.h"
 
 #include <ApplicationSettings.h>
+#include <BackgroundExecutor.h>
+#include <ColorScheme.h>
+#include <ColorSchemeManager.h>
 #include <Dpi.h>
+#include <Dpm.h>
 #include <ErrorWidget.h>
+#include <HqImageCache.h>
+#include <IconPack.h>
+#include <IconProvider.h>
+#include <ImagePresentation.h>
 #include <ImageTransformation.h>
+#include <ImageViewBase.h>
+#include <ImageViewCoordMapper.h>
+#include <ImageViewInfoListener.h>
 #include <OutOfMemoryHandler.h>
 #include <PageSelectionAccessor.h>
 #include <ProjectReader.h>
@@ -648,4 +659,168 @@ void TestCoreQt::testThumbnailCacheClampsNonPositiveCapacity() {
   const std::weak_ptr<ThumbnailPixmapCache::CompletionHandler> noHandler;
   QCOMPARE(cache.loadRequest(idB, pm, noHandler), ThumbnailPixmapCache::LOADED);
   QCOMPARE(cache.loadRequest(idA, pm, noHandler), ThumbnailPixmapCache::QUEUED);
+}
+
+void TestCoreQt::testImageViewCoordMapperGeometry() {
+  const ImagePresentation pres(QTransform(), QRectF(0.0, 0.0, 200.0, 100.0));
+  ImageViewCoordMapper mapper(pres, Margins(10.0, 10.0, 10.0, 10.0));
+  const QSize viewportSize(420, 220);
+
+  mapper.initializeFocalPoints(viewportSize);
+  mapper.updateWidgetTransformAndFixFocalPoint(viewportSize, ImageViewCoordMapper::FocalPointMode::CenterIfFits);
+
+  // Max viewport after 10px margins is 400x200; 200x100 fits at exact scale 2.0.
+  QCOMPARE(mapper.zoomLevel(), 1.0);
+  QVERIFY(qAbs(mapper.virtualToWidget().m11() - 2.0) < 1e-6);
+  const QRectF occupied = mapper.occupiedWidgetRect(QRectF(QPointF(0, 0), QSizeF(viewportSize)));
+  QCOMPARE(occupied, QRectF(10.0, 10.0, 400.0, 200.0));
+
+  // Zoom around a non-centered focal point preserves the mapped image location at that widget point.
+  const QPointF anchorWidget(110.0, 60.0);
+  const QPointF virtBefore = mapper.widgetToVirtual().map(anchorWidget);
+  mapper.setWidgetFocalPointWithoutMoving(anchorWidget);
+  QVERIFY(mapper.setZoomLevel(2.0, viewportSize));
+  const QPointF virtAfter = mapper.widgetToVirtual().map(anchorWidget);
+  QVERIFY(QLineF(virtBefore, virtAfter).length() < 1e-6);
+
+  // Scrollbar state reflects zoom > 1.0 and can pan cleanly.
+  const auto scrollState = mapper.computeScrollBarState(viewportSize, QRectF(QPointF(0, 0), QSizeF(viewportSize)));
+  QVERIFY(scrollState.xMax >= scrollState.xMin);
+  QVERIFY(scrollState.yMax >= scrollState.yMin);
+  mapper.applyScrollBarPosition(QPointF(scrollState.xMax, scrollState.yMax), viewportSize);
+
+  // Moving past viewport bounds creates wasted space; moveTowardsIdealPosition moves back towards ideal.
+  QVERIFY(mapper.setWidgetFocalPoint(mapper.widgetFocalPoint() + QPointF(500.0, 300.0), viewportSize));
+  QVERIFY(mapper.moveTowardsIdealPosition(10.0, viewportSize));
+  QTransform rotated;
+  rotated.scale(1.5, 1.5);
+  const double scaleBefore
+      = QLineF(mapper.imageToWidget().map(QPointF(0, 0)), mapper.imageToWidget().map(QPointF(1, 0))).length();
+  mapper.updateTransformPreservingScale(ImagePresentation(rotated, QRectF(0.0, 0.0, 300.0, 150.0)), viewportSize);
+  const double scaleAfter
+      = QLineF(mapper.imageToWidget().map(QPointF(0, 0)), mapper.imageToWidget().map(QPointF(1, 0))).length();
+  QVERIFY(qAbs(scaleBefore - scaleAfter) < 1e-6);
+
+  // Empty viewport must preserve the previous finite widget transform instead of dividing by zero.
+  const QTransform savedTransform = mapper.virtualToWidget();
+  mapper.updateWidgetTransform(QSize(0, 0));
+  QCOMPARE(mapper.virtualToWidget(), savedTransform);
+}
+
+void TestCoreQt::testImageViewInjectedExecutorAndInfoListener() {
+  struct RecordingInfoListener : public ImageViewInfoListener {
+    int stoppedCount = 0;
+    Dpi lastDpi;
+    QSizeF lastPhysSize;
+    QPointF lastMousePos;
+
+    void onMousePosChanged(const QPointF& mousePos) override { lastMousePos = mousePos; }
+    void onPhysSizeChanged(const QSizeF& physSize) override { lastPhysSize = physSize; }
+    void onDpiChanged(const Dpi& dpi) override { lastDpi = dpi; }
+    void onImageViewInfoProviderStopped() override { ++stoppedCount; }
+  };
+
+  QImage img(64, 64, QImage::Format_RGB32);
+  img.fill(Qt::red);
+  img.setDotsPerMeterX(11811);
+  img.setDotsPerMeterY(11811);
+
+  BackgroundExecutor localExecutor;
+  RecordingInfoListener listener;
+  const ImagePresentation pres(QTransform(), QRectF(0.0, 0.0, 64.0, 64.0));
+  ImageViewBase view(img, ImagePixmapUnion(), pres, Margins(), &localExecutor);
+  view.setInfoListener(&listener);
+  view.resize(128, 128);
+  view.show();
+  QCoreApplication::processEvents();
+
+  QCOMPARE(listener.lastPhysSize, QSizeF(64.0, 64.0));
+  QCOMPARE(listener.lastDpi, Dpi(Dpm(img)));
+
+  const QImage sampled = view.sampleImageAtWidgetRect(QRect(0, 0, 128, 128));
+  QVERIFY(!sampled.isNull());
+  QCOMPARE(sampled.pixelColor(0, 0), QColor(Qt::red));
+
+  HqImageCache hqCache(img, localExecutor,
+                       [&]() { return HqImageCache::RenderRequest{view.imageToWidget(), 1.0, QSize(128, 128)}; });
+  QSignalSpy readySpy(&hqCache, &HqImageCache::ready);
+  hqCache.buildNow(HqImageCache::RenderRequest{view.imageToWidget(), 1.0, QSize(128, 128)});
+  QTRY_VERIFY_WITH_TIMEOUT(readySpy.count() >= 1 && !hqCache.pixmap().isNull(), 5000);
+
+  view.hide();
+  QCoreApplication::processEvents();
+  QVERIFY(listener.stoppedCount > 0);
+}
+
+void TestCoreQt::testColorSchemeManagerAndIconProviderIsolation() {
+  struct StubColorScheme : public ColorScheme {
+    ColorParams params;
+    bool rounded;
+    explicit StubColorScheme(QColor c, bool r) : rounded(r) { params.emplace("test_accent", c); }
+    QStyle* getStyle() const override { return nullptr; }
+    const QPalette* getPalette() const override { return nullptr; }
+    const QString* getStyleSheet() const override { return nullptr; }
+    const ColorParams* getColorParams() const override { return &params; }
+    bool hasRoundedCorners() const override { return rounded; }
+  };
+
+  struct StubIconPack : public IconPack {
+    QColor fillColor;
+    explicit StubIconPack(QColor c) : fillColor(c) {}
+    QIcon getIcon(const QString& key) const override {
+      if (key != "stub") {
+        return QIcon();
+      }
+      QPixmap pm(8, 8);
+      pm.fill(fillColor);
+      return QIcon(pm);
+    }
+    void mergeWith(std::unique_ptr<IconPack>) override {}
+  };
+
+  ColorSchemeManager* origCsm = &ColorSchemeManager::instance();
+  {
+    ColorSchemeManager outerCsm;
+    outerCsm.applyColorSchemeParams(StubColorScheme(Qt::blue, true));
+    const ColorSchemeManager::ScopedOverride outerGuard(outerCsm);
+    QCOMPARE(&ColorSchemeManager::instance(), &outerCsm);
+    QCOMPARE(ColorSchemeManager::instance().hasRoundedCorners(), true);
+    QCOMPARE(ColorSchemeManager::instance().getColorParam("test_accent"), QColor(Qt::blue));
+
+    {
+      ColorSchemeManager innerCsm;
+      innerCsm.applyColorSchemeParams(StubColorScheme(Qt::green, false));
+      const ColorSchemeManager::ScopedOverride innerGuard(innerCsm);
+      QCOMPARE(&ColorSchemeManager::instance(), &innerCsm);
+      QCOMPARE(ColorSchemeManager::instance().hasRoundedCorners(), false);
+      QCOMPARE(ColorSchemeManager::instance().getColorParam("test_accent"), QColor(Qt::green));
+    }
+
+    QCOMPARE(&ColorSchemeManager::instance(), &outerCsm);
+    QCOMPARE(ColorSchemeManager::instance().hasRoundedCorners(), true);
+    outerCsm.reset();
+    QCOMPARE(outerCsm.hasRoundedCorners(), false);
+  }
+  QCOMPARE(&ColorSchemeManager::instance(), origCsm);
+
+  IconProvider* origIp = &IconProvider::getInstance();
+  {
+    IconProvider outerIp;
+    outerIp.setIconPack(std::make_unique<StubIconPack>(Qt::blue));
+    const IconProvider::ScopedOverride outerGuard(outerIp);
+    QCOMPARE(&IconProvider::getInstance(), &outerIp);
+    QVERIFY(!IconProvider::getInstance().getIcon("stub").isNull());
+
+    {
+      IconProvider innerIp;
+      const IconProvider::ScopedOverride innerGuard(innerIp);
+      QCOMPARE(&IconProvider::getInstance(), &innerIp);
+      QVERIFY(IconProvider::getInstance().getIcon("stub").isNull());
+    }
+
+    QCOMPARE(&IconProvider::getInstance(), &outerIp);
+    outerIp.reset();
+    QVERIFY(outerIp.getIcon("stub").isNull());
+  }
+  QCOMPARE(&IconProvider::getInstance(), origIp);
 }

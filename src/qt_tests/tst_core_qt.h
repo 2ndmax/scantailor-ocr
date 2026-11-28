@@ -31,6 +31,9 @@ class TestCoreQt : public QObject {
   void testRepeatedOutOfMemoryDoesNotCrash();
   void testThumbnailCacheEvictsFirstLoadedItem();
   void testThumbnailCacheClampsNonPositiveCapacity();
+  void testImageViewCoordMapperGeometry();
+  void testImageViewInjectedExecutorAndInfoListener();
+  void testColorSchemeManagerAndIconProviderIsolation();
 };
 
 #endif
