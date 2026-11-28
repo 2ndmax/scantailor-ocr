@@ -546,7 +546,8 @@ void ProjectFilesDialog::onOK() {
   // file and the output folder, so nothing is asked or created for a project without files.
   // When importing new scans, the project may start empty.
   if ((m_inProjectFiles->count() == 0) && !isImportingNewScans()) {
-    QMessageBox::warning(this, tr("Error"), tr("No files in project!"));
+    QMessageBox::warning(this, tr("Error"),
+                         tr("The project has no files. Add at least one image file to the project."));
     return;
   }
 

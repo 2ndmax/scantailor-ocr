@@ -1224,9 +1224,9 @@ Scale: the content is enlarged or reduced to fit the output size, within the lim
       <string>‣ Right-click to open the context menu for creating and removing guides.
 ‣ Right-click on a guide to open the context menu for deleting it.
 ‣ Ctrl+Alt+left mouse button – drag the guide under the cursor.
-‣ Shift/Ctrl+left mouse button on the content rectangle – drag the page content. Hold Shift pressed to restrict moving along the horizontal axis only or Ctrl for the vertical one. Hold Shift+Ctrl for usual dragging.
-‣ Double-click on content – automatically attach that content to the nearest guide. Hold Shift pressed to select vertical guides only or Ctrl for horizontal ones. Hold Shift+Ctrl to attach that to both the nearest vertical and horizontal guides.
-‣ Use the context menu to enable/disable showing the hard margins rectangle.</string>
+‣ Shift/Ctrl+left mouse button on the content rectangle – drag the page content. Hold Shift to restrict moving along the horizontal axis only or Ctrl for the vertical one. Hold Shift+Ctrl for free dragging.
+‣ Double-click on content – automatically attach the content to the nearest guide. Hold Shift to select vertical guides only or Ctrl for horizontal ones. Hold Shift+Ctrl to attach it to both the nearest vertical and horizontal guides.
+‣ Use the context menu to show or hide the hard margins rectangle.</string>
      </property>
      <property name="text">
       <string>Guides and mouse ⓘ</string>

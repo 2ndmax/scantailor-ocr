@@ -129,7 +129,7 @@ void FilterUi::showResult(FilterResult& result, FilterUiInterface* ui) {
   tabWidget->addTab(imageView.release(), tr("Output"), TAB_OUTPUT,
                     tr("Shows the processed page as it will be saved. (Ctrl+1)"));
   tabWidget->addTab(pictureZoneEditor.release(), tr("Picture Zones"), TAB_PICTURE_ZONES,
-                    tr("Marks the areas of the page that are treated as pictures. Only in Mixed mode. (Ctrl+2)"));
+                    tr("Highlights the areas of the page that are treated as pictures. Only in Mixed mode. (Ctrl+2)"));
   tabWidget->addTab(fillZoneEditor.release(), tr("Fill Zones"), TAB_FILL_ZONES,
                     tr("Fills areas of the output with a color you pick. (Ctrl+3)"));
   tabWidget->addTab(dewarpingView.release(), tr("Dewarping"), TAB_DEWARPING,

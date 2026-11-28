@@ -1315,7 +1315,7 @@
            <item>
             <widget class="QCheckBox" name="fillOutsidePageBoxCB">
              <property name="toolTip">
-              <string>Fill the full output page rectangle with the background color outside the page content, instead of following offcut geometry.</string>
+              <string>Fills the whole output page outside the content with the filling color, instead of filling only the cut-off area.</string>
              </property>
              <property name="text">
               <string>Fill outside page box</string>
@@ -1723,7 +1723,7 @@
                 <item row="1" column="1">
                  <widget class="QSpinBox" name="redAdjustmentSB">
                   <property name="toolTip">
-                   <string>Red component adjustment. A negative value means the segmenter will be more sensitive to red and vice versa for a positive one.</string>
+                   <string>Adjusts the sensitivity to red: negative values make color segmentation more sensitive to red, positive values less sensitive.</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -1742,7 +1742,7 @@
                 <item row="1" column="2">
                  <widget class="QSpinBox" name="greenAdjustmentSB">
                   <property name="toolTip">
-                   <string>Green component adjustment. A negative value means the segmenter will be more sensitive to green and vice versa for a positive one.</string>
+                   <string>Adjusts the sensitivity to green: negative values make color segmentation more sensitive to green, positive values less sensitive.</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -1761,7 +1761,7 @@
                 <item row="1" column="3">
                  <widget class="QSpinBox" name="blueAdjustmentSB">
                   <property name="toolTip">
-                   <string>Blue component adjustment. A negative value means the segmenter will be more sensitive to blue and vice versa for a positive one.</string>
+                   <string>Adjusts the sensitivity to blue: negative values make color segmentation more sensitive to blue, positive values less sensitive.</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2032,7 +2032,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
              <item row="2" column="2" colspan="2">
               <widget class="QCheckBox" name="posterizeForceBwCB">
                <property name="toolTip">
-                <string>Make dark and light gray gradients black and white respectively.</string>
+                <string>Makes dark and light gray gradients black and white respectively.</string>
                </property>
                <property name="text">
                 <string>Force black and white</string>
@@ -2848,7 +2848,7 @@ None: each letter keeps its own average color. Posterize: fixed color levels. K-
             <item>
              <widget class="QCheckBox" name="originalBackgroundCB">
               <property name="toolTip">
-               <string>Save the original background of the foreground layer.</string>
+               <string>Saves the original background of the foreground layer.</string>
               </property>
               <property name="text">
                <string>Original background</string>

@@ -2272,7 +2272,10 @@ bool MainWindow::closeProjectInteractive(QString* closedProjectFile) {
     case SAVE:
       if (!CoreUtils::overwritingRename(backupFilePath, m_projectFile)) {
         QFile::remove(backupFilePath);  // Otherwise it stays next to the project, and is written again at the next try.
-        QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));
+        QMessageBox::warning(
+            this, tr("Error"),
+            tr("Unable to save the project file \"%1\". Check write permissions and available disk space.")
+                .arg(QDir::toNativeSeparators(m_projectFile)));
         return false;
       }
       // fall through
@@ -2301,7 +2304,9 @@ void MainWindow::closeProjectWithoutSaving() {
 bool MainWindow::saveProjectWithFeedback(const QString& projectFile) {
   const ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
   if (!writer.write(projectFile, *m_stages)) {
-    QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));
+    QMessageBox::warning(this, tr("Error"),
+                         tr("Unable to save the project file \"%1\". Check write permissions and available disk space.")
+                             .arg(QDir::toNativeSeparators(projectFile)));
     return false;
   }
   return true;

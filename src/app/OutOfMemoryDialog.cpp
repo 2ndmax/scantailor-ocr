@@ -3,6 +3,7 @@
 
 #include "OutOfMemoryDialog.h"
 
+#include <QDir>
 #include <QMessageBox>
 #include <utility>
 
@@ -59,7 +60,9 @@ void OutOfMemoryDialog::saveProjectAs() {
 bool OutOfMemoryDialog::saveProjectWithFeedback(const QString& projectFile) {
   const ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
   if (!writer.write(projectFile, *m_stages)) {
-    QMessageBox::warning(this, tr("Error"), tr("Error saving the project file!"));
+    QMessageBox::warning(this, tr("Error"),
+                         tr("Unable to save the project file \"%1\". Check write permissions and available disk space.")
+                             .arg(QDir::toNativeSeparators(projectFile)));
     return false;
   }
   return true;

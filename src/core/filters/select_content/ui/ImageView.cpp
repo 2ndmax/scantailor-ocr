@@ -43,7 +43,7 @@ ImageView::ImageView(const QImage& image,
   setMouseTracking(true);
 
   interactionState().setDefaultStatusTip(
-      tr("Use the context menu to enable / disable the content box. Hold Shift to drag a box. Double-click "
+      tr("Use the context menu to create or remove the content box. Hold Shift to drag a box. Double-click "
          "on content to automatically adjust the content box."));
 
   const QString contentRectDragTip(tr("Drag lines or corners to resize the content box."));
@@ -120,13 +120,13 @@ ImageView::ImageView(const QImage& image,
     m_contentRectArea.setDragFinishedCallback(std::bind(&ImageView::contentRectDragFinished, this));
     m_contentRectAreaHandler.setObject(&m_contentRectArea);
     m_contentRectAreaHandler.setProximityStatusTip(tr("Hold the left mouse button and drag to move the content box."));
-    m_contentRectAreaHandler.setInteractionStatusTip(tr("Release left mouse button to finish dragging."));
+    m_contentRectAreaHandler.setInteractionStatusTip(tr("Release the left mouse button to finish dragging."));
     m_pageRectArea.setPositionCallback(std::bind(&ImageView::pageRectPosition, this));
     m_pageRectArea.setMoveRequestCallback(std::bind(&ImageView::pageRectMoveRequest, this, std::placeholders::_1));
     m_pageRectArea.setDragFinishedCallback(std::bind(&ImageView::pageRectDragFinished, this));
     m_pageRectAreaHandler.setObject(&m_pageRectArea);
     m_pageRectAreaHandler.setProximityStatusTip(tr("Hold the left mouse button and drag to move the page box."));
-    m_pageRectAreaHandler.setInteractionStatusTip(tr("Release left mouse button to finish dragging."));
+    m_pageRectAreaHandler.setInteractionStatusTip(tr("Release the left mouse button to finish dragging."));
 
     Qt::CursorShape cursor = Qt::DragMoveCursor;
     m_contentRectAreaHandler.setKeyboardModifiers({Qt::ShiftModifier});

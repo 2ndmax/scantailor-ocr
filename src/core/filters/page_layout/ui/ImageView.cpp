@@ -136,8 +136,8 @@ ImageView::ImageView(const std::shared_ptr<Settings>& settings,
         std::bind(&ImageView::innerRectMoveRequest, this, std::placeholders::_1, std::placeholders::_2));
     m_innerRectArea.setDragFinishedCallback(std::bind(&ImageView::dragFinished, this));
     m_innerRectAreaHandler.setObject(&m_innerRectArea);
-    m_innerRectAreaHandler.setProximityStatusTip(tr("Hold left mouse button to drag the page content."));
-    m_innerRectAreaHandler.setInteractionStatusTip(tr("Release left mouse button to finish dragging."));
+    m_innerRectAreaHandler.setProximityStatusTip(tr("Hold the left mouse button to drag the page content."));
+    m_innerRectAreaHandler.setInteractionStatusTip(tr("Release the left mouse button to finish dragging."));
     m_innerRectAreaHandler.setKeyboardModifiers({m_innerRectVerticalDragModifier, m_innerRectHorizontalDragModifier,
                                                  m_innerRectVerticalDragModifier | m_innerRectHorizontalDragModifier});
     Qt::CursorShape cursor = Qt::DragMoveCursor;

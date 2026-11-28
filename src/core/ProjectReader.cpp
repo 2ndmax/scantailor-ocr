@@ -107,7 +107,9 @@ QString ProjectReader::errorMessage(const FileError error) {
     case FileError::DAMAGED:
       return tr("The project file is damaged.");
     case FileError::INCOMPATIBLE_VERSION:
-      return tr("The project file is not compatible with the current application version.");
+      return tr(
+          "The project file is not compatible with this version of ScanTailor OCR. Open it with a newer or "
+          "matching version of ScanTailor OCR.");
     case FileError::UNREADABLE:
       return tr("Unable to interpret the project file.");
   }

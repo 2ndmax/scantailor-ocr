@@ -259,18 +259,20 @@ int main(int argc, char* argv[]) {
       return CommandLineRun::profileList(out, err);
     }
     if (parser.positionalArguments().size() != 1) {
-      err << CommandLineRun::tr("--project-info needs a project file.") << Qt::endl;
+      err << CommandLineRun::tr("--project-info needs one project file.") << Qt::endl;
       return CommandLineRun::USAGE_ERROR;
     }
     const QString projectInfoArg = parser.positionalArguments().at(0);
     if (!projectInfoArg.endsWith(QStringLiteral(".ScanTailor"), Qt::CaseInsensitive)) {
-      err << CommandLineRun::tr("--project-info needs a project file.") << Qt::endl;
+      err << CommandLineRun::tr("--project-info needs a project file (.ScanTailor), not \"%1\".").arg(projectInfoArg)
+          << Qt::endl;
       return CommandLineRun::USAGE_ERROR;
     }
     return CommandLineRun::projectInfo(projectInfoArg, out, err);
   }
 
   if (parser.positionalArguments().size() != 1) {
+    err << CommandLineRun::tr("Pass one project file or one image folder.") << Qt::endl << Qt::endl;
     err << parser.helpText();
     return CommandLineRun::USAGE_ERROR;
   }

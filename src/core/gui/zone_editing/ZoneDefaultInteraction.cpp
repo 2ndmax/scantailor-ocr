@@ -21,11 +21,11 @@ ZoneDefaultInteraction::ZoneDefaultInteraction(ZoneInteractionContext& context)
       tr("Drag the corner. Hold Ctrl to make the angle at the corner a right angle. Press D to delete the corner."));
   m_segmentProximity.setProximityStatusTip(tr("Click to create a new corner here."));
   m_zoneAreaProximity.setProximityStatusTip(
-      tr("Right click to edit zone properties. Hold Shift to drag the zone or "
-         "Shift+Ctrl to copy. Press Del to delete this zone."));
-  m_zoneAreaDragProximity.setProximityStatusTip(tr("Hold left mouse button to drag the zone."));
+      tr("Right-click to edit zone properties. Hold Shift to drag the zone or "
+         "Shift+Ctrl to copy. Press Delete to delete this zone."));
+  m_zoneAreaDragProximity.setProximityStatusTip(tr("Hold the left mouse button to drag the zone."));
   m_zoneAreaDragProximity.setProximityCursor(Qt::DragMoveCursor);
-  m_zoneAreaDragCopyProximity.setProximityStatusTip(tr("Hold left mouse button to copy and drag the zone."));
+  m_zoneAreaDragCopyProximity.setProximityStatusTip(tr("Hold the left mouse button to copy and drag the zone."));
   m_zoneAreaDragCopyProximity.setProximityCursor(Qt::DragCopyCursor);
   m_context.imageView().interactionState().setDefaultStatusTip(
       tr("Click to start a new zone (lasso selection: hold the left mouse button and draw). Ctrl+Alt+Click copies "

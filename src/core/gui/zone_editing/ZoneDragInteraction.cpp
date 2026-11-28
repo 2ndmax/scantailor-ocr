@@ -28,7 +28,7 @@ ZoneDragInteraction::ZoneDragInteraction(ZoneInteractionContext& context,
     }
   }
 
-  m_interaction.setInteractionStatusTip(tr("Release left mouse button to finish dragging."));
+  m_interaction.setInteractionStatusTip(tr("Release the left mouse button to finish dragging."));
   m_interaction.setInteractionCursor(Qt::DragMoveCursor);
   interaction.capture(m_interaction);
 }

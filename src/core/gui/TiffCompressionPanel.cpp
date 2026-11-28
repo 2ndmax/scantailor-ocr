@@ -40,7 +40,7 @@ TiffCompressionPanel::TiffCompressionPanel(QWidget* parent) : QWidget(parent) {
     layout->addRow(heading);
   };
   const QString lzmaNote = tr(
-      "LZMA makes the smallest lossless files, but is slow, and few other programs can read it; this program "
+      "LZMA makes the smallest lossless files, but is slow, and few other programs can read it; ScanTailor OCR "
       "and its PDF export can.");
 
   // Color and grayscale.
@@ -55,8 +55,8 @@ TiffCompressionPanel::TiffCompressionPanel(QWidget* parent) : QWidget(parent) {
   m_colorCompression->addItem(QStringLiteral("LZMA"), COMPRESSION_LZMA);
   m_colorCompression->addItem(QStringLiteral("JPEG"), COMPRESSION_JPEG);
   m_colorCompression->setToolTip(
-      tr("All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.") + QStringLiteral("  ")
-      + lzmaNote + QStringLiteral("  ")
+      tr("All methods but JPEG are lossless; Deflate usually gives smaller files than LZW.") + QStringLiteral(" ")
+      + lzmaNote + QStringLiteral(" ")
       + tr("JPEG gives much smaller files, but loses quality: the PDF compresses the pictures a second time, and "
            "on mixed pages without split output the text gets blurred."));
   // The fields start right after the longest label of the group, the same for all parts.
@@ -80,7 +80,7 @@ TiffCompressionPanel::TiffCompressionPanel(QWidget* parent) : QWidget(parent) {
   m_paletteCompression->addItem(QStringLiteral("LZW"), COMPRESSION_LZW);
   m_paletteCompression->addItem(QStringLiteral("Deflate"), COMPRESSION_DEFLATE);
   m_paletteCompression->addItem(QStringLiteral("LZMA"), COMPRESSION_LZMA);
-  m_paletteCompression->setToolTip(tr("All methods are lossless.") + QStringLiteral("  ") + lzmaNote);
+  m_paletteCompression->setToolTip(tr("All methods are lossless.") + QStringLiteral(" ") + lzmaNote);
   layout->addRow(tr("Method:"), m_paletteCompression);
 
   // Black and white.
@@ -92,7 +92,7 @@ TiffCompressionPanel::TiffCompressionPanel(QWidget* parent) : QWidget(parent) {
   m_bwCompression->addItem(QStringLiteral("LZMA"), COMPRESSION_LZMA);
   m_bwCompression->addItem(QStringLiteral("CCITT G4"), COMPRESSION_CCITTFAX4);
   m_bwCompression->setToolTip(tr("All methods are lossless; CCITT G4 usually gives the smallest files.")
-                              + QStringLiteral("  ") + lzmaNote);
+                              + QStringLiteral(" ") + lzmaNote);
   layout->addRow(tr("Method:"), m_bwCompression);
 
   // The lists of the three parts line up.

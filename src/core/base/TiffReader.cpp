@@ -193,7 +193,7 @@ void ensureTiffHandlersInstalled() {
 QString unsupportedCompressionMessage(const uint16_t compression) {
   return QCoreApplication::translate("TiffReader",
                                      "The compression method \"%1\" is not supported by the libtiff library "
-                                     "this program was built with.")
+                                     "ScanTailor OCR was built with.")
       .arg(TiffReader::compressionName(compression));
 }
 

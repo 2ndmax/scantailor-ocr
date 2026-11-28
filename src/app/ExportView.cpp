@@ -971,7 +971,7 @@ void ExportView::exportFinished() {
     if (errors.size() > maxShown) {
       const int hidden = static_cast<int>(errors.size()) - maxShown;
       errors = errors.mid(0, maxShown);
-      errors.push_back(tr("... and %1 more.").arg(hidden));
+      errors.push_back(tr("... and %n more.", nullptr, hidden));
     }
     QMessageBox::warning(this, tr("Export"), tr("The export failed.") + QStringLiteral("\n\n") + errors.join('\n'));
   }
