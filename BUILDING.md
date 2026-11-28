@@ -90,8 +90,8 @@ cmake --build build
 ```
 
 Ninja uses all processor cores by itself. The finished program `scantailor-ocr.exe`, the
-command line tool `scantailor-ocr-cli.exe` and all needed DLLs end up in the `build` directory.
-For text recognition, download languages in the program (step "Export" → "More languages ..."),
+command line tool `scantailor-ocr-cli.exe` and all needed DLLs end up in the `build` folder.
+For text recognition, download languages in the program (the "Export" panel → "More languages ..."),
 or put the language files into `build\tessdata` by hand, e.g. for German and English
 (about 24 MB together):
 
@@ -242,9 +242,9 @@ A step describes what the window shows as data (e.g. `TaskResult`, `ThumbnailDat
 * `-DNATIVE_ARCH=ON` – GCC only: optimize for the CPU of the build machine. The
   program then may not run on other computers.
 * `-DENABLE_CODE_ANALYSIS=ON` – extra warnings and static code analysis. Slow; best used in a
-  separate build directory (see below).
+  separate build folder (see below).
 * `-DBUILD_FUZZERS=ON` – MSVC only: build the fuzz targets of `src/fuzz` with AddressSanitizer
-  *instead of* the program, the tests and the developer tools. Only in a build directory of its
+  *instead of* the program, the tests and the developer tools. Only in a build folder of its
   own (see below and [TESTING.md](TESTING.md)).
 
 ## Optional: code analysis

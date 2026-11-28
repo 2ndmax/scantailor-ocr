@@ -1,16 +1,16 @@
 # Overview runs
 
 Scripts that draw overviews of the code: a graph of how files, classes and functions use each
-other, class and sequence diagrams, and the targets of the build.  Unlike the [analysis runs](../analysis/README.md) they
-look for no faults.  Every script is one run; they are independent of each other.
+other, class and sequence diagrams, and the targets of the build. Unlike the [analysis runs](../analysis/README.md) they
+look for no faults. Every script is one run; they are independent of each other.
 
 The logs and diagrams go to `results\` in this folder, the graph of run 01 to `graphify-out\` in
-the repository (both ignored by git).  How the scripts are started, their common parameters and
-their logs are described in [the README of the scripts](../README.md).  Windows only.
+the repository (both ignored by git). How the scripts are started, their common parameters and
+their logs are described in [the README of the scripts](../README.md). Windows only.
 
 ## Overview
 
-| Run | Script | What it does | Build directory | Output |
+| Run | Script | What it does | Build folder | Output |
 |---|---|---|---|---|
 | 01 | `01-graphify.ps1` | graphify: the code as a graph, to browse and to query | – | `graphify-out\` in the repository, `results\01-graphify.log` |
 | 02 | `02-clang-uml.ps1` | clang-uml: the class and sequence diagrams of `clang-uml.yml` | `build-overview` | `results\clang-uml\diagrams.html` (and `.md`, `*.mmd`), `results\02-clang-uml.log` |
@@ -19,7 +19,7 @@ their logs are described in [the README of the scripts](../README.md).  Windows 
 ## Requirements
 
 The tools are set up by `scripts\setup\05-setup-overview.ps1`; its step 9 shows which are there,
-in which version.  Steps 3, 5 and 6 offer the version this setup was tested with or the newest one.
+in which version. Steps 3, 5 and 6 offer the version this setup was tested with or the newest one.
 
 | Run | Needs | Set up by `05-setup-overview.ps1` |
 |---|---|---|
@@ -40,9 +40,9 @@ own, and uv then can't find the Python it has just installed.
 
 [graphify](https://github.com/Graphify-Labs/graphify) parses the code (C++, CMake, PowerShell
 and more) with tree-sitter and builds a graph of files, classes and functions and of how they
-call, include and inherit from each other, then groups it into communities.  Only the code is
+call, include and inherit from each other, then groups it into communities. Only the code is
 read and no language model is used (`--code-only`, `--no-label`): nothing leaves the machine.
-Folders ignored by git are left out.  Each community is named after the folder most of its code
+Folders ignored by git are left out. Each community is named after the folder most of its code
 is in and its most connected node, e.g. `core/filters/deskew/ui · OptionsWidget`
 (`support\graphify-labels.py`); a community spread over several folders names its two biggest.
 
@@ -54,14 +54,14 @@ is in and its most connected node, e.g. `core/filters/deskew/ui · OptionsWidget
 - The command line reads `graph.json`, run in the repository:
   `graphify explain "<class or function>"` (its connections with file and line),
   `graphify path "<A>" "<B>"`, `graphify query "<question>"` (by key words) and
-  `graphify god-nodes`.  A name used in several files is answered with the list of node ids
+  `graphify god-nodes`. A name used in several files is answered with the list of node ids
   to choose from.
 - **Claude Code:** with `/graphify` set up (setup step 4), `/graphify query`, `/graphify explain`
-  and `/graphify path` answer from this graph.  A plain `/graphify .` would build the graph
+  and `/graphify path` answer from this graph. A plain `/graphify .` would build the graph
   itself, and also have the model read the documents and images, which costs many tokens.
 
 Without `-Update` the graph is built anew; `-Update` reads only the files changed since the last
-run.  Some headers are read only in part (graphify reports "syntax errors" for them); their
+run. Some headers are read only in part (graphify reports "syntax errors" for them); their
 classes are then missing or incomplete in the graph.
 
 ### 02 – clang-uml
@@ -81,7 +81,7 @@ draws the diagrams defined in [clang-uml.yml](clang-uml.yml), in Mermaid: each t
 
 clang-uml needs the compile database and the files the build generates (Qt's moc and uic).
 Without them the run first configures and builds `build-overview` (a full build, once);
-`-BuildDir build-analysis` uses the build of analysis run 01 instead.  `-Diagram <names>` draws
+`-BuildDir build-analysis` uses the build of analysis run 01 instead. `-Diagram <names>` draws
 only some of the diagrams.
 
 | Diagram | Shows |
@@ -91,12 +91,12 @@ only some of the diagrams.
 
 A new diagram is an entry under `diagrams:` in `clang-uml.yml`; the
 [clang-uml documentation](https://clang-uml.github.io/) describes the diagram types and filters.
-Paths there are relative to the repository.  What we learned with clang-uml 0.6.3:
+Paths there are relative to the repository. Notes on clang-uml 0.6.3:
 
 - Filters that combine others (`anyof`, `allof`) only work with `filter_mode: advanced`; without
   it a class diagram takes in every type the classes use.
 - `from` of a sequence diagram is the full signature, as clang-uml writes it
-  (`Class::method(const Type &,int) const`).  If it doesn't match, the error message suggests
+  (`Class::method(const Type &,int) const`). If it doesn't match, the error message suggests
   the closest name.
 - A class template in the same translation unit gives the methods of a class its name
   ([bkryza/clang-uml#461](https://github.com/bkryza/clang-uml/issues/461)); excluding the
@@ -110,7 +110,7 @@ Paths there are relative to the repository.  What we learned with clang-uml 0.6.
 ### 03 – cmake --graphviz
 
 CMake writes the targets of the build (programs, libraries, tests) and the libraries they link
-as graphs in the DOT language of [Graphviz](https://graphviz.org/).  `-Graph` chooses which,
+as graphs in the DOT language of [Graphviz](https://graphviz.org/). `-Graph` chooses which,
 default all three:
 
 | Graph | Shows |
@@ -123,11 +123,11 @@ default all three:
 
 Each graph goes to `results\cmake-graphviz\<graph>.dot`, all of them to `graphs.html` there,
 which draws them like the page of run 02 (it loads viz.js, Graphviz for the browser, version
-3.31.0, from the internet).  With Graphviz installed (setup step 6) each is also drawn to
-`<graph>.svg`, to be seen offline.  The shape of a node says what kind of target it is (see the
+3.31.0, from the internet). With Graphviz installed (setup step 6) each is also drawn to
+`<graph>.svg`, to be seen offline. The shape of a node says what kind of target it is (see the
 legend in each graph): an egg a program, an octagon a static library.
 
-CMake needs a configured build directory, not a built one: the run uses `build-overview` of
-run 02 if it is configured, else it only configures `build-graphviz`.  Its settings for the
-graphs are written to `CMakeGraphVizOptions.cmake` in the build directory while it runs, and
+CMake needs a configured build folder, not a built one: the run uses `build-overview` of
+run 02 if it is configured, else it only configures `build-graphviz`. Its settings for the
+graphs are written to `CMakeGraphVizOptions.cmake` in the build folder while it runs, and
 removed at the end.

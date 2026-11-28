@@ -79,7 +79,7 @@ no more than the comment, add the guard instead.
   saying why no test is possible.
 - A bug found by fuzzing also adds its input to the seeds in `src/fuzz/corpus`.
 - Tests must not depend on the machine: no user settings, no files outside the
-  test's own temporary directory, no image files in the repository (draw the
+  test's own temporary folder, no image files in the repository (draw the
   pages in the test).
 
 More on running and writing tests: [TESTING.md](TESTING.md).
@@ -92,8 +92,9 @@ to the reader of that file, above all for CHANGES.md:
 
 - CHANGES.md: user-visible changes (features, fixed bugs a user could notice,
   changed behavior or file formats).
-- BUILDING.md, TESTING.md, `scripts/README.md`, `scripts/analysis/README.md`:
-  new or changed build options, test programs, developer tools and scripts.
+- BUILDING.md, TESTING.md, `scripts/README.md`, `scripts/analysis/README.md`,
+  `scripts/overview/README.md`, `tools/mcp/README.md`: new or changed build options, test
+  programs, developer tools, scripts and MCP server tools.
 
 Details are written in one place only; the other files link to it.
 

@@ -21,6 +21,11 @@ Besides the export, the text recognition and the command line tool, among other 
 
 * a new automatic oblique (shear) correction in *Deskew*, which takes the angle from the
   straight text edges, and evened-out letter widths after dewarping
+* automatic orientation detection in *Import* (and `--orientation-detect` in
+  `scantailor-ocr-cli`), which rotates pages based on their text, optionally following
+  neighbors or the majority across a book
+* *Trapezoid* dewarping for flat pages in *Output*, and *Auto* dewarping that curves a page
+  only when its text lines are bent
 * new despeckling, which keeps dots over letters, umlauts and punctuation far more often
 * automatic import of new scans from a watched folder
 * more output options: split output with the original background, grayscale output, TIFF

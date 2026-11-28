@@ -8,7 +8,7 @@ in this folder.
 
 The PDF export uses them to compress black and white images losslessly as JBIG2
 generic regions (`PdfImageEncoder::encodeJbig2`). The JBIG2 segments around the
-coded data are written by ScanTailor's own code.
+coded data are written by ScanTailor OCR's own code.
 
 Changes made for ScanTailor OCR (2026):
 
@@ -34,7 +34,7 @@ Changes made for ScanTailor OCR (2026):
   `__restrict__` (which the header used to define for MSVC). It includes
   `<cstdint>` instead of choosing between `<sys/types.h>` (Solaris) and
   `<stdint.h>`.
-* Changes for the static analysers (2026-10), none of them changes the coded
+* Changes for the static analyzers (2026-10), none of them changes the coded
   output: the members of `jbig2enc_ctx` have `{}` initializers (cppcheck
   uninitMemberVarNoCtor); the static function `emit` is renamed to `emit_byte`,
   because with `--library=qt` cppcheck takes `emit` for Qt's macro

@@ -27,7 +27,7 @@ topic, not by version.
 * A number written as "nan" or "inf" in a damaged or hand-edited project file gives the default
   value of that setting, instead of being passed on to the image filters.
 * Project files and profiles are written safely: the old file is replaced only when everything
-  has been written, so a full disk or a crash no longer leaves a broken project.
+  has been written, so a full disk or a crash no longer leaves a damaged project.
 * Each binarization method keeps its own delta, strength and window size, for every page and in
   the profiles. Switching to another method and back no longer loses or carries over values.
   Project files store them per method; in a project of ScanTailor Advanced, the saved values count
@@ -89,11 +89,11 @@ topic, not by version.
   is changed by drag and drop or with "Move forward" / "Move back". Ticks and order are kept
   while the project is open but not saved; new pages appear ticked after their predecessor.
 * While an export runs, the other steps and opening, creating or closing a project are
-  locked. All files are written to temporary files first, so a failed or cancelled export never
-  leaves a broken file or damages an existing one. Replacing existing files is always confirmed
+  locked. All files are written to temporary files first, so a failed or canceled export never
+  leaves a damaged file or damages an existing one. Replacing existing files is always confirmed
   in one question that lists them all. An existing ALTO folder is only replaced if it holds
   nothing but ALTO files of an export. Several pages are prepared in parallel, with progress
-  display and cancelling.
+  display and canceling.
 * **Small files by default:**
   * Black and white pages: lossless **JBIG2**.
   * Mixed pages with split output: layers; only the picture area of the background is stored
@@ -313,7 +313,7 @@ topic, not by version.
   pages deletes the output files in all folders (`foreground`, `background`,
   `original_background`, caches) together with their thumbnails.
 * **New despeckling** (output, content detection, the content mask of the content and margins
-  steps, and the detection of white text on black): sizes in millimetres, exact gaps between
+  steps, and the detection of white text on black): sizes in millimeters, exact gaps between
   specks and text, and specks next to letters judged by their place in the line of text (on the
   baseline, above a letter and so on). Dot leaders, i-dots, umlauts, commas and hyphens stay far
   more often, more dust, specks next to letters and dirt at the page edges go. Results of existing
@@ -343,7 +343,7 @@ topic, not by version.
   *Source Resolution* (new, in *Margins*), *Output Size* (in *Margins*), *Output Resolution*,
   *Content* (formerly "Processing"; "Dark content on a light background"). In *Output*, the
   headings are "General", "Enhancement", "Filling", "Threshold", "Color Operations" and "Picture
-  Zones"; "Equalize illumination (B&W)" and "(Color)" are one check box. In *Page Layout*,
+  Zones"; "Equalize illumination (B&W)" and "(Color)" are one check box. In *Margins*,
   "Match size to all pages" is gone (it equals **Apply to ...** with all pages).
 * Resolution fields accept 300, 400, 600 and 1200 dpi from a list or any typed value.
   Replacing an image file with one of a different pixel size takes over its resolution when
@@ -411,9 +411,9 @@ topic, not by version.
   picture zones of existing projects can change when their output is created again.
 * **Loss of changes on close fixed:** a change that kept the file size (e.g. a skew angle of 0.50
   to 0.75) closed the project without asking, and "Save" closed the project even when saving
-  failed or was cancelled. Fixed page insertion next to split scans, the order of several
+  failed or was canceled. Fixed page insertion next to split scans, the order of several
   inserted files, a crash in "Go to Page" without pages, and thumbnails left stale after a
-  cancelled task.
+  canceled task.
 * Natural file name sorting compares numbers digit by digit (long numbers such as time stamps)
   and the separators. **This can change page order in projects with inconsistent file naming.**
 * Fixed: thumbnails stale with paths over 260 characters on Windows (also when saving the
@@ -632,7 +632,7 @@ what changed.
   profile files, the processing of a page, the Output step and the PDF export. The fixes above
   for damaged project files, the posterization level and dewarping came from it.
 * Developer tools (`-DBUILD_DEV_TOOLS=ON`) measure binarization, color mode detection, split
-  line, oblique detection and despeckling. The copy of ScanTailor Experimental code that
+  line, oblique detection, despeckling and automatic dewarping (`dewarp_compare`). The copy of ScanTailor Experimental code that
   `binarization_compare` compares with is in `src/tools/binarization_compare/experimental`.
 * New tests for the image readers, the TIFF writer, the export in all formats, the Output step,
   the command line tool and many more, and an **end-to-end test** that runs all six steps and the PDF export

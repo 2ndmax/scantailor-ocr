@@ -28,17 +28,19 @@ They run in Windows PowerShell 5.1 or PowerShell 7, from any folder:
 Each setup script shows its steps in a menu; each step can be run on its own, 0 runs all of them,
 and a step skips what is already there.
 
-## Common behaviour
+## Common behavior
 
 - **Help:** every script describes itself and its parameters at its top, also shown by
   `Get-Help scripts\<folder>\<script>.ps1 -Detailed`.
 - **Asking first:** the scripts say what they will do and ask before they start. `-Yes` starts
   right away; for the setup scripts it goes with `-Steps <numbers>`, which runs steps without
   the menu.
-- **Folders:** the analysis runs, overview run 02 and the packaging take `-VcpkgRoot` (default:
-  the variable `VCPKG_ROOT`) and `-BuildDir` (default: `build` for the packaging, a `build-*`
-  folder of its own for each run); the analysis and overview runs also take `-OutDir` for their
-  output.
+- **Folders:** the packaging (`package-windows.ps1`), overview runs 02–03 and the Windows-build
+  analysis runs (`01`, `05`–`07`, `09`, `10`, `12`) take `-VcpkgRoot` (default: the variable
+  `VCPKG_ROOT`) and `-BuildDir` (default: `build` for the packaging, a `build-*` folder of its
+  own for each run); analysis runs `02`–`04` also take `-BuildDir` (default: `build-analysis`).
+  Analysis runs `01`–`12` and all overview runs take `-OutDir` for their output
+  (`90-merge-findings.ps1` takes `-AnalysisDir`; `package-windows.ps1` takes `-OutputDir`).
 - **Right after a setup:** a setup and the runs can follow each other in the same window. A
   window keeps the environment it was opened with, so the scripts take what a setup added from
   the user account (`PATH`, `VCPKG_ROOT`, the folders of uv) and look for the tools in the

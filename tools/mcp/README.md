@@ -54,7 +54,7 @@ and `run_start` refuse every path: there is no folder they are allowed to touch.
 **Allowed folders.** A path is allowed when it lies inside a folder the client
 supplies through MCP `roots`, or inside a folder given with `--allow-root`. Every
 path an agent passes (input folder, project file, output folder, export folder,
-a profile file) is resolved to an absolute, normalised path with symbolic links
+a profile file) is resolved to an absolute, normalized path with symbolic links
 followed before the check; a path that escapes an allowed folder is refused.
 Without any allowed folder nothing that takes a path works. The server logs the
 roots it gets from the client, or that the client provides none.
@@ -158,7 +158,7 @@ with `isError`.
 | `succeeded` | 0 | finished |
 | `pages_failed` | 3 | some pages failed |
 | `export_failed` | 4 | export failed |
-| `cancelled` | 5 | cancelled |
+| `cancelled` | 5 | canceled |
 | `refused` | 1 or 2 | CLI refused the run; carries `message` |
 | `crashed` | other | the CLI ended unexpectedly, or without its report; carries `message` |
 
@@ -192,12 +192,12 @@ repeat them.
 - No paths outside the allowed folders.
 - No queue: at most `--max-runs` runs at once (default 1), because each run
   already uses all cores.
-- No project that is open in the ScanTailor app: the app does not notice the
+- No project that is open in the ScanTailor OCR app: the app does not notice the
   changes and would overwrite them when it saves. Reopen the project in the app
   after a run.
 - The CLI's messages (`message`) come in the language configured in the app.
 
-## Cancelling and shutting down
+## Canceling and shutting down
 
 - `run_cancel` stops the run like Ctrl+C; the project and the report are saved.
 - When the server ends, it cancels running runs and waits up to 30 seconds for
@@ -220,8 +220,4 @@ repeat them.
 
 See [TESTING.md](../../TESTING.md) (section on the server tests) for
 `uv run pytest` in `tools/mcp/` and the CI that runs them.
-
-## Tested clients
-
-Results of the hand tests follow.
 </content>

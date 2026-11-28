@@ -3,7 +3,7 @@
 ## Running the tests
 
 The tests are built by default (`BUILD_TESTS=ON`, see [BUILDING.md](BUILDING.md)). In the build
-directory:
+folder:
 
 ```bash
 ctest --output-on-failure
@@ -25,16 +25,22 @@ check only its exit code, for `--version`, `--help` and wrong command lines, inc
 options for creating a project given with an existing project.
 `cli_folder_export_formats_without_last_step` (`src/cli/cli_folder_export_test.cpp`) runs the
 tool on a folder with a drawn page and reads its report: an export option without `--last-step`
-has to lead the run to the export, a rule that lives in `main.cpp`. What the tool does is tested
-in `core_tests` (`TestCommandLineRun`), among it that a project created from a folder matches the
-one the app creates from it.
+has to lead the run to the export, a rule that lives in `main.cpp`. On Windows,
+`cli_ctrl_break_cancels` (`src/cli/cli_ctrl_break_test.cpp`) starts the tool on a drawn page and
+sends Ctrl+Break to verify that it cancels cleanly and saves the project. What the tool does is
+tested in `core_tests` (`TestCommandLineRun`), among it that a project created from a folder
+matches the one the app creates from it.
 
-`ctest` also runs `step_include_check`. It checks without building that a step includes only
+`ctest` also runs `core_base_link_check` and `step_include_check`. `core_base_link_check` checks
+that `core_base`, `zones` and the steps' processing libraries link without `core` and without Qt
+Widgets. `step_include_check` checks without building that a step includes only
 headers of steps it links, directly or through other steps, and fails with the file and the
 include otherwise. All steps share the include root `src/core/filters`, so neither the compiler
 nor the linker would notice a step that includes a step before it in the chain (see
 [BUILDING.md](BUILDING.md#libraries)). The allowed steps come from the steps'
-`target_link_libraries`; the script is `cmake/CheckStepIncludes.cmake`.
+`target_link_libraries`; the script is `cmake/CheckStepIncludes.cmake`. With
+`-DBUILD_DEV_TOOLS=ON`, `ctest` also runs `exp_gray_image_tests`
+(`src/tools/binarization_compare/TestExpGrayImage.cpp`).
 
 The MCP server in `tools/mcp` has tests of its own, which `ctest` doesn't run. They start the
 built command line tool, `build/scantailor-ocr-cli` or the file `SCANTAILOR_OCR_CLI` names, and
@@ -58,7 +64,9 @@ without the offscreen plugin, `qt_tests` hangs without a message.
 
 ## The test programs
 
-Every module has its own `Test<Module>.cpp` in the `tests` folder of its library.
+The Boost.Test suites live as `Test*.cpp` files grouped by topic in each library's `tests`
+folder (for example in `src/core/tests/`), and the Qt Test suites live as `tst_*_qt.cpp`
+files in `src/qt_tests/`.
 
 | Program | Sources | Tests |
 |---|---|---|
@@ -88,13 +96,14 @@ systems. No image files are stored in the repository: the scans are drawn in the
   scan), and saving, loading and saving the project again gives the same file. It also
   checks the color mode detection (text page black and white, picture page mixed).
 - **testColorOutputCompression**: a color page is written with the TIFF compression set in the
-  project (JPEG).
+  project (JPEG) and exported to PDF as JPEG (`/Filter /DCTDecode`).
 - **testPdfExport**: `StageSequence::pdfExportPages` and `ExportOptions::fromProject` build
   the PDF of the test project (no OCR). Checked: complete file (every entry of the
   cross-reference table points at its object), 4 pages in project order, page size from pixels
   and resolution, black-and-white compression as set in the project (JBIG2 by default,
-  CCITT G4), JPEG for the color page, and a missing output file makes the export fail without
-  touching an existing PDF.
+  CCITT G4), a missing output file makes the export fail without touching an existing PDF, and
+  changing a page in *Output* marks only that page with `isOutdated()` while keeping its
+  existing output file.
 
 It takes a few seconds. Text recognition is not checked, as the CI runners have no language
 files.
@@ -125,7 +134,7 @@ compares the output. The two process pages in different ways: the app runs batch
 - When a bug fix needs a regression test, and what happens with a bug found by fuzzing: see
   "Tests" in [CLAUDE.md](CLAUDE.md).
 - Tests must not depend on the machine: no user settings, no files outside the test's own
-  temporary directory, no image files in the repository (draw the pages in the test, as the
+  temporary folder, no image files in the repository (draw the pages in the test, as the
   end-to-end test does). A page the orientation detection decides on is drawn by
   `Tests::makeTextPage` in `src/core/tests/TestHelpers.h`: lines of bars with ascenders, as text
   can't be drawn without fonts.
@@ -246,12 +255,12 @@ despeckle_compare content <input folder> [--dpi=200]
 
 - `bench`: 40 generated pages with known truth: German text in Times New Roman and Arial, 6 to
   14 pt, at 200, 300, 400 and 600 dpi, with dots above letters, punctuation, dot leaders and
-  superscripts; noise of six kinds (salt, dust, fibres, border, specks next to letters,
-  show-through), every pixel labelled. The text is antialiased and thresholded with noise like a
+  superscripts; noise of six kinds (salt, dust, fibers, border, specks next to letters,
+  show-through), every pixel labeled. The text is antialiased and thresholded with noise like a
   scan. Each page is despeckled at the three levels; the summary gives, per level and
   resolution, the noise removed by kind and the text lost by class. A glyph part (a letter body,
   a dot) is lost when more than half of its pixels are. `bench.csv` has one row per page and level.
-  With `--images` also the result at NORMAL in colour (black text kept, blue text lost, red noise
+  With `--images` also the result at NORMAL in color (black text kept, blue text lost, red noise
   kept, gray noise removed), crops around lost text per level, and the pages themselves in
   `pages/`. The fonts come from the machine: compare runs on the same machine only.
 - `run`: binarizes real scans (Otsu) and despeckles them at the three levels; `diff` compares two
@@ -272,7 +281,7 @@ compilers, analysis tools, sanitizers and Application Verifier, and merge their 
 table; [scripts/analysis/README.md](scripts/analysis/README.md) describes each run.
 
 Fuzzing (run 10) builds the fuzz targets of `src/fuzz` with `-DBUILD_FUZZERS=ON` in a build
-directory of its own (`build-fuzz`; the option leaves out the program, the tests and the dev
+folder of its own (`build-fuzz`; the option leaves out the program, the tests and the dev
 tools) and runs them for a chosen time, e.g. one target for one minute:
 
 ```powershell
