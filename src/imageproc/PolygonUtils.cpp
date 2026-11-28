@@ -57,12 +57,16 @@ QPolygonF PolygonUtils::round(const QPolygonF& poly) {
 }
 
 bool PolygonUtils::fuzzyCompare(const QPolygonF& poly1, const QPolygonF& poly2) {
-  // REVIEW-NOTE (2026-11): two different polygons of one point each -> compare as equal. Not fixed because
-  // the callers compare page outlines, which have at least 3 points or are empty ("not computed yet",
-  // where equal is meant).
-  if ((poly1.size() < 2) && (poly2.size() < 2)) {
+  if (poly1.isEmpty() && poly2.isEmpty()) {
     return true;
-  } else if ((poly1.size() < 2) || (poly2.size() < 2)) {
+  }
+  if (poly1.isEmpty() || poly2.isEmpty()) {
+    return false;
+  }
+  if ((poly1.size() == 1) && (poly2.size() == 1)) {
+    return fuzzyCompareImpl(poly1.front(), poly2.front());
+  }
+  if ((poly1.size() == 1) || (poly2.size() == 1)) {
     return false;
   }
 

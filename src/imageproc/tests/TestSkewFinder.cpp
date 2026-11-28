@@ -46,6 +46,9 @@ BOOST_AUTO_TEST_CASE(test_positive_detection) {
 
 BOOST_AUTO_TEST_CASE(test_negative_detection) {
   QImage image(1000, 800, QImage::Format_Mono);
+  image.setColorCount(2);
+  image.setColor(0, 0xff000000);
+  image.setColor(1, 0xffffffff);
   image.fill(1);
 
   std::mt19937 rng(0x5CA1E005u);

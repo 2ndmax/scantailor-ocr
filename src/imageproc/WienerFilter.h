@@ -26,8 +26,6 @@ class QSize;
 
 namespace imageproc {
 
-class GrayImage;
-
 /**
  * @brief Applies the Wiener filter to a grayscale image.
  *

@@ -3,7 +3,7 @@
 
 #include "PolynomialSurface.h"
 
-#include <QDebug>
+#include <QtGlobal>
 #include <algorithm>
 #include <cassert>
 #include <cmath>

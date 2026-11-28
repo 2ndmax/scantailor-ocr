@@ -11,6 +11,7 @@
 #include <QPoint>
 #include <QSize>
 #include <boost/test/unit_test.hpp>
+#include <stdexcept>
 
 #include "Utils.h"
 
@@ -144,6 +145,13 @@ BOOST_AUTO_TEST_CASE(test_gray_vs_binary) {
       break;
     }
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_seed_fill_gray_slow_validation) {
+  BOOST_CHECK(seedFillGraySlow(GrayImage(), GrayImage(), CONN4).isNull());
+  BOOST_CHECK_THROW(seedFillGraySlow(GrayImage(), GrayImage(QSize(4, 4)), CONN4), std::invalid_argument);
+  BOOST_CHECK_THROW(seedFillGraySlow(GrayImage(QSize(4, 4)), GrayImage(), CONN8), std::invalid_argument);
+  BOOST_CHECK_THROW(seedFillGraySlow(GrayImage(QSize(4, 4)), GrayImage(QSize(5, 4)), CONN4), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

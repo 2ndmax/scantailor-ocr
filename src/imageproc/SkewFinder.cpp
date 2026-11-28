@@ -3,7 +3,6 @@
 
 #include "SkewFinder.h"
 
-#include <QDebug>
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
@@ -105,10 +104,9 @@ Skew SkewFinder::findSkew(const BinaryImage& image) const {
   double sumCoarseScores = 0.0;
   double bestCoarseScore = 0.0;
   double bestCoarseAngle = -m_maxAngle;
-  // REVIEW-NOTE (2026-10): a floating point loop counter accumulates rounding errors -> the last angle near
-  // +m_maxAngle may be included or not. Not fixed because the step is 1.0 and setMaxAngle() limits the range to
-  // 45 degrees, so the loop ends after at most 91 steps and at worst one edge sample differs.
-  for (double angle = -m_maxAngle; angle <= m_maxAngle; angle += coarseStep) {
+  const int numSteps = static_cast<int>(std::floor((2.0 * m_maxAngle) / coarseStep)) + 1;
+  for (int step = 0; step < numSteps; ++step) {
+    const double angle = -m_maxAngle + step * coarseStep;
     const double score = process(coarseReduced, skewed, angle);
     sumCoarseScores += score;
     ++numCoarseScores;

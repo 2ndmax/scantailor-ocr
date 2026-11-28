@@ -3,7 +3,6 @@
 
 #include "BinaryThreshold.h"
 
-#include <QDebug>
 #include <array>
 #include <cassert>
 #include <cstddef>

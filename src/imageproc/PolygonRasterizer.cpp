@@ -7,6 +7,7 @@
 #include <QPainterPath>
 #include <QPolygonF>
 #include <cassert>
+#include <cmath>
 #include <stdexcept>
 
 #include "BinaryImage.h"
@@ -212,6 +213,12 @@ PolygonRasterizer::Rasterizer::Rasterizer(const QRect& imageRect,
                                           const Qt::FillRule fillRule,
                                           const bool invert)
     : m_imageRect(imageRect), m_fillRule(fillRule), m_invert(invert) {
+  for (const QPointF& pt : poly) {
+    if (!std::isfinite(pt.x()) || !std::isfinite(pt.y())) {
+      throw std::invalid_argument("PolygonRasterizer: polygon contains non-finite coordinates");
+    }
+  }
+
   QPainterPath path1;
   path1.setFillRule(fillRule);
   path1.addRect(imageRect);
@@ -404,7 +411,9 @@ void PolygonRasterizer::Rasterizer::oddEvenLineGrayscale(const EdgeComponent* co
   for (int i = 0; i < numEdges - 1; i += 2) {
     const int from = qRound(edges[i].x());
     const int to = qRound(edges[i + 1].x());
-    memset(line + from, color, to - from);
+    if (to > from) {
+      memset(line + from, color, to - from);
+    }
   }
 }
 
@@ -435,7 +444,9 @@ void PolygonRasterizer::Rasterizer::windingLineGrayscale(const EdgeComponent* co
     if ((dirSum == 0) == invert) {
       const int from = qRound(edges[i].x());
       const int to = qRound(edges[i + 1].x());
-      memset(line + from, color, to - from);
+      if (to > from) {
+        memset(line + from, color, to - from);
+      }
     }
   }
 }
@@ -444,7 +455,7 @@ void PolygonRasterizer::Rasterizer::fillBinarySegment(const int xFrom,
                                                       const int xTo,
                                                       uint32_t* const line,
                                                       const uint32_t pattern) {
-  if (xFrom == xTo) {
+  if (xFrom >= xTo) {
     return;
   }
 

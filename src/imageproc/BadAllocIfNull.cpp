@@ -7,7 +7,7 @@
 #include <new>
 
 namespace imageproc {
-const QImage& badAllocIfNull(const QImage& image) {
+QImage badAllocIfNull(const QImage& image) {
   if (image.isNull()) {
     throw std::bad_alloc();
   }

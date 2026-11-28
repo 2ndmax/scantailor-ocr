@@ -8,6 +8,8 @@
 #include <atomic>
 #include <boost/test/unit_test.hpp>
 #include <chrono>
+#include <condition_variable>
+#include <mutex>
 #include <new>
 #include <thread>
 #include <vector>
@@ -15,6 +17,15 @@
 namespace imageproc {
 namespace tests {
 namespace {
+boost::test_tools::assertion_result hasMultipleThreads(boost::unit_test::test_unit_id /*id*/) {
+  if (ThreadBudget::availableThreads() >= 2) {
+    return true;
+  }
+  boost::test_tools::assertion_result result(false);
+  result.message() << "only one thread available";
+  return result;
+}
+
 /** Sets the thread limit, and restores the previous one also when a check fails. */
 class ThreadLimit {
  public:
@@ -41,19 +52,22 @@ class BusyTasks {
     for (int i = 0; i < count; ++i) {
       m_threads.emplace_back([this] {
         const ThreadBudget::TaskScope scope;
+        std::unique_lock<std::mutex> lock(m_mutex);
         ++m_entered;
-        while (!m_done) {
-          std::this_thread::yield();
-        }
+        m_enteredCv.notify_one();
+        m_doneCv.wait(lock, [this] { return m_done; });
       });
     }
-    while (m_entered < count) {
-      std::this_thread::yield();
-    }
+    std::unique_lock<std::mutex> lock(m_mutex);
+    m_enteredCv.wait(lock, [this, count] { return m_entered == count; });
   }
 
   ~BusyTasks() {
-    m_done = true;
+    {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      m_done = true;
+    }
+    m_doneCv.notify_all();
     for (std::thread& thread : m_threads) {
       thread.join();
     }
@@ -63,8 +77,11 @@ class BusyTasks {
   BusyTasks& operator=(const BusyTasks&) = delete;
 
  private:
-  std::atomic<int> m_entered{0};
-  std::atomic<bool> m_done{false};
+  std::mutex m_mutex;
+  std::condition_variable m_enteredCv;
+  std::condition_variable m_doneCv;
+  int m_entered{0};
+  bool m_done{false};
   std::vector<std::thread> m_threads;
 };
 
@@ -111,13 +128,11 @@ BOOST_AUTO_TEST_CASE(test_runs_on_one_thread_in_a_full_batch) {
 
 // The helper threads work for the same page: what they start in turn shares the budget of the page,
 // it does not get all threads again.
-BOOST_AUTO_TEST_CASE(test_helper_threads_share_the_budget_of_their_task) {
+BOOST_AUTO_TEST_CASE(test_helper_threads_share_the_budget_of_their_task,
+                     *boost::unit_test::precondition(hasMultipleThreads)) {
   const ThreadLimit limit(ThreadBudget::availableThreads());
   const int maxThreads = ThreadBudget::maxThreads();
-  if (maxThreads < 2) {
-    BOOST_TEST_MESSAGE("only one thread available, skipped");
-    return;
-  }
+  BOOST_REQUIRE_GE(maxThreads, 2);
   const ThreadBudget::TaskScope scope;
   std::atomic<int> mostInHelper{0};
   parallelFor(
@@ -135,12 +150,10 @@ BOOST_AUTO_TEST_CASE(test_helper_threads_share_the_budget_of_their_task) {
   BOOST_TEST(mostInHelper.load() < maxThreads);
 }
 
-BOOST_AUTO_TEST_CASE(test_exception_in_a_helper_thread_reaches_the_caller) {
+BOOST_AUTO_TEST_CASE(test_exception_in_a_helper_thread_reaches_the_caller,
+                     *boost::unit_test::precondition(hasMultipleThreads)) {
   const ThreadLimit limit(ThreadBudget::availableThreads());
-  if (ThreadBudget::threadsForCurrentTask() < 2) {
-    BOOST_TEST_MESSAGE("only one thread available, skipped");
-    return;
-  }
+  BOOST_REQUIRE_GE(ThreadBudget::threadsForCurrentTask(), 2);
   // The last slice runs in a helper thread, the first one in the calling thread.
   BOOST_CHECK_THROW(parallelFor(
                         1000,

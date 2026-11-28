@@ -9,7 +9,6 @@
 #include "BWColor.h"
 
 class QPolygonF;
-class QRectF;
 class QImage;
 
 namespace imageproc {

@@ -84,14 +84,22 @@ class IntegralImage {
 template <typename T>
 IntegralImage<T>::IntegralImage(const int width, const int height)
     : m_lineSum() {  // init with 0 or with default constructor.
-  // The first row and column are fake.
-  init(width + 1, height + 1);
+  if ((width <= 0) || (height <= 0)) {
+    init(0, 0);
+  } else {
+    // The first row and column are fake.
+    init(width + 1, height + 1);
+  }
 }
 
 template <typename T>
 IntegralImage<T>::IntegralImage(const QSize& size) : m_lineSum() {  // init with 0 or with default constructor.
-  // The first row and column are fake.
-  init(size.width() + 1, size.height() + 1);
+  if (size.isEmpty()) {
+    init(0, 0);
+  } else {
+    // The first row and column are fake.
+    init(size.width() + 1, size.height() + 1);
+  }
 }
 
 template <typename T>
@@ -103,6 +111,13 @@ template <typename T>
 void IntegralImage<T>::init(const int width, const int height) {
   m_width = width;
   m_height = height;
+
+  if ((width <= 0) || (height <= 0)) {
+    m_data = nullptr;
+    m_cur = nullptr;
+    m_above = nullptr;
+    return;
+  }
 
   // The multiplication is done in size_t to avoid an int overflow, which
   // would silently allocate a buffer that's too small for large images.
@@ -121,6 +136,9 @@ void IntegralImage<T>::init(const int width, const int height) {
 
 template <typename T>
 void IntegralImage<T>::push(const T val) {
+  if (!m_cur) {
+    return;
+  }
   m_lineSum += val;
   *m_cur = *m_above + m_lineSum;
   ++m_cur;
@@ -131,6 +149,10 @@ template <typename T>
 void IntegralImage<T>::beginRow() {
   m_lineSum = T();
 
+  if (!m_cur) {
+    return;
+  }
+
   // Initialize and skip the fake column.
   *m_cur = T();
   ++m_cur;
@@ -140,6 +162,9 @@ void IntegralImage<T>::beginRow() {
 template <typename T>
 template <typename ValueOfColumn>
 void IntegralImage<T>::pushRow(ValueOfColumn value) {
+  if (!m_cur) {
+    return;
+  }
   beginRow();
 
   T lineSum = T();
@@ -159,6 +184,9 @@ void IntegralImage<T>::pushRow(ValueOfColumn value) {
 
 template <typename T>
 inline T IntegralImage<T>::sum(const QRect& rect) const {
+  if (!m_data || rect.isEmpty()) {
+    return T();
+  }
   // Keep in mind that row 0 and column 0 are fake.
   const int preLeft = rect.left();
   const int preRight = rect.right() + 1;  // QRect::right() is inclusive.

@@ -4,7 +4,6 @@
 #ifndef SCANTAILOR_IMAGEPROC_FINDPEAKSGENERIC_H_
 #define SCANTAILOR_IMAGEPROC_FINDPEAKSGENERIC_H_
 
-#include <QDebug>
 #include <QPoint>
 #include <QRect>
 #include <QSize>

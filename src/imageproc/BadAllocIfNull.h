@@ -4,7 +4,7 @@
 #ifndef SCANTAILOR_IMAGEPROC_BADALLOCIFNULL_H_
 #define SCANTAILOR_IMAGEPROC_BADALLOCIFNULL_H_
 
-class QImage;
+#include <QImage>
 
 namespace imageproc {
 /**
@@ -20,7 +20,7 @@ namespace imageproc {
  * @param image The image to test.
  * @return The image passed as the argument.
  */
-const QImage& badAllocIfNull(const QImage& image);
+QImage badAllocIfNull(const QImage& image);
 }  // namespace imageproc
 
 #endif

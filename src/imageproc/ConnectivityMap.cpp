@@ -3,7 +3,6 @@
 
 #include "ConnectivityMap.h"
 
-#include <QDebug>
 #include <QImage>
 #include <stdexcept>
 

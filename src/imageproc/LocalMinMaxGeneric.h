@@ -7,7 +7,8 @@
 #include <QRect>
 #include <QSize>
 #include <algorithm>
-#include <cassert>
+#include <cstddef>
+#include <stdexcept>
 #include <vector>
 
 namespace imageproc {
@@ -251,13 +252,15 @@ void localMinMaxGeneric(MinMaxSelector selector,
                         const QSize inputSize,
                         T* output,
                         const int outputStride) {
-  assert(!neighborhood.isEmpty());
+  if (neighborhood.isEmpty()) {
+    throw std::invalid_argument("localMinMaxGeneric: neighborhood cannot be empty");
+  }
 
   if (inputSize.isEmpty()) {
     return;
   }
 
-  std::vector<T> temp(inputSize.width() * inputSize.height());
+  std::vector<T> temp(static_cast<size_t>(inputSize.width()) * static_cast<size_t>(inputSize.height()));
   const int tempStride = inputSize.width();
 
   detail::local_min_max::horizontalPass(selector, neighborhood, outsideValues, input, inputStride, inputSize, &temp[0],

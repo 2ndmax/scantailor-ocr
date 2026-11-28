@@ -3,7 +3,6 @@
 
 #include "Binarize.h"
 
-#include <QDebug>
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -390,7 +389,7 @@ BinaryImage binarizeGrad(const QImage& src,
   if (gray.isNull()) {
     return BinaryImage();
   }
-  QImage gmean(toGrayscale(src));
+  QImage gmean(gray.size(), QImage::Format_Indexed8);
   if (gmean.isNull()) {
     return BinaryImage();
   }
@@ -467,7 +466,7 @@ BinaryImage binarizeEdgeDiv(const QImage& src,
                             const double kbd,
                             const double delta) {
   if (windowSize.isEmpty()) {
-    throw std::invalid_argument("binarizeBlurDiv: invalid windowSize");
+    throw std::invalid_argument("binarizeEdgeDiv: invalid windowSize");
   }
 
   if (src.isNull()) {
@@ -502,13 +501,17 @@ BinaryImage binarizeEdgeDiv(const QImage& src,
           retval = kep * edgeplus + (1.0 - kep) * origin;
         }
         if (kbd > 0.0) {
-          // BlurDiv
-          // edge = blur / I (shift = -0.5) {0.0 .. >1.0}, mean value = 0.5
-          const double edgeinv = (mean + 1) / (retval + 1) - 0.5;
-          // edgenorm = edge * k + max * (1 - k), mean value = {0.5 .. 1.0} * mean(I)
-          const double edgenorm = kbd * edgeinv + (1.0 - kbd);
-          // return I / edgenorm
-          retval = (edgenorm > 0.0) ? (origin / edgenorm) : origin;
+          if (retval == -1.0) {
+            retval = origin;
+          } else {
+            // BlurDiv
+            // edge = blur / I (shift = -0.5) {0.0 .. >1.0}, mean value = 0.5
+            const double edgeinv = (mean + 1) / (retval + 1) - 0.5;
+            // edgenorm = edge * k + max * (1 - k), mean value = {0.5 .. 1.0} * mean(I)
+            const double edgenorm = kbd * edgeinv + (1.0 - kbd);
+            // return I / edgenorm
+            retval = (edgenorm > 0.0) ? (origin / edgenorm) : origin;
+          }
         }
         // trim value {0..255}
         retval = (retval < 0.0) ? 0.0 : (retval < 255.0) ? retval : 255.0;
@@ -516,7 +519,7 @@ BinaryImage binarizeEdgeDiv(const QImage& src,
       },
       [&] { grayLine += grayBpl; });
   return BinaryImage(gray, (BinaryThreshold::otsuThreshold(gray) + delta));
-}  // binarizeBlurDiv
+}  // binarizeEdgeDiv
 
 BinaryImage peakThreshold(const QImage& image) {
   return BinaryImage(image, BinaryThreshold::peakThreshold(image));

@@ -4,13 +4,13 @@
 #include "InfluenceMap.h"
 
 #include <QImage>
+#include <cassert>
+#include <cstddef>
 #include <stdexcept>
 
 #include "BinaryImage.h"
 #include "BitOps.h"
 #include "ConnectivityMap.h"
-
-class QImage;
 
 namespace imageproc {
 InfluenceMap::InfluenceMap() : m_plainData(nullptr), m_size(), m_stride(0), m_maxLabel(0) {}
@@ -60,14 +60,17 @@ void InfluenceMap::swap(InfluenceMap& other) {
 }
 
 void InfluenceMap::init(const ConnectivityMap& cmap, const BinaryImage* mask) {
+  if ((cmap.size().width() > 32767) || (cmap.size().height() > 32767)) {
+    throw std::invalid_argument("InfluenceMap: image dimensions exceed 32767");
+  }
+
   const int width = cmap.size().width() + 2;
   const int height = cmap.size().height() + 2;
 
   m_size = cmap.size();
   m_stride = width;
-  // REVIEW-NOTE (2026-11): as in ConnectivityMap, about 2^31 padded pixels -> int overflow here and in the
-  // loop below. Not fixed because ImageSizeLimit keeps images below 600 million pixels.
-  m_data.resize(width * height);
+  const size_t totalCells = static_cast<size_t>(width) * static_cast<size_t>(height);
+  m_data.resize(totalCells);
   m_plainData = &m_data[0] + width + 1;
   m_maxLabel = cmap.maxLabel();
 
@@ -75,7 +78,7 @@ void InfluenceMap::init(const ConnectivityMap& cmap, const BinaryImage* mask) {
 
   Cell* cell = &m_data[0];
   const uint32_t* label = cmap.paddedData();
-  for (int i = width * height; i > 0; --i) {
+  for (size_t i = totalCells; i > 0; --i) {
     assert(*label <= cmap.maxLabel());
     cell->label = *label;
     cell->distSq = 0;

@@ -71,7 +71,7 @@ void rasterOpGeneric(const BinaryImage& image1, T2* data2, int stride2, Op opera
  * and an assignment operator from uint32_t, expecting 0 or 1 only.
  */
 template <typename T2, typename Op>
-void rasterOpGeneric(const BinaryImage& image1, T2* data2, int stride2, Op operation);
+void rasterOpGeneric(BinaryImage& image1, T2* data2, int stride2, Op operation);
 
 
 /*======================== Implementation ==========================*/

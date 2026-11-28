@@ -3,7 +3,6 @@
 
 #include "MaxWhitespaceFinder.h"
 
-#include <QDebug>
 #include <algorithm>
 #include <cassert>
 #include <cstdint>

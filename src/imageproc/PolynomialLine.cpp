@@ -3,7 +3,7 @@
 
 #include "PolynomialLine.h"
 
-#include <QDebug>
+#include <QtGlobal>
 #include <cmath>
 #include <stdexcept>
 

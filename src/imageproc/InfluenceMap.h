@@ -59,12 +59,16 @@ class InfluenceMap {
   /**
    * \brief Take labelled regions from a connectivity map
    *        and extend them to cover the whole available area.
+   *
+   * \throws std::invalid_argument if image dimensions exceed 32767.
    */
   explicit InfluenceMap(const ConnectivityMap& cmap);
 
   /**
    * \brief Take labelled regions from a connectivity map
    *        and extend them to cover the area that's black in mask.
+   *
+   * \throws std::invalid_argument if image dimensions exceed 32767 or sizes differ.
    */
   InfluenceMap(const ConnectivityMap& cmap, const BinaryImage& mask);
 

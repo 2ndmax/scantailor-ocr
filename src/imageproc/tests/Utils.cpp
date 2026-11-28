@@ -8,7 +8,7 @@
 
 #include <QImage>
 #include <QRect>
-#include <cassert>
+#include <boost/test/unit_test.hpp>
 #include <cstdint>
 #include <iostream>
 #include <random>
@@ -33,7 +33,7 @@ QImage randomMonoQImage(const int width, const int height) {
   image.setColor(0, 0xffffffff);
   image.setColor(1, 0xff000000);
   auto* pword = (uint32_t*) image.bits();
-  assert(image.bytesPerLine() % 4 == 0);
+  BOOST_REQUIRE_EQUAL(image.bytesPerLine() % 4, 0);
   uint32_t* const end = pword + image.height() * (image.bytesPerLine() / 4);
   static std::mt19937 rng(0x5CA1E008u);
   for (; pword != end; ++pword) {
@@ -119,6 +119,7 @@ void dumpGrayImage(const QImage& img, const char* name) {
   }
   if (img.format() != QImage::Format_Indexed8) {
     std::cout << "Not grayscale image" << std::endl;
+    return;
   }
 
   const int width = img.width();
@@ -136,7 +137,7 @@ void dumpGrayImage(const QImage& img, const char* name) {
 }
 
 bool surroundingsIntact(const QImage& img1, const QImage& img2, const QRect& rect) {
-  assert(img1.size() == img2.size());
+  BOOST_REQUIRE(img1.size() == img2.size());
 
   const int w = img1.width();
   const int h = img1.height();

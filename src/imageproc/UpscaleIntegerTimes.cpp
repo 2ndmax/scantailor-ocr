@@ -3,6 +3,9 @@
 
 #include "UpscaleIntegerTimes.h"
 
+#include <cstdint>
+#include <cstring>
+#include <limits>
 #include <stdexcept>
 
 #include "BinaryImage.h"
@@ -55,28 +58,37 @@ void expandImpl(BinaryImage& dst, const BinaryImage& src, const int xscale, cons
     dstLine += dstWpl;
     for (int line = 1; line < yscale; ++line, dstLine += dstWpl) {
       // dstWpl * 4 fits in int: a line of at most INT_MAX pixels has fewer than 2^26 words.
-      memcpy(dstLine, firstDstLine, dstWpl * 4);
+      std::memcpy(dstLine, firstDstLine, static_cast<size_t>(dstWpl) * 4);
     }
   }
 }  // expandImpl
 }  // namespace
 
 BinaryImage upscaleIntegerTimes(const BinaryImage& src, const int xscale, const int yscale) {
+  if ((xscale < 1) || (yscale < 1)) {
+    throw std::invalid_argument("upscaleIntegerTimes: scaling factors must be >= 1");
+  }
+
   if (src.isNull() || ((xscale == 1) && (yscale == 1))) {
     return src;
   }
 
-  if ((xscale < 0) || (yscale < 0)) {
-    throw std::runtime_error("upscaleIntegerTimes: scaling factors can't be negative");
+  const int64_t dstWidth = static_cast<int64_t>(src.width()) * xscale;
+  const int64_t dstHeight = static_cast<int64_t>(src.height()) * yscale;
+  if ((dstWidth > std::numeric_limits<int>::max()) || (dstHeight > std::numeric_limits<int>::max())) {
+    throw std::invalid_argument("upscaleIntegerTimes: scaled dimensions overflow");
   }
 
-  BinaryImage dst(src.width() * xscale, src.height() * yscale);
+  BinaryImage dst(static_cast<int>(dstWidth), static_cast<int>(dstHeight));
   expandImpl(dst, src, xscale, yscale);
   return dst;
 }
 
 BinaryImage upscaleIntegerTimes(const BinaryImage& src, const QSize& dstSize, const BWColor padding) {
   if (src.isNull()) {
+    if (dstSize.isEmpty()) {
+      return BinaryImage();
+    }
     BinaryImage dst(dstSize);
     dst.fill(padding);
     return dst;
@@ -90,7 +102,8 @@ BinaryImage upscaleIntegerTimes(const BinaryImage& src, const QSize& dstSize, co
 
   BinaryImage dst(dstSize);
   expandImpl(dst, src, xscale, yscale);
-  const QRect rect(0, 0, src.width() * xscale, src.height() * yscale);
+  const QRect rect(0, 0, static_cast<int>(static_cast<int64_t>(src.width()) * xscale),
+                   static_cast<int>(static_cast<int64_t>(src.height()) * yscale));
   dst.fillExcept(rect, padding);
   return dst;
 }

@@ -403,8 +403,8 @@ void GrayscaleHistogram::fromMonoImage(const QImage& img) {
     color1 = img.color(1);
   }
 
-  m_pixels[qGray(color0)] = numBits0;
-  m_pixels[qGray(color1)] = numBits1;
+  m_pixels[qGray(color0)] += numBits0;
+  m_pixels[qGray(color1)] += numBits1;
 }  // GrayscaleHistogram::fromMonoImage
 
 void GrayscaleHistogram::fromMonoMSBImage(const QImage& img, const BinaryImage& mask) {
@@ -441,8 +441,8 @@ void GrayscaleHistogram::fromMonoMSBImage(const QImage& img, const BinaryImage& 
     color1 = img.color(1);
   }
 
-  m_pixels[qGray(color0)] = numBits0;
-  m_pixels[qGray(color1)] = numBits1;
+  m_pixels[qGray(color0)] += numBits0;
+  m_pixels[qGray(color1)] += numBits1;
 }  // GrayscaleHistogram::fromMonoMSBImage
 
 void GrayscaleHistogram::fromGrayscaleImage(const QImage& img) {

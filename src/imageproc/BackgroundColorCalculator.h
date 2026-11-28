@@ -11,7 +11,6 @@ class QColor;
 class QPolygonF;
 
 namespace imageproc {
-class GrayscaleHistogram;
 class BinaryImage;
 
 class BackgroundColorCalculator {

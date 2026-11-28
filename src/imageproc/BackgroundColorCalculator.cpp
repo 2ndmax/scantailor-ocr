@@ -114,9 +114,6 @@ void checkImageIsValid(const QImage& img) {
         || ((img.format() == QImage::Format_Indexed8) && img.isGrayscale()))) {
     throw std::invalid_argument("BackgroundColorCalculator: wrong image format");
   }
-  if (img.isNull()) {
-    throw std::invalid_argument("BackgroundColorCalculator: image is null.");
-  }
 }
 }  // namespace
 

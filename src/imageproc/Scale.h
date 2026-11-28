@@ -10,7 +10,7 @@ namespace imageproc {
 class GrayImage;
 
 /**
- * \brief Converts an image to grayscale and scales it to dstSize.
+ * \brief Scales a grayscale image to dstSize.
  *
  * \param src The source image.
  * \param dstSize The size to scale the image to.

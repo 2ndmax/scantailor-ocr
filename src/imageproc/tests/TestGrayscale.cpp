@@ -1,6 +1,8 @@
 // Copyright (C) 2019  Joseph Artsimovich <joseph.artsimovich@gmail.com>, 4lex4 <4lex49@zoho.com>
 // Use of this source code is governed by the GNU GPLv3 license that can be found in the LICENSE file.
 
+#include <BWColor.h>
+#include <BinaryImage.h>
 #include <GrayImage.h>
 #include <Grayscale.h>
 
@@ -26,6 +28,9 @@ BOOST_AUTO_TEST_CASE(test_mono_to_grayscale) {
   const int h = 64;
 
   QImage mono(w, h, QImage::Format_Mono);
+  mono.setColorCount(2);
+  mono.setColor(0, 0xff000000);
+  mono.setColor(1, 0xffffffff);
   QImage gray(w, h, QImage::Format_Indexed8);
   gray.setColorTable(createGrayscalePalette());
 
@@ -152,6 +157,26 @@ BOOST_AUTO_TEST_CASE(test_stretch_gray_range_clamps_extreme_and_nan_fractions) {
   BOOST_CHECK(stretchGrayRange(src, -1.0, 0.0) == stretchGrayRange(src, 0.0, 0.0));
   const double qnan = std::numeric_limits<double>::quiet_NaN();
   BOOST_CHECK(stretchGrayRange(src, qnan, qnan) == stretchGrayRange(src, 0.0, 0.0));
+}
+
+BOOST_AUTO_TEST_CASE(test_mono_histogram_accumulates_identical_palette_grays) {
+  QImage mono(4, 2, QImage::Format_Mono);
+  mono.setColorCount(2);
+  mono.setColor(0, qRgb(100, 100, 100));
+  mono.setColor(1, qRgb(100, 100, 100));
+  mono.fill(0);
+  mono.setPixel(0, 0, 1);
+  mono.setPixel(2, 1, 1);
+
+  const GrayscaleHistogram hist(mono);
+  BOOST_CHECK_EQUAL(hist[100], 8);
+
+  BinaryImage mask(4, 2, WHITE);
+  mask.setPixel(0, 0, BLACK);
+  mask.setPixel(1, 0, BLACK);
+  mask.setPixel(2, 1, BLACK);
+  const GrayscaleHistogram maskedHist(mono, mask);
+  BOOST_CHECK_EQUAL(maskedHist[100], 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

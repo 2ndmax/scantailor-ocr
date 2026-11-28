@@ -3,7 +3,6 @@
 
 #include "SeedFill.h"
 
-#include <QDebug>
 #include <stdexcept>
 
 #include "GrayImage.h"
@@ -432,6 +431,13 @@ void seedFillGrayInPlace(GrayImage& seed, const GrayImage& mask, const Connectiv
 }
 
 GrayImage seedFillGraySlow(const GrayImage& seed, const GrayImage& mask, const Connectivity connectivity) {
+  if (seed.size() != mask.size()) {
+    throw std::invalid_argument("seedFillGraySlow: seed and mask have different sizes");
+  }
+  if (seed.isNull() || mask.isNull()) {
+    return GrayImage();
+  }
+
   GrayImage img(seed);
 
   if (connectivity == CONN4) {

@@ -3,7 +3,6 @@
 
 #include "HoughLineDetector.h"
 
-#include <QDebug>
 #include <QPainter>
 #include <algorithm>
 #include <cassert>

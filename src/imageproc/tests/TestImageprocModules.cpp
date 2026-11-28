@@ -26,6 +26,8 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <cstdint>
+#include <limits>
+#include <stdexcept>
 
 namespace imageproc {
 namespace tests {
@@ -142,6 +144,12 @@ BOOST_AUTO_TEST_CASE(test_upscale_integer_times) {
   const BinaryImage padded = upscaleIntegerTimes(src, QSize(14, 10), WHITE);
   BOOST_REQUIRE(padded.size() == QSize(14, 10));
   BOOST_CHECK_EQUAL(padded.countBlackPixels(), 6);
+
+  BOOST_CHECK_THROW(upscaleIntegerTimes(src, 0, 2), std::invalid_argument);
+  BOOST_CHECK_THROW(upscaleIntegerTimes(src, 2, 0), std::invalid_argument);
+  BOOST_CHECK_THROW(upscaleIntegerTimes(src, -1, 2), std::invalid_argument);
+  BOOST_CHECK_THROW(upscaleIntegerTimes(src, std::numeric_limits<int>::max(), 1), std::invalid_argument);
+  BOOST_CHECK(upscaleIntegerTimes(BinaryImage(), QSize(0, 0), WHITE).isNull());
 }
 
 BOOST_AUTO_TEST_CASE(test_draw_over) {

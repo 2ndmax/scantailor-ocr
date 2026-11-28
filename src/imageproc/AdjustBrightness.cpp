@@ -4,6 +4,7 @@
 #include "AdjustBrightness.h"
 
 #include <QImage>
+#include <cmath>
 #include <stdexcept>
 
 namespace imageproc {
@@ -33,11 +34,12 @@ void adjustBrightness(QImage& rgbImage, const QImage& brightness, const double w
   const int width = rgbImage.width();
   const int height = rgbImage.height();
 
-  // wr + wb == 1, wb == 1 or wr == 1 would divide by zero below. The callers pass only the fixed
-  // weights of adjustBrightnessYUV() and adjustBrightnessGrayscale(), far from these values.
   const double wg = 1.0 - wr - wb;
-  const double wu = (1.0 - wb);
-  const double wv = (1.0 - wr);
+  const double wu = 1.0 - wb;
+  const double wv = 1.0 - wr;
+  if (!std::isfinite(wr) || !std::isfinite(wb) || (wg == 0.0) || (wu == 0.0) || (wv == 0.0)) {
+    throw std::invalid_argument("adjustBrightness: invalid weights");
+  }
   const double rWg = 1.0 / wg;
   const double rWu = 1.0 / wu;
   const double rWv = 1.0 / wv;

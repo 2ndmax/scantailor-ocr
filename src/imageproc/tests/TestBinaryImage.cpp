@@ -43,7 +43,6 @@ BOOST_AUTO_TEST_CASE(test_from_to_qimage) {
   QImage qimgMonoLsb(qimgMono.convertToFormat(QImage::Format_MonoLSB));
   QImage qimgRgb32(qimgArgb32.convertToFormat(QImage::Format_RGB32));
   QImage qimgArgb32Pm(qimgArgb32.convertToFormat(QImage::Format_ARGB32_Premultiplied));
-  QImage qimgRgb16(qimgRgb32.convertToFormat(QImage::Format_RGB16));
   QImage qimgIndexed8(qimgRgb32.convertToFormat(QImage::Format_Indexed8));
 
   BOOST_REQUIRE(BinaryImage(qimgMono).toQImage() == qimgMono);
@@ -52,9 +51,6 @@ BOOST_AUTO_TEST_CASE(test_from_to_qimage) {
   BOOST_CHECK(BinaryImage(qimgRgb32).toQImage() == qimgMono);
   BOOST_CHECK(BinaryImage(qimgArgb32Pm).toQImage() == qimgMono);
   BOOST_CHECK(BinaryImage(qimgIndexed8).toQImage() == qimgMono);
-
-  // A bug in Qt prevents this from working.
-  // BOOST_CHECK(BinaryImage(qimgRgb16, 0x80).toQImage() == qimgMono);
 }
 
 BOOST_AUTO_TEST_CASE(test_full_fill) {
@@ -62,6 +58,9 @@ BOOST_AUTO_TEST_CASE(test_full_fill) {
   white.fill(WHITE);
 
   QImage qWhite(100, 100, QImage::Format_Mono);
+  qWhite.setColorCount(2);
+  qWhite.setColor(0, 0xff000000);
+  qWhite.setColor(1, 0xffffffff);
   qWhite.fill(1);
 
   BOOST_REQUIRE(BinaryImage(qWhite) == white);
@@ -70,6 +69,9 @@ BOOST_AUTO_TEST_CASE(test_full_fill) {
   black.fill(BLACK);
 
   QImage qBlack(30, 30, QImage::Format_Mono);
+  qBlack.setColorCount(2);
+  qBlack.setColor(0, 0xff000000);
+  qBlack.setColor(1, 0xffffffff);
   qBlack.fill(0);
 
   BOOST_REQUIRE(BinaryImage(qBlack) == black);

@@ -3,7 +3,6 @@
 
 #include "Morphology.h"
 
-#include <QDebug>
 #include <cassert>
 #include <cmath>
 #include <stdexcept>

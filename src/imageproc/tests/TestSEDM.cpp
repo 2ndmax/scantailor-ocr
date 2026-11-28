@@ -5,10 +5,7 @@
 #include <BinaryImage.h>
 #include <SEDM.h>
 
-#include <QImage>
 #include <boost/test/unit_test.hpp>
-#include <cmath>
-#include <iostream>
 
 #include "Utils.h"
 
@@ -30,17 +27,6 @@ bool verifySEDM(const SEDM& sedm, const uint32_t* control) {
     line += sedm.stride();
   }
   return true;
-}
-
-void dumpMatrix(const uint32_t* data, QSize size) {
-  const int width = size.width();
-  const int height = size.height();
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x, ++data) {
-      std::cout << *data << ' ';
-    }
-    std::cout << std::endl;
-  }
 }
 
 BOOST_AUTO_TEST_CASE(test1) {

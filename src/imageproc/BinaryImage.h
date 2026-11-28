@@ -296,5 +296,22 @@ bool operator==(const BinaryImage& lhs, const BinaryImage& rhs);
 inline bool operator!=(const BinaryImage& lhs, const BinaryImage& rhs) {
   return !(lhs == rhs);
 }
+
+/** Whether pixel x of a line of a BinaryImage is black. */
+inline bool isBlackPixel(const uint32_t* line, const unsigned int x) {
+  const uint32_t msb = uint32_t(1) << 31;
+  return (line[x >> 5] & (msb >> (x & 31))) != 0;
+}
+
+/** Makes pixel x of a line of a BinaryImage black or white. */
+inline void setBlackPixel(uint32_t* line, const unsigned int x, const bool black) {
+  const uint32_t msb = uint32_t(1) << 31;
+  const uint32_t mask = msb >> (x & 31);
+  if (black) {
+    line[x >> 5] |= mask;
+  } else {
+    line[x >> 5] &= ~mask;
+  }
+}
 }  // namespace imageproc
 #endif  // ifndef SCANTAILOR_IMAGEPROC_BINARYIMAGE_H_

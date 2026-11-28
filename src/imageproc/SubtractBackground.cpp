@@ -89,14 +89,11 @@ GrayImage median(const GrayImage& src, const int radius) {
           below += (in < med) - (out < med);
         }
       }
-      while (below + hist[med] < rank) {
+      while ((med < 255) && (below + hist[med] < rank)) {
         below += hist[med];
         ++med;
       }
-      // REVIEW-NOTE (2026-10): med leaving 0..255 -> hist read out of bounds (MSVC C28020). Not fixed because
-      // below is 0 at med 0 and rank >= 1, and at med 255 below + hist[255] is the whole window, which is >= rank,
-      // so neither loop moves med out of range.
-      while (below >= rank) {
+      while ((med > 0) && (below >= rank)) {
         --med;
         below -= hist[med];
       }

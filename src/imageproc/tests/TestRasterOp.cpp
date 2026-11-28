@@ -6,7 +6,6 @@
 
 #include <QImage>
 #include <boost/test/unit_test.hpp>
-#include <cassert>
 #include <cstddef>
 #include <random>
 #include <vector>
@@ -125,6 +124,9 @@ BOOST_AUTO_TEST_CASE(test_large_image) {
 
 BOOST_AUTO_TEST_CASE(test_surroundings_intact_detects_right_edge_change) {
   QImage img1(20, 10, QImage::Format_Mono);
+  img1.setColorCount(2);
+  img1.setColor(0, 0xffffffff);
+  img1.setColor(1, 0xff000000);
   img1.fill(0);
   QImage img2(img1);
   img2.setPixel(15, 5, 1);

@@ -3,7 +3,6 @@
 
 #include "Transform.h"
 
-#include <QDebug>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -340,9 +339,6 @@ QImage transform(const QImage& src,
   if (!xform.isAffine()) {
     throw std::invalid_argument("transform: only affine transformations are supported");
   }
-  if (!dstRect.isValid()) {
-    throw std::invalid_argument("transform: dstRect is invalid");
-  }
 
   auto isOpaqueGray
       = [](QRgb rgba) { return qAlpha(rgba) == 0xff && qRed(rgba) == qBlue(rgba) && qRed(rgba) == qGreen(rgba); };
@@ -408,9 +404,6 @@ GrayImage transformToGray(const QImage& src,
   }
   if (!xform.isAffine()) {
     throw std::invalid_argument("transformToGray: only affine transformations are supported");
-  }
-  if (!dstRect.isValid()) {
-    throw std::invalid_argument("transformToGray: dstRect is invalid");
   }
 
   const GrayImage graySrc(src);

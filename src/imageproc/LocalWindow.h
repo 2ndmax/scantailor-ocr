@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <stdexcept>
 
 #include "IntegralImage.h"
 
@@ -29,13 +30,21 @@ class LocalWindow {
    * left and to the top than to the right and to the bottom, the pixel included.
    */
   static LocalWindow ofSize(const QSize& size) {
+    if (size.isEmpty()) {
+      throw std::invalid_argument("LocalWindow::ofSize: window size must not be empty");
+    }
     const int toLeft = size.width() >> 1;
     const int toTop = size.height() >> 1;
     return LocalWindow(toLeft, size.width() - toLeft, toTop, size.height() - toTop);
   }
 
   /** The window of the methods from ScanTailor Experimental: always 2 * radius + 1, centred. */
-  static LocalWindow ofRadius(const int radius) { return LocalWindow(radius, radius + 1, radius, radius + 1); }
+  static LocalWindow ofRadius(const int radius) {
+    if (radius < 0) {
+      throw std::invalid_argument("LocalWindow::ofRadius: radius must not be negative");
+    }
+    return LocalWindow(radius, radius + 1, radius, radius + 1);
+  }
 
   int left(const int x) const { return std::max(0, x - m_toLeft); }
 
@@ -214,22 +223,5 @@ class GrayWindowDeviations {
   local_window_detail::GrayLevelSums m_sums;
   IntegralImage<uint64_t> m_squareSums;
 };
-
-/** Whether pixel x of a line of a BinaryImage is black. */
-inline bool isBlackPixel(const uint32_t* line, const unsigned int x) {
-  const uint32_t msb = uint32_t(1) << 31;
-  return (line[x >> 5] & (msb >> (x & 31))) != 0;
-}
-
-/** Makes pixel x of a line of a BinaryImage black or white. */
-inline void setBlackPixel(uint32_t* line, const unsigned int x, const bool black) {
-  const uint32_t msb = uint32_t(1) << 31;
-  const uint32_t mask = msb >> (x & 31);
-  if (black) {
-    line[x >> 5] |= mask;
-  } else {
-    line[x >> 5] &= ~mask;
-  }
-}
 }  // namespace imageproc
 #endif  // SCANTAILOR_IMAGEPROC_LOCALWINDOW_H_
