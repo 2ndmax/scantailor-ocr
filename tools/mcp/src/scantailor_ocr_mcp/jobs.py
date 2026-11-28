@@ -409,7 +409,9 @@ class JobManager:
             _tool_error("Creation options cannot be used with 'project'.")
 
         # types
-        if last_step is not None and (not isinstance(last_step, str) or last_step not in LAST_STEPS):
+        if last_step is not None and (
+            not isinstance(last_step, str) or last_step not in LAST_STEPS
+        ):
             _tool_error(f"Unknown last_step: {last_step}.")
         if orientation_detect is not None:
             if not isinstance(orientation_detect, str) or orientation_detect not in (
