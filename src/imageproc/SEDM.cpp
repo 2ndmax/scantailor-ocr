@@ -14,6 +14,51 @@
 #include "SeedFill.h"
 
 namespace imageproc {
+namespace {
+uint32_t* sweepColumn(uint32_t* pSqd, const int step, const int height) {
+  // (d + 1)^2 = d^2 + 2d + 1
+  uint32_t b = 1;  // 2d + 1 in the above formula.
+  for (int todo = height - 1; todo > 0; --todo) {
+    const uint32_t sqd = *pSqd + b;
+    pSqd += step;
+    if (*pSqd > sqd) {
+      *pSqd = sqd;
+      b += 2;
+    } else {
+      b = 1;
+    }
+  }
+  return pSqd;
+}
+
+void sweepColumn(uint32_t*& pSqd, uint32_t*& pLabel, const int step, const int height) {
+  // (d + 1)^2 = d^2 + 2d + 1
+  uint32_t b = 1;  // 2d + 1 in the above formula.
+  for (int todo = height - 1; todo > 0; --todo) {
+    const uint32_t sqd = *pSqd + b;
+    pSqd += step;
+    pLabel += step;
+    if (sqd < *pSqd) {
+      *pSqd = sqd;
+      *pLabel = pLabel[-step];
+      b += 2;
+    } else {
+      b = 1;
+    }
+  }
+}
+
+inline int64_t parabolaIntersection(const uint32_t* line, const int x1, const int x2) {
+  // Done in signed 64-bit arithmetic: mixing int with the uint32_t
+  // line[] values would make the whole expression unsigned, turning
+  // a legitimately negative intermediate result into a huge positive
+  // one, and x * x alone overflows an int for very wide images.
+  int64_t w = (int64_t(x2) * x2 + int64_t(line[x2])) - (int64_t(x1) * x1 + int64_t(line[x1]));
+  w /= int64_t(x2 - x1) << 1;
+  return w + 1;
+}
+}  // namespace
+
 // Note that -1 is an implementation detail.
 // It exists to make sure INF_DIST + 1 doesn't overflow.
 const uint32_t SEDM::INF_DIST = ~uint32_t(0) - 1;
@@ -185,30 +230,8 @@ void SEDM::processColumns() {
 
   uint32_t* pSqd = &m_data[0];
   for (int x = 0; x < width; ++x, ++pSqd) {
-    // (d + 1)^2 = d^2 + 2d + 1
-    uint32_t b = 1;  // 2d + 1 in the above formula.
-    for (int todo = height - 1; todo > 0; --todo) {
-      const uint32_t sqd = *pSqd + b;
-      pSqd += width;
-      if (*pSqd > sqd) {
-        *pSqd = sqd;
-        b += 2;
-      } else {
-        b = 1;
-      }
-    }
-
-    b = 1;
-    for (int todo = height - 1; todo > 0; --todo) {
-      const uint32_t sqd = *pSqd + b;
-      pSqd -= width;
-      if (*pSqd > sqd) {
-        *pSqd = sqd;
-        b += 2;
-      } else {
-        b = 1;
-      }
-    }
+    pSqd = sweepColumn(pSqd, width, height);
+    pSqd = sweepColumn(pSqd, -width, height);
   }
 }  // SEDM::processColumns
 
@@ -219,36 +242,39 @@ void SEDM::processColumns(ConnectivityMap& cmap) {
   uint32_t* pSqd = &m_data[0];
   uint32_t* pLabel = cmap.paddedData();
   for (int x = 0; x < width; ++x, ++pSqd, ++pLabel) {
-    // (d + 1)^2 = d^2 + 2d + 1
-    uint32_t b = 1;  // 2d + 1 in the above formula.
-    for (int todo = height - 1; todo > 0; --todo) {
-      const uint32_t sqd = *pSqd + b;
-      pSqd += width;
-      pLabel += width;
-      if (sqd < *pSqd) {
-        *pSqd = sqd;
-        *pLabel = pLabel[-width];
-        b += 2;
-      } else {
-        b = 1;
-      }
+    sweepColumn(pSqd, pLabel, width, height);
+    sweepColumn(pSqd, pLabel, -width, height);
+  }
+}  // SEDM::processColumns
+
+int SEDM::buildRowEnvelope(const uint32_t* line, const int width, int* s, int* t) {
+  int q = 0;
+  s[0] = 0;
+  t[0] = 0;
+  for (int x = 1; x < width; ++x) {
+    while (q >= 0 && distSq(t[q], s[q], line[s[q]]) > distSq(t[q], x, line[x])) {
+      --q;
     }
 
-    b = 1;
-    for (int todo = height - 1; todo > 0; --todo) {
-      const uint32_t sqd = *pSqd + b;
-      pSqd -= width;
-      pLabel -= width;
-      if (sqd < *pSqd) {
-        *pSqd = sqd;
-        *pLabel = pLabel[width];
-        b += 2;
-      } else {
-        b = 1;
+    if (q < 0) {
+      q = 0;
+      s[0] = x;
+      continue;
+    }
+
+    const int x2 = s[q];
+    if ((line[x] != INF_DIST) && (line[x2] != INF_DIST)) {
+      const int64_t w = parabolaIntersection(line, x2, x);
+      // The unsigned comparison also rejects negative values of w.
+      if (uint64_t(w) < uint64_t(width)) {
+        ++q;
+        s[q] = x;
+        t[q] = static_cast<int>(w);
       }
     }
   }
-}  // SEDM::processColumns
+  return q;
+}
 
 void SEDM::processRows() {
   const int width = m_size.width() + 2;
@@ -260,37 +286,7 @@ void SEDM::processRows() {
 
   uint32_t* line = &m_data[0];
   for (int y = 0; y < height; ++y, line += width) {
-    int q = 0;
-    s[0] = 0;
-    t[0] = 0;
-    for (int x = 1; x < width; ++x) {
-      while (q >= 0 && distSq(t[q], s[q], line[s[q]]) > distSq(t[q], x, line[x])) {
-        --q;
-      }
-
-      if (q < 0) {
-        q = 0;
-        s[0] = x;
-      } else {
-        const int x2 = s[q];
-        if ((line[x] != INF_DIST) && (line[x2] != INF_DIST)) {
-          // Done in signed 64-bit arithmetic: mixing int with the uint32_t
-          // line[] values would make the whole expression unsigned, turning
-          // a legitimately negative intermediate result into a huge positive
-          // one, and x * x alone overflows an int for very wide images.
-          int64_t w = (int64_t(x) * x + int64_t(line[x])) - (int64_t(x2) * x2 + int64_t(line[x2]));
-          w /= int64_t(x - x2) << 1;
-          ++w;
-          // The unsigned comparison also rejects negative values of w.
-          if (uint64_t(w) < uint64_t(width)) {
-            ++q;
-            s[q] = x;
-            t[q] = static_cast<int>(w);
-          }
-        }
-      }
-    }
-
+    int q = buildRowEnvelope(line, width, &s[0], &t[0]);
     memcpy(&rowCopy[0], line, width * sizeof(*line));
 
     for (int x = width - 1; x >= 0; --x) {
@@ -315,37 +311,7 @@ void SEDM::processRows(ConnectivityMap& cmap) {
   uint32_t* line = &m_data[0];
   uint32_t* cmapLine = cmap.paddedData();
   for (int y = 0; y < height; ++y, line += width, cmapLine += width) {
-    int q = 0;
-    s[0] = 0;
-    t[0] = 0;
-    for (int x = 1; x < width; ++x) {
-      while (q >= 0 && distSq(t[q], s[q], line[s[q]]) > distSq(t[q], x, line[x])) {
-        --q;
-      }
-
-      if (q < 0) {
-        q = 0;
-        s[0] = x;
-      } else {
-        const int x2 = s[q];
-        if ((line[x] != INF_DIST) && (line[x2] != INF_DIST)) {
-          // Done in signed 64-bit arithmetic: mixing int with the uint32_t
-          // line[] values would make the whole expression unsigned, turning
-          // a legitimately negative intermediate result into a huge positive
-          // one, and x * x alone overflows an int for very wide images.
-          int64_t w = (int64_t(x) * x + int64_t(line[x])) - (int64_t(x2) * x2 + int64_t(line[x2]));
-          w /= int64_t(x - x2) << 1;
-          ++w;
-          // The unsigned comparison also rejects negative values of w.
-          if (uint64_t(w) < uint64_t(width)) {
-            ++q;
-            s[q] = x;
-            t[q] = static_cast<int>(w);
-          }
-        }
-      }
-    }
-
+    int q = buildRowEnvelope(line, width, &s[0], &t[0]);
     memcpy(&rowCopy[0], line, width * sizeof(*line));
     memcpy(&cmapRowCopy[0], cmapLine, width * sizeof(*cmapLine));
 

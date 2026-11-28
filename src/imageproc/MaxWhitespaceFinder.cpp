@@ -20,6 +20,20 @@ class AreaCompare {
     return lhsArea < rhsArea;
   }
 };
+
+QRect computeMiddleRect(const QRect& outerRect, const QRect& innerRect) {
+  const int deltaLeft = innerRect.left() - outerRect.left();
+  const int deltaRight = outerRect.right() - innerRect.right();
+  const int deltaTop = innerRect.top() - outerRect.top();
+  const int deltaBottom = outerRect.bottom() - innerRect.bottom();
+
+  QRect middleRect(outerRect.left() + ((deltaLeft + 1) >> 1), outerRect.top() + ((deltaTop + 1) >> 1), 0, 0);
+  middleRect.setRight(outerRect.right() - (deltaRight >> 1));
+  middleRect.setBottom(outerRect.bottom() - (deltaBottom >> 1));
+  assert(outerRect.contains(middleRect));
+  assert(middleRect.contains(innerRect));
+  return middleRect;
+}
 }  // anonymous namespace
 
 MaxWhitespaceFinder::MaxWhitespaceFinder(const BinaryImage& img, QSize minSize)
@@ -101,40 +115,38 @@ void MaxWhitespaceFinder::subdivideUsingRaster(const Region& region) {
   subdivide(region, bounds, pivotRect);
 }
 
+void MaxWhitespaceFinder::pushSubRegion(const Region& parentRegion, const QRect& bounds) {
+  Region newRegion(static_cast<unsigned int>(m_newObstacles.size()), bounds);
+  newRegion.addObstacles(parentRegion);
+  m_queuedRegions->push(newRegion);
+}
+
 void MaxWhitespaceFinder::subdivide(const Region& region, const QRect bounds, const QRect pivot) {
   // Area above the pivot obstacle.
   if (pivot.top() - bounds.top() >= m_minSize.height()) {
     QRect newBounds(bounds);
     newBounds.setBottom(pivot.top() - 1);  // Bottom is inclusive.
-    Region newRegion(static_cast<unsigned int>(m_newObstacles.size()), newBounds);
-    newRegion.addObstacles(region);
-    m_queuedRegions->push(newRegion);
+    pushSubRegion(region, newBounds);
   }
 
   // Area below the pivot obstacle.
   if (bounds.bottom() - pivot.bottom() >= m_minSize.height()) {
     QRect newBounds(bounds);
     newBounds.setTop(pivot.bottom() + 1);
-    Region newRegion(static_cast<unsigned int>(m_newObstacles.size()), newBounds);
-    newRegion.addObstacles(region);
-    m_queuedRegions->push(newRegion);
+    pushSubRegion(region, newBounds);
   }
 
   // Area to the left of the pivot obstacle.
   if (pivot.left() - bounds.left() >= m_minSize.width()) {
     QRect newBounds(bounds);
     newBounds.setRight(pivot.left() - 1);  // Right is inclusive.
-    Region newRegion(static_cast<unsigned int>(m_newObstacles.size()), newBounds);
-    newRegion.addObstacles(region);
-    m_queuedRegions->push(newRegion);
+    pushSubRegion(region, newBounds);
   }
   // Area to the right of the pivot obstacle.
   if (bounds.right() - pivot.right() >= m_minSize.width()) {
     QRect newBounds(bounds);
     newBounds.setLeft(pivot.right() + 1);
-    Region newRegion(static_cast<unsigned int>(m_newObstacles.size()), newBounds);
-    newRegion.addObstacles(region);
-    m_queuedRegions->push(newRegion);
+    pushSubRegion(region, newBounds);
   }
 }  // MaxWhitespaceFinder::subdivide
 
@@ -158,6 +170,50 @@ QRect MaxWhitespaceFinder::findPivotObstacle(const Region& region) const {
   return bestObstacle;
 }
 
+void MaxWhitespaceFinder::narrowToBlackBoundary(QRect& outerRect, QRect& innerRect) const {
+  // We have two rectangles: the outer one, that always contains at least
+  // one black pixel, and the inner one (contained within the outer one),
+  // that doesn't contain any black pixels.
+
+  // The first thing we do is bringing those two rectangles as close
+  // as possible to each other, so that no more than 1 pixel separates
+  // their corresponding edges.
+  while (true) {
+    const int outerInnerDw = outerRect.width() - innerRect.width();
+    const int outerInnerDh = outerRect.height() - innerRect.height();
+
+    if ((outerInnerDw <= 1) && (outerInnerDh <= 1)) {
+      break;
+    }
+
+    const QRect middleRect(computeMiddleRect(outerRect, innerRect));
+    if (m_integralImg.sum(middleRect) == 0) {
+      innerRect = middleRect;
+    } else {
+      outerRect = middleRect;
+    }
+  }
+}
+
+bool MaxWhitespaceFinder::tryResolveEdgeBlackPixel(const QRect& edgeRect,
+                                                   const QPoint onHit,
+                                                   const QPoint onMiss,
+                                                   const bool singlePixelSpan,
+                                                   QPoint& result) const {
+  const unsigned sum = m_integralImg.sum(edgeRect);
+  if (singlePixelSpan) {
+    // When dealing with a 1-pixel line, we only have to check at most two endpoints,
+    // and at least one of them is black.
+    result = (sum != 0) ? onHit : onMiss;
+    return true;
+  }
+  if (sum != 0) {
+    result = findBlackPixelCloseToCenter(edgeRect);
+    return true;
+  }
+  return false;
+}
+
 QPoint MaxWhitespaceFinder::findBlackPixelCloseToCenter(const QRect nonWhiteRect) const {
   assert(m_integralImg.sum(nonWhiteRect) != 0);
 
@@ -169,75 +225,23 @@ QPoint MaxWhitespaceFinder::findBlackPixelCloseToCenter(const QRect nonWhiteRect
     return center;
   }
 
-  // We have two rectangles: the outer one, that always contains at least
-  // one black pixel, and the inner one (contained within the outer one),
-  // that doesn't contain any black pixels.
+  narrowToBlackBoundary(outerRect, innerRect);
 
-  // The first thing we do is bringing those two rectangles as close
-  // as possible to each other, so that no more than 1 pixel separates
-  // their corresponding edges.
-
-  while (true) {
-    const int outerInnerDw = outerRect.width() - innerRect.width();
-    const int outerInnerDh = outerRect.height() - innerRect.height();
-
-    if ((outerInnerDw <= 1) && (outerInnerDh <= 1)) {
-      break;
-    }
-
-    const int deltaLeft = innerRect.left() - outerRect.left();
-    const int deltaRight = outerRect.right() - innerRect.right();
-    const int deltaTop = innerRect.top() - outerRect.top();
-    const int deltaBottom = outerRect.bottom() - innerRect.bottom();
-
-    QRect middleRect(outerRect.left() + ((deltaLeft + 1) >> 1), outerRect.top() + ((deltaTop + 1) >> 1), 0, 0);
-    middleRect.setRight(outerRect.right() - (deltaRight >> 1));
-    middleRect.setBottom(outerRect.bottom() - (deltaBottom >> 1));
-    assert(outerRect.contains(middleRect));
-    assert(middleRect.contains(innerRect));
-
-    if (m_integralImg.sum(middleRect) == 0) {
-      innerRect = middleRect;
-    } else {
-      outerRect = middleRect;
-    }
-  }
-
+  QPoint result;
   // Process the left edge.
   if (outerRect.left() != innerRect.left()) {
     QRect rect(outerRect);
     rect.setRight(rect.left());  // Right is inclusive.
-    const unsigned sum = m_integralImg.sum(rect);
-    if (outerRect.height() == 1) {
-      // This means we are dealing with a horizontal line
-      // and that we only have to check at most two pixels
-      // (the endpoints) and that at least one of them
-      // is definately black and that rect is a 1x1 pixels
-      // block pointing to the left endpoint.
-      if (sum != 0) {
-        return outerRect.topLeft();
-      } else {
-        return outerRect.topRight();
-      }
-    } else if (sum != 0) {
-      return findBlackPixelCloseToCenter(rect);
+    if (tryResolveEdgeBlackPixel(rect, outerRect.topLeft(), outerRect.topRight(), outerRect.height() == 1, result)) {
+      return result;
     }
   }
   // Process the right edge.
   if (outerRect.right() != innerRect.right()) {
     QRect rect(outerRect);
     rect.setLeft(rect.right());  // Right is inclusive.
-    const unsigned sum = m_integralImg.sum(rect);
-    if (outerRect.height() == 1) {
-      // Same as above, except rect now points to the
-      // right endpoint.
-      if (sum != 0) {
-        return outerRect.topRight();
-      } else {
-        return outerRect.topLeft();
-      }
-    } else if (sum != 0) {
-      return findBlackPixelCloseToCenter(rect);
+    if (tryResolveEdgeBlackPixel(rect, outerRect.topRight(), outerRect.topLeft(), outerRect.height() == 1, result)) {
+      return result;
     }
   }
 
@@ -245,17 +249,8 @@ QPoint MaxWhitespaceFinder::findBlackPixelCloseToCenter(const QRect nonWhiteRect
   if (outerRect.top() != innerRect.top()) {
     QRect rect(outerRect);
     rect.setBottom(rect.top());  // Bottom is inclusive.
-    const unsigned sum = m_integralImg.sum(rect);
-    if (outerRect.width() == 1) {
-      // Same as above, except rect now points to the
-      // top endpoint.
-      if (sum != 0) {
-        return outerRect.topLeft();
-      } else {
-        return outerRect.bottomLeft();
-      }
-    } else if (sum != 0) {
-      return findBlackPixelCloseToCenter(rect);
+    if (tryResolveEdgeBlackPixel(rect, outerRect.topLeft(), outerRect.bottomLeft(), outerRect.width() == 1, result)) {
+      return result;
     }
   }
   // Process the bottom edge.
@@ -265,9 +260,8 @@ QPoint MaxWhitespaceFinder::findBlackPixelCloseToCenter(const QRect nonWhiteRect
   assert(m_integralImg.sum(rect) != 0);
   if (outerRect.width() == 1) {
     return outerRect.bottomLeft();
-  } else {
-    return findBlackPixelCloseToCenter(rect);
   }
+  return findBlackPixelCloseToCenter(rect);
 }  // MaxWhitespaceFinder::findBlackPixelCloseToCenter
 
 QRect MaxWhitespaceFinder::extendBlackPixelToBlackBox(const QPoint pixel, const QRect bounds) const {
@@ -296,17 +290,7 @@ QRect MaxWhitespaceFinder::extendBlackPixelToBlackBox(const QPoint pixel, const 
       break;
     }
 
-    const int deltaLeft = innerRect.left() - outerRect.left();
-    const int deltaRight = outerRect.right() - innerRect.right();
-    const int deltaTop = innerRect.top() - outerRect.top();
-    const int deltaBottom = outerRect.bottom() - innerRect.bottom();
-
-    QRect middleRect(outerRect.left() + ((deltaLeft + 1) >> 1), outerRect.top() + ((deltaTop + 1) >> 1), 0, 0);
-    middleRect.setRight(outerRect.right() - (deltaRight >> 1));
-    middleRect.setBottom(outerRect.bottom() - (deltaBottom >> 1));
-    assert(outerRect.contains(middleRect));
-    assert(middleRect.contains(innerRect));
-
+    const QRect middleRect(computeMiddleRect(outerRect, innerRect));
     const uint64_t area = static_cast<uint64_t>(middleRect.width()) * middleRect.height();
     if (m_integralImg.sum(middleRect) == area) {
       innerRect = middleRect;

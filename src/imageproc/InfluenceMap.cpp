@@ -13,6 +13,107 @@
 #include "ConnectivityMap.h"
 
 namespace imageproc {
+namespace {
+struct NeighborOffset {
+  int dx;
+  int dy;
+  int16_t vxDelta;
+  int16_t vyDelta;
+  int32_t distDelta;
+};
+
+constexpr NeighborOffset kNeighborOffsets[8] = {
+    {-1, -1, 1, 1, 2},  // North-western
+    {0, -1, 0, 1, 1},   // Northern
+    {1, -1, -1, 1, 2},  // North-eastern
+    {1, 0, -1, 0, 1},   // Eastern
+    {1, 1, -1, -1, 2},  // South-eastern
+    {0, 1, 0, -1, 1},   // Southern
+    {-1, 1, 1, -1, 2},  // South-western
+    {-1, 0, 1, 0, 1},   // Western
+};
+
+void seedQueueFromCmap(InfluenceMap::Cell* cell,
+                       const uint32_t* label,
+                       const size_t totalCells,
+                       [[maybe_unused]] const uint32_t maxLabel,
+                       FastQueue<InfluenceMap::Cell*>& queue) {
+  for (size_t i = totalCells; i > 0; --i) {
+    assert(*label <= maxLabel);
+    cell->label = *label;
+    cell->distSq = 0;
+    cell->vec.x = 0;
+    cell->vec.y = 0;
+    if (*label != 0) {
+      queue.push(cell);
+    }
+    ++cell;
+    ++label;
+  }
+}
+
+void markMaskedBackground(InfluenceMap::Cell* cell, const int width, const int height, const BinaryImage& mask) {
+  const uint32_t* maskLine = mask.data();
+  const int maskStride = mask.wordsPerLine();
+  const uint32_t msb = uint32_t(1) << 31;
+  for (int y = 0; y < height - 2; ++y) {
+    for (int x = 0; x < width - 2; ++x, ++cell) {
+      if ((maskLine[x >> 5] & (msb >> (x & 31))) && (cell->label == 0)) {
+        cell->distSq = ~uint32_t(0);
+      }
+    }
+    maskLine += maskStride;
+    cell += 2;
+  }
+}
+
+void markUnmaskedBackground(InfluenceMap::Cell* cell, const int width, const int height) {
+  for (int y = 0; y < height - 2; ++y) {
+    for (int x = 0; x < width - 2; ++x, ++cell) {
+      if (cell->label == 0) {
+        cell->distSq = ~uint32_t(0);
+      }
+    }
+    cell += 2;
+  }
+}
+
+void propagateInfluence([[maybe_unused]] const InfluenceMap::Cell* baseData,
+                        const int width,
+                        [[maybe_unused]] const int height,
+                        [[maybe_unused]] const uint32_t maxLabel,
+                        FastQueue<InfluenceMap::Cell*>& queue) {
+  while (!queue.empty()) {
+    InfluenceMap::Cell* const cell = queue.front();
+    queue.pop();
+
+    assert((cell - baseData) / width > 0);
+    assert((cell - baseData) / width < height - 1);
+    assert((cell - baseData) % width > 0);
+    assert((cell - baseData) % width < width - 1);
+    assert(cell->distSq != ~uint32_t(0));
+    assert(cell->label != 0);
+    assert(cell->label <= maxLabel);
+
+    const int32_t dx2 = cell->vec.x * 2;
+    const int32_t dy2 = cell->vec.y * 2;
+
+    for (const auto& offset : kNeighborOffsets) {
+      InfluenceMap::Cell* const nbh = cell + offset.dy * width + offset.dx;
+      const uint32_t newDistSq
+          = cell->distSq + static_cast<uint32_t>(dx2 * offset.vxDelta + dy2 * offset.vyDelta + offset.distDelta);
+      if (newDistSq < nbh->distSq) {
+        nbh->label = cell->label;
+        nbh->distSq = newDistSq;
+        nbh->vec.x = static_cast<int16_t>(cell->vec.x + offset.vxDelta);
+        nbh->vec.y = static_cast<int16_t>(cell->vec.y + offset.vyDelta);
+        queue.push(nbh);
+      }
+    }
+  }
+}
+}  // namespace
+
 InfluenceMap::InfluenceMap() : m_plainData(nullptr), m_size(), m_stride(0), m_maxLabel(0) {}
 
 InfluenceMap::InfluenceMap(const ConnectivityMap& cmap) : m_plainData(nullptr), m_size(), m_stride(0), m_maxLabel(0) {
@@ -75,149 +176,15 @@ void InfluenceMap::init(const ConnectivityMap& cmap, const BinaryImage* mask) {
   m_maxLabel = cmap.maxLabel();
 
   FastQueue<Cell*> queue;
-
-  Cell* cell = &m_data[0];
-  const uint32_t* label = cmap.paddedData();
-  for (size_t i = totalCells; i > 0; --i) {
-    assert(*label <= cmap.maxLabel());
-    cell->label = *label;
-    cell->distSq = 0;
-    cell->vec.x = 0;
-    cell->vec.y = 0;
-    if (*label != 0) {
-      queue.push(cell);
-    }
-    ++cell;
-    ++label;
-  }
+  seedQueueFromCmap(&m_data[0], cmap.paddedData(), totalCells, m_maxLabel, queue);
 
   if (mask) {
-    const uint32_t* maskLine = mask->data();
-    const int maskStride = mask->wordsPerLine();
-    cell = m_plainData;
-    const uint32_t msb = uint32_t(1) << 31;
-    for (int y = 0; y < height - 2; ++y) {
-      for (int x = 0; x < width - 2; ++x, ++cell) {
-        if (maskLine[x >> 5] & (msb >> (x & 31))) {
-          if (cell->label == 0) {
-            cell->distSq = ~uint32_t(0);
-          }
-        }
-      }
-      maskLine += maskStride;
-      cell += 2;
-    }
+    markMaskedBackground(m_plainData, width, height, *mask);
   } else {
-    cell = m_plainData;
-    for (int y = 0; y < height - 2; ++y) {
-      for (int x = 0; x < width - 2; ++x, ++cell) {
-        if (cell->label == 0) {
-          cell->distSq = ~uint32_t(0);
-        }
-      }
-      cell += 2;
-    }
+    markUnmaskedBackground(m_plainData, width, height);
   }
 
-  while (!queue.empty()) {
-    cell = queue.front();
-    queue.pop();
-
-    assert((cell - &m_data[0]) / width > 0);
-    assert((cell - &m_data[0]) / width < height - 1);
-    assert((cell - &m_data[0]) % width > 0);
-    assert((cell - &m_data[0]) % width < width - 1);
-    assert(cell->distSq != ~uint32_t(0));
-    assert(cell->label != 0);
-    assert(cell->label <= m_maxLabel);
-
-    const int32_t dx2 = cell->vec.x * 2;
-    const int32_t dy2 = cell->vec.y * 2;
-
-    // North-western neighbor.
-    Cell* nbh = cell - width - 1;
-    uint32_t newDistSq = cell->distSq + dx2 + dy2 + 2;
-    if (newDistSq < nbh->distSq) {
-      nbh->label = cell->label;
-      nbh->distSq = newDistSq;
-      nbh->vec.x = static_cast<int16_t>(cell->vec.x + 1);
-      nbh->vec.y = static_cast<int16_t>(cell->vec.y + 1);
-      queue.push(nbh);
-    }
-    // Northern neighbor.
-    ++nbh;
-    newDistSq = cell->distSq + dy2 + 1;
-    if (newDistSq < nbh->distSq) {
-      nbh->label = cell->label;
-      nbh->distSq = newDistSq;
-      nbh->vec.x = cell->vec.x;
-      nbh->vec.y = static_cast<int16_t>(cell->vec.y + 1);
-      queue.push(nbh);
-    }
-
-    // North-eastern neighbor.
-    ++nbh;
-    newDistSq = cell->distSq - dx2 + dy2 + 2;
-    if (newDistSq < nbh->distSq) {
-      nbh->label = cell->label;
-      nbh->distSq = newDistSq;
-      nbh->vec.x = static_cast<int16_t>(cell->vec.x - 1);
-      nbh->vec.y = static_cast<int16_t>(cell->vec.y + 1);
-      queue.push(nbh);
-    }
-    // Eastern neighbor.
-    nbh += width;
-    newDistSq = cell->distSq - dx2 + 1;
-    if (newDistSq < nbh->distSq) {
-      nbh->label = cell->label;
-      nbh->distSq = newDistSq;
-      nbh->vec.x = static_cast<int16_t>(cell->vec.x - 1);
-      nbh->vec.y = cell->vec.y;
-      queue.push(nbh);
-    }
-
-    // South-eastern neighbor.
-    nbh += width;
-    newDistSq = cell->distSq - dx2 - dy2 + 2;
-    if (newDistSq < nbh->distSq) {
-      nbh->label = cell->label;
-      nbh->distSq = newDistSq;
-      nbh->vec.x = static_cast<int16_t>(cell->vec.x - 1);
-      nbh->vec.y = static_cast<int16_t>(cell->vec.y - 1);
-      queue.push(nbh);
-    }
-    // Southern neighbor.
-    --nbh;
-    newDistSq = cell->distSq - dy2 + 1;
-    if (newDistSq < nbh->distSq) {
-      nbh->label = cell->label;
-      nbh->distSq = newDistSq;
-      nbh->vec.x = cell->vec.x;
-      nbh->vec.y = static_cast<int16_t>(cell->vec.y - 1);
-      queue.push(nbh);
-    }
-
-    // South-western neighbor.
-    --nbh;
-    newDistSq = cell->distSq + dx2 - dy2 + 2;
-    if (newDistSq < nbh->distSq) {
-      nbh->label = cell->label;
-      nbh->distSq = newDistSq;
-      nbh->vec.x = static_cast<int16_t>(cell->vec.x + 1);
-      nbh->vec.y = static_cast<int16_t>(cell->vec.y - 1);
-      queue.push(nbh);
-    }
-    // Western neighbor.
-    nbh -= width;
-    newDistSq = cell->distSq + dx2 + 1;
-    if (newDistSq < nbh->distSq) {
-      nbh->label = cell->label;
-      nbh->distSq = newDistSq;
-      nbh->vec.x = static_cast<int16_t>(cell->vec.x + 1);
-      nbh->vec.y = cell->vec.y;
-      queue.push(nbh);
-    }
-  }
+  propagateInfluence(&m_data[0], width, height, m_maxLabel, queue);
 }  // InfluenceMap::init
 
 QImage InfluenceMap::visualized() const {

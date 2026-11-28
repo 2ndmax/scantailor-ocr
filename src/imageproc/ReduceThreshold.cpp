@@ -83,6 +83,45 @@ inline uint32_t threshold4(const uint32_t top, const uint32_t bottom) {
   word &= word << 1;
   return word;
 }
+
+template <uint32_t (*ThresholdFn)(uint32_t, uint32_t)>
+void reduceRows(const uint32_t* srcLine,
+                const int srcWpl,
+                uint32_t* dstLine,
+                const int dstWpl,
+                const int dstH,
+                const int stepsPerLine) {
+  for (int i = dstH; i > 0; --i) {
+    for (int j = 0; j < stepsPerLine; j += 2) {
+      const uint32_t word = ThresholdFn(srcLine[j], srcLine[j + srcWpl]);
+      dstLine[j / 2] = compressBitsUpperHalf(word);
+    }
+    for (int j = 1; j < stepsPerLine; j += 2) {
+      const uint32_t word = ThresholdFn(srcLine[j], srcLine[j + srcWpl]);
+      dstLine[j / 2] |= compressBitsLowerHalf(word);
+    }
+    srcLine += srcWpl * 2;
+    dstLine += dstWpl;
+  }
+}
+
+inline uint32_t horWordOr(const uint32_t word) {
+  return word | (word << 1);
+}
+
+inline uint32_t horWordAnd(const uint32_t word) {
+  return word & (word << 1);
+}
+
+template <uint32_t (*WordOp)(uint32_t)>
+void reduceHorWords(const uint32_t* srcLine, uint32_t* dstLine, const int stepsPerLine) {
+  for (int j = 0; j < stepsPerLine; j += 2) {
+    dstLine[j / 2] = compressBitsUpperHalf(WordOp(srcLine[j]));
+  }
+  for (int j = 1; j < stepsPerLine; j += 2) {
+    dstLine[j / 2] |= compressBitsLowerHalf(WordOp(srcLine[j]));
+  }
+}
 }  // namespace
 
 ReduceThreshold::ReduceThreshold(const BinaryImage& image) : m_image(image) {}
@@ -120,60 +159,21 @@ ReduceThreshold& ReduceThreshold::reduce(const int threshold) {
   const uint32_t* srcLine = src.data();
   uint32_t* dstLine = dst.data();
 
-  uint32_t word;
-
-  if (threshold == 1) {
-    for (int i = dstH; i > 0; --i) {
-      for (int j = 0; j < stepsPerLine; j += 2) {
-        word = threshold1(srcLine[j], srcLine[j + srcWpl]);
-        dstLine[j / 2] = compressBitsUpperHalf(word);
-      }
-      for (int j = 1; j < stepsPerLine; j += 2) {
-        word = threshold1(srcLine[j], srcLine[j + srcWpl]);
-        dstLine[j / 2] |= compressBitsLowerHalf(word);
-      }
-      srcLine += srcWpl * 2;
-      dstLine += dstWpl;
-    }
-  } else if (threshold == 2) {
-    for (int i = dstH; i > 0; --i) {
-      for (int j = 0; j < stepsPerLine; j += 2) {
-        word = threshold2(srcLine[j], srcLine[j + srcWpl]);
-        dstLine[j / 2] = compressBitsUpperHalf(word);
-      }
-      for (int j = 1; j < stepsPerLine; j += 2) {
-        word = threshold2(srcLine[j], srcLine[j + srcWpl]);
-        dstLine[j / 2] |= compressBitsLowerHalf(word);
-      }
-      srcLine += srcWpl * 2;
-      dstLine += dstWpl;
-    }
-  } else if (threshold == 3) {
-    for (int i = dstH; i > 0; --i) {
-      for (int j = 0; j < stepsPerLine; j += 2) {
-        word = threshold3(srcLine[j], srcLine[j + srcWpl]);
-        dstLine[j / 2] = compressBitsUpperHalf(word);
-      }
-      for (int j = 1; j < stepsPerLine; j += 2) {
-        word = threshold3(srcLine[j], srcLine[j + srcWpl]);
-        dstLine[j / 2] |= compressBitsLowerHalf(word);
-      }
-      srcLine += srcWpl * 2;
-      dstLine += dstWpl;
-    }
-  } else if (threshold == 4) {
-    for (int i = dstH; i > 0; --i) {
-      for (int j = 0; j < stepsPerLine; j += 2) {
-        word = threshold4(srcLine[j], srcLine[j + srcWpl]);
-        dstLine[j / 2] = compressBitsUpperHalf(word);
-      }
-      for (int j = 1; j < stepsPerLine; j += 2) {
-        word = threshold4(srcLine[j], srcLine[j + srcWpl]);
-        dstLine[j / 2] |= compressBitsLowerHalf(word);
-      }
-      srcLine += srcWpl * 2;
-      dstLine += dstWpl;
-    }
+  switch (threshold) {
+    case 1:
+      reduceRows<threshold1>(srcLine, srcWpl, dstLine, dstWpl, dstH, stepsPerLine);
+      break;
+    case 2:
+      reduceRows<threshold2>(srcLine, srcWpl, dstLine, dstWpl, dstH, stepsPerLine);
+      break;
+    case 3:
+      reduceRows<threshold3>(srcLine, srcWpl, dstLine, dstWpl, dstH, stepsPerLine);
+      break;
+    case 4:
+      reduceRows<threshold4>(srcLine, srcWpl, dstLine, dstWpl, dstH, stepsPerLine);
+      break;
+    default:
+      break;
   }
 
   m_image = dst;
@@ -197,34 +197,14 @@ void ReduceThreshold::reduceHorLine(const int threshold) {
   assert(stepsPerLine <= src.wordsPerLine());
   assert(stepsPerLine / 2 <= dst.wordsPerLine());
 
-  uint32_t word;
-
   switch (threshold) {
     case 1:
     case 2:
-      for (int j = 0; j < stepsPerLine; j += 2) {
-        word = srcLine[j];
-        word |= word << 1;
-        dstLine[j / 2] = compressBitsUpperHalf(word);
-      }
-      for (int j = 1; j < stepsPerLine; j += 2) {
-        word = srcLine[j];
-        word |= word << 1;
-        dstLine[j / 2] |= compressBitsLowerHalf(word);
-      }
+      reduceHorWords<horWordOr>(srcLine, dstLine, stepsPerLine);
       break;
     case 3:
     case 4:
-      for (int j = 0; j < stepsPerLine; j += 2) {
-        word = srcLine[j];
-        word &= word << 1;
-        dstLine[j / 2] = compressBitsUpperHalf(word);
-      }
-      for (int j = 1; j < stepsPerLine; j += 2) {
-        word = srcLine[j];
-        word &= word << 1;
-        dstLine[j / 2] |= compressBitsLowerHalf(word);
-      }
+      reduceHorWords<horWordAnd>(srcLine, dstLine, stepsPerLine);
       break;
     default:
       break;

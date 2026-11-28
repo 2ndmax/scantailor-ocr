@@ -150,9 +150,19 @@ class MaxWhitespaceFinder {
 
   void subdivide(const Region& region, QRect bounds, QRect pivot);
 
+  void pushSubRegion(const Region& parentRegion, const QRect& bounds);
+
   QRect findPivotObstacle(const Region& region) const;
 
   QPoint findBlackPixelCloseToCenter(QRect nonWhiteRect) const;
+
+  void narrowToBlackBoundary(QRect& outerRect, QRect& innerRect) const;
+
+  bool tryResolveEdgeBlackPixel(const QRect& edgeRect,
+                                QPoint onHit,
+                                QPoint onMiss,
+                                bool singlePixelSpan,
+                                QPoint& result) const;
 
   QRect extendBlackPixelToBlackBox(QPoint pixel, QRect bounds) const;
 

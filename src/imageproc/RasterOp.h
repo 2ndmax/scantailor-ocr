@@ -176,6 +176,137 @@ class TemplateRasterOp : public AbstractRasterOp {
 
 
 namespace detail {
+inline uint32_t assembleSrcWord(const uint32_t* srcPtr,
+                                const int srcWord1Shift,
+                                const int srcWord2Shift,
+                                const uint32_t canWord1,
+                                const uint32_t canWord2) {
+  uint32_t srcWord = 0;
+  if (canWord1) {
+    srcWord |= srcPtr[0] << srcWord1Shift;
+  }
+  if (canWord2) {
+    srcWord |= srcPtr[1] >> srcWord2Shift;
+  }
+  return srcWord;
+}
+
+template <typename Rop>
+void rasterOpAligned(uint32_t* dstSpan,
+                     const uint32_t* srcSpan,
+                     const int dstSpanDelta,
+                     const int srcSpanDelta,
+                     const int height,
+                     const int dx,
+                     const int firstDstWord,
+                     const int lastDstWord,
+                     const uint32_t firstDstMask,
+                     const uint32_t lastDstMask) {
+  if (firstDstWord == lastDstWord) {
+    assert(firstDstWord == 0);
+    const uint32_t mask = firstDstMask & lastDstMask;
+
+    for (int i = height; i > 0; --i, srcSpan += srcSpanDelta, dstSpan += dstSpanDelta) {
+      const uint32_t srcWord = srcSpan[0];
+      const uint32_t dstWord = dstSpan[0];
+      const uint32_t newDstWord = Rop::transform(srcWord, dstWord);
+      dstSpan[0] = (dstWord & ~mask) | (newDstWord & mask);
+    }
+    return;
+  }
+
+  for (int i = height; i > 0; --i, srcSpan += srcSpanDelta, dstSpan += dstSpanDelta) {
+    int widx = firstDstWord;
+    // Handle the first (possibly incomplete) dst word in the line.
+    uint32_t srcWord = srcSpan[widx];
+    uint32_t dstWord = dstSpan[widx];
+    uint32_t newDstWord = Rop::transform(srcWord, dstWord);
+    dstSpan[widx] = (dstWord & ~firstDstMask) | (newDstWord & firstDstMask);
+
+    while ((widx += dx) != lastDstWord) {
+      srcWord = srcSpan[widx];
+      dstWord = dstSpan[widx];
+      dstSpan[widx] = Rop::transform(srcWord, dstWord);
+    }
+
+    // Handle the last (possibly incomplete) dst word in the line.
+    srcWord = srcSpan[widx];
+    dstWord = dstSpan[widx];
+    newDstWord = Rop::transform(srcWord, dstWord);
+    dstSpan[widx] = (dstWord & ~lastDstMask) | (newDstWord & lastDstMask);
+  }
+}
+
+template <typename Rop>
+void rasterOpUnalignedSingleWord(uint32_t* dstSpan,
+                                 const uint32_t* srcSpan,
+                                 const int dstSpanDelta,
+                                 const int srcSpanDelta,
+                                 const int height,
+                                 const int srcWord1Shift,
+                                 const int srcWord2Shift,
+                                 const uint32_t firstDstMask,
+                                 const uint32_t lastDstMask) {
+  const uint32_t mask = firstDstMask & lastDstMask;
+  const uint32_t canWord1 = (~uint32_t(0) << srcWord1Shift) & mask;
+  const uint32_t canWord2 = (~uint32_t(0) >> srcWord2Shift) & mask;
+
+  for (int i = height; i > 0; --i, srcSpan += srcSpanDelta, dstSpan += dstSpanDelta) {
+    const uint32_t srcWord = assembleSrcWord(srcSpan, srcWord1Shift, srcWord2Shift, canWord1, canWord2);
+    const uint32_t dstWord = dstSpan[0];
+    const uint32_t newDstWord = Rop::transform(srcWord, dstWord);
+    dstSpan[0] = (dstWord & ~mask) | (newDstWord & mask);
+  }
+}
+
+template <typename Rop>
+void rasterOpUnalignedMultiWord(uint32_t* dstSpan,
+                                const uint32_t* srcSpan,
+                                const int dstSpanDelta,
+                                const int srcSpanDelta,
+                                const int height,
+                                const int dx,
+                                const int firstDstWord,
+                                const int lastDstWord,
+                                const int srcWord1Shift,
+                                const int srcWord2Shift,
+                                const uint32_t firstDstMask,
+                                const uint32_t lastDstMask) {
+  const uint32_t canFirstWord1 = (~uint32_t(0) << srcWord1Shift) & firstDstMask;
+  const uint32_t canFirstWord2 = (~uint32_t(0) >> srcWord2Shift) & firstDstMask;
+  const uint32_t canLastWord1 = (~uint32_t(0) << srcWord1Shift) & lastDstMask;
+  const uint32_t canLastWord2 = (~uint32_t(0) >> srcWord2Shift) & lastDstMask;
+
+  for (int i = height; i > 0; --i, srcSpan += srcSpanDelta, dstSpan += dstSpanDelta) {
+    int widx = firstDstWord;
+    // Handle the first (possibly incomplete) dst word in the line.
+    uint32_t srcWord = assembleSrcWord(srcSpan + widx, srcWord1Shift, srcWord2Shift, canFirstWord1, canFirstWord2);
+    uint32_t dstWord = dstSpan[widx];
+    uint32_t newDstWord = Rop::transform(srcWord, dstWord);
+    newDstWord = (dstWord & ~firstDstMask) | (newDstWord & firstDstMask);
+
+    while ((widx += dx) != lastDstWord) {
+      const uint32_t srcWord1 = srcSpan[widx];
+      const uint32_t srcWord2 = srcSpan[widx + 1];
+
+      dstWord = dstSpan[widx];
+      dstSpan[widx - dx] = newDstWord;
+
+      newDstWord = Rop::transform((srcWord1 << srcWord1Shift) | (srcWord2 >> srcWord2Shift), dstWord);
+    }
+
+    // Handle the last (possibly incomplete) dst word in the line.
+    srcWord = assembleSrcWord(srcSpan + widx, srcWord1Shift, srcWord2Shift, canLastWord1, canLastWord2);
+
+    dstWord = dstSpan[widx];
+    dstSpan[widx - dx] = newDstWord;
+
+    newDstWord = Rop::transform(srcWord, dstWord);
+    newDstWord = (dstWord & ~lastDstMask) | (newDstWord & lastDstMask);
+    dstSpan[widx] = newDstWord;
+  }
+}
+
 template <typename Rop>
 void rasterOpInDirection(BinaryImage& dst,
                          const QRect& dr,
@@ -225,124 +356,33 @@ void rasterOpInDirection(BinaryImage& dst,
     srcSpan = src.data() - (sp.y() + dr.height() - 1) * srcSpanDelta + sp.x() / 32;
   }
 
+  if (srcStartBit == dstStartBit) {
+    // Here we have a simple case of dst_x % 32 == src_x % 32.
+    // Note that the rest of the code doesn't work with such
+    // a case because of hardcoded widx + 1.
+    rasterOpAligned<Rop>(dstSpan, srcSpan, dstSpanDelta, srcSpanDelta, dr.height(), dx, firstDstWord, lastDstWord,
+                         firstDstMask, lastDstMask);
+    return;
+  }
+
   int srcWord1Shift;
   int srcWord2Shift;
   if (srcStartBit > dstStartBit) {
     srcWord1Shift = srcStartBit - dstStartBit;
     srcWord2Shift = 32 - srcWord1Shift;
-  } else if (srcStartBit < dstStartBit) {
+  } else {
     srcWord2Shift = dstStartBit - srcStartBit;
     srcWord1Shift = 32 - srcWord2Shift;
     --srcSpan;
-  } else {
-    // Here we have a simple case of dst_x % 32 == src_x % 32.
-    // Note that the rest of the code doesn't work with such
-    // a case because of hardcoded widx + 1.
-    if (firstDstWord == lastDstWord) {
-      assert(firstDstWord == 0);
-      const uint32_t mask = firstDstMask & lastDstMask;
-
-      for (int i = dr.height(); i > 0; --i, srcSpan += srcSpanDelta, dstSpan += dstSpanDelta) {
-        const uint32_t srcWord = srcSpan[0];
-        const uint32_t dstWord = dstSpan[0];
-        const uint32_t newDstWord = Rop::transform(srcWord, dstWord);
-        dstSpan[0] = (dstWord & ~mask) | (newDstWord & mask);
-      }
-    } else {
-      for (int i = dr.height(); i > 0; --i, srcSpan += srcSpanDelta, dstSpan += dstSpanDelta) {
-        int widx = firstDstWord;
-        // Handle the first (possibly incomplete) dst word in the line.
-        uint32_t srcWord = srcSpan[widx];
-        uint32_t dstWord = dstSpan[widx];
-        uint32_t newDstWord = Rop::transform(srcWord, dstWord);
-        dstSpan[widx] = (dstWord & ~firstDstMask) | (newDstWord & firstDstMask);
-
-        while ((widx += dx) != lastDstWord) {
-          srcWord = srcSpan[widx];
-          dstWord = dstSpan[widx];
-          dstSpan[widx] = Rop::transform(srcWord, dstWord);
-        }
-
-        // Handle the last (possibly incomplete) dst word in the line.
-        srcWord = srcSpan[widx];
-        dstWord = dstSpan[widx];
-        newDstWord = Rop::transform(srcWord, dstWord);
-        dstSpan[widx] = (dstWord & ~lastDstMask) | (newDstWord & lastDstMask);
-      }
-    }
-    return;
   }
 
   if (firstDstWord == lastDstWord) {
     assert(firstDstWord == 0);
-    const uint32_t mask = firstDstMask & lastDstMask;
-    const uint32_t canWord1 = (~uint32_t(0) << srcWord1Shift) & mask;
-    const uint32_t canWord2 = (~uint32_t(0) >> srcWord2Shift) & mask;
-
-    for (int i = dr.height(); i > 0; --i, srcSpan += srcSpanDelta, dstSpan += dstSpanDelta) {
-      uint32_t srcWord = 0;
-      if (canWord1) {
-        const uint32_t srcWord1 = srcSpan[0];
-        srcWord |= srcWord1 << srcWord1Shift;
-      }
-      if (canWord2) {
-        const uint32_t srcWord2 = srcSpan[1];
-        srcWord |= srcWord2 >> srcWord2Shift;
-      }
-      const uint32_t dstWord = dstSpan[0];
-      const uint32_t newDstWord = Rop::transform(srcWord, dstWord);
-      dstSpan[0] = (dstWord & ~mask) | (newDstWord & mask);
-    }
+    rasterOpUnalignedSingleWord<Rop>(dstSpan, srcSpan, dstSpanDelta, srcSpanDelta, dr.height(), srcWord1Shift,
+                                     srcWord2Shift, firstDstMask, lastDstMask);
   } else {
-    const uint32_t canFirstWord1 = (~uint32_t(0) << srcWord1Shift) & firstDstMask;
-    const uint32_t canFirstWord2 = (~uint32_t(0) >> srcWord2Shift) & firstDstMask;
-    const uint32_t canLastWord1 = (~uint32_t(0) << srcWord1Shift) & lastDstMask;
-    const uint32_t canLastWord2 = (~uint32_t(0) >> srcWord2Shift) & lastDstMask;
-
-    for (int i = dr.height(); i > 0; --i, srcSpan += srcSpanDelta, dstSpan += dstSpanDelta) {
-      int widx = firstDstWord;
-      // Handle the first (possibly incomplete) dst word in the line.
-      uint32_t srcWord = 0;
-      if (canFirstWord1) {
-        const uint32_t srcWord1 = srcSpan[widx];
-        srcWord |= srcWord1 << srcWord1Shift;
-      }
-      if (canFirstWord2) {
-        const uint32_t srcWord2 = srcSpan[widx + 1];
-        srcWord |= srcWord2 >> srcWord2Shift;
-      }
-      uint32_t dstWord = dstSpan[widx];
-      uint32_t newDstWord = Rop::transform(srcWord, dstWord);
-      newDstWord = (dstWord & ~firstDstMask) | (newDstWord & firstDstMask);
-
-      while ((widx += dx) != lastDstWord) {
-        const uint32_t srcWord1 = srcSpan[widx];
-        const uint32_t srcWord2 = srcSpan[widx + 1];
-
-        dstWord = dstSpan[widx];
-        dstSpan[widx - dx] = newDstWord;
-
-        newDstWord = Rop::transform((srcWord1 << srcWord1Shift) | (srcWord2 >> srcWord2Shift), dstWord);
-      }
-
-      // Handle the last (possibly incomplete) dst word in the line.
-      srcWord = 0;
-      if (canLastWord1) {
-        const uint32_t srcWord1 = srcSpan[widx];
-        srcWord |= srcWord1 << srcWord1Shift;
-      }
-      if (canLastWord2) {
-        const uint32_t srcWord2 = srcSpan[widx + 1];
-        srcWord |= srcWord2 >> srcWord2Shift;
-      }
-
-      dstWord = dstSpan[widx];
-      dstSpan[widx - dx] = newDstWord;
-
-      newDstWord = Rop::transform(srcWord, dstWord);
-      newDstWord = (dstWord & ~lastDstMask) | (newDstWord & lastDstMask);
-      dstSpan[widx] = newDstWord;
-    }
+    rasterOpUnalignedMultiWord<Rop>(dstSpan, srcSpan, dstSpanDelta, srcSpanDelta, dr.height(), dx, firstDstWord,
+                                    lastDstWord, srcWord1Shift, srcWord2Shift, firstDstMask, lastDstMask);
   }
 }  // rasterOpInDirection
 }  // namespace detail

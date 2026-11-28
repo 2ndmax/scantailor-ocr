@@ -156,6 +156,8 @@ class SEDM {
  private:
   static uint32_t distSq(int x1, int x2, uint32_t dySq);
 
+  static int buildRowEnvelope(const uint32_t* line, int width, int* s, int* t);
+
   void processColumns();
 
   void processColumns(ConnectivityMap& cmap);
