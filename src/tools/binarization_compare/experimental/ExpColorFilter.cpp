@@ -34,6 +34,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include "BinaryImage.h"
 #include "GrayImage.h"
 
@@ -490,23 +491,42 @@ double hsvKMeansInPlace(QImage& dst,
       return mse;
     }
 
-    /* len clusters*/
-    uint32_t mean_len[256] = {0};
-    /* defaults clusters*/
-    double mean_h0[256] = {0.0};
-    double mean_s0[256] = {0.0};
-    double mean_v0[256] = {0.0};
-    /* work clusters*/
-    double mean_h[256] = {0.0};
-    double mean_s[256] = {0.0};
-    double mean_v[256] = {0.0};
-    /* sort clusters*/
-    float dist_c[256] = {0.0f}, dist_c_max = 0.0f;
-    bool dist_bg[256] = {false};
-    /* reinit clusters*/
-    unsigned int mean_y[256] = {0};
-    unsigned int mean_x[256] = {0};
-    bool has_seed[256] = {false};
+    struct KMeansScratch {
+      /* len clusters*/
+      uint32_t mean_len[256] = {0};
+      /* defaults clusters*/
+      double mean_h0[256] = {0.0};
+      double mean_s0[256] = {0.0};
+      double mean_v0[256] = {0.0};
+      /* work clusters*/
+      double mean_h[256] = {0.0};
+      double mean_s[256] = {0.0};
+      double mean_v[256] = {0.0};
+      /* sort clusters*/
+      float dist_c[256] = {0.0f};
+      bool dist_bg[256] = {false};
+      /* reinit clusters*/
+      unsigned int mean_y[256] = {0};
+      unsigned int mean_x[256] = {0};
+      bool has_seed[256] = {false};
+      bool reseeded[256] = {false};
+    };
+
+    auto scratch = std::make_unique<KMeansScratch>();
+    auto& mean_len = scratch->mean_len;
+    auto& mean_h0 = scratch->mean_h0;
+    auto& mean_s0 = scratch->mean_s0;
+    auto& mean_v0 = scratch->mean_v0;
+    auto& mean_h = scratch->mean_h;
+    auto& mean_s = scratch->mean_s;
+    auto& mean_v = scratch->mean_v;
+    auto& dist_c = scratch->dist_c;
+    float dist_c_max = 0.0f;
+    auto& dist_bg = scratch->dist_bg;
+    auto& mean_y = scratch->mean_y;
+    auto& mean_x = scratch->mean_x;
+    auto& has_seed = scratch->has_seed;
+    auto& reseeded = scratch->reseeded;
 
     uint32_t const msb = uint32_t(1) << 31;
 
@@ -663,7 +683,6 @@ double hsvKMeansInPlace(QImage& dst,
     // An empty cluster gets its start pixel back only once: the clusters 0 and ncount + 1 (no
     // foreground or background colors) stay empty, and re-seeding them every round counted as a
     // change, so the loop always ran all 50 rounds.
-    bool reseeded[256] = {false};
     for (unsigned int itr = 0; itr < 50; itr++) {
       for (int i = 0; i < sfull; i++) {
         mean_h[i] = 0.0;
