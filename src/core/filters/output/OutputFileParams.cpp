@@ -19,10 +19,18 @@ OutputFileParams::OutputFileParams(const QFileInfo& fileInfo) : m_size(-1), m_mo
 
 OutputFileParams::OutputFileParams(const QDomElement& el) : m_size(-1), m_modifiedTime(0) {
   if (el.hasAttribute("size")) {
-    m_size = (qint64) el.attribute("size").toLongLong();
+    bool ok = false;
+    const qint64 size = el.attribute("size").toLongLong(&ok);
+    if (ok && (size >= 0)) {
+      m_size = size;
+    }
   }
   if (el.hasAttribute("mtime")) {
-    m_modifiedTime = (time_t) el.attribute("mtime").toLongLong();
+    bool ok = false;
+    const auto mtime = static_cast<time_t>(el.attribute("mtime").toLongLong(&ok));
+    if (ok) {
+      m_modifiedTime = mtime;
+    }
   }
 }
 

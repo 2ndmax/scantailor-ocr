@@ -4,7 +4,6 @@
 #include "FillZoneEditor.h"
 
 #include <QPainter>
-#include <QPointer>
 #include <functional>
 #include <utility>
 
@@ -116,10 +115,6 @@ void FillZoneEditor::commitZones() {
   m_settings->setFillZones(m_pageId, zones);
 
   emit invalidateThumbnail(m_pageId);
-}
-
-void FillZoneEditor::updateRequested() {
-  updateViewport();
 }
 
 QColor FillZoneEditor::toOpaque(const QColor& color) {

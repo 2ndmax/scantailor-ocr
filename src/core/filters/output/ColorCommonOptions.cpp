@@ -4,12 +4,14 @@
 #include "ColorCommonOptions.h"
 
 #include <QDomDocument>
+#include <algorithm>
 
 #include "XmlUnmarshaller.h"
 
 namespace output {
 namespace {
 constexpr int DEFAULT_POSTERIZATION_LEVEL = 4;
+constexpr int DEFAULT_CHROMA_GRAY_LIMIT = 15;
 constexpr double MIN_KNN_COEF_WHEN_ON = 0.01;
 
 // The posterizer takes 2 to 255 levels, as the options panel allows. Another value (also a
@@ -18,6 +20,12 @@ int posterizationLevelFromXml(const QString& value) {
   bool ok = false;
   const int level = value.toInt(&ok);
   return (ok && (level >= 2) && (level <= 255)) ? level : DEFAULT_POSTERIZATION_LEVEL;
+}
+
+int chromaGrayLimitFromXml(const QString& value) {
+  bool ok = false;
+  const int limit = value.toInt(&ok);
+  return ok ? std::clamp(limit, 0, 255) : DEFAULT_CHROMA_GRAY_LIMIT;
 }
 }  // namespace
 
@@ -34,7 +42,7 @@ ColorCommonOptions::ColorCommonOptions()
       m_subtractBackgroundWhite(false),
       m_chromaDenoise(false),
       m_chromaRadius(3),
-      m_chromaGrayLimit(15),
+      m_chromaGrayLimit(DEFAULT_CHROMA_GRAY_LIMIT),
       m_knnCoef(0.0),
       m_knnRadius(7),
       m_sharpenCoef(0.0),
@@ -56,7 +64,7 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
       m_subtractBackgroundWhite(el.attribute("subtractBgWhite") == "1"),
       m_chromaDenoise(el.attribute("chromaDenoise") == "1"),
       m_chromaRadius(el.attribute("chromaRadius").toInt()),
-      m_chromaGrayLimit(el.attribute("chromaGrayLimit", "15").toInt()),
+      m_chromaGrayLimit(chromaGrayLimitFromXml(el.attribute("chromaGrayLimit", "15"))),
       m_knnCoef(XmlUnmarshaller::number(el, "knnCoef")),
       m_knnRadius(el.attribute("knnRadius").toInt()),
       m_sharpenCoef(XmlUnmarshaller::number(el, "sharpenCoef")),
@@ -79,9 +87,6 @@ ColorCommonOptions::ColorCommonOptions(const QDomElement& el)
   }
   if (m_chromaRadius < 1 || m_chromaRadius > 10) {
     m_chromaRadius = 3;
-  }
-  if (m_chromaGrayLimit < 0) {
-    m_chromaGrayLimit = 15;
   }
   // 0.01 is the smallest strength of the field, and a tiny one makes the weights of the filter infinite.
   if (m_knnCoef < MIN_KNN_COEF_WHEN_ON || m_knnCoef > 1.0) {

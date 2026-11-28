@@ -86,6 +86,7 @@ class PictureZoneEditor : public ZoneEditorBase {
   QTimer m_pictureMaskRebuildTimer;
   QTimer m_pictureMaskAnimateTimer;
   int m_pictureMaskAnimationPhase;  // degrees
+  bool m_screenPictureMaskEmpty = false;
   std::shared_ptr<MaskTransformTask> m_maskTransformTask;
 
   PageId m_pageId;

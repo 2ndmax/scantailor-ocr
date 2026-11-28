@@ -6,16 +6,16 @@
 
 #include <ConnectionManager.h>
 
-#include <QtCore>
-#include <list>
+#include <QTimer>
 #include <memory>
 
-#include "../ColorParams.h"
-#include "../Settings.h"
 #include "OptionsWidgetBinarization.h"
 #include "ui_OptionsWidgetBinarizationOtsu.h"
 
 namespace output {
+class ColorParams;
+class Settings;
+
 class OptionsWidgetBinarizationOtsu : public OptionsWidgetBinarization, private Ui::OptionsWidgetBinarizationOtsu {
   Q_OBJECT
  public:

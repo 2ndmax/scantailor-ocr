@@ -4,16 +4,12 @@
 #ifndef SCANTAILOR_OUTPUT_IMAGEVIEW_H_
 #define SCANTAILOR_OUTPUT_IMAGEVIEW_H_
 
-#include <QColor>
-
 #include "DragHandler.h"
 #include "ImageViewBase.h"
 #include "ZoomHandler.h"
 
-#include <QPaintEvent>
-#include <QPainter>
-
-class ImageTransformation;
+class QPaintEvent;
+class QPainter;
 
 namespace output {
 class ImageView : public ImageViewBase {

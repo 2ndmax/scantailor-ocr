@@ -4,14 +4,25 @@
 #include "PictureShapeOptions.h"
 
 #include <QDomDocument>
+#include <algorithm>
 
 namespace output {
+namespace {
+constexpr int DEFAULT_SENSITIVITY = 100;
+
+int sensitivityFromXml(const QString& value) {
+  bool ok = false;
+  const int sensitivity = value.toInt(&ok);
+  return ok ? std::clamp(sensitivity, 0, 100) : DEFAULT_SENSITIVITY;
+}
+}  // namespace
+
 PictureShapeOptions::PictureShapeOptions()
-    : m_pictureShape(FREE_SHAPE), m_sensitivity(100), m_higherSearchSensitivity(false) {}
+    : m_pictureShape(FREE_SHAPE), m_sensitivity(DEFAULT_SENSITIVITY), m_higherSearchSensitivity(false) {}
 
 PictureShapeOptions::PictureShapeOptions(const QDomElement& el)
     : m_pictureShape(parsePictureShape(el.attribute("pictureShape"))),
-      m_sensitivity(el.attribute("sensitivity", "100").toInt()),
+      m_sensitivity(sensitivityFromXml(el.attribute("sensitivity", "100"))),
       m_higherSearchSensitivity(el.attribute("higherSearchSensitivity") == "1") {}
 
 QDomElement PictureShapeOptions::toXml(QDomDocument& doc, const QString& name) const {

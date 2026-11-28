@@ -119,6 +119,12 @@ PictureZoneEditor::PictureZoneEditor(const QImage& image,
 }
 
 PictureZoneEditor::~PictureZoneEditor() {
+  m_pictureMaskRebuildTimer.stop();
+  m_pictureMaskAnimateTimer.stop();
+  if (m_maskTransformTask) {
+    m_maskTransformTask->cancel();
+    m_maskTransformTask.reset();
+  }
   m_settings->setDefaultPictureZoneProperties(zones().defaultProperties());
 }
 
@@ -127,7 +133,10 @@ void PictureZoneEditor::onPaint(QPainter& painter, const InteractionState& /*int
   painter.setRenderHint(QPainter::Antialiasing);
 
   if (!validateScreenPictureMask()) {
+    m_pictureMaskAnimateTimer.stop();
     schedulePictureMaskRebuild();
+  } else if (m_screenPictureMaskEmpty || m_screenPictureMask.isNull() || m_screenPictureMask.rect().isEmpty()) {
+    m_pictureMaskAnimateTimer.stop();
   } else {
     const double sn = std::sin(constants::DEG2RAD * m_pictureMaskAnimationPhase);
     const double scale = 0.5 * (sn + 1.0);  // 0 .. 1
@@ -183,6 +192,8 @@ void PictureZoneEditor::initiateBuildingScreenPictureMask() {
   }
 
   m_screenPictureMask = QPixmap();
+  m_screenPictureMaskEmpty = false;
+  m_pictureMaskAnimateTimer.stop();
 
   if (m_maskTransformTask) {
     m_maskTransformTask->cancel();
@@ -204,8 +215,11 @@ void PictureZoneEditor::screenPictureMaskBuilt(const QPoint& origin, const QImag
     QPixmap empty(1, 1);
     empty.fill(Qt::transparent);
     m_screenPictureMask = empty;
+    m_screenPictureMaskEmpty = true;
+    m_pictureMaskAnimateTimer.stop();
   } else {
     m_screenPictureMask = QPixmap::fromImage(mask);
+    m_screenPictureMaskEmpty = false;
   }
   m_screenPictureMaskOrigin = origin;
   m_pictureMaskAnimationPhase = 270;

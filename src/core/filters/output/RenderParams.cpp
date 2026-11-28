@@ -12,8 +12,10 @@ RenderParams::RenderParams(const ColorParams& colorParams, const SplittingOption
   const ColorMode colorMode = colorParams.colorMode();
   // In mixed mode the pictures are only equalized together with the text. The color setting is
   // kept as it is, for the color mode and for turning the black and white one on again.
-  const bool normalizeIlluminationColor = colorCommonOptions.normalizeIllumination()
-                                          && ((colorMode != MIXED) || blackWhiteOptions.normalizeIllumination());
+  // In black and white mode there is no color output.
+  const bool normalizeIlluminationColor
+      = colorCommonOptions.normalizeIllumination()
+        && ((colorMode == COLOR_GRAYSCALE) || ((colorMode == MIXED) && blackWhiteOptions.normalizeIllumination()));
 
   if ((colorMode == BLACK_AND_WHITE) || (colorMode == MIXED)) {
     m_mask |= NEED_BINARIZATION;
@@ -23,7 +25,7 @@ RenderParams::RenderParams(const ColorParams& colorParams, const SplittingOption
     if (mixedOutput() && splittingOptions.isSplitOutput()) {
       m_mask |= SPLIT_OUTPUT;
       if (splittingOptions.getSplittingMode() == COLOR_FOREGROUND) {
-        m_mask ^= NEED_BINARIZATION;
+        m_mask &= ~NEED_BINARIZATION;
       }
       if (needBinarization() && splittingOptions.isOriginalBackgroundEnabled()) {
         m_mask |= ORIGINAL_BACKGROUND;

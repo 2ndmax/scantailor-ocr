@@ -16,7 +16,6 @@
 #include "EditableSpline.h"
 #include "EditableZoneSet.h"
 #include "ImagePixmapUnion.h"
-#include "NonCopyable.h"
 #include "PageId.h"
 #include "ZoneEditorBase.h"
 #include "ZoneInteractionContext.h"
@@ -50,8 +49,6 @@ class FillZoneEditor : public ZoneEditorBase {
  private slots:
 
   void commitZones();
-
-  void updateRequested();
 
  private:
   class MenuCustomizer;

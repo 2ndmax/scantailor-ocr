@@ -24,7 +24,10 @@
 #include <utility>
 
 #include "../FillZoneComparator.h"
+#include "../OutputProcessingParams.h"
+#include "../Params.h"
 #include "../PictureZoneComparator.h"
+#include "../Settings.h"
 #include "ApplyParamsDialog.h"
 #include "BinarizationMethods.h"
 #include "CoreUtils.h"
@@ -563,6 +566,10 @@ void OptionsWidget::despeckleSliderValueChanged(int value) {
 }
 
 void OptionsWidget::handleDespeckleLevelChange(const double level, const bool delay) {
+  if (level == m_despeckleLevel) {
+    return;
+  }
+
   m_despeckleLevel = level;
   m_settings->setDespeckleLevel(m_pageId, level);
 
@@ -653,7 +660,7 @@ void OptionsWidget::dewarpingChanged(const std::set<PageId>& pages, const Dewarp
       // which is too hard to update without reloading. For consistency,
       // we reload not just on TAB_FILL_ZONES but on all tabs except TAB_DEWARPING.
       // PS: the static original <-> dewarped mappings are constructed
-      // in Task::UiUpdater::updateUI(). Look for "new DewarpingPointMapper" there.
+      // in FilterUi::showResult(). Look for "DewarpingPointMapper" there.
       // The automatic modes have to find the curves anew, so they reload on the Dewarping tab, too.
       if (opt.findsCurvesItself() || (m_lastTab->get() != TAB_DEWARPING)) {
         // Switch to the Output tab after reloading.

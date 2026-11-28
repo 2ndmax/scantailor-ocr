@@ -6,17 +6,17 @@
 
 #include <ConnectionManager.h>
 
-#include <QtCore>
-#include <list>
+#include <QTimer>
 #include <memory>
 
 #include "../BlackWhiteOptions.h"
-#include "../ColorParams.h"
-#include "../Settings.h"
 #include "OptionsWidgetBinarization.h"
 #include "ui_OptionsWidgetBinarizationLocal.h"
 
 namespace output {
+class ColorParams;
+class Settings;
+
 // The settings of a method with a local window: all methods except Otsu.
 class OptionsWidgetBinarizationLocal : public OptionsWidgetBinarization, private Ui::OptionsWidgetBinarizationLocal {
   Q_OBJECT

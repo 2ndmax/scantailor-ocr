@@ -5,6 +5,8 @@
 
 #include <utility>
 
+#include "../ColorParams.h"
+#include "../Settings.h"
 #include "WidgetUtils.h"
 
 namespace output {

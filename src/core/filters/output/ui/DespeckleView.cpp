@@ -93,9 +93,8 @@ DespeckleView::DespeckleView(const DespeckleState& despeckleState,
 
   if (!visualization.isNull()) {
     // Create the image view.
-    auto* const imageView = new BasicImageView(visualization.image(), visualization.downscaledImage());
+    auto* const imageView = new BasicImageView(visualization.image(), visualization.downscaledImage(), OutputMargins());
     setCurrentIndex(addWidget(imageView));
-    emit imageViewCreated(imageView);
   }
 }
 
@@ -104,6 +103,9 @@ DespeckleView::~DespeckleView() {
 }
 
 void DespeckleView::despeckleLevelChanged(const double newLevel, bool* handled) {
+  if (isVisible()) {
+    *handled = true;
+  }
   if (newLevel == m_despeckleLevel) {
     return;
   }
@@ -111,7 +113,6 @@ void DespeckleView::despeckleLevelChanged(const double newLevel, bool* handled) 
   m_despeckleLevel = newLevel;
 
   if (isVisible()) {
-    *handled = true;
     if (currentWidget() == m_processingIndicator) {
       initiateDespeckling(RESUME_ANIMATION);
     } else {
@@ -162,23 +163,26 @@ void DespeckleView::despeckleDone(const DespeckleState& despeckleState,
 
   removeImageViewWidget();
 
-  std::unique_ptr<QWidget> widget
+  auto mainView
       = std::make_unique<BasicImageView>(visualization.image(), visualization.downscaledImage(), OutputMargins());
+  BasicImageView* const mainViewPtr = mainView.get();
 
+  std::unique_ptr<QWidget> widget;
   if (dbg && !dbg->empty()) {
     auto tabWidget = std::make_unique<TabbedDebugImages>();
-    tabWidget->addTab(widget.release(), tr("Main"));
+    tabWidget->addTab(mainView.release(), tr("Main"));
     AutoRemovingFile file;
     QString label;
     while (!(file = dbg->retrieveNext(&label)).get().isNull()) {
       tabWidget->addTab(new DebugImageView(std::move(file)), label);
     }
     widget = std::move(tabWidget);
+  } else {
+    widget = std::move(mainView);
   }
 
-  QWidget* const imageView = widget.release();
-  setCurrentIndex(addWidget(imageView));
-  emit imageViewCreated(dynamic_cast<ImageViewBase*>(imageView));
+  setCurrentIndex(addWidget(widget.release()));
+  emit imageViewCreated(mainViewPtr);
 }
 
 void DespeckleView::cancelBackgroundTask() {

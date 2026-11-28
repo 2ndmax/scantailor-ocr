@@ -12,15 +12,13 @@
 
 #include "../ColorParams.h"
 #include "../DepthPerception.h"
-#include "../DespeckleLevel.h"
 #include "../DewarpingOptions.h"
 #include "../ImageViewTab.h"
 #include "../LastImageViewTab.h"
-#include "../OutputProcessingParams.h"
-#include "../Params.h"
+#include "../PictureShapeOptions.h"
+#include "../SplittingOptions.h"
 #include "Dpi.h"
 #include "FilterOptionsWidget.h"
-#include "OptionsWidgetBinarization.h"
 #include "PageId.h"
 #include "PageSelectionAccessor.h"
 #include "ui_OptionsWidget.h"
@@ -35,6 +33,7 @@ class DistortionModel;
 
 namespace output {
 class ApplyParamsDialog;
+class OptionsWidgetBinarization;
 class PhotoAdjustments;
 class PhotoAdjustmentsControls;
 class Settings;
