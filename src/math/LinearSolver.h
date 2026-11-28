@@ -52,6 +52,30 @@ class LinearSolver {
   void solve(const T* A, T* X, const T* B) const;
 
  private:
+  template <typename T>
+  T copyMatrixAndComputePivotThreshold(const T* A, T* luData, size_t* perm) const;
+
+  template <typename T>
+  size_t findPivotRow(const T* pCol, const size_t* perm, size_t startRow) const;
+
+  template <typename T>
+  void eliminateBelowPivot(T* pCol, const size_t* perm, size_t colIdx, const T* pPivot) const;
+
+  template <typename T>
+  void decomposeLU(T* luData, size_t* perm, T pivotThreshold) const;
+
+  template <typename T>
+  void solveForwardColumn(const T* luData, const size_t* perm, const T* pBCol, T* pYCol, T epsilon) const;
+
+  template <typename T>
+  void solveForward(const T* luData, const size_t* perm, const T* B, T* yData, T epsilon) const;
+
+  template <typename T>
+  void solveBackwardColumn(const T* luData, const size_t* perm, const T* pYCol, T* pXCol) const;
+
+  template <typename T>
+  void solveBackward(const T* luData, const size_t* perm, const T* yData, T* X) const;
+
   size_t m_rowsAB;
   size_t m_colsArowsX;
   // REVIEW-NOTE (2026-10): no non-template member reads m_colsBX -> clang reports an unused private field.
@@ -61,14 +85,10 @@ class LinearSolver {
 
 
 template <typename T>
-void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuffer) const {
+T LinearSolver::copyMatrixAndComputePivotThreshold(const T* A, T* luData, size_t* perm) const {
   using namespace std;  // To catch different overloads of std::abs()
   const T epsilon(std::sqrt(numeric_limits<T>::epsilon()));
-
   const size_t num_elements_A = m_rowsAB * m_colsArowsX;
-
-  T* const luData = tbuffer;  // Dimensions: m_rowsAB, m_colsArowsX
-  tbuffer += num_elements_A;
 
   // Copy this matrix to lu.
   T largestAbsEntry = T();
@@ -79,30 +99,66 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
     luData[i] = A[i];
     largestAbsEntry = std::max(largestAbsEntry, T(std::abs(A[i])));
   }
-  // A pivot counts as zero below the usual rank tolerance, relative to the largest entry, so that
-  // a system with small entries isn't taken for singular. It is never above the former absolute
-  // threshold: the least squares fits (PolynomialSurface and others) solve ill-conditioned normal
-  // equations and silently keep zero coefficients when the solver gives up.
-  const T pivotThreshold(std::min(epsilon, numeric_limits<T>::epsilon() * T(m_rowsAB) * largestAbsEntry));
 
-  // Maps virtual row numbers to physical ones.
-  size_t* const perm = pbuffer;
   for (size_t i = 0; i < m_rowsAB; ++i) {
     perm[i] = i;
   }
 
+  // A pivot counts as zero below the usual rank tolerance, relative to the largest entry, so that
+  // a system with small entries isn't taken for singular. It is never above the former absolute
+  // threshold: the least squares fits (PolynomialSurface and others) solve ill-conditioned normal
+  // equations and silently keep zero coefficients when the solver gives up.
+  return std::min(epsilon, numeric_limits<T>::epsilon() * T(m_rowsAB) * largestAbsEntry);
+}
+
+template <typename T>
+size_t LinearSolver::findPivotRow(const T* pCol, const size_t* perm, const size_t startRow) const {
+  using namespace std;
+  size_t virtPivotRow = startRow;
+  T largestAbsPivot(std::abs(pCol[perm[startRow]]));
+  for (size_t j = startRow + 1; j < m_rowsAB; ++j) {
+    const T absPivot(std::abs(pCol[perm[j]]));
+    if (absPivot > largestAbsPivot) {
+      largestAbsPivot = absPivot;
+      virtPivotRow = j;
+    }
+  }
+  return virtPivotRow;
+}
+
+template <typename T>
+void LinearSolver::eliminateBelowPivot(T* pCol, const size_t* perm, const size_t colIdx, const T* pPivot) const {
+  const T rPivot(T(1) / *pPivot);
+  for (size_t j = colIdx + 1; j < m_rowsAB; ++j) {
+    const T* p1 = pPivot;
+    T* p2 = pCol + perm[j];
+    // Only exact zeros are skipped: what matters is the factor, at most 1 thanks to the
+    // pivot choice, not the size of the entry. Skipping small entries gave wrong results.
+    if (*p2 == T()) {
+      continue;
+    }
+
+    const T factor(*p2 * rPivot);
+    *p2 = factor;  // Factor goes into L, zero goes into U.
+    // Transform the rest of the row.
+    // REVIEW-NOTE (2026-10): an element of luData that was never written -> *p1 is garbage
+    // (clang-analyzer UndefinedBinaryOperatorResult). Not fixed because all m_rowsAB * m_colsArowsX elements
+    // are copied from A above, and p1 stays in the pivot row of the columns below m_colsArowsX.
+    for (size_t col = colIdx + 1; col < m_colsArowsX; ++col) {
+      p1 += m_rowsAB;
+      p2 += m_rowsAB;
+      *p2 -= *p1 * factor;
+    }
+  }
+}
+
+template <typename T>
+void LinearSolver::decomposeLU(T* luData, size_t* perm, const T pivotThreshold) const {
+  using namespace std;
   T* pCol = luData;
   for (size_t i = 0; i < m_colsArowsX; ++i, pCol += m_rowsAB) {
-    // Find the largest pivot.
-    size_t virtPivotRow = i;
-    T largestAbsPivot(std::abs(pCol[perm[i]]));
-    for (size_t j = i + 1; j < m_rowsAB; ++j) {
-      const T absPivot(std::abs(pCol[perm[j]]));
-      if (absPivot > largestAbsPivot) {
-        largestAbsPivot = absPivot;
-        virtPivotRow = j;
-      }
-    }
+    const size_t virtPivotRow = findPivotRow(pCol, perm, i);
+    const T largestAbsPivot(std::abs(pCol[perm[virtPivotRow]]));
 
     // Also catches an all-zero or NaN matrix, whose threshold or pivot comparison is false.
     if (!(largestAbsPivot > pivotThreshold)) {
@@ -114,111 +170,115 @@ void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuff
     perm[i] = physPivotRow;
 
     const T* const pPivot = pCol + physPivotRow;
-    const T rPivot(T(1) / *pPivot);
-
-    // Eliminate entries below the pivot.
-    for (size_t j = i + 1; j < m_rowsAB; ++j) {
-      const T* p1 = pPivot;
-      T* p2 = pCol + perm[j];
-      // Only exact zeros are skipped: what matters is the factor, at most 1 thanks to the
-      // pivot choice, not the size of the entry. Skipping small entries gave wrong results.
-      if (*p2 == T()) {
-        continue;
-      }
-
-      const T factor(*p2 * rPivot);
-      *p2 = factor;  // Factor goes into L, zero goes into U.
-      // Transform the rest of the row.
-      // REVIEW-NOTE (2026-10): an element of luData that was never written -> *p1 is garbage
-      // (clang-analyzer UndefinedBinaryOperatorResult). Not fixed because all m_rowsAB * m_colsArowsX elements
-      // are copied from A above, and p1 stays in the pivot row of the columns below m_colsArowsX.
-      for (size_t col = i + 1; col < m_colsArowsX; ++col) {
-        p1 += m_rowsAB;
-        p2 += m_rowsAB;
-        *p2 -= *p1 * factor;
-      }
-    }
+    eliminateBelowPivot(pCol, perm, i, pPivot);
   }
+}
 
-  // First solve Ly = b
-  T* const yData = tbuffer;  // Dimensions: m_colsArowsX, m_colsBX
-  // tbuffer += m_colsArowsX * m_colsBX;
-  T* pYCol = yData;
-  const T* pBCol = B;
+template <typename T>
+void LinearSolver::solveForwardColumn(const T* luData, const size_t* perm, const T* pBCol, T* pYCol, const T epsilon)
+    const {
+  using namespace std;
   // REVIEW-NOTE (2026-10): a physRow >= m_rowsAB -> pBCol[physRow] reads past the end of B (clang-analyzer
   // ArrayBound, both loops below). Not fixed because perm starts as 0..m_rowsAB-1 and is only permuted by swaps,
   // and B holds m_rowsAB rows per column (the rows of A and B, see the constructor).
+  size_t virtRow = 0;
+  for (; virtRow < m_colsArowsX; ++virtRow) {
+    const int physRow = static_cast<int>(perm[virtRow]);
+    T right(pBCol[physRow]);
+    if (!std::isfinite(right)) {
+      throw std::runtime_error("LinearSolver: non-finite right-hand side");
+    }
+
+    // Move already calculated factors to the right side.
+    const T* pLu = luData + physRow;
+    // Go left to right, stop at diagonal.
+    for (size_t luCol = 0; luCol < virtRow; ++luCol) {
+      right -= *pLu * pYCol[luCol];
+      pLu += m_rowsAB;
+    }
+
+    // We assume L has ones on the diagonal, so no division here.
+    pYCol[virtRow] = right;
+  }
+
+  // Continue below the square part (if any).
+  for (; virtRow < m_rowsAB; ++virtRow) {
+    const int physRow = static_cast<int>(perm[virtRow]);
+    T right(pBCol[physRow]);
+    if (!std::isfinite(right)) {
+      throw std::runtime_error("LinearSolver: non-finite right-hand side");
+    }
+
+    // Move everything to the right side, then verify it's zero, relative to the size
+    // of the terms: their rounding errors grow with them. Never stricter than the former
+    // absolute threshold.
+    T magnitude(std::abs(right));
+    const T* pLu = luData + physRow;
+    // Go left to right all the way.
+    for (size_t luCol = 0; luCol < m_colsArowsX; ++luCol) {
+      const T term(*pLu * pYCol[luCol]);
+      right -= term;
+      magnitude += std::abs(term);
+      pLu += m_rowsAB;
+    }
+    if (!(std::abs(right) <= epsilon * std::max(T(1), magnitude))) {
+      throw std::runtime_error("LinearSolver: inconsistent overdetermined system");
+    }
+  }
+}
+
+template <typename T>
+void LinearSolver::solveForward(const T* luData, const size_t* perm, const T* B, T* yData, const T epsilon) const {
+  T* pYCol = yData;
+  const T* pBCol = B;
   for (size_t yCol = 0; yCol < m_colsBX; ++yCol) {
-    size_t virtRow = 0;
-    for (; virtRow < m_colsArowsX; ++virtRow) {
-      const int physRow = static_cast<int>(perm[virtRow]);
-      T right(pBCol[physRow]);
-      if (!std::isfinite(right)) {
-        throw std::runtime_error("LinearSolver: non-finite right-hand side");
-      }
-
-      // Move already calculated factors to the right side.
-      const T* pLu = luData + physRow;
-      // Go left to right, stop at diagonal.
-      for (size_t luCol = 0; luCol < virtRow; ++luCol) {
-        right -= *pLu * pYCol[luCol];
-        pLu += m_rowsAB;
-      }
-
-      // We assume L has ones on the diagonal, so no division here.
-      pYCol[virtRow] = right;
-    }
-
-    // Continue below the square part (if any).
-    for (; virtRow < m_rowsAB; ++virtRow) {
-      const int physRow = static_cast<int>(perm[virtRow]);
-      T right(pBCol[physRow]);
-      if (!std::isfinite(right)) {
-        throw std::runtime_error("LinearSolver: non-finite right-hand side");
-      }
-
-      // Move everything to the right side, then verify it's zero, relative to the size
-      // of the terms: their rounding errors grow with them. Never stricter than the former
-      // absolute threshold.
-      T magnitude(std::abs(right));
-      const T* pLu = luData + physRow;
-      // Go left to right all the way.
-      for (size_t luCol = 0; luCol < m_colsArowsX; ++luCol) {
-        const T term(*pLu * pYCol[luCol]);
-        right -= term;
-        magnitude += std::abs(term);
-        pLu += m_rowsAB;
-      }
-      if (!(std::abs(right) <= epsilon * std::max(T(1), magnitude))) {
-        throw std::runtime_error("LinearSolver: inconsistent overdetermined system");
-      }
-    }
-
+    solveForwardColumn(luData, perm, pBCol, pYCol, epsilon);
     pYCol += m_colsArowsX;
     pBCol += m_rowsAB;
   }
+}
 
-  // Now solve Ux = y
-  T* pXCol = X;
-  pYCol = yData;
+template <typename T>
+void LinearSolver::solveBackwardColumn(const T* luData, const size_t* perm, const T* pYCol, T* pXCol) const {
   const T* pLuLastCol = luData + (m_colsArowsX - 1) * m_rowsAB;
-  for (size_t xCol = 0; xCol < m_colsBX; ++xCol) {
-    for (int virtRow = static_cast<int>(m_colsArowsX - 1); virtRow >= 0; --virtRow) {
-      T right(pYCol[virtRow]);
+  for (int virtRow = static_cast<int>(m_colsArowsX - 1); virtRow >= 0; --virtRow) {
+    T right(pYCol[virtRow]);
 
-      // Move already calculated factors to the right side.
-      const T* pLu = pLuLastCol + perm[virtRow];
-      // Go right to left, stop at diagonal.
-      for (int luCol = static_cast<int>(m_colsArowsX - 1); luCol > virtRow; --luCol) {
-        right -= *pLu * pXCol[luCol];
-        pLu -= m_rowsAB;
-      }
-      pXCol[virtRow] = right / *pLu;
+    // Move already calculated factors to the right side.
+    const T* pLu = pLuLastCol + perm[virtRow];
+    // Go right to left, stop at diagonal.
+    for (int luCol = static_cast<int>(m_colsArowsX - 1); luCol > virtRow; --luCol) {
+      right -= *pLu * pXCol[luCol];
+      pLu -= m_rowsAB;
     }
+    pXCol[virtRow] = right / *pLu;
+  }
+}
 
+template <typename T>
+void LinearSolver::solveBackward(const T* luData, const size_t* perm, const T* yData, T* X) const {
+  T* pXCol = X;
+  const T* pYCol = yData;
+  for (size_t xCol = 0; xCol < m_colsBX; ++xCol) {
+    solveBackwardColumn(luData, perm, pYCol, pXCol);
     pXCol += m_colsArowsX;
     pYCol += m_colsArowsX;
   }
+}
+
+template <typename T>
+void LinearSolver::solve(const T* A, T* X, const T* B, T* tbuffer, size_t* pbuffer) const {
+  const T epsilon(std::sqrt(std::numeric_limits<T>::epsilon()));
+  const size_t num_elements_A = m_rowsAB * m_colsArowsX;
+
+  T* const luData = tbuffer;                  // Dimensions: m_rowsAB, m_colsArowsX
+  T* const yData = tbuffer + num_elements_A;  // Dimensions: m_colsArowsX, m_colsBX
+  size_t* const perm = pbuffer;               // Maps virtual row numbers to physical ones.
+
+  const T pivotThreshold = copyMatrixAndComputePivotThreshold(A, luData, perm);
+  decomposeLU(luData, perm, pivotThreshold);
+  solveForward(luData, perm, B, yData, epsilon);
+  solveBackward(luData, perm, yData, X);
 }  // LinearSolver::solve
 
 template <typename T>
