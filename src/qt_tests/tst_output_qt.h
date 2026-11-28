@@ -16,6 +16,7 @@ class TestOutputQt : public QObject {
   void testDewarpingViewDeleteKeyEmitsChangeAndNullptrSplineSafe();
   void testBinarizationUpdateUiStopsDelayedTimer();
   void testOptionsWidgetSignalsNullIndexImmediateSwitchAndPostDeskew();
+  void testApplyParamsDialogModePartsAndThisPageIncluded();
 };
 
 #endif  // TST_OUTPUT_QT_H

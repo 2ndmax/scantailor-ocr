@@ -15,6 +15,7 @@
 #include <IncompleteThumbnail.h>
 #include <NullTaskStatus.h>
 #include <PageSelectionAccessor.h>
+#include <PageSelectionProvider.h>
 #include <PageSequence.h>
 #include <ProjectPages.h>
 #include <filters/page_layout/Alignment.h>
@@ -22,14 +23,18 @@
 #include <filters/page_layout/OutputSizeOptions.h>
 #include <filters/page_layout/Params.h>
 #include <filters/page_layout/Settings.h>
+#include <filters/page_layout/ui/ApplyDialog.h>
 #include <filters/page_layout/ui/ImageView.h>
 #include <filters/page_layout/ui/OptionsWidget.h>
 #include <filters/page_layout/ui/Thumbnail.h>
 
 #include <imageproc/GrayImage.h>
+#include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QMetaObject>
 #include <QMouseEvent>
+#include <QPushButton>
+#include <QRadioButton>
 #include <QToolButton>
 #include <QtTest/QtTest>
 #include <cmath>
@@ -333,4 +338,36 @@ void TestPageLayoutQt::testAttachContentToNearestGuideWithEdgeAlignment() {
   const Margins snapped = settings->getHardMarginsMM(pageId);
   QVERIFY2(std::abs(snapped.left() - 18.0) <= 1.5,
            qPrintable(QString("Expected left margin ~18.0 mm without edge overshoot, got %1").arg(snapped.left())));
+}
+
+void TestPageLayoutQt::testApplyDialogEmitsSelectedPages() {
+  struct StubProvider : public PageSelectionProvider {
+    PageSequence pages;
+    std::set<PageId> selected;
+    explicit StubProvider(PageSequence seq) : pages(std::move(seq)) {}
+    PageSequence allPages() const override { return pages; }
+    std::set<PageId> selectedPages() const override { return selected; }
+    std::vector<PageRange> selectedRanges() const override { return {}; }
+  };
+
+  std::vector<ImageInfo> infos;
+  for (int i = 0; i < 3; ++i) {
+    infos.emplace_back(ImageId(QStringLiteral("pl_%1.png").arg(i)), ImageMetadata(QSize(200, 300), Dpi(300, 300)), 1,
+                       false, false);
+  }
+  const auto projectPages = std::make_shared<ProjectPages>(infos, Qt::LeftToRight);
+  const PageSequence seq = projectPages->toPageSequence(PAGE_VIEW);
+  auto provider = std::make_shared<StubProvider>(seq);
+
+  ApplyDialog dialog(nullptr, seq.pageAt(0).id(), PageSelectionAccessor(provider));
+  const auto radios = dialog.findChildren<QRadioButton*>();
+  QVERIFY(radios.size() >= 2);
+  radios[1]->setChecked(true);  // ALL_PAGES
+
+  std::set<PageId> emitted;
+  QObject::connect(&dialog, &ApplyDialog::accepted, [&emitted](const std::set<PageId>& p) { emitted = p; });
+  auto* box = dialog.findChild<QDialogButtonBox*>();
+  QVERIFY(box != nullptr);
+  box->button(QDialogButtonBox::Ok)->click();
+  QCOMPARE(emitted.size(), size_t(3));
 }

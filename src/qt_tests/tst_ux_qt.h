@@ -41,6 +41,11 @@ class TestUxQt : public QObject {
   void testInteractionHandlerSelfAndSiblingDeletionInDispatch();
   void testInteractiveXSplineDegenerateAndDraggableDefaults();
   void testZoneInteractionsFixes();
+  void testZoomHandlerWheelDoubleClickAndPermitter();
+  void testPageScopeGroupBoxCountsOddEvenAndSelection();
+  void testStageListViewBatchAndPdfRowStates();
+  void testCollapsibleGroupBoxCheckable();
+  void testHiDpiImageViewBaseAndOverlay();
 };
 
 #endif

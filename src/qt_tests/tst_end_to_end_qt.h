@@ -21,6 +21,7 @@ class TestEndToEndQt : public QObject {
   void testSplitTooLarge();
   void testCancelWithoutThumbnails();
   void testPdfExport();
+  void testMixedSplitOutputMrcPdfAndAutoDewarping();
 };
 
 #endif

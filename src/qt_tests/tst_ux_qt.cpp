@@ -11,6 +11,7 @@
 #include <CollapsibleGroupBox.h>
 #include <ColorSchemeManager.h>
 #include <DebugImageView.h>
+#include <DefaultParams.h>
 #include <Dpi.h>
 #include <DraggableLineSegment.h>
 #include <DraggablePoint.h>
@@ -27,11 +28,15 @@
 #include <NativeColorScheme.h>
 #include <ObjectDragHandler.h>
 #include <OverlayStyle.h>
+#include <PageScopeGroupBox.h>
 #include <PageSelectionAccessor.h>
+#include <PageSelectionProvider.h>
 #include <PageSequence.h>
 #include <ProcessingIndicationWidget.h>
+#include <ProjectPages.h>
 #include <SerializableSpline.h>
 #include <StageListView.h>
+#include <StageSequence.h>
 #include <StyleSheetColorScheme.h>
 #include <StyledIconPack.h>
 #include <ThumbnailBase.h>
@@ -65,6 +70,7 @@
 #include <QPainterPath>
 #include <QPointingDevice>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QScrollBar>
 #include <QSettings>
 #include <QShortcut>
@@ -76,6 +82,7 @@
 #include <QStyleOptionFocusRect>
 #include <QTemporaryDir>
 #include <QTimerEvent>
+#include <QVBoxLayout>
 #include <QWheelEvent>
 #include <QtTest/QtTest>
 #include <algorithm>
@@ -932,4 +939,169 @@ void TestUxQt::testZoneInteractionsFixes() {
     def.proximityUpdate(v0Widget, state);
     QCOMPARE(std::distance(zones.begin(), zones.end()), std::ptrdiff_t(1));
   }
+}
+
+void TestUxQt::testZoomHandlerWheelDoubleClickAndPermitter() {
+  QImage img(200, 200, QImage::Format_ARGB32_Premultiplied);
+  img.fill(Qt::white);
+  BasicImageView view(img);
+  view.resize(400, 400);
+  view.show();
+
+  bool allowInteraction = true;
+  ZoomHandler handler(view, [&allowInteraction](const InteractionState&) { return allowInteraction; });
+  QCOMPARE(handler.focus(), ZoomHandler::CURSOR);
+  handler.setFocus(ZoomHandler::CENTER);
+  QCOMPARE(handler.focus(), ZoomHandler::CENTER);
+
+  InteractionState state;
+  // Wheel scroll up zooms in cleanly above 1.0.
+  QWheelEvent wheelIn(QPointF(200, 200), view.mapToGlobal(QPoint(200, 200)), QPoint(), QPoint(0, 120), Qt::NoButton,
+                      Qt::NoModifier, Qt::NoScrollPhase, false);
+  wheelIn.ignore();
+  static_cast<InteractionHandler&>(handler).wheelEvent(&wheelIn, state);
+  QVERIFY(wheelIn.isAccepted());
+  QVERIFY(view.zoomLevel() > 1.0);
+  const double zoomedIn = view.zoomLevel();
+
+  // Blocked by InteractionPermitter -> wheel does not zoom further.
+  allowInteraction = false;
+  QWheelEvent wheelBlocked(QPointF(200, 200), view.mapToGlobal(QPoint(200, 200)), QPoint(), QPoint(0, 120),
+                           Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+  wheelBlocked.ignore();
+  static_cast<InteractionHandler&>(handler).wheelEvent(&wheelBlocked, state);
+  QCOMPARE(view.zoomLevel(), zoomedIn);
+  allowInteraction = true;
+
+  // Double-click disabled does not reset zoom; enabled resets back to 1.0.
+  handler.setZoomAllOnDoubleClick(false);
+  QMouseEvent dblClick(QEvent::MouseButtonDblClick, QPointF(200, 200), QPointF(200, 200), Qt::LeftButton,
+                       Qt::LeftButton, Qt::NoModifier);
+  dblClick.ignore();
+  static_cast<InteractionHandler&>(handler).mouseDoubleClickEvent(&dblClick, state);
+  QCOMPARE(view.zoomLevel(), zoomedIn);
+
+  handler.setZoomAllOnDoubleClick(true);
+  dblClick.ignore();
+  static_cast<InteractionHandler&>(handler).mouseDoubleClickEvent(&dblClick, state);
+  QCOMPARE(view.zoomLevel(), 1.0);
+}
+
+void TestUxQt::testPageScopeGroupBoxCountsOddEvenAndSelection() {
+  struct StubProvider : public PageSelectionProvider {
+    PageSequence pages;
+    std::set<PageId> selected;
+    explicit StubProvider(PageSequence seq) : pages(std::move(seq)) {}
+    PageSequence allPages() const override { return pages; }
+    std::set<PageId> selectedPages() const override { return selected; }
+    std::vector<PageRange> selectedRanges() const override { return {}; }
+  };
+
+  std::vector<ImageInfo> infos;
+  for (int i = 0; i < 5; ++i) {
+    infos.emplace_back(ImageId(QStringLiteral("scope_%1.png").arg(i)), ImageMetadata(QSize(200, 300), Dpi(300, 300)), 1,
+                       false, false);
+  }
+  const auto projectPages = std::make_shared<ProjectPages>(infos, Qt::LeftToRight);
+  const PageSequence seq = projectPages->toPageSequence(PAGE_VIEW);
+  auto provider = std::make_shared<StubProvider>(seq);
+  const PageSelectionAccessor accessor(provider);
+
+  PageScopeGroupBox group;
+  const auto radios = group.findChildren<QRadioButton*>();
+  constexpr int kAllPages = 1;
+  constexpr int kEveryOther = 4;
+  constexpr int kSelected = 5;
+  constexpr int kScopeCount = 7;
+  QCOMPARE(radios.size(), kScopeCount);
+
+  // Page 1 (0-based pageNo 0, odd 1-based page) shows "odd pages" for EVERY_OTHER.
+  group.setPages(seq.pageAt(0).id(), accessor);
+  QVERIFY(radios[kEveryOther]->text().contains(QStringLiteral("odd"), Qt::CaseInsensitive));
+  radios[kAllPages]->setChecked(true);
+  QVERIFY(group.isAllPages());
+  QCOMPARE(group.pages().size(), size_t(5));
+
+  // Page 2 (0-based pageNo 1, even 1-based page) switches EVERY_OTHER text to "even pages" (pages 2, 4).
+  group.setPages(seq.pageAt(1).id(), accessor);
+  QVERIFY(radios[kEveryOther]->text().contains(QStringLiteral("even"), Qt::CaseInsensitive));
+  radios[kEveryOther]->setChecked(true);
+  QCOMPARE(group.pages().size(), size_t(2));
+
+  // Calling setPages() again on Page 1 must reset EVERY_OTHER text back to "odd pages" (pages 1, 3, 5).
+  group.setPages(seq.pageAt(0).id(), accessor);
+  QVERIFY(radios[kEveryOther]->text().contains(QStringLiteral("odd"), Qt::CaseInsensitive));
+  radios[kEveryOther]->setChecked(true);
+  QCOMPARE(group.pages().size(), size_t(3));
+
+  // Multi-selection (> 1 page) enables and pre-selects SELECTED.
+  provider->selected = {seq.pageAt(0).id(), seq.pageAt(2).id(), seq.pageAt(4).id()};
+  group.setPages(seq.pageAt(0).id(), accessor);
+  QVERIFY(radios[kSelected]->isEnabled());
+  QVERIFY(radios[kSelected]->isChecked());
+  QCOMPARE(group.pages().size(), size_t(3));
+}
+
+void TestUxQt::testStageListViewBatchAndPdfRowStates() {
+  std::vector<ImageInfo> infos{ImageInfo(ImageId(QStringLiteral("stage_p1.png")),
+                                         ImageMetadata(QSize(200, 300), Dpi(300, 300)), 1, false, false)};
+  const auto projectPages = std::make_shared<ProjectPages>(infos, Qt::LeftToRight);
+  const auto stages = std::make_shared<StageSequence>(projectPages);
+  stages->startNewProject(DefaultParams());
+
+  StageListView view(nullptr);
+  view.setStages(stages);
+  view.resize(240, 320);
+  view.show();
+
+  const int pdfRow = view.pdfRow();
+  QCOMPARE(pdfRow, stages->count());
+
+  view.setBatchProcessingPossible(true);
+  view.setBatchProcessingInProgress(true);
+  QCoreApplication::processEvents();
+  view.setBatchProcessingInProgress(false);
+  view.setBatchProcessingPossible(false);
+
+  // When PDF row is disabled, trying to select it is rejected / remains on a valid stage row.
+  view.selectRow(0);
+  view.setPdfRowEnabled(false);
+  QVERIFY(!view.model()->flags(view.model()->index(pdfRow, 0)).testFlag(Qt::ItemIsEnabled));
+  view.setPdfRowEnabled(true);
+  QVERIFY(view.model()->flags(view.model()->index(pdfRow, 0)).testFlag(Qt::ItemIsEnabled));
+}
+
+void TestUxQt::testCollapsibleGroupBoxCheckable() {
+  CollapsibleGroupBox group(QStringLiteral("Checkable"));
+  group.setCheckable(true);
+  auto* layout = new QVBoxLayout(&group);
+  auto* child = new QWidget(&group);
+  layout->addWidget(child);
+
+  group.show();
+  QCoreApplication::processEvents();
+  QVERIFY(group.isChecked());
+
+  group.setChecked(false);
+  QCoreApplication::processEvents();
+  QVERIFY(!group.isChecked());
+
+  group.setChecked(true);
+  QCoreApplication::processEvents();
+  QVERIFY(group.isChecked());
+}
+
+void TestUxQt::testHiDpiImageViewBaseAndOverlay() {
+  QImage img(100, 100, QImage::Format_ARGB32_Premultiplied);
+  img.fill(Qt::white);
+  img.setDevicePixelRatio(2.0);
+  BasicImageView view(img);
+  view.resize(120, 120);
+  QPixmap canvas(240, 240);
+  canvas.setDevicePixelRatio(2.0);
+  view.render(&canvas);
+
+  const QPixmap pm = OverlayStyle::handlePixmap(2.0);
+  QCOMPARE(pm.devicePixelRatio(), 2.0);
+  QCOMPARE(pm.deviceIndependentSize(), QSizeF(16.0, 16.0));
 }

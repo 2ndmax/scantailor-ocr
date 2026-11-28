@@ -82,6 +82,8 @@ void PageScopeGroupBox::setPages(const PageId& curPage, const PageSelectionAcces
   // Page numbers count from 1, so the first page is odd.
   if ((m_pages.pageNo(m_curPage) % 2) != 0) {
     m_buttons[EVERY_OTHER]->setText(tr("Every other page (even pages)"));
+  } else {
+    m_buttons[EVERY_OTHER]->setText(tr("Every other page (odd pages)"));
   }
 
   for (int scope = 0; scope < SCOPE_COUNT; ++scope) {

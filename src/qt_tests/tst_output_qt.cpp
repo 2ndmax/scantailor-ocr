@@ -9,6 +9,8 @@
 #include <ImagePresentation.h>
 #include <ImageTransformation.h>
 #include <IncompleteThumbnail.h>
+#include <PageSelectionAccessor.h>
+#include <PageSelectionProvider.h>
 #include <PageSequence.h>
 #include <ProcessingOptions.h>
 #include <filters/output/ColorParams.h>
@@ -16,6 +18,7 @@
 #include <filters/output/OutputImageParams.h>
 #include <filters/output/OutputParams.h>
 #include <filters/output/Settings.h>
+#include <filters/output/ui/ApplyParamsDialog.h>
 #include <filters/output/ui/DespeckleView.h>
 #include <filters/output/ui/DewarpingView.h>
 #include <filters/output/ui/FillZoneEditor.h>
@@ -27,11 +30,15 @@
 #include <filters/output/ui/TabbedImageView.h>
 #include <filters/output/ui/Thumbnail.h>
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QDialogButtonBox>
 #include <QDoubleSpinBox>
 #include <QMouseEvent>
 #include <QPixmap>
+#include <QPushButton>
+#include <QRadioButton>
 #include <QScrollBar>
 #include <QShortcut>
 #include <QStackedWidget>
@@ -327,4 +334,52 @@ void TestOutputQt::testOptionsWidgetSignalsNullIndexImmediateSwitchAndPostDeskew
   reloadCount = 0;
   widget.reloadIfNecessary();
   QCOMPARE(reloadCount, 1);
+}
+
+void TestOutputQt::testApplyParamsDialogModePartsAndThisPageIncluded() {
+  struct StubProvider : public PageSelectionProvider {
+    PageSequence pages;
+    std::set<PageId> selected;
+    explicit StubProvider(PageSequence seq) : pages(std::move(seq)) {}
+    PageSequence allPages() const override { return pages; }
+    std::set<PageId> selectedPages() const override { return selected; }
+    std::vector<PageRange> selectedRanges() const override { return {}; }
+  };
+
+  std::vector<ImageInfo> infos;
+  for (int i = 0; i < 3; ++i) {
+    infos.emplace_back(ImageId(QStringLiteral("out_%1.png").arg(i)), ImageMetadata(QSize(200, 300), Dpi(300, 300)), 1,
+                       false, false);
+  }
+  const auto projectPages = std::make_shared<ProjectPages>(infos, Qt::LeftToRight);
+  const PageSequence seq = projectPages->toPageSequence(PAGE_VIEW);
+  auto provider = std::make_shared<StubProvider>(seq);
+
+  // Mode parts + disabling both checkboxes disables OK button.
+  ApplyParamsDialog modeDialog(nullptr, seq.pageAt(0).id(), PageSelectionAccessor(provider));
+  modeDialog.showModeParts();
+  auto* box = modeDialog.findChild<QDialogButtonBox*>();
+  auto* colorModeOpt = modeDialog.findChild<QCheckBox*>(QStringLiteral("applyColorModeOption"));
+  auto* otherOpt = modeDialog.findChild<QCheckBox*>(QStringLiteral("applyOtherSettingsOption"));
+  QVERIFY(box != nullptr);
+  QVERIFY(colorModeOpt != nullptr);
+  QVERIFY(otherOpt != nullptr);
+
+  colorModeOpt->setChecked(false);
+  QVERIFY(box->button(QDialogButtonBox::Ok)->isEnabled());
+  QVERIFY(!modeDialog.isColorModeChosen());
+  QVERIFY(modeDialog.isOtherSettingsChosen());
+  otherOpt->setChecked(false);
+  QVERIFY(!box->button(QDialogButtonBox::Ok)->isEnabled());
+  colorModeOpt->setChecked(true);
+  QVERIFY(box->button(QDialogButtonBox::Ok)->isEnabled());
+
+  // setThisPageIncluded(true) emits {curPage} on THIS_PAGE; default (false) emits empty set.
+  std::set<PageId> emitted;
+  ApplyParamsDialog thisIncludedDialog(nullptr, seq.pageAt(1).id(), PageSelectionAccessor(provider));
+  thisIncludedDialog.setThisPageIncluded(true);
+  QObject::connect(&thisIncludedDialog, &ApplyParamsDialog::accepted,
+                   [&emitted](const std::set<PageId>& p) { emitted = p; });
+  thisIncludedDialog.findChild<QDialogButtonBox*>()->button(QDialogButtonBox::Ok)->click();
+  QCOMPARE(emitted, std::set<PageId>{seq.pageAt(1).id()});
 }

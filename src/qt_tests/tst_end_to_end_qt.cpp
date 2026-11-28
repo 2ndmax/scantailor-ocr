@@ -487,3 +487,39 @@ void TestEndToEndQt::testPdfExport() {
     QVERIFY(afterChange[i].kind() != ExportPage::MISSING);
   }
 }
+
+void TestEndToEndQt::testMixedSplitOutputMrcPdfAndAutoDewarping() {
+  QTemporaryDir tempDir;
+  QVERIFY(tempDir.isValid());
+  const QDir dir(tempDir.path());
+  const std::vector<ImageFileInfo> files{saveScan(colorPage(), dir.absoluteFilePath("mixed_dewarp.png"))};
+  QVERIFY(allSaved(files));
+
+  DefaultParams startValues;
+  DefaultParams::OutputParams outputParams = startValues.getOutputParams();
+  output::ColorParams colorParams = outputParams.getColorParams();
+  colorParams.setColorMode(output::MIXED);
+  outputParams.setColorParams(colorParams);
+  output::SplittingOptions splitOpts = outputParams.getSplittingOptions();
+  splitOpts.setSplitOutput(true);
+  outputParams.setSplittingOptions(splitOpts);
+  outputParams.setDewarpingOptions(output::DewarpingOptions(output::AUTO));
+  startValues.setOutputParams(outputParams);
+
+  TestProject project(files, dir.absoluteFilePath("out"), startValues);
+  QVERIFY(project.processAll());
+
+  const std::vector<ExportPage> pdfPages = project.stages->pdfExportPages(*project.pages, project.outFileNameGen);
+  QCOMPARE(pdfPages.size(), size_t(1));
+  QCOMPARE(pdfPages.front().kind(), ExportPage::MRC);
+  QVERIFY(QFile::exists(pdfPages.front().mainFile()));
+  QVERIFY(QFile::exists(pdfPages.front().foregroundFile()));
+  QVERIFY(QFile::exists(pdfPages.front().backgroundFile()));
+
+  const ProcessingOptions processingOptions = *project.stages->processingOptions();
+  const QString pdfFile = dir.absoluteFilePath("mrc.pdf");
+  const QByteArray pdf = exportPdf(pdfPages, pdfFile, ExportOptions::fromProject(processingOptions));
+  QVERIFY(isCompletePdf(pdf));
+  QVERIFY(pdf.contains("/Count 1 "));
+  QVERIFY(pdf.contains("/ImageMask true"));
+}

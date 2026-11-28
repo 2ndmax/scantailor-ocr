@@ -16,6 +16,7 @@ class TestPageLayoutQt : public QObject {
   void testGuidesRespectScaleAndDoNotShrinkSettings();
   void testNegativeHardMarginsDoNotFlipPositive();
   void testAttachContentToNearestGuideWithEdgeAlignment();
+  void testApplyDialogEmitsSelectedPages();
 };
 
 #endif  // TST_PAGE_LAYOUT_QT_H
