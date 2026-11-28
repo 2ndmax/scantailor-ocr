@@ -24,7 +24,15 @@ void PartlyAddedFilesMessage::showIfNeeded(QWidget* parent, const std::vector<Im
   box->setIcon(QMessageBox::Warning);
   box->setWindowTitle(tr("Files Only Partly Added"));
   box->setText(tr("These files were only partly added:"));
-  box->setInformativeText(lines.join(QLatin1Char('\n')));
+  static constexpr qsizetype kMaxSummaryLines = 10;
+  if (lines.size() > kMaxSummaryLines) {
+    QStringList summary = lines.mid(0, kMaxSummaryLines);
+    summary.push_back(QStringLiteral("..."));
+    box->setInformativeText(summary.join(QLatin1Char('\n')));
+    box->setDetailedText(lines.join(QLatin1Char('\n')));
+  } else {
+    box->setInformativeText(lines.join(QLatin1Char('\n')));
+  }
   box->setStandardButtons(QMessageBox::Ok);
   box->setWindowModality(Qt::NonModal);
   box->setAttribute(Qt::WA_DeleteOnClose);

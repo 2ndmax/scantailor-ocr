@@ -8,7 +8,7 @@
 #include "FixDpiDialog.h"
 #include "ProjectFilesDialog.h"
 
-ProjectCreationContext::ProjectCreationContext(QWidget* parent) : m_parent(parent) {
+ProjectCreationContext::ProjectCreationContext(QWidget* parent) : QObject(parent), m_parent(parent) {
   showProjectFilesDialog();
 }
 

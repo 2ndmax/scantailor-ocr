@@ -18,7 +18,7 @@
 #include "ProjectPages.h"
 
 ProjectOpeningContext::ProjectOpeningContext(QWidget* parent, const QString& projectFile)
-    : m_projectFile(projectFile), m_parent(parent) {}
+    : QObject(parent), m_projectFile(projectFile), m_parent(parent) {}
 
 ProjectOpeningContext::~ProjectOpeningContext() {
   // The dialog deletes itself on closing (WA_DeleteOnClose); the QPointer is null then, and deleting a
@@ -29,13 +29,13 @@ ProjectOpeningContext::~ProjectOpeningContext() {
 void ProjectOpeningContext::proceed() {
   ProjectReader::FileResult result = ProjectReader::readFile(m_projectFile);
   if (result.error != ProjectReader::FileError::NONE) {
-    deleteLater();
     const QString message = ProjectReader::errorMessage(result.error);
     if (result.error == ProjectReader::FileError::UNREADABLE) {
       QMessageBox::critical(m_parent, tr("Error"), message);
     } else {
       QMessageBox::warning(m_parent, tr("Error"), message);
     }
+    deleteLater();
     return;
   }
   m_reader = std::move(result.reader);
@@ -46,8 +46,8 @@ void ProjectOpeningContext::proceed() {
   }
 
   if (m_reader->pages()->validateDpis()) {
-    deleteLater();
     emit done(this);
+    deleteLater();
     return;
   }
 

@@ -30,6 +30,7 @@
 #include <QPixmap>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QScopeGuard>
 #include <QScrollBar>
 #include <QSpinBox>
 #include <QStyle>
@@ -558,7 +559,7 @@ QWidget* ExportView::optionsWidget() const {
 }
 
 void ExportView::setPages(std::vector<Entry> entries) {
-  if (m_thread) {
+  if (m_thread || m_starting) {
     return;
   }
 
@@ -787,9 +788,12 @@ QStringList ExportView::existingOutputs(const ExportPaths& paths, const Processi
 }
 
 void ExportView::startExport() {
-  if (m_thread) {
+  if (m_thread || m_starting) {
     return;
   }
+  m_starting = true;
+  const auto startingGuard = qScopeGuard([this]() { m_starting = false; });
+
   const QString title = tr("Export");
 
   QString problem;
@@ -805,21 +809,31 @@ void ExportView::startExport() {
     return;
   }
 
-  // Asked first: whoever goes back to output the pages exports later.
+  std::vector<ExportPage> pages;
   int outdated = 0;
   for (int row = 0; row < m_pageList->count(); ++row) {
     const QListWidgetItem* item = m_pageList->item(row);
-    if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)
-        && m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page.isOutdated()) {
-      ++outdated;
+    if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)) {
+      const ExportPage& page = m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page;
+      pages.push_back(page);
+      if (page.isOutdated()) {
+        ++outdated;
+      }
     }
   }
+  if (pages.empty()) {
+    QMessageBox::information(this, title, tr("Please tick the pages to include in the export."));
+    return;
+  }
+
+  // Asked first: whoever goes back to output the pages exports later.
   if (outdated > 0) {
     QMessageBox box(QMessageBox::Question, title,
                     tr("%n selected page(s) changed since the output. The export would show the state of the last "
                        "output.\n\nDo you want to export anyway? To include the changes, choose \"Back\" "
                        "and then \"Output missing and changed pages\".",
-                       nullptr, outdated));
+                       nullptr, outdated),
+                    QMessageBox::NoButton, this);
     QPushButton* createButton = box.addButton(tr("Export anyway"), QMessageBox::AcceptRole);
     QPushButton* backButton = box.addButton(tr("Back"), QMessageBox::RejectRole);
     box.setDefaultButton(backButton);
@@ -842,18 +856,6 @@ void ExportView::startExport() {
     if (answer != QMessageBox::Yes) {
       return;
     }
-  }
-
-  std::vector<ExportPage> pages;
-  for (int row = 0; row < m_pageList->count(); ++row) {
-    const QListWidgetItem* item = m_pageList->item(row);
-    if (item->flags().testFlag(Qt::ItemIsUserCheckable) && (item->checkState() == Qt::Checked)) {
-      pages.push_back(m_entries[item->data(ENTRY_INDEX_ROLE).toInt()].page);
-    }
-  }
-  if (pages.empty()) {
-    QMessageBox::information(this, title, tr("Please tick the pages to include in the export."));
-    return;
   }
 
   ExportOptions options = ExportOptions::fromProject(*m_processingOptions);

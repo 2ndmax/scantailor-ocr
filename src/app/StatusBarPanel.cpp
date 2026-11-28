@@ -68,7 +68,8 @@ void StatusBarPanel::onDpiChanged(const Dpi& dpi) {
 }
 
 void StatusBarPanel::onImageViewInfoProviderStopped() {
-  onMousePosChanged(QPointF());
+  m_mousePos.reset();
+  mousePosChanged();
   onPhysSizeChanged(QRectF().size());
   m_dpi = Dpi();
 }
@@ -105,6 +106,11 @@ inline void clearAndHideLabel(QLabel* widget) {
 }  // namespace
 
 void StatusBarPanel::clear() {
+  m_mousePos.reset();
+  m_physSize = QSizeF();
+  m_dpi = Dpi();
+  m_setZoneMode = nullptr;
+
   clearAndHideLabel(ui.mousePosLabel);
   clearAndHideLabel(ui.physSizeLabel);
   clearAndHideLabel(ui.pageNoLabel);
@@ -123,9 +129,9 @@ void StatusBarPanel::onUnitsChanged(Units /*units*/) {
 }
 
 void StatusBarPanel::mousePosChanged() {
-  if (!m_mousePos.isNull() && !m_dpi.isNull()) {
-    double x = m_mousePos.x();
-    double y = m_mousePos.y();
+  if (m_mousePos.has_value() && !m_dpi.isNull()) {
+    double x = m_mousePos->x();
+    double y = m_mousePos->y();
     UnitsProvider::getInstance().convertFrom(x, y, PIXELS, m_dpi);
 
     switch (UnitsProvider::getInstance().getUnits()) {

@@ -72,7 +72,7 @@ class ExportView : public QWidget {
    * Sets the pages of the project, in project order, already analyzed (see
    * StageSequence::pdfExportPages()). Pages that were shown before keep their place
    * and their tick (see PdfPageOrder).
-   * Ignored while an export runs.
+   * Ignored while an export runs or pre-export confirmation dialogs are open.
    */
   void setPages(std::vector<Entry> entries);
 
@@ -311,6 +311,8 @@ class ExportView : public QWidget {
 
   std::unique_ptr<ExportJob> m_job;
   QThread* m_thread = nullptr;
+  /** Set while startExport() runs pre-export confirmation dialogs (blocks setPages() and re-entry). */
+  bool m_starting = false;
   /** Where the running export writes, and what. */
   ExportPaths m_runningPaths;
   ProcessingOptions::Formats m_runningFormats;

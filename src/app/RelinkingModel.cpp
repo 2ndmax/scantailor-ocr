@@ -531,6 +531,10 @@ void RelinkingModel::customEvent(QEvent* event) {
   using ResponseEvent = PayloadEvent<StatusUpdateResponse>;
   auto* evt = dynamic_cast<ResponseEvent*>(event);
   assert(evt);
+  if (!evt) {
+    QAbstractItemModel::customEvent(event);
+    return;
+  }
 
   const StatusUpdateResponse& response = evt->payload();
   const int target = response.target();

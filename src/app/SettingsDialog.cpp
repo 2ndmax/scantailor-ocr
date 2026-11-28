@@ -12,6 +12,7 @@
 #include <QColorDialog>
 #include <QPainter>
 #include <QtCore/QDir>
+#include <algorithm>
 #include <cmath>
 
 #include "Application.h"
@@ -37,7 +38,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
   ui.colorSchemeBox->addItem(tr("Dark"), "dark");
   ui.colorSchemeBox->addItem(tr("Light"), "light");
   ui.colorSchemeBox->addItem(tr("System"), "native");
-  ui.colorSchemeBox->setCurrentIndex(ui.colorSchemeBox->findData(settings.getColorScheme()));
+  ui.colorSchemeBox->setCurrentIndex(std::max(0, ui.colorSchemeBox->findData(settings.getColorScheme())));
   connect(ui.colorSchemeBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
           [this](int) { updateAccentColorDisplay(); });
 
@@ -57,7 +58,7 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
       ui.languageBox->addItem(languageName, locale);
     }
     m_initialLanguage = app->getCurrentLocale();
-    ui.languageBox->setCurrentIndex(ui.languageBox->findData(m_initialLanguage));
+    ui.languageBox->setCurrentIndex(std::max(0, ui.languageBox->findData(m_initialLanguage)));
     ui.languageBox->setEnabled(ui.languageBox->count() > 1);
   }
 
@@ -65,7 +66,8 @@ SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent) {
   ui.unitsBox->addItem(tr("Millimeters"), unitsToString(MILLIMETRES));
   ui.unitsBox->addItem(tr("Centimeters"), unitsToString(CENTIMETRES));
   ui.unitsBox->addItem(tr("Inches"), unitsToString(INCHES));
-  ui.unitsBox->setCurrentIndex(ui.unitsBox->findData(unitsToString(UnitsProvider::getInstance().getUnits())));
+  ui.unitsBox->setCurrentIndex(
+      std::max(0, ui.unitsBox->findData(unitsToString(UnitsProvider::getInstance().getUnits()))));
 
   ui.highlightDeviationCB->setChecked(settings.isHighlightDeviationEnabled());
 
@@ -105,19 +107,27 @@ void SettingsDialog::commitChanges() {
   settings.setOpenGlEnabled(ui.enableOpenglCb->isChecked());
   settings.setAutoSaveProjectEnabled(ui.autoSaveProjectCB->isChecked());
   settings.setHighlightDeviationEnabled(ui.highlightDeviationCB->isChecked());
-  const QString colorScheme = ui.colorSchemeBox->currentData().toString();
-  const bool colorsChanged = (colorScheme != settings.getColorScheme()) || (m_accentColor != settings.getAccentColor());
-  settings.setColorScheme(colorScheme);
+  bool colorsChanged = (m_accentColor != settings.getAccentColor());
+  if (ui.colorSchemeBox->currentIndex() >= 0) {
+    const QString colorScheme = ui.colorSchemeBox->currentData().toString();
+    colorsChanged = colorsChanged || (colorScheme != settings.getColorScheme());
+    settings.setColorScheme(colorScheme);
+  }
   settings.setAccentColor(m_accentColor);
 
-  const QString language = ui.languageBox->currentData().toString();
-  const bool languageChanged = (language != m_initialLanguage);
-  settings.setLanguage(language);
+  bool languageChanged = false;
+  if (ui.languageBox->currentIndex() >= 0) {
+    const QString language = ui.languageBox->currentData().toString();
+    languageChanged = (language != m_initialLanguage);
+    settings.setLanguage(language);
+  }
 
-  const Units units = unitsFromString(ui.unitsBox->currentData().toString());
-  settings.setUnits(unitsToString(units));
-  // Tells the open views and the status bar, which show lengths in these units.
-  UnitsProvider::getInstance().setUnits(units);
+  if (ui.unitsBox->currentIndex() >= 0) {
+    const Units units = unitsFromString(ui.unitsBox->currentData().toString());
+    settings.setUnits(unitsToString(units));
+    // Tells the open views and the status bar, which show lengths in these units.
+    UnitsProvider::getInstance().setUnits(units);
+  }
 
   settings.setDeskewDeviationCoef(ui.deskewDeviationCoefSB->value());
   settings.setDeskewDeviationThreshold(ui.deskewDeviationThresholdSB->value());

@@ -313,6 +313,9 @@ MainWindow::MainWindow()
 }
 
 MainWindow::~MainWindow() {
+  for (ProjectOpeningContext* ctx : findChildren<ProjectOpeningContext*>()) {
+    ctx->disconnect(this);
+  }
   // Waits for an image still being loaded.
   m_scanWatcher.reset();
   m_interactiveQueue->cancelAndClear();
@@ -1751,6 +1754,7 @@ void MainWindow::setSavedProjectFile(const QString& projectFile) {
 }
 
 void MainWindow::newProject() {
+  m_pendingSelectStep = -1;
   if (!closeProjectInteractive()) {
     return;
   }
@@ -1780,6 +1784,7 @@ void MainWindow::newProjectCreated(ProjectCreationContext* context) {
 }
 
 void MainWindow::openProject() {
+  m_pendingSelectStep = -1;
   if (!closeProjectInteractive()) {
     return;
   }
@@ -1797,14 +1802,15 @@ void MainWindow::openProject() {
 }
 
 void MainWindow::openProject(const QString& projectFile) {
-  auto* context = new ProjectOpeningContext(this, projectFile);
-  connect(context, &ProjectOpeningContext::done, this, &MainWindow::projectOpened);
-  context->proceed();
+  openProject(projectFile, -1);
 }
 
 void MainWindow::openProject(const QString& projectFile, const int selectStep) {
   m_pendingSelectStep = selectStep;
-  openProject(projectFile);
+  auto* context = new ProjectOpeningContext(this, projectFile);
+  connect(context, &ProjectOpeningContext::done, this, &MainWindow::projectOpened);
+  connect(context, &QObject::destroyed, this, [this]() { m_pendingSelectStep = -1; });
+  context->proceed();
 }
 
 void MainWindow::projectOpened(ProjectOpeningContext* context) {
@@ -2289,6 +2295,7 @@ bool MainWindow::closeProjectInteractive(QString* closedProjectFile) {
 }  // MainWindow::closeProjectInteractive
 
 void MainWindow::closeProjectWithoutSaving() {
+  m_pendingSelectStep = -1;
   switchToNewProject(ProjectSession::createNew(std::make_shared<ProjectPages>(), QString(), QString(),
                                                DefaultParamsProvider::getInstance().getParams()));
 }

@@ -18,6 +18,9 @@ OutOfMemoryDialog::OutOfMemoryDialog(QWidget* parent) : QDialog(parent) {
   connect(ui.saveProjectBtn, &QAbstractButton::clicked, this, &OutOfMemoryDialog::saveProject);
   connect(ui.saveProjectAsBtn, &QAbstractButton::clicked, this, &OutOfMemoryDialog::saveProjectAs);
   connect(ui.dontSaveBtn, &QAbstractButton::clicked, this, &OutOfMemoryDialog::reject);
+
+  ui.saveProjectBtn->setEnabled(false);
+  ui.saveProjectAsBtn->setEnabled(false);
 }
 
 void OutOfMemoryDialog::setParams(const QString& projectFile,
@@ -33,7 +36,10 @@ void OutOfMemoryDialog::setParams(const QString& projectFile,
   m_outFileNameGen = outFileNameGen;
   m_emptyProjectInputDir = emptyProjectInputDir;
 
+  const bool canSave = static_cast<bool>(m_stages) && static_cast<bool>(m_pages);
   ui.saveProjectBtn->setVisible(!projectFile.isEmpty());
+  ui.saveProjectBtn->setEnabled(canSave);
+  ui.saveProjectAsBtn->setEnabled(canSave);
 }
 
 void OutOfMemoryDialog::saveProject() {
@@ -58,6 +64,9 @@ void OutOfMemoryDialog::saveProjectAs() {
 }
 
 bool OutOfMemoryDialog::saveProjectWithFeedback(const QString& projectFile) {
+  if (!m_stages || !m_pages) {
+    return false;
+  }
   const ProjectWriter writer(m_pages, m_selectedPage, m_outFileNameGen, m_emptyProjectInputDir);
   if (!writer.write(projectFile, *m_stages)) {
     QMessageBox::warning(this, tr("Error"),

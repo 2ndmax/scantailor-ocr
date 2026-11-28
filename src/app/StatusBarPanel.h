@@ -9,6 +9,7 @@
 #include <QtCore/QMutex>
 #include <QtWidgets/QWidget>
 #include <functional>
+#include <optional>
 
 #include "Dpi.h"
 #include "ImageViewInfoListener.h"
@@ -61,7 +62,7 @@ class StatusBarPanel : public QWidget, public UnitsListener, public ImageViewInf
   QAction* m_lassoAction = nullptr;
   QAction* m_rectangularAction = nullptr;
   std::function<void(ZoneCreationMode)> m_setZoneMode;
-  QPointF m_mousePos;
+  std::optional<QPointF> m_mousePos;
   QSizeF m_physSize;
   Dpi m_dpi;
 };

@@ -13,11 +13,14 @@ RelinkingSortingModel::RelinkingSortingModel(QObject* parent)
 
 void RelinkingSortingModel::setShowMissingOnly(const bool missingOnly) {
   if (m_showMissingOnly != missingOnly) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    beginFilterChange();
     m_showMissingOnly = missingOnly;
-    // REVIEW-NOTE (2026-10): Qt 6.10 and later mark invalidateFilter() as deprecated -> build warning.
-    // Not fixed because the replacement beginFilterChange()/endFilterChange() needs Qt 6.10, and the
-    // minimum is Qt 6.4 (Ubuntu 24.04). Switch when the minimum reaches Qt 6.10.
+    endFilterChange();
+#else
+    m_showMissingOnly = missingOnly;
     invalidateFilter();
+#endif
   }
 }
 
@@ -25,12 +28,17 @@ void RelinkingSortingModel::setPinned(const QModelIndex& sourceIndex) {
   if (m_pinned == sourceIndex) {
     return;
   }
-  m_pinned = sourceIndex;
   if (m_showMissingOnly) {
-    // REVIEW-NOTE (2026-10): Qt 6.10 and later mark invalidateFilter() as deprecated -> build warning.
-    // Not fixed because the replacement beginFilterChange()/endFilterChange() needs Qt 6.10, and the
-    // minimum is Qt 6.4 (Ubuntu 24.04). Switch when the minimum reaches Qt 6.10.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    beginFilterChange();
+    m_pinned = sourceIndex;
+    endFilterChange();
+#else
+    m_pinned = sourceIndex;
     invalidateFilter();
+#endif
+  } else {
+    m_pinned = sourceIndex;
   }
 }
 

@@ -20,7 +20,6 @@
 #include <QLineEdit>
 #include <QLocale>
 #include <QMouseEvent>
-#include <QRegularExpression>
 #include <QScreen>
 #include <QScrollArea>
 #include <QSignalBlocker>
@@ -45,6 +44,7 @@
 #include "DefaultParamsProvider.h"
 #include "ExportFormatsPanel.h"
 #include "OcrPanel.h"
+#include "PathNames.h"
 #include "PdfCompressionPanel.h"
 #include "TiffCompressionPanel.h"
 #include "UnitsProvider.h"
@@ -289,6 +289,11 @@ bool DefaultParamsDialog::eventFilter(QObject* watched, QEvent* event) {
       profileSavePressed();
       return true;
     }
+  }
+  if (((event->type() == QEvent::Shortcut) || (event->type() == QEvent::ShortcutOverride))
+      && (watched != profileCB->lineEdit())) {
+    event->accept();
+    return true;
   }
   return QDialog::eventFilter(watched, event);
 }
@@ -1422,11 +1427,12 @@ void DefaultParamsDialog::profileSavePressed() {
 
   // Custom under its own name is a profile of its own, which is kept for the next start.
   // File names don't depend on case on Windows and macOS, so neither does the name.
-  const QString text = profileCB->currentText();
+  const QString name = profileCB->currentText().trimmed();
+  const bool isCustomItem = (profileCB->currentIndex() == m_customProfileItemIdx);
   const bool customUnderItsName
-      = (profileCB->currentIndex() == m_customProfileItemIdx)
-        && ((text.compare(profileCB->itemText(m_customProfileItemIdx), Qt::CaseInsensitive) == 0)
-            || (text.compare("Custom", Qt::CaseInsensitive) == 0));
+      = isCustomItem
+        && ((name.compare(profileCB->itemText(m_customProfileItemIdx), Qt::CaseInsensitive) == 0)
+            || (name.compare(QLatin1String("Custom"), Qt::CaseInsensitive) == 0));
   if (customUnderItsName) {
     if (!m_profileManager.writeProfile(*currentParams(), "Custom")) {
       QMessageBox::critical(this, tr("Error"), tr("Error saving the profile."));
@@ -1434,18 +1440,24 @@ void DefaultParamsDialog::profileSavePressed() {
     return;
   }
 
-  if (isProfileNameReserved(profileCB->currentText())) {
+  const QString currentData = profileCB->currentData().toString();
+  if ((!isCustomItem && ((currentData == QLatin1String("Default")) || (currentData == QLatin1String("Minimal"))))
+      || (name.compare(QLatin1String("Default"), Qt::CaseInsensitive) == 0)
+      || (name.compare(QLatin1String("Minimal"), Qt::CaseInsensitive) == 0) || isProfileNameReserved(name)) {
     QMessageBox::information(this, tr("Error"),
                              tr("The name conflicts with a default profile name. Please enter a different name."));
     return;
   }
 
   int existingIdx = -1;
-  if (profileCB->currentIndex() == m_customProfileItemIdx) {
-    const QString name = profileCB->currentText();
+  if (isCustomItem) {
     // The name becomes a file name in the profile folder.
-    static const QRegularExpression invalidChars(R"([\\/:*?"<>|])");
-    if (name.trimmed().isEmpty() || name.startsWith('.') || name.contains(invalidChars)) {
+    const QString reason = path_names::invalidNameReason(name);
+    if (!reason.isEmpty()) {
+      QMessageBox::information(this, tr("Error"), reason);
+      return;
+    }
+    if (name.startsWith(QLatin1Char('.'))) {
       QMessageBox::information(this, tr("Error"),
                                tr("Please enter a name that doesn't contain any of the characters \\ / : * ? \" < > | "
                                   "and doesn't start with a dot."));
@@ -1468,17 +1480,17 @@ void DefaultParamsDialog::profileSavePressed() {
     }
   }
 
-  const QString fileName = (existingIdx != -1) ? profileCB->itemData(existingIdx).toString() : profileCB->currentText();
+  const QString fileName
+      = (existingIdx != -1) ? profileCB->itemData(existingIdx).toString() : (isCustomItem ? name : currentData);
   if (m_profileManager.writeProfile(*currentParams(), fileName)) {
     if (existingIdx != -1) {
       // The existing entry shows the profile now, Custom keeps its name.
       profileCB->setCurrentIndex(existingIdx);
       profileCB->setEditable(false);
       profileDeleteButton->setEnabled(true);
-    } else if (profileCB->currentIndex() == m_customProfileItemIdx) {
-      const QString profileName = profileCB->currentText();
-      profileCB->setItemData(profileCB->currentIndex(), profileName);
-      profileCB->setItemText(profileCB->currentIndex(), profileName);
+    } else if (isCustomItem) {
+      profileCB->setItemData(profileCB->currentIndex(), name);
+      profileCB->setItemText(profileCB->currentIndex(), name);
       m_customProfileItemIdx = profileCB->count();
       profileCB->addItem(tr("Custom"), "Custom");
 
@@ -1580,12 +1592,14 @@ void DefaultParamsDialog::setProfileReadOnly(const bool readOnly) {
     cover->setVisible(readOnly);
     cover->raise();
   }
-  // REVIEW-NOTE (2026-11): a text with a mnemonic ('&') on a setting of a fixed profile -> Alt+key clicks that
-  // button although it has no focus and lies under the cover. Not fixed because no text in these tabs or in the
-  // translation has a mnemonic today.
-  // The covers keep the mouse away; without focus the keyboard can't change the settings either.
+  // The covers keep the mouse away; without focus and with Shortcut/ShortcutOverride filtered,
+  // the keyboard cannot change or activate the settings either.
   if (readOnly) {
     for (QWidget* settings : m_settingsAreas) {
+      settings->installEventFilter(this);
+      for (QObject* obj : settings->findChildren<QObject*>()) {
+        obj->installEventFilter(this);
+      }
       for (QWidget* widget : settings->findChildren<QWidget*>()) {
         if (widget->focusPolicy() != Qt::NoFocus) {
           m_focusPoliciesBeforeReadOnly.emplace_back(widget, widget->focusPolicy());
@@ -1594,6 +1608,12 @@ void DefaultParamsDialog::setProfileReadOnly(const bool readOnly) {
       }
     }
   } else {
+    for (QWidget* settings : m_settingsAreas) {
+      settings->removeEventFilter(this);
+      for (QObject* obj : settings->findChildren<QObject*>()) {
+        obj->removeEventFilter(this);
+      }
+    }
     for (const auto& [widget, policy] : m_focusPoliciesBeforeReadOnly) {
       if (widget) {
         widget->setFocusPolicy(policy);
