@@ -1472,7 +1472,7 @@ BOOST_AUTO_TEST_CASE(test_report_file_is_valid_json_with_the_schema) {
   BOOST_CHECK_EQUAL(root["schemaVersion"].toInt(), 1);
   const QJsonObject run = root["run"].toObject();
   BOOST_CHECK(run.contains("mode") && run.contains("projectFile") && run.contains("profile") && run.contains("lastStep")
-              && run.contains("exitCode") && run.contains("cancelled"));
+              && run.contains("exitCode") && run.contains("canceled"));
   BOOST_CHECK(run["mode"].toString() == QStringLiteral("project"));
   BOOST_CHECK(run["profile"].toString().isEmpty());
   BOOST_CHECK(run["lastStep"].toString() == QStringLiteral("margins"));
@@ -1645,7 +1645,7 @@ BOOST_AUTO_TEST_CASE(test_report_of_a_cancelled_run) {
                     CommandLineRun::CANCELLED);
   const QJsonObject run = readReport(reportFile)["run"].toObject();
   BOOST_CHECK_EQUAL(run["exitCode"].toInt(), CommandLineRun::CANCELLED);
-  BOOST_CHECK(run["cancelled"].toBool());
+  BOOST_CHECK(run["canceled"].toBool());
 }
 
 namespace {
@@ -1733,7 +1733,7 @@ BOOST_AUTO_TEST_CASE(test_report_cancelled_during_export) {
   const QJsonObject report = readReport(reportFile);
   const QJsonObject run = report["run"].toObject();
   BOOST_CHECK_EQUAL(run["exitCode"].toInt(), CommandLineRun::CANCELLED);
-  BOOST_CHECK(run["cancelled"].toBool());
+  BOOST_CHECK(run["canceled"].toBool());
 }
 
 // The project made in folder mode has the same pages, order and start values as the one the app

@@ -231,7 +231,7 @@ def test_run_cancel(cli, tmp_path: Path):
             sc, _ = await wait_finished(client, job_id, timeout=120)
             assert sc["state"] == "cancelled"
             assert sc["exit_code"] == 5
-            assert sc["report"]["run"].get("cancelled") is True
+            assert sc["report"]["run"].get("canceled") is True
             # The CLI writes the project of a folder after processing; it exists only if the
             # cancel let the CLI end normally.
             assert (book / "book.ScanTailor").is_file()

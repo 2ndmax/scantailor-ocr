@@ -1015,7 +1015,7 @@ bool writeReportFile(
   run["profile"] = usedProfile;
   run["lastStep"] = CommandLineRun::Options::stepName(options.lastStep);
   run["exitCode"] = static_cast<int>(exitCode);
-  run["cancelled"] = cancelled;
+  run["canceled"] = cancelled;
 
   const QJsonArray passedOverFiles = nativePaths(passedOver);
 

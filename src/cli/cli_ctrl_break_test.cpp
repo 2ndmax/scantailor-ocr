@@ -126,8 +126,8 @@ int main(int argc, char* argv[]) {
     return fail(QStringLiteral("The report file wasn't written."));
   }
   const QJsonObject run = QJsonDocument::fromJson(report.readAll()).object()[QStringLiteral("run")].toObject();
-  if (!run[QStringLiteral("cancelled")].toBool()) {
-    return fail(QStringLiteral("The report doesn't say the run was cancelled."));
+  if (!run[QStringLiteral("canceled")].toBool()) {
+    return fail(QStringLiteral("The report doesn't say the run was canceled."));
   }
   if (QDir(outputDir).entryList({QStringLiteral("*.tif")}, QDir::Files).size() >= numPages) {
     return fail(QStringLiteral("The run finished all pages, so the signal came too late to test anything."));

@@ -93,7 +93,7 @@ class CommandLineRun {
 
     /**
      * --report-file: the JSON of the run, written once a project could be opened or created, also
-     * when pages failed, the export failed or the run was cancelled; unset without it. The keys
+     * when pages failed, the export failed or the run was canceled; unset without it. The keys
      * are English and are never translated. Version 1 of the schema:
      *
      * schemaVersion: integer, always 1.
@@ -104,7 +104,7 @@ class CommandLineRun {
      *   lastStep: string, one of "fix-orientation", "split-pages", "deskew", "select-content",
      *       "margins", "output" or "export".
      *   exitCode: integer, one of the ExitCode values above; reports exist for 0, 3, 4 and 5.
-     *   cancelled: bool, true when a cancel was requested.
+     *   canceled: bool, true when a cancel was requested.
      * pages: array, one object per page in the order of the page view:
      *   file: string, the native path of the image file.
      *   page: integer, the 1-based page of a multi-page file; absent for a single-page file.
