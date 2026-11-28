@@ -14,6 +14,7 @@
 
 #include "DebugImages.h"
 #include "GridUtils.h"
+#include "TaskStatus.h"
 
 using namespace imageproc;
 
@@ -78,7 +79,10 @@ class TextLineRefiner::Optimizer {
 TextLineRefiner::TextLineRefiner(const GrayImage& image, const Dpi& dpi, const Vec2f& unitDownVector)
     : m_image(image), m_dpi(dpi), m_unitDownVec(unitDownVector) {}
 
-void TextLineRefiner::refine(std::list<std::vector<QPointF>>& polylines, const int iterations, DebugImages* dbg) const {
+void TextLineRefiner::refine(std::list<std::vector<QPointF>>& polylines,
+                             const int iterations,
+                             DebugImages* dbg,
+                             const TaskStatus* status) const {
   if (polylines.empty()) {
     return;
   }
@@ -103,7 +107,10 @@ void TextLineRefiner::refine(std::list<std::vector<QPointF>>& polylines, const i
   calcBlurredGradient(gradient, hSigma, vSigma);
 
   for (Snake& snake : snakes) {
-    evolveSnake(snake, gradient, ON_CONVERGENCE_STOP);
+    if (status) {
+      status->throwIfCancelled();
+    }
+    evolveSnake(snake, gradient, ON_CONVERGENCE_STOP, status);
   }
   if (dbg) {
     dbg->add(visualizeSnakes(snakes, &gradient), "evolved_snakes1");
@@ -115,7 +122,10 @@ void TextLineRefiner::refine(std::list<std::vector<QPointF>>& polylines, const i
   calcBlurredGradient(gradient, hSigma, vSigma);
 
   for (Snake& snake : snakes) {
-    evolveSnake(snake, gradient, ON_CONVERGENCE_GO_FINER);
+    if (status) {
+      status->throwIfCancelled();
+    }
+    evolveSnake(snake, gradient, ON_CONVERGENCE_GO_FINER, status);
   }
   if (dbg) {
     dbg->add(visualizeSnakes(snakes, &gradient), "evolved_snakes2");
@@ -227,6 +237,8 @@ void TextLineRefiner::calcFrenetFrames(std::vector<FrenetFrame>& frenetFrames,
   if (firstSegmentLen > std::numeric_limits<float>::epsilon()) {
     firstSegment /= firstSegmentLen;
     frenetFrames.front().unitTangent = firstSegment;
+  } else {
+    firstSegment = Vec2f();
   }
   // Segments between first and last, exclusive.
   Vec2f prevSegment(firstSegment);
@@ -235,19 +247,23 @@ void TextLineRefiner::calcFrenetFrames(std::vector<FrenetFrame>& frenetFrames,
     const float nextSegmentLen = snakeLength.lengthFromTo(i, i + 1);
     if (nextSegmentLen > std::numeric_limits<float>::epsilon()) {
       nextSegment /= nextSegmentLen;
+    } else {
+      nextSegment = Vec2f();
     }
 
     Vec2f tangentVec(0.5f * (prevSegment + nextSegment));
     const auto len = static_cast<float>(std::sqrt(tangentVec.squaredNorm()));
     if (len > std::numeric_limits<float>::epsilon()) {
       tangentVec /= len;
+    } else {
+      tangentVec = Vec2f();
     }
     frenetFrames[i].unitTangent = tangentVec;
 
     prevSegment = nextSegment;
   }
 
-  // Last segments.
+  // Last segment.
   Vec2f lastSegment(snake.nodes[numNodes - 1].center - snake.nodes[numNodes - 2].center);
   const float lastSegmentLen = snakeLength.lengthFromTo(numNodes - 2, numNodes - 1);
   if (lastSegmentLen > std::numeric_limits<float>::epsilon()) {
@@ -255,16 +271,35 @@ void TextLineRefiner::calcFrenetFrames(std::vector<FrenetFrame>& frenetFrames,
     frenetFrames.back().unitTangent = lastSegment;
   }
 
+  // Fill any missing tangents (e.g. from degenerate segments) from neighboring frames.
+  for (size_t i = numNodes - 1; i > 0; --i) {
+    if (frenetFrames[i - 1].unitTangent.squaredNorm() == 0.0f) {
+      frenetFrames[i - 1].unitTangent = frenetFrames[i].unitTangent;
+    }
+  }
+  for (size_t i = 1; i < numNodes; ++i) {
+    if (frenetFrames[i].unitTangent.squaredNorm() == 0.0f) {
+      frenetFrames[i].unitTangent = frenetFrames[i - 1].unitTangent;
+    }
+  }
+
   // Calculate normals and make sure they point down.
   for (FrenetFrame& frame : frenetFrames) {
-    frame.unitDownNormal = Vec2f(frame.unitTangent[1], -frame.unitTangent[0]);
-    if (frame.unitDownNormal.dot(unitDownVec) < 0) {
-      frame.unitDownNormal = -frame.unitDownNormal;
+    if (frame.unitTangent.squaredNorm() > 0.0f) {
+      frame.unitDownNormal = Vec2f(frame.unitTangent[1], -frame.unitTangent[0]);
+      if (frame.unitDownNormal.dot(unitDownVec) < 0) {
+        frame.unitDownNormal = -frame.unitDownNormal;
+      }
+    } else {
+      frame.unitDownNormal = Vec2f();
     }
   }
 }  // TextLineRefiner::calcFrenetFrames
 
-void TextLineRefiner::evolveSnake(Snake& snake, const Grid<float>& gradient, const OnConvergence onConvergence) const {
+void TextLineRefiner::evolveSnake(Snake& snake,
+                                  const Grid<float>& gradient,
+                                  const OnConvergence onConvergence,
+                                  const TaskStatus* status) const {
   if (snake.nodes.size() < 2) {
     return;  // thicknessAdjustment() needs the head and the tail.
   }
@@ -272,6 +307,9 @@ void TextLineRefiner::evolveSnake(Snake& snake, const Grid<float>& gradient, con
   float factor = 1.0f;
 
   while (snake.iterationsRemaining > 0) {
+    if (status) {
+      status->throwIfCancelled();
+    }
     --snake.iterationsRemaining;
 
     Optimizer optimizer(snake, m_unitDownVec, factor);

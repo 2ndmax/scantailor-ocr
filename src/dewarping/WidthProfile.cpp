@@ -5,7 +5,9 @@
 
 #include <BinaryThreshold.h>
 #include <GrayImage.h>
+#include <Grayscale.h>
 
+#include <QImage>
 #include <algorithm>
 #include <cmath>
 
@@ -44,9 +46,16 @@ std::vector<WidthProfile::Sample> WidthProfile::measure(const imageproc::GrayIma
   if (rect.isEmpty() || (dpi <= 0)) {
     return {};
   }
-  const int threshold = imageproc::BinaryThreshold::otsuThreshold(image.toQImage().copy(rect));
   const uint8_t* const data = image.data();
   const int stride = image.stride();
+  imageproc::GrayscaleHistogram hist{QImage()};
+  for (int y = rect.top(); y <= rect.bottom(); ++y) {
+    const uint8_t* const line = data + y * stride;
+    for (int x = rect.left(); x <= rect.right(); ++x) {
+      ++hist[line[x]];
+    }
+  }
+  const int threshold = imageproc::BinaryThreshold::otsuThreshold(hist);
   const auto dark = [&](int x, int y) { return data[y * stride + x] < threshold; };
 
   // Runs longer than this are not strokes of body text.

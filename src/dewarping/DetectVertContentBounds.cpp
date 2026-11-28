@@ -9,6 +9,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QRandomGenerator>
+#include <cstdint>
 
 #include "DebugImages.h"
 #include "VecNT.h"
@@ -100,7 +101,7 @@ class SequentialColumnProcessor {
   QPoint m_leadingTop;
   QPoint m_leadingBottom;
   std::deque<QPoint> m_path;  // Top to bottom.
-  int m_maxSegmentSqLen;
+  int64_t m_maxSegmentSqLen;
   int m_leftMinusOneRightOne;
   LeftOrRight m_leftOrRight;
 };
@@ -127,8 +128,8 @@ void RansacAlgo::buildAndAssessModel(const Segment& seedSegment) {
 
 SequentialColumnProcessor::SequentialColumnProcessor(const QSize& pageSize, LeftOrRight leftOrRight)
     : m_leftMinusOneRightOne(leftOrRight == LEFT ? -1 : 1), m_leftOrRight(leftOrRight) {
-  const int w = pageSize.width();
-  const int h = pageSize.height();
+  const int64_t w = pageSize.width();
+  const int64_t h = pageSize.height();
   m_maxSegmentSqLen = (w * w + h * h) / 3;
 }
 
@@ -207,7 +208,9 @@ int SequentialColumnProcessor::crossZ(QPoint v1, QPoint v2) {
 
 bool SequentialColumnProcessor::segmentIsTooLong(const QPoint p1, const QPoint p2) const {
   const QPoint v(p2 - p1);
-  const int sqlen = v.x() * v.x() + v.y() * v.y();
+  const int64_t dx = v.x();
+  const int64_t dy = v.y();
+  const int64_t sqlen = dx * dx + dy * dy;
   return sqlen > m_maxSegmentSqLen;
 }
 

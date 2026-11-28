@@ -455,9 +455,9 @@ QImage DistortionModelBuilder::visualizeTrimmedPolylines(const QImage& backgroun
   QPainter painter(&canvas);
   painter.setRenderHint(QPainter::Antialiasing);
 
-  const int width = background.width();
-  const int height = background.height();
-  const double strokeWidth = std::sqrt(double(width * width + height * height)) / 500;
+  const double width = background.width();
+  const double height = background.height();
+  const double strokeWidth = std::sqrt(width * width + height * height) / 500;
 
   // Extend / trim bounds.
   QLineF bound1(m_bound1);
@@ -499,9 +499,9 @@ QImage DistortionModelBuilder::visualizeModel(const QImage& background,
   QPainter painter(&canvas);
   painter.setRenderHint(QPainter::Antialiasing);
 
-  const int width = background.width();
-  const int height = background.height();
-  const double strokeWidth = std::sqrt(double(width * width + height * height)) / 500;
+  const double width = background.width();
+  const double height = background.height();
+  const double strokeWidth = std::sqrt(width * width + height * height) / 500;
 
   // Extend / trim bounds.
   QLineF bound1(m_bound1);

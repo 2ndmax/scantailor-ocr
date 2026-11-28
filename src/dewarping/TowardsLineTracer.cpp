@@ -18,16 +18,21 @@ TowardsLineTracer::TowardsLineTracer(const imageproc::SEDM* dm,
                                      const Grid<float>* pm,
                                      const QLineF& line,
                                      const QPoint& initialPos)
-    : m_dmData(dm->data()),
-      m_dmStride(dm->stride()),
-      m_pmData(pm->data()),
-      m_pmStride(pm->stride()),
-      m_rect(QPoint(0, 0), dm->size()),
+    : m_dmData(dm ? dm->data() : nullptr),
+      m_dmStride(dm ? dm->stride() : 0),
+      m_pmData(pm ? pm->data() : nullptr),
+      m_pmStride(pm ? pm->stride() : 0),
+      m_rect((dm && pm) ? QRect(QPoint(0, 0), dm->size()).intersected(QRect(0, 0, pm->width(), pm->height()))
+                        : QRect()),
       m_line(line),
       m_normalTowardsLine(m_line.normalVector().p2() - m_line.p1()),
       m_lastOutputPos(initialPos),
       m_numSteps(0),
-      m_finished(false) {
+      m_finished(!m_dmData || !m_pmData || !m_rect.contains(initialPos)) {
+  if (m_finished) {
+    return;
+  }
+
   if (sidesOfLine(m_line, initialPos, line.p1() + m_normalTowardsLine) > 0) {
     // It points the wrong way -> fix that.
     m_normalTowardsLine = -m_normalTowardsLine;

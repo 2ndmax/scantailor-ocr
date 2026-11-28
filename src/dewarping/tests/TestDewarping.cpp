@@ -12,12 +12,14 @@
 #include <DistortionModelBuilder.h>
 #include <Dpi.h>
 #include <GrayImage.h>
+#include <Grid.h>
 #include <GridUtils.h>
 #include <RasterDewarper.h>
 #include <SEDM.h>
 #include <TaskStatus.h>
 #include <TextLineTracer.h>
 #include <TopBottomEdgeTracer.h>
+#include <TowardsLineTracer.h>
 #include <WidthCorrection.h>
 #include <WidthProfile.h>
 #include <XSpline.h>
@@ -1030,6 +1032,45 @@ BOOST_AUTO_TEST_CASE(test_grid_utils_bilinear_and_overlay) {
   bg.fill(128);
   const QImage withBg = visualizeGridOverlay(grid, id, &bg, true);
   BOOST_REQUIRE(withBg.size() == QSize(3, 2));
+}
+
+BOOST_AUTO_TEST_CASE(test_towards_line_tracer_rejects_initial_pos_outside_rect) {
+  const imageproc::SEDM sedm(imageproc::BinaryImage(QSize(32, 32), imageproc::WHITE));
+  Grid<float> pm(32, 32, 0);
+  pm.initInterior(1.0f);
+  const QLineF targetLine(16, 0, 16, 32);
+
+  for (const QPoint& outOfBounds : {QPoint(-1, 10), QPoint(10, -1), QPoint(32, 10), QPoint(10, 32), QPoint(100, 100)}) {
+    TowardsLineTracer tracer(&sedm, &pm, targetLine, outOfBounds);
+    BOOST_CHECK(tracer.trace(5.0f) == nullptr);
+    BOOST_CHECK(tracer.trace(5.0f) == nullptr);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_dewarp_grayscale8_matches_indexed_grayscale) {
+  QImage gray8(64, 48, QImage::Format_Grayscale8);
+  for (int y = 0; y < gray8.height(); ++y) {
+    uint8_t* line = gray8.scanLine(y);
+    for (int x = 0; x < gray8.width(); ++x) {
+      line[x] = static_cast<uint8_t>((x * 7 + y * 13) & 0xff);
+    }
+  }
+  const QImage indexed = imageproc::GrayImage(gray8).toQImage();
+
+  const std::vector<QPointF> top{{0, 0}, {32, 2}, {64, 0}};
+  const std::vector<QPointF> bottom{{0, 48}, {32, 46}, {64, 48}};
+  const CylindricalSurfaceDewarper dewarper(top, bottom, 2.0);
+  const QSize dstSize(64, 48);
+  const QRectF modelDomain(0, 0, 64, 48);
+  const QColor bgColor(Qt::white);
+
+  const QImage outGray8 = RasterDewarper::dewarp(gray8, dstSize, dewarper, modelDomain, bgColor);
+  const QImage outIndexed = RasterDewarper::dewarp(indexed, dstSize, dewarper, modelDomain, bgColor);
+
+  BOOST_REQUIRE(outGray8.size() == dstSize);
+  BOOST_CHECK(outGray8.format() == QImage::Format_Indexed8);
+  BOOST_TEST(outGray8.isGrayscale());
+  BOOST_CHECK(outGray8 == outIndexed);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

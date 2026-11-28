@@ -82,7 +82,8 @@ class TextLineTracer {
   static TracedPage traceTextLines(const imageproc::GrayImage& input,
                                    const Dpi& dpi,
                                    const QRect& contentRect,
-                                   DebugImages* dbg);
+                                   DebugImages* dbg,
+                                   const TaskStatus* status = nullptr);
 
   /** What trace() does with a curved page, for any page: dewarping_tests draws flat pages for it. */
   static void traceAsCurved(const imageproc::GrayImage& input,
@@ -107,7 +108,8 @@ class TextLineTracer {
   static void extractTextLines(std::list<std::vector<QPointF>>& out,
                                const imageproc::GrayImage& image,
                                const std::pair<QLineF, QLineF>& bounds,
-                               DebugImages* dbg);
+                               DebugImages* dbg,
+                               const TaskStatus* status = nullptr);
 
   static imageproc::BinaryImage closeWithObstacles(const imageproc::BinaryImage& image,
                                                    const imageproc::BinaryImage& obstacles,

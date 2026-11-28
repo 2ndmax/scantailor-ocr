@@ -19,13 +19,17 @@
 class Dpi;
 class DebugImages;
 class QImage;
+class TaskStatus;
 
 namespace dewarping {
 class TextLineRefiner {
  public:
   TextLineRefiner(const imageproc::GrayImage& image, const Dpi& dpi, const Vec2f& unitDownVector);
 
-  void refine(std::list<std::vector<QPointF>>& polylines, int iterations, DebugImages* dbg) const;
+  void refine(std::list<std::vector<QPointF>>& polylines,
+              int iterations,
+              DebugImages* dbg,
+              const TaskStatus* status = nullptr) const;
 
  private:
   enum OnConvergence { ON_CONVERGENCE_STOP, ON_CONVERGENCE_GO_FINER };
@@ -65,7 +69,10 @@ class TextLineRefiner {
                                const SnakeLength& snakeLength,
                                const Vec2f& unitDownVec);
 
-  void evolveSnake(Snake& snake, const Grid<float>& gradient, OnConvergence onConvergence) const;
+  void evolveSnake(Snake& snake,
+                   const Grid<float>& gradient,
+                   OnConvergence onConvergence,
+                   const TaskStatus* status = nullptr) const;
 
   QImage visualizeGradient(const Grid<float>& gradient) const;
 

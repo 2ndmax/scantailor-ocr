@@ -630,9 +630,10 @@ std::optional<DistortionModel> TextLineTracer::trace(const GrayImage& input,
                                                      const Dpi& dpi,
                                                      const QRect& contentRect,
                                                      DistortionModelBuilder& output,
-                                                     const TaskStatus& /*status*/,
+                                                     const TaskStatus& status,
                                                      DebugImages* dbg) {
-  TracedPage page = traceTextLines(input, dpi, contentRect, dbg);
+  status.throwIfCancelled();
+  TracedPage page = traceTextLines(input, dpi, contentRect, dbg, &status);
   if (linesAreStraight(page.polylines)) {
     return trapezoidOf(page, TrapezoidLines::BentLikeTheText, dbg);
   }
@@ -721,7 +722,8 @@ DistortionModel TextLineTracer::trapezoidOf(TracedPage& page, const TrapezoidLin
 TextLineTracer::TracedPage TextLineTracer::traceTextLines(const GrayImage& input,
                                                           const Dpi& dpi,
                                                           const QRect& contentRect,
-                                                          DebugImages* dbg) {
+                                                          DebugImages* dbg,
+                                                          const TaskStatus* status) {
   if (input.isNull() || (input.width() < 2) || (input.height() < 2)) {
     return {};
   }
@@ -732,6 +734,9 @@ TextLineTracer::TracedPage TextLineTracer::traceTextLines(const GrayImage& input
   }
   if (dbg) {
     dbg->add(downscaled, "downscaled");
+  }
+  if (status) {
+    status->throwIfCancelled();
   }
 
   const int downscaledWidth = downscaled.width();
@@ -758,9 +763,12 @@ TextLineTracer::TracedPage TextLineTracer::traceTextLines(const GrayImage& input
   if (dbg) {
     dbg->add(visualizeVerticalBounds(binarized.toQImage(), vertBounds), "vertBounds");
   }
+  if (status) {
+    status->throwIfCancelled();
+  }
 
   std::list<std::vector<QPointF>> polylines;
-  extractTextLines(polylines, stretchGrayRange(downscaled), vertBounds, dbg);
+  extractTextLines(polylines, stretchGrayRange(downscaled), vertBounds, dbg, status);
   if (dbg) {
     dbg->add(visualizePolylines(downscaled, polylines), "traced");
   }
@@ -785,7 +793,7 @@ TextLineTracer::TracedPage TextLineTracer::traceTextLines(const GrayImage& input
     unitDownVector = -unitDownVector;
   }
   TextLineRefiner refiner(downscaled, Dpi(200, 200), unitDownVector);
-  refiner.refine(polylines, /*iterations=*/100, dbg);
+  refiner.refine(polylines, /*iterations=*/100, dbg, status);
 
   filterEdgyCurves(polylines);
   if (dbg) {
@@ -953,7 +961,8 @@ void TextLineTracer::filterEdgyCurves(std::list<std::vector<QPointF>>& polylines
 void TextLineTracer::extractTextLines(std::list<std::vector<QPointF>>& out,
                                       const imageproc::GrayImage& image,
                                       const std::pair<QLineF, QLineF>& bounds,
-                                      DebugImages* dbg) {
+                                      DebugImages* dbg,
+                                      const TaskStatus* status) {
   const int width = image.width();
   const int height = image.height();
   const QSize size(image.size());
@@ -1065,6 +1074,9 @@ void TextLineTracer::extractTextLines(std::list<std::vector<QPointF>>& out,
 
   postBinarization.release();  // Save memory.
   for (const QPoint seed : seeds) {
+    if (status) {
+      status->throwIfCancelled();
+    }
     std::vector<QPointF> polyline;
 
     {

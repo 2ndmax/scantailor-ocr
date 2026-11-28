@@ -386,6 +386,8 @@ QImage RasterDewarper::dewarp(const QImage& src,
       return dewarpRgb(src, dstSize, distortionModel, modelDomain, bgColor);
     case QImage::Format_ARGB32:
       return dewarpArgb(src, dstSize, distortionModel, modelDomain, bgColor);
+    case QImage::Format_Grayscale8:
+      return dewarpGrayscale(src, dstSize, distortionModel, modelDomain, bgColor);
     case QImage::Format_Indexed8:
       if (src.isGrayscale()) {
         return dewarpGrayscale(src, dstSize, distortionModel, modelDomain, bgColor);
